@@ -323,12 +323,22 @@ niveauxLibelle: [
 // `sources` : clés de `sources` ci-dessus, obligatoires dès qu'il y a un fait.
 reactions: {
   accueil: { niv:[
-    { id:"accueil-0", t:`Salut ! Moi c'est <b>Lumen</b>, je suis un photon. Je tourne autour de ce truc depuis un moment. Clique sur moi si tu as des questions.` },
-    { id:"accueil-1", t:`Salut, <b>Lumen</b>, photon en orbite. Pose-moi ce que tu veux, j'ai le temps : je boucle un tour toutes les onze minutes et demie.`,
-      sources:["gravity2021","chandrasekhar1983"] },
-    { id:"accueil-2", t:`<b>Lumen</b>, photon piégé sur la sphère à 1,5 r<sub>s</sub>. Orbite instable, donc je ne suis pas là pour longtemps. Clique si tu veux parler métrique.`,
-      dire:`Lumen, photon piégé sur la sphère à un virgule cinq rayon de Schwarzschild. Orbite instable, donc je ne suis pas là pour longtemps. Clique si tu veux parler métrique.`,
-      sources:["chandrasekhar1983"] },
+    { id:"accueil-0", t:`Bonjour. Je suis <b>Lumen</b>, le système de bord de ce vaisseau.
+       <br><br>Autant te le dire tout de suite : je ne suis pas très malin. Je ne sais dire que
+       ce qu'on m'a appris, et je ne comprends pas ce que tu écris. Mais ce qu'on m'a appris,
+       je le dis bien. Clique sur moi quand tu veux, j'ai des réponses prêtes.`,
+      dire:`Bonjour. Je suis Lumen, le système de bord de ce vaisseau. Autant te le dire tout de suite : je ne suis pas très malin. Je ne sais dire que ce qu'on m'a appris, et je ne comprends pas ce que tu écris. Mais ce qu'on m'a appris, je le dis bien. Clique sur moi quand tu veux, j'ai des réponses prêtes.` },
+
+    { id:"accueil-1", t:`<b>Lumen</b>, assistance de bord. Soyons clairs : je ne suis pas une
+       intelligence conversationnelle, plutôt un <i>guide sonore un peu perfectionné</i> —
+       des réponses écrites à l'avance, choisies selon ce que tu fais.
+       <br><br>En échange, tout ce que je dis est vérifié et sourcé. Tu peux me demander
+       d'où sort chaque chiffre.` },
+
+    { id:"accueil-2", t:`<b>Lumen</b>, assistance de bord. Ni modèle de langage ni dialogue :
+       un corpus fini de répliques, indexées sur l'état de la simulation et le niveau choisi.
+       <br><br>Chaque affirmation porte ses références, consultables d'un clic. C'est moins
+       impressionnant qu'une conversation, mais c'est <b>vérifiable</b>.` },
   ]},
   pluie: [
     { id:"pluie-0", t:`Quatre-vingts sondes d'un coup. Regarde les couleurs : <i>bleu</i> elles tiennent, <i>rose</i> elles tombent, <i>vert</i> elles s'en vont. Tout se joue sur la vitesse de départ.` },
@@ -342,7 +352,7 @@ reactions: {
     { id:"avalee-2", t:`Voilà pourquoi on disait autrefois « étoile gelée ». De loin, rien ne franchit jamais l'horizon — l'image se fige sur le seuil et s'efface.`,
       sources:["misner1973"] },
   ],
-  photon: { id:"photon", t:`Ah, un collègue ! Il est sur la crête : trop lent il tombe, trop vite il part. Personne ne reste. <i>Passe en temps réel</i> pour voir à quel point c'est lent.`,
+  photon: { id:"photon", t:`Photon lâché sur la crête : trop lent il tombe, trop vite il part. Personne ne reste. <i>Passe en temps réel</i> pour voir à quel point c'est lent.`,
     sources:["chandrasekhar1983"] },
   photonAvale: { id:"photon-avale", t:`Bon. Il a glissé du mauvais côté de la crête.` },
   photonFuite: { id:"photon-fuite", t:`Il s'en sort. Maintenant il file tout droit pendant 27 000 ans avant que quelqu'un le voie.`,
