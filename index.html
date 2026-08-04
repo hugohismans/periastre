@@ -3623,6 +3623,10 @@ function lanceQuete(){
      on découvre le trou noir en se retournant, au lieu de l'avoir sous le nez
      avant d'avoir compris où l'on est. */
   salon.lacet = Math.PI * 0.62; salon.tangage = -0.04;
+  /* Le lever de rideau : quelques secondes de grave au réveil, puis plus rien.
+     Uniquement si le son a été accepté — et il ne recouvre pas l'ambiance de
+     qui l'a explicitement allumée. */
+  if(voixActive) MUSIQUE.ouverture(38);
   joueur.p = [0.9, 0, 2.4]; joueur.v = [0,0,0];
   missionsActives = false;          // une seule consigne à l'écran à la fois
   majMission();

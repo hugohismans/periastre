@@ -26,6 +26,7 @@
 let ctx = null, maitre = null, filtre = null;
 let voix = [], nappe = null, souffle = null;
 let allume = false, volume = 0.16, tension = 0, cible = 0;
+let minuterieOuverture = null;
 
 // La mineur : fondamentale, quinte, octave, puis la tierce mineure très haut.
 // Les décalages en centièmes de ton créent les battements.
@@ -108,6 +109,7 @@ function cree(){
    attend donc d'être appelé depuis un clic. */
 function demarre(){
   if(!ctx && !cree()) return false;
+  clearTimeout(minuterieOuverture);   // l'ambiance prend le pas sur le lever de rideau
   if(ctx.state === "suspended") ctx.resume();
   allume = true;
   maitre.gain.cancelScheduledValues(ctx.currentTime);
@@ -183,7 +185,37 @@ function frappe(force){
   filtre.frequency.setTargetAtTime(210 + tension * 1250, n + 0.4, 1.4);
 }
 
-global.MUSIQUE = { demarre, arrete, regle, regleVolume, avance, frappe,
+/* Un lever de rideau, pas un tapis.
+
+   Le bourdon grave fatigue quand il dure — c'est ce qu'Hugo a constaté, et
+   c'est pourquoi l'ambiance démarre coupée. Mais il fait très bien une chose :
+   installer un lieu. On le monte donc au réveil à bord, on le tient quelques
+   secondes, puis on le retire, et le vaisseau reste silencieux. Ce qui dure
+   lasse ; ce qui passe marque.
+
+   Il ne se déclenche pas si l'ambiance tourne déjà — on ne se met pas
+   par-dessus un choix explicite. */
+function ouverture(secondes){
+  if(allume) return;
+  if(!ctx && !cree()) return;
+  if(ctx.state === "suspended") ctx.resume();
+
+  const s = secondes || 40, n = ctx.currentTime;
+  allume = true;
+  maitre.gain.cancelScheduledValues(n);
+  maitre.gain.setValueAtTime(0.0001, n);
+  maitre.gain.exponentialRampToValueAtTime(0.085, n + 7);          // la montée
+  maitre.gain.setValueAtTime(0.085, n + s*0.42);
+  maitre.gain.exponentialRampToValueAtTime(0.0004, n + s);         // le retrait
+
+  clearTimeout(minuterieOuverture);
+  minuterieOuverture = setTimeout(() => {
+    allume = false;
+    maitre.gain.setValueAtTime(0, ctx.currentTime);
+  }, s*1000 + 300);
+}
+
+global.MUSIQUE = { demarre, arrete, regle, regleVolume, avance, frappe, ouverture,
                    get active(){ return allume; } };
 
 })(window);
