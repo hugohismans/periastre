@@ -276,6 +276,16 @@
     </div>
   </div>
   <div class="bloc">
+    <div class="rangee">
+      <button id="b-sonde">Monter dans une sonde</button>
+    </div>
+  </div>
+  <div class="bloc">
+    <div class="rangee">
+      <button id="b-reel">Lumière réelle</button>
+    </div>
+  </div>
+  <div class="bloc">
     <div class="etiq">Vitesse du temps</div>
     <div class="grille" id="vitesses"></div>
   </div>
@@ -357,6 +367,8 @@ uniform mat3  uBasis;        // colonnes : droite, haut, avant
 uniform float uFocal;
 uniform vec3  uPhotons[4];
 uniform int   uNbPhotons;
+uniform vec3  uVitesse;      // vitesse de la caméra mesurée par l'observateur statique local
+uniform float uReel;         // 0 = image travaillée, 1 = ce que verrait un œil humain
 
 const float R_IN  = 3.0;    // l'ISCO : sous cette orbite le disque ne peut pas tenir
 const float R_OUT = 11.0;
@@ -449,9 +461,26 @@ vec4 disque(vec3 p, vec3 rd){
   return vec4(col*lum*dens, clamp(dens*1.5, 0.0, 1.0));
 }
 
+// Aberration relativiste. Un observateur qui file à β voit le ciel se tasser
+// devant lui : ce qu'il aperçoit à 90° vient en réalité de derrière.
+//   cos θ = (cos θ' − β) / (1 − β cos θ')
+// C'est ce qui rend la vue depuis une sonde en orbite serrée si étrange.
+vec3 aberre(vec3 n, vec3 v){
+  float b = length(v);
+  if(b < 1e-4) return n;
+  b = min(b, 0.999);
+  vec3 bh = v/b;
+  float g = inversesqrt(1.0 - b*b);
+  float mu = dot(n, bh);
+  float den = 1.0 - b*mu;
+  vec3 perp = n - mu*bh;
+  return normalize(bh*((mu - b)/den) + perp/(g*den));
+}
+
 void main(){
   vec2 uv = (gl_FragCoord.xy*2.0 - uRes) / uRes.y;
   vec3 vue = normalize(uBasis[0]*uv.x + uBasis[1]*uv.y + uBasis[2]*uFocal);
+  vue = aberre(vue, uVitesse);
   vec3 pos = uCam;
 
   // Conditions initiales exactes pour un observateur statique.
@@ -509,8 +538,11 @@ void main(){
       float rr = length(cp.xz);
       if(rr > R_IN && rr < R_OUT){
         vec4 d = disque(cp, normalize(dir));
-        col   += reste * d.rgb;
-        reste *= 1.0 - d.a*0.86;
+        // En lumière visible, le flux d'accrétion de Sgr A* est presque muet :
+        // il rayonne dans le submillimétrique, et il est sous-lumineux d'un
+        // facteur ~10⁹ par rapport à sa limite d'Eddington.
+        col   += reste * d.rgb * mix(1.0, 0.006, uReel);
+        reste *= 1.0 - d.a*0.86*(1.0 - uReel*0.97);
       }
     }
 
@@ -528,12 +560,19 @@ void main(){
   col += vec3(1.0, 0.98, 0.92) * lueur * 7.0;   // le photon, lensé comme le reste
 
   // exposition + tonemap ACES approché
-  col *= 1.15;
+  col *= mix(1.15, 2.1, uReel);      // l'œil s'adapte au noir : on ouvre le diaphragme
   col = (col*(2.51*col + 0.03)) / (col*(2.43*col + 0.59) + 0.14);
   col = pow(clamp(col, 0.0, 1.0), vec3(1.0/2.2));
 
   // tramage : sans ça le dégradé du fond se casse en anneaux sur 8 bits
   col += (hash12(gl_FragCoord.xy + fract(uTemps)*137.0) - 0.5) / 220.0;
+
+  // Vision scotopique : à ces niveaux de lumière seuls les bâtonnets répondent,
+  // et ils ne distinguent pas les couleurs. Tout vire au gris légèrement bleuté.
+  if(uReel > 0.001){
+    float L = dot(col, vec3(0.2126, 0.7152, 0.0722));
+    col = mix(col, vec3(L*0.80, L*0.91, L*1.18), uReel);
+  }
 
   col *= 1.0 - 0.28*pow(length(uv*vec2(0.55,0.75)), 2.4);   // vignettage
 
@@ -591,7 +630,8 @@ gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
 
 const U = n => gl.getUniformLocation(prog, n);
 const uRes = U("uRes"), uTemps = U("uTemps"), uCam = U("uCam"), uBasis = U("uBasis"),
-      uFocal = U("uFocal"), uPhotons = U("uPhotons"), uNbPhotons = U("uNbPhotons");
+      uFocal = U("uFocal"), uPhotons = U("uPhotons"), uNbPhotons = U("uNbPhotons"),
+      uVitesse = U("uVitesse"), uReel = U("uReel");
 
 // ============ vecteurs ============
 const cross = (u,v) => [u[1]*v[2]-u[2]*v[1], u[2]*v[0]-u[0]*v[2], u[0]*v[1]-u[1]*v[0]];
@@ -604,12 +644,84 @@ const cam = { dist:21, elev:0.17, azim:0.6 };
 const FOCAL = 1.55;
 let basis = { d:[1,0,0], h:[0,1,0], a:[0,0,1] }, camPos = [0,0,0];
 
+// Vue embarquée : caméra dans une sonde en orbite.
+let sondeSuivie = null;
+const regard = { lacet: 0, tangage: 0 };
+let vitesseLocale = [0, 0, 0];
+
 function majCamera(){
+  if(sondeSuivie !== null && sondes[sondeSuivie]){ majCameraSonde(); return; }
+  sondeSuivie = null;
+  vitesseLocale = [0, 0, 0];
   const ce = Math.cos(cam.elev), se = Math.sin(cam.elev);
   camPos = [ cam.dist*ce*Math.cos(cam.azim), cam.dist*se, cam.dist*ce*Math.sin(cam.azim) ];
   const a = norm([-camPos[0], -camPos[1], -camPos[2]]);
   const d = norm(cross(a, [0,1,0]));
   basis = { d, h: cross(d, a), a };
+}
+
+function majCameraSonde(){
+  const s = sondes[sondeSuivie];
+  camPos = [...s.p];
+  const r = len(camPos);
+  const rh = [camPos[0]/r, camPos[1]/r, camPos[2]/r];
+
+  // Vitesse telle que la mesure l'observateur statique local : son temps est
+  // ralenti de √(1−r_s/r) et sa règle radiale étirée d'autant. C'est cette
+  // vitesse-là qui gouverne l'aberration, pas la vitesse en coordonnées.
+  const f  = Math.max(1 - R_HORIZON/r, 1e-3);
+  const vr = dot(s.v, rh);
+  const vt = [s.v[0]-vr*rh[0], s.v[1]-vr*rh[1], s.v[2]-vr*rh[2]];
+  const nt = len(vt);
+  const th = nt > 1e-9 ? [vt[0]/nt, vt[1]/nt, vt[2]/nt] : [0,0,0];
+  const vrl = vr/f, vtl = nt/Math.sqrt(f);
+  let vl = [ vrl*rh[0]+vtl*th[0], vrl*rh[1]+vtl*th[1], vrl*rh[2]+vtl*th[2] ];
+  const n = len(vl);
+  if(n > 0.97) vl = [vl[0]*0.97/n, vl[1]*0.97/n, vl[2]*0.97/n];
+  vitesseLocale = vl;
+
+  // Repère de base : on regarde le trou noir, « haut » = normale de l'orbite.
+  const a0 = [-rh[0], -rh[1], -rh[2]];
+  let no = cross(s.p, s.v);
+  if(len(no) < 1e-9) no = [0,1,0];
+  no = norm(no);
+  if(no[1] < 0) no = [-no[0], -no[1], -no[2]];       // garder le nord en haut
+  let d0 = cross(a0, no);
+  if(len(d0) < 1e-6) d0 = cross(a0, [1,0,0]);
+  d0 = norm(d0);
+  const h0 = cross(d0, a0);
+
+  const cl = Math.cos(regard.lacet), sl = Math.sin(regard.lacet);
+  const ct = Math.cos(regard.tangage), st = Math.sin(regard.tangage);
+  const a = norm([
+    ct*(cl*a0[0] + sl*d0[0]) + st*h0[0],
+    ct*(cl*a0[1] + sl*d0[1]) + st*h0[1],
+    ct*(cl*a0[2] + sl*d0[2]) + st*h0[2],
+  ]);
+  const d = norm([ cl*d0[0]-sl*a0[0], cl*d0[1]-sl*a0[1], cl*d0[2]-sl*a0[2] ]);
+  basis = { d, h: cross(d, a), a };
+}
+
+function embarque(i){
+  if(i === null || !sondes[i]){ sondeSuivie = null; }
+  else { sondeSuivie = i; regard.lacet = 0; regard.tangage = 0; }
+  $("b-sonde").classList.toggle("actif", sondeSuivie !== null);
+  $("b-sonde").textContent = sondeSuivie !== null ? "Redescendre" : "Monter dans une sonde";
+  majCamera();
+  if(sondeSuivie !== null) reagit("embarque");
+}
+
+// La sonde la plus proche d'une orbite tenable, pour que la vue dure.
+function meilleureSonde(){
+  let best = -1, score = Infinity;
+  for(let i = 0; i < sondes.length; i++){
+    const s = sondes[i];
+    if(s.sort !== "orbite" || s.gel) continue;
+    const r = len(s.p);
+    const e = Math.abs(r - 6) + (r < 3.4 ? 40 : 0);
+    if(e < score){ score = e; best = i; }
+  }
+  return best >= 0 ? best : null;
 }
 
 // monde -> pixel. Projection droite : la lentille n'est pas prise en compte,
@@ -696,7 +808,11 @@ function rayonDepuis(p, vue){
   return { h2, d:[ vr*rh[0] + h/r0*th[0], vr*rh[1] + h/r0*th[1], vr*rh[2] + h/r0*th[2] ] };
 }
 
-const vCirc = r => Math.sqrt(M/r);
+// Vitesse d'une orbite circulaire. Ce n'est PAS √(M/r) : le terme relativiste
+// la fait diverger en r = 3M, qui est justement la sphère des photons.
+// L'écart atteint 15 % à 6 rayons — assez pour qu'une sonde « circulaire »
+// dérive visiblement.
+const vCirc = r => Math.sqrt(M/Math.max(r - 3*M, 1e-3));
 
 // ============ sondes ============
 const TEINTES = {
@@ -865,6 +981,26 @@ $("b-traj").onclick   = () => {
   if(montreTraj) reagit("traj");
 };
 
+$("b-sonde").onclick = () => {
+  if(sondeSuivie !== null){ embarque(null); return; }
+  let i = meilleureSonde();
+  if(i === null){                       // aucune orbite disponible : on en pose une
+    const r = 6, a = cam.azim + 1.2;
+    const p = [Math.cos(a)*r, 0, Math.sin(a)*r];
+    const t = norm(cross([0,1,0], p)), vc = vCirc(r);
+    lance(p, [t[0]*vc, 0, t[2]*vc]);
+    i = sondes.length - 1;
+  }
+  embarque(i);
+};
+
+let reel = 0, reelCible = 0;
+$("b-reel").onclick = () => {
+  reelCible = reelCible > 0.5 ? 0 : 1;
+  $("b-reel").classList.toggle("actif", reelCible > 0.5);
+  if(reelCible > 0.5) reagit("reel");
+};
+
 const boitierV = $("vitesses");
 VITESSES.forEach((v, i) => {
   const b = document.createElement("button");
@@ -902,6 +1038,10 @@ cv.addEventListener("contextmenu", e => e.preventDefault());
 cv.addEventListener("pointerdown", e => {
   cv.setPointerCapture(e.pointerId);
   const [px, py] = pointeur(e);
+  if(sondeSuivie !== null){                 // à bord : tout glissement regarde autour
+    pivot = { x:px, y:py, azim:regard.lacet, elev:regard.tangage };
+    return;
+  }
   if(e.button === 2 || e.shiftKey){
     pivot = { x:px, y:py, azim:cam.azim, elev:cam.elev };
     return;
@@ -916,8 +1056,13 @@ cv.addEventListener("pointerdown", e => {
 cv.addEventListener("pointermove", e => {
   const [px, py] = pointeur(e);
   if(pivot){
-    cam.azim = pivot.azim - (px - pivot.x)*0.006;
-    cam.elev = Math.max(-1.35, Math.min(1.35, pivot.elev + (py - pivot.y)*0.005));
+    if(sondeSuivie !== null){                     // à bord, la souris tourne la tête
+      regard.lacet   = pivot.azim - (px - pivot.x)*0.004;
+      regard.tangage = Math.max(-1.4, Math.min(1.4, pivot.elev - (py - pivot.y)*0.004));
+    } else {
+      cam.azim = pivot.azim - (px - pivot.x)*0.006;
+      cam.elev = Math.max(-1.35, Math.min(1.35, pivot.elev + (py - pivot.y)*0.005));
+    }
   } else if(visee){ visee.x = px; visee.y = py; }
 });
 
@@ -1624,7 +1769,9 @@ function dessine(){
   for(const f of photons) trace(f.trace, [255,250,235], 0.30, 1.1);
 
   // têtes
-  for(const s of sondes){
+  for(let i = 0; i < sondes.length; i++){
+    const s = sondes[i];
+    if(i === sondeSuivie) continue;          // on est dedans
     if(occulte(s.p)) continue;
     const q = projette(s.p);
     if(!q) continue;
@@ -1664,6 +1811,104 @@ function dessine(){
   }
 
   ctx.globalCompositeOperation = "source-over";
+  if(sondeSuivie !== null) dessineCockpit();
+}
+
+// ============ cockpit ============
+// Tout ce qui est affiché ici est calculé, pas décoratif : la vitesse locale,
+// le facteur de dilatation du temps et la marée sortent de la position réelle
+// de la sonde.
+function dessineCockpit(){
+  const s = sondes[sondeSuivie];
+  if(!s) return;
+  const W = ui.clientWidth, H = ui.clientHeight;
+  const r = len(s.p);
+  const v = len(vitesseLocale);
+  // orbite circulaire en Schwarzschild : dτ/dt = √(1 − 3M/r)
+  const tau = Math.sqrt(Math.max(0, 1 - 1.5/r));
+  const maree = 1.0/(r*r*r);                  // ∝ M/r³, en unités du site
+
+  const m  = Math.min(W, H);
+  const bx = m*0.055, by = m*0.045, bas = m*0.115;
+
+  // ---- hublot : on assombrit hors du cadre ----
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(0, 0, W, H);
+  const rc = m*0.05;
+  ctx.moveTo(bx + rc, by);
+  ctx.arcTo(W - bx, by,        W - bx, H - bas,  rc);
+  ctx.arcTo(W - bx, H - bas,   bx,     H - bas,  rc);
+  ctx.arcTo(bx,     H - bas,   bx,     by,       rc);
+  ctx.arcTo(bx,     by,        W - bx, by,       rc);
+  ctx.closePath();
+  ctx.fillStyle = "rgba(6,5,12,0.97)";
+  ctx.fill("evenodd");
+  ctx.restore();
+
+  // ---- montants ----
+  ctx.strokeStyle = "rgba(150,150,175,0.16)";
+  ctx.lineWidth = m*0.011;
+  for(const c of [-1, 1]){
+    ctx.beginPath();
+    ctx.moveTo(W/2 + c*W*0.30, by);
+    ctx.lineTo(W/2 + c*W*0.40, H - bas);
+    ctx.stroke();
+  }
+  ctx.strokeStyle = "rgba(190,190,215,0.22)";
+  ctx.lineWidth = 1.5;
+  ctx.strokeRect(bx, by, W - 2*bx, H - bas - by);
+
+  // ---- console ----
+  const cy = H - bas/2;
+  ctx.fillStyle = "rgba(9,8,18,0.94)";
+  ctx.fillRect(0, H - bas, W, bas);
+  ctx.strokeStyle = "rgba(127,216,255,0.18)";
+  ctx.beginPath(); ctx.moveTo(0, H - bas); ctx.lineTo(W, H - bas); ctx.stroke();
+
+  const cadrans = [
+    ["vitesse locale",   v.toFixed(3).replace(".", ",") + " c",              v],
+    ["rayon d'orbite",   r.toFixed(2).replace(".", ",") + " rₛ",        Math.min(1, 3/r)],
+    ["temps qui passe",  (tau*100).toFixed(1).replace(".", ",") + " %",      1 - tau],
+    ["marée",            maree < 0.01 ? "négligeable" : maree.toFixed(3).replace(".", ","), Math.min(1, maree*20)],
+  ];
+  const larg = Math.min(W/cadrans.length, m*0.34);
+  const gauche = W/2 - larg*cadrans.length/2;
+  cadrans.forEach(([nom, val, jauge], i) => {
+    const x = gauche + larg*i + larg/2;
+    ctx.textAlign = "center";
+    ctx.fillStyle = "#7d7894";
+    ctx.font = `${(m*0.0125).toFixed(1)}px -apple-system, Segoe UI, sans-serif`;
+    ctx.fillText(nom.toUpperCase(), x, cy - m*0.022);
+    ctx.fillStyle = "#dcd8ea";
+    ctx.font = `500 ${(m*0.026).toFixed(1)}px -apple-system, Segoe UI, sans-serif`;
+    ctx.fillText(val, x, cy + m*0.008);
+    // jauge
+    const jw = larg*0.52;
+    ctx.fillStyle = "rgba(255,255,255,0.10)";
+    ctx.fillRect(x - jw/2, cy + m*0.022, jw, 2);
+    ctx.fillStyle = jauge > 0.72 ? "#ff5d7a" : "#7fd8ff";
+    ctx.fillRect(x - jw/2, cy + m*0.022, jw*Math.max(0.02, Math.min(1, jauge)), 2);
+  });
+  ctx.textAlign = "left";
+
+  // ---- l'occupant, vu de dos ----
+  const px = W - bx - m*0.10, py = H - bas - m*0.005;
+  const t = m*0.052;
+  ctx.fillStyle = "rgba(18,16,32,0.96)";
+  ctx.beginPath();                                   // épaules
+  ctx.moveTo(px - t, py);
+  ctx.quadraticCurveTo(px - t*0.92, py - t*0.62, px, py - t*0.66);
+  ctx.quadraticCurveTo(px + t*0.92, py - t*0.62, px + t, py);
+  ctx.closePath(); ctx.fill();
+  ctx.beginPath();                                   // casque
+  ctx.arc(px, py - t*0.86, t*0.46, 0, 6.2832);
+  ctx.fill();
+  ctx.strokeStyle = "rgba(140,200,255,0.30)";        // reflet sur la visière
+  ctx.lineWidth = 1.6;
+  ctx.beginPath();
+  ctx.arc(px, py - t*0.86, t*0.46, Math.PI*1.08, Math.PI*1.52);
+  ctx.stroke();
 }
 
 // ============ boucle ============
@@ -1695,8 +1940,9 @@ function boucle(now){
   }
 
   avance(dt);
-  cam.azim += dt*0.012;          // dérive lente, pour que la lentille vive
+  if(sondeSuivie === null) cam.azim += dt*0.012;   // dérive lente, pour que la lentille vive
   majCamera();
+  reel += (reelCible - reel) * Math.min(1, dt*3);
 
   for(let i = 0; i < photons.length && i < 4; i++){
     tampon[i*3] = photons[i].p[0]; tampon[i*3+1] = photons[i].p[1]; tampon[i*3+2] = photons[i].p[2];
@@ -1709,6 +1955,8 @@ function boucle(now){
   gl.uniform1f(uFocal, FOCAL);
   gl.uniform3fv(uPhotons, tampon);
   gl.uniform1i(uNbPhotons, Math.min(photons.length, 4));
+  gl.uniform3fv(uVitesse, vitesseLocale);
+  gl.uniform1f(uReel, reel);
   gl.drawArrays(gl.TRIANGLES, 0, 3);
 
   dessine();
