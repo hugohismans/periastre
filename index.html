@@ -602,6 +602,17 @@ body.tactile.au-salon #manette{ display:block; }
     pointer-events:none;
   }
 }
+/* Dans le salon, on n'a pas de barre : on a des objets.
+
+   C'est le principe fondateur du lieu, et il avait dérivé — j'ai continué
+   d'empiler des boutons à côté d'un vaisseau censé les remplacer. À bord, on
+   règle le temps au pupitre et l'on passe au télescope pour tout le reste. Le
+   bouton « Menu » reste, lui : c'est la sortie, et une sortie ne se cherche
+   pas.
+
+   Qui préfère les boutons les retrouve dans les réglages. C'est une option,
+   pas le défaut : l'immersion se perd dès qu'on offre le raccourci d'emblée. */
+body.au-salon:not(.mode-boutons) #dock { opacity:0; pointer-events:none; }
 </style>
 </head>
 <body>
@@ -722,6 +733,10 @@ body.tactile.au-salon #manette{ display:block; }
   <div class="bloc">
     <div class="etiq">Musique et ambiance</div>
     <div class="grille" id="volume-musique"></div>
+  </div>
+  <div class="bloc">
+    <div class="etiq">Dans le vaisseau</div>
+    <div class="grille" id="mode-acces"></div>
   </div>
   <div class="bloc">
     <div class="etiq">Anecdotes spontanées</div>
@@ -2921,6 +2936,7 @@ const QUESTIONS = CONTENU.questions;
 const elBulle = $("bulle"), elBulleTxt = $("bulle-texte");
 let voixActive = false, iVoix = 0, audio = null;
 let volumeVoix = 0.28;
+let modeBoutons = false;    // à bord, on interagit avec le lieu, pas avec une barre
 let volumeMusique = 0.09;   // bas par défaut : mieux vaut qu'on monte le son que le subir   // volontairement trop bas : mieux vaut qu'on monte le son que subir
 let tMasque = 0, tDernier = performance.now(), questionsOuvertes = false;
 
@@ -3098,6 +3114,25 @@ const boitierMus = $("volume-musique");
 });
 const iMus = [0, 0.09, 0.18, 0.30].indexOf(volumeMusique);
 boitierMus.children[iMus >= 0 ? iMus : 1].classList.add("actif");
+
+/* Le choix entre le lieu et le raccourci. Par défaut on interagit avec le
+   vaisseau ; qui trouve ça pénible retrouve la barre. Le sens de la valeur
+   par défaut n'est pas neutre : proposer le raccourci d'emblée revient à dire
+   que le lieu est un obstacle. */
+const boitierAcces = $("mode-acces");
+[["les objets", false], ["la barre", true]].forEach(([nom, v], i) => {
+  const b = document.createElement("button");
+  b.textContent = nom;
+  b.onclick = () => {
+    modeBoutons = v;
+    document.body.classList.toggle("mode-boutons", v);
+    [...boitierAcces.children].forEach((c, j) => c.classList.toggle("actif", j === i));
+    sauve();
+  };
+  boitierAcces.appendChild(b);
+});
+boitierAcces.children[modeBoutons ? 1 : 0].classList.add("actif");
+document.body.classList.toggle("mode-boutons", modeBoutons);
 
 const boitierA = $("anecdotes");
 [["30 s", 30000], ["1 min", 60000], ["3 min", 180000], ["jamais", 0]].forEach(([nom, ms], i) => {
@@ -3327,7 +3362,7 @@ function sauve(){
   try {
     localStorage.setItem(CLE, JSON.stringify({
       niveau: iNiveau, acquis: [...acquis], voix: voixActive,
-      anecdotes: intervalleAnecdote, taille: zoomSonde, volume: volumeVoix, spin, musique: volumeMusique, deja: true,
+      anecdotes: intervalleAnecdote, taille: zoomSonde, volume: volumeVoix, spin, musique: volumeMusique, boutons: modeBoutons, deja: true,
     }));
   } catch(e){ /* navigation privée : on continue sans mémoire */ }
 }
@@ -3343,6 +3378,7 @@ function charge(){
     if(typeof d.volume === "number") volumeVoix = d.volume;
     if(typeof d.spin === "number") spin = d.spin;
     if(typeof d.musique === "number") volumeMusique = d.musique;
+    if(typeof d.boutons === "boolean") modeBoutons = d.boutons;
     return d;
   } catch(e){ return null; }
 }
