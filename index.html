@@ -2229,7 +2229,9 @@ function projette(p){
   const q = [p[0]-camPos[0], p[1]-camPos[1], p[2]-camPos[2]];
   const z = dot(q, basis.a);
   if(z <= 0.05) return null;
-  const H = cv.clientHeight, W = cv.clientWidth;
+  // La MÊME mesure que celle qui a dimensionné les deux toiles, sinon le
+  // calque et le rendu dessinent deux images différentes.
+  const H = vueH || cv.clientHeight, W = vueW || cv.clientWidth;
   return [ (dot(q, basis.d)/z*FOCAL*H + W)/2, H - (dot(q, basis.h)/z*FOCAL*H + H)/2 ];
 }
 
@@ -4691,14 +4693,45 @@ function dessineCockpit(){
 // ============ boucle ============
 let echelle = 1.0, tPrec = performance.now(), images = 0, cumul = 0;
 
+/* Une seule mesure pour les deux toiles.
+
+   Le rendu se fait en WebGL, les sondes et les repères sur un calque à deux
+   dimensions posé dessus. Ils doivent donc s'accorder au pixel près sur la
+   taille de l'image — et ils ne s'accordaient plus.
+
+   `projette` lisait la taille de MISE EN PAGE de la toile, tandis que le
+   calque avait été dimensionné depuis `innerHeight` au dernier
+   redimensionnement. Sur iPhone, la barre d'adresse de Safari se rétracte au
+   défilement : la hauteur change sans qu'un `resize` classique suive
+   forcément, et les deux se mettent à parler d'images différentes. D'où des
+   sondes en orbite autour d'un centre décalé.
+
+   On retient donc la mesure faite, et tout le monde s'y réfère. Et l'on écoute
+   `visualViewport`, qui est le seul à signaler ce mouvement-là. */
+let vueW = 0, vueH = 0;
+
 function redimensionne(){
-  const W = innerWidth, H = innerHeight, dpr = Math.min(devicePixelRatio || 1, 2);
+  const vv = window.visualViewport;
+  const W = Math.round(vv ? vv.width : innerWidth);
+  const H = Math.round(vv ? vv.height : innerHeight);
+  if(W === vueW && H === vueH && cv.width) return;   // rien n'a bougé
+  vueW = W; vueH = H;
+  const dpr = Math.min(devicePixelRatio || 1, 2);
   cv.width  = Math.round(W*dpr*echelle);  cv.height = Math.round(H*dpr*echelle);
   ui.width  = Math.round(W*dpr);          ui.height = Math.round(H*dpr);
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   gl.viewport(0, 0, cv.width, cv.height);
 }
+
+// `echelle` change sans que la fenêtre bouge : la garde ci-dessus l'ignorerait.
+function reechelonne(){ vueW = 0; redimensionne(); }
+
 addEventListener("resize", redimensionne);
+addEventListener("orientationchange", redimensionne);
+if(window.visualViewport){
+  visualViewport.addEventListener("resize", redimensionne);
+  visualViewport.addEventListener("scroll", redimensionne);
+}
 redimensionne();
 
 const tampon = new Float32Array(12);
@@ -4711,8 +4744,8 @@ function boucle(now){
   images++; cumul += dt*1000;
   if(images === 90){
     const moy = cumul/images;
-    if(moy > 26 && echelle > 0.55){ echelle = 0.62; redimensionne(); }
-    else if(moy < 11 && echelle < 1.0){ echelle = 1.0; redimensionne(); }
+    if(moy > 26 && echelle > 0.55){ echelle = 0.62; reechelonne(); }
+    else if(moy < 11 && echelle < 1.0){ echelle = 1.0; reechelonne(); }
     images = 0; cumul = 0;
   }
 
