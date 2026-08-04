@@ -608,16 +608,16 @@ accueilQuete: [
   titre: "Regarde par la baie",
   consigne: "Fais glisser la souris — ou ton doigt — pour tourner la tête vers la vitre.",
   reussi: { id:"a-baie-ok",
-    t:`Voilà <b>Sagittarius A*</b>, le trou noir au centre de la Voie lactée. Quatre millions de Soleils, et 27 000 années-lumière depuis la Terre.<br><br>Ce vaisseau a fait le trajet en poussant à <i>1 g</i> — la pesanteur terrestre — la moitié du temps en accélérant, l'autre en freinant. Vingt ans de vie à bord. Sur Terre, il s'est écoulé <b>vingt-sept mille ans</b>. Personne de ceux qui nous ont regardés partir n'était là pour nous voir arriver, et nous ne rentrerons pas.<br><br>Ce n'est pas une histoire que j'invente : c'est ce que donnent les équations. Le bouton ci-dessous te montre lesquelles.`,
-    dire:`Voilà Sagittarius A star, le trou noir au centre de la Voie lactée. Quatre millions de Soleils, et vingt-sept mille années-lumière depuis la Terre. Ce vaisseau a fait le trajet en poussant à un g, la pesanteur terrestre, la moitié du temps en accélérant et l'autre en freinant. Vingt ans de vie à bord. Sur Terre, il s'est écoulé vingt-sept mille ans. Personne de ceux qui nous ont regardés partir n'était là pour nous voir arriver, et nous ne rentrerons pas. Ce n'est pas une histoire que j'invente : c'est ce que donnent les équations.`,
-    pourquoi:`Fusée relativiste à accélération propre constante. Le temps vécu à bord d'un
-              trajet où l'on accélère puis freine vaut
-              $\tau = \tfrac{4c}{a}\,\operatorname{arccosh}\!\left(\tfrac{ad}{4c^{2}}+1\right)$.
-              Pour $a = g$ et $d = 8\,277$ pc, il vient une vingtaine d'années propres,
-              tandis que le temps mesuré depuis la Terre reste à peine supérieur à
-              $d/c$, soit environ 27 000 ans — car à ces vitesses le vaisseau suit la
-              lumière de très près. Le voyage est donc possible en une vie ; c'est le
-              retour qui ne l'est pas.`,
+    t:`Arrête-toi une seconde sur ce que tu as devant toi.<br><br><b>Personne n'a jamais vu ça.</b> Aucune caméra n'a jamais été ici. Et ce n'est pas une vue d'artiste : chaque point de cette image est un rayon lumineux qu'on a suivi, un par un, dans l'espace-temps déformé par quatre millions de Soleils.<br><br>L'anneau n'a pas été dessiné. Le dessous du disque, que tu vois passer par-dessus, non plus — c'est la lumière qui a fait le tour. Le côté qui brille plus fort est celui qui vient vers toi.<br><br>Alors soyons exacts : <b>la forme, tu la verrais vraiment comme ça.</b> Les couleurs, non — et je te dirai pourquoi. Mais la géométrie que tu regardes est celle que donnent les équations d'Einstein, sans un pixel arrangé.`,
+    dire:`Arrête-toi une seconde sur ce que tu as devant toi. Personne n'a jamais vu ça. Aucune caméra n'a jamais été ici. Et ce n'est pas une vue d'artiste : chaque point de cette image est un rayon lumineux qu'on a suivi, un par un, dans l'espace-temps déformé par quatre millions de Soleils. L'anneau n'a pas été dessiné. Le dessous du disque, que tu vois passer par-dessus, non plus : c'est la lumière qui a fait le tour. Le côté qui brille plus fort est celui qui vient vers toi. Alors soyons exacts. La forme, tu la verrais vraiment comme ça. Les couleurs, non, et je te dirai pourquoi. Mais la géométrie que tu regardes est celle que donnent les équations d'Einstein, sans un pixel arrangé.`,
+    pourquoi:`Chaque pixel de l'image lance une géodésique nulle intégrée à rebours du temps
+              dans la métrique de Schwarzschild, sous la forme cartésienne
+              $\mathbf{a} = -\tfrac{3}{2}h^{2}\mathbf{r}/r^{5}$. Rien n'est plaqué :
+              la sphère des photons à 1,5 r_s, l'ombre à $\sqrt{27}/2$, les images
+              d'ordre supérieur et l'asymétrie Doppler sont des conséquences, et le banc
+              d'essai du site les mesure en direct — 0,002 % d'écart sur le rayon de
+              l'ombre. Les couleurs, elles, sont inventées : Sgr A* rayonne dans le
+              submillimétrique et serait invisible à l'œil nu.`,
     sources:["gravity2021","eht2022","misner1973"] },
 },
 {
@@ -634,9 +634,16 @@ accueilQuete: [
   titre: "Le temps est truqué, et il faut que tu le saches",
   consigne: "Sur le pupitre, cinq lames règlent la vitesse. <b>Mets la plus courte</b> : le temps réel.",
   reussi: { id:"a-temps-ok",
-    t:`Merci. À cette vitesse, plus rien ne bouge — et c'est la vérité : un tour d'orbite dure <b>4 h 44</b>. Tout le reste du site est exact ; l'accélération est un choix de confort, et c'est le seul endroit où l'on te ment. Remets ce que tu veux.`,
-    dire:`Merci. À cette vitesse, plus rien ne bouge, et c'est la vérité : un tour d'orbite dure quatre heures quarante-quatre. Tout le reste du site est exact. L'accélération est un choix de confort, et c'est le seul endroit où l'on te ment. Remets ce que tu veux.`,
-    sources:["misner1973"] },
+    t:`Merci. À cette vitesse plus rien ne bouge — et c'est la vérité : un tour d'orbite dure <b>4 h 44</b>. L'accélération est un choix de confort, et c'est le seul endroit du site où l'on te ment. Remets ce que tu veux.<br><br>Tant qu'on parle du temps, tu devrais savoir comment nous sommes arrivés ici. Ce vaisseau a poussé à <i>1 g</i> — la pesanteur terrestre — la moitié du trajet en accélérant, l'autre en freinant. <b>Une vingtaine d'années</b> de vie à bord. Sur Terre, il s'en est écoulé <b>vingt-sept mille</b>.<br><br>Personne de ceux qui nous ont regardés partir n'était là pour nous voir arriver. Ce n'est pas une licence de scénario : c'est ce que donnent les équations, et le bouton ci-dessous te montre lesquelles.`,
+    dire:`Merci. À cette vitesse, plus rien ne bouge, et c'est la vérité : un tour d'orbite dure quatre heures quarante-quatre. L'accélération est un choix de confort, et c'est le seul endroit du site où l'on te ment. Remets ce que tu veux. Tant qu'on parle du temps, tu devrais savoir comment nous sommes arrivés ici. Ce vaisseau a poussé à un g, la pesanteur terrestre, la moitié du trajet en accélérant et l'autre en freinant. Une vingtaine d'années de vie à bord. Sur Terre, il s'en est écoulé vingt-sept mille. Personne de ceux qui nous ont regardés partir n'était là pour nous voir arriver. Ce n'est pas une licence de scénario : c'est ce que donnent les équations.`,
+    pourquoi:`Fusée relativiste à accélération propre constante. Le temps propre d'un trajet
+              où l'on accélère puis freine vaut
+              $\tau = \tfrac{4c}{a}\,\operatorname{arccosh}\!\left(\tfrac{ad}{4c^{2}}+1\right)$.
+              Pour $a = g$ et $d = 8\,277$ pc, il vient une vingtaine d'années propres,
+              tandis que le temps mesuré depuis la Terre reste à peine supérieur à $d/c$,
+              soit environ 27 000 ans : à ces vitesses le vaisseau suit la lumière de très
+              près. Le voyage tient donc dans une vie — c'est le retour qui n'y tient pas.`,
+    sources:["misner1973","gravity2021"] },
 },
 {
   id: "a-telescope",

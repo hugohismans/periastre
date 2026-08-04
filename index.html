@@ -1426,6 +1426,7 @@ void main(){
 <script src="personnage.js"></script>
 <script src="pantheon.js"></script>
 <script src="robot.js"></script>
+<script src="musique.js"></script>
 <script>
 "use strict";
 
@@ -3530,7 +3531,7 @@ function intro(){
   // Qui revient a déjà répondu sur son niveau : on ne le redemande pas.
   const entre = son => {
     voixActive = son; majBoutonVoix(); sauve();
-    if(son) avertitSonIOS();
+    if(son){ avertitSonIOS(); MUSIQUE.demarre(); }
       /* Un testeur qui reçoit un lien n'explore pas : il regarde deux minutes.
        On le dépose donc directement à bord, et la quête lui apprend le lieu.
        Le niveau de lecture attend la fin — on ne sait pas répondre à « où en
@@ -4373,6 +4374,10 @@ function boucle(now){
     const r = len(salon.p);
     salon.rmin = Math.min(salon.rmin, r);
     salon.rmax = Math.max(salon.rmax, r);
+    // La musique suit l'orbite plutôt qu'une horloge : elle monte quand on
+    // plonge et retombe quand on s'éloigne, donc elle ne se répète jamais.
+    const etendue = Math.max(0.5, salon.rmax - salon.rmin);
+    MUSIQUE.regle((salon.rmax - r)/etendue);
     salon.trace.push([salon.p[0], salon.p[2]]);
     if(salon.trace.length > 420) salon.trace.shift();
   }
@@ -4497,6 +4502,7 @@ function boucle(now){
   majLecture();
 
   veilleLumen(now);
+  MUSIQUE.avance(dt);
   veilleMission(now);
   veilleQuete(now);
 
