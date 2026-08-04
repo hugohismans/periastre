@@ -1565,8 +1565,23 @@ function hauteurSol(x, z){
 
    Il n'apparaît que sur un pointeur grossier. Sur un ordinateur il gênerait la
    vue sans rien apporter, puisque le clavier fait déjà le travail. */
-const TACTILE = matchMedia("(pointer: coarse)").matches || navigator.maxTouchPoints > 0;
-if(TACTILE) document.body.classList.add("tactile");
+/* On ne devine pas le matériel, on observe l'usage.
+
+   Tester la CAPACITÉ tactile est faux : beaucoup d'écrans de portable en ont
+   une tout en étant pilotés à la souris, et le stick venait alors encombrer
+   l'image de quelqu'un qui a un clavier sous les doigts. On regarde donc le
+   dernier moyen réellement employé, et la manette apparaît ou s'efface avec
+   lui — y compris sur les appareils hybrides, où l'on passe de l'un à l'autre
+   au cours de la même session. */
+function moyen(doigt){ document.body.classList.toggle("tactile", doigt); }
+addEventListener("pointerdown", e => {
+  if(e.pointerType === "touch") moyen(true);
+  else if(e.pointerType === "mouse") moyen(false);
+}, true);
+// Une touche de déplacement prouve un clavier : la manette n'a plus lieu d'être.
+addEventListener("keydown", e => {
+  if(TOUCHES_JEU.has(e.key.toLowerCase())) moyen(false);
+}, true);
 
 const axe = { x:0, y:0 };
 
@@ -1592,6 +1607,7 @@ function brancheManette(){
 
   base.addEventListener("pointerdown", e => {
     id = e.pointerId; base.setPointerCapture(id); bouge(e); e.preventDefault();
+    e.stopPropagation();     // sinon le détecteur ferait disparaître la manette
   });
   base.addEventListener("pointermove", e => { if(e.pointerId === id) bouge(e); });
   const lache = e => {
