@@ -572,3 +572,38 @@ le leitmotiv : on ressort grandi, donc on doit pouvoir mesurer de combien.
 
 Point de méthode : l'interface se juge à l'œil, donc elle ne se délègue pas à
 un agent qui ne voit pas le résultat. C'est la leçon du vaisseau.
+
+## Les écrans de bord — la vraie correction, pour plus tard
+
+Hugo, sur iPhone : *« les écrans, ils ne sont pas droits quand tu les regardes
+de côté. »* Constat juste, et la cause est structurelle.
+
+Les écrans sont dessinés sur une **toile à deux dimensions** posée par-dessus le
+rendu. Elle ne sait faire que des transformations **affines**, qui envoient un
+rectangle sur un parallélogramme. Or un panneau vu sous un angle rasant demande
+une vraie **perspective** : le bord lointain doit rétrécir. Le contour, lui, est
+tracé à partir des quatre coins réellement projetés — il est donc un trapèze
+exact. Cadre juste, contenu faux : c'est ce décalage qu'on voit.
+
+**Ce qui est en place** est un contournement honnête plutôt qu'un correctif :
+l'écran s'estompe avec l'angle et disparaît au-delà de soixante-dix degrés hors
+axe. Ce n'est pas un mensonge — une dalle réelle se délave exactement comme ça.
+Mesuré : 29° de face donne 1,00 ; 74° depuis la fosse donne 0,00, ce qui est
+précisément la position d'où le défaut se voyait.
+
+**Les deux vraies corrections**, par ordre de coût :
+
+1. **Le découpage en bandes.** On dessine le contenu une fois dans une toile
+   hors écran, puis on le reporte en vingt à trente bandes verticales, chacune
+   avec sa propre affine interpolée entre les bords haut et bas. C'est
+   l'astuce classique, et l'œil ne distingue plus la perspective vraie au-delà
+   d'une vingtaine de bandes. Demande de pouvoir rediriger le contexte de
+   dessin, donc une petite restructuration de `ecran()`.
+2. **Passer les écrans en géométrie.** Le contenu devient une texture appliquée
+   sur un quadrilatère dessiné dans la même passe que le vaisseau. La
+   perspective devient exacte et gratuite, les écrans sont enfin occultés par
+   ce qui passe devant, et le calque à deux dimensions disparaît. C'est la
+   solution juste, et elle supprime aussi le fait que rien ne les occulte
+   aujourd'hui.
+
+La seconde est la bonne. Elle attend que le vaisseau cesse de bouger.
