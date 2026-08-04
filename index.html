@@ -720,6 +720,10 @@ body.tactile.au-salon #manette{ display:block; }
     <div class="grille" id="volume"></div>
   </div>
   <div class="bloc">
+    <div class="etiq">Musique et ambiance</div>
+    <div class="grille" id="volume-musique"></div>
+  </div>
+  <div class="bloc">
     <div class="etiq">Anecdotes spontanées</div>
     <div class="grille" id="anecdotes"></div>
   </div>
@@ -732,7 +736,7 @@ body.tactile.au-salon #manette{ display:block; }
     <div class="rangee"><button id="b-missions">Missions</button></div>
     <!-- Un fond sonore qu'on ne peut pas éteindre est ce qui fait fermer un
          onglet. Il se coupe donc d'un bouton, et le choix est mémorisé. -->
-    <div class="rangee"><button id="b-musique">Musique</button></div>
+
     <!-- Qui est déjà venu ne repasse jamais par l'introduction : elle ne se
          joue qu'au tout premier chargement. Sans ce bouton, la refaire
          supposait de vider soi-même la mémoire du navigateur. -->
@@ -2747,14 +2751,6 @@ cv.addEventListener("wheel", e => {
   cam.dist = Math.max(6, Math.min(46, cam.dist * (1 + Math.sign(e.deltaY)*0.09)));
 }, { passive:false });
 
-let musiqueVoulue = true;
-$("b-musique").onclick = () => {
-  musiqueVoulue = !musiqueVoulue;
-  $("b-musique").classList.toggle("actif", musiqueVoulue);
-  musiqueVoulue ? MUSIQUE.demarre() : MUSIQUE.arrete();
-  sauve();
-};
-
 $("b-quete").onclick = () => {
   tais();
   elAccueil.classList.add("parti");
@@ -2924,7 +2920,8 @@ const QUESTIONS = CONTENU.questions;
 
 const elBulle = $("bulle"), elBulleTxt = $("bulle-texte");
 let voixActive = false, iVoix = 0, audio = null;
-let volumeVoix = 0.28;   // volontairement trop bas : mieux vaut qu'on monte le son que subir
+let volumeVoix = 0.28;
+let volumeMusique = 0.09;   // bas par défaut : mieux vaut qu'on monte le son que le subir   // volontairement trop bas : mieux vaut qu'on monte le son que subir
 let tMasque = 0, tDernier = performance.now(), questionsOuvertes = false;
 
 // Les répliques étant scriptées, la voix est pré-synthétisée hors ligne
@@ -3081,6 +3078,26 @@ const boitierVol = $("volume");
   boitierVol.appendChild(b);
 });
 boitierVol.children[0].classList.add("actif");
+
+/* La musique a son propre réglage, séparé de celui de la voix : le bourdon
+   grave plaît à certains et gêne les autres, et un simple interrupteur ne
+   laissait le choix qu'entre le subir et s'en priver. Le premier cran coupe
+   vraiment — c'est ce qui compte le plus. */
+const boitierMus = $("volume-musique");
+[["silence", 0], ["discret", 0.09], ["présent", 0.18], ["fort", 0.30]]
+.forEach(([nom, v], i) => {
+  const b = document.createElement("button");
+  b.textContent = nom;
+  b.onclick = () => {
+    volumeMusique = v;
+    if(v > 0){ MUSIQUE.demarre(); MUSIQUE.regleVolume(v); } else MUSIQUE.arrete();
+    [...boitierMus.children].forEach((c, j) => c.classList.toggle("actif", j === i));
+    sauve();
+  };
+  boitierMus.appendChild(b);
+});
+const iMus = [0, 0.09, 0.18, 0.30].indexOf(volumeMusique);
+boitierMus.children[iMus >= 0 ? iMus : 1].classList.add("actif");
 
 const boitierA = $("anecdotes");
 [["30 s", 30000], ["1 min", 60000], ["3 min", 180000], ["jamais", 0]].forEach(([nom, ms], i) => {
@@ -3310,7 +3327,7 @@ function sauve(){
   try {
     localStorage.setItem(CLE, JSON.stringify({
       niveau: iNiveau, acquis: [...acquis], voix: voixActive,
-      anecdotes: intervalleAnecdote, taille: zoomSonde, volume: volumeVoix, spin, musique: musiqueVoulue, deja: true,
+      anecdotes: intervalleAnecdote, taille: zoomSonde, volume: volumeVoix, spin, musique: volumeMusique, deja: true,
     }));
   } catch(e){ /* navigation privée : on continue sans mémoire */ }
 }
@@ -3325,7 +3342,7 @@ function charge(){
     if(typeof d.taille === "number") zoomSonde = d.taille;
     if(typeof d.volume === "number") volumeVoix = d.volume;
     if(typeof d.spin === "number") spin = d.spin;
-    if(typeof d.musique === "boolean") musiqueVoulue = d.musique;
+    if(typeof d.musique === "number") volumeMusique = d.musique;
     return d;
   } catch(e){ return null; }
 }
@@ -3591,9 +3608,8 @@ function intro(){
     voixActive = son; majBoutonVoix(); sauve();
     if(son){
       avertitSonIOS();
-      if(musiqueVoulue) MUSIQUE.demarre();
+      if(volumeMusique > 0){ MUSIQUE.regleVolume(volumeMusique); MUSIQUE.demarre(); }
     }
-    $("b-musique").classList.toggle("actif", musiqueVoulue);
       /* Un testeur qui reçoit un lien n'explore pas : il regarde deux minutes.
        On le dépose donc directement à bord, et la quête lui apprend le lieu.
        Le niveau de lecture attend la fin — on ne sait pas répondre à « où en
