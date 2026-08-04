@@ -104,6 +104,27 @@ Dépend de 5.
 
 ---
 
+## Anecdotes proposées par Hugo
+
+Chacune est vérifiée par le calcul avant d'entrer dans le site. Le statut dit
+où elle en est.
+
+| anecdote | vérification | statut |
+|---|---|---|
+| Combien de temps met la lumière pour faire le tour | **11 min 31 s** = 6√3·πGM/c³. La version affichée disait 6 min 39 s — bug corrigé, mesuré à 0,004 % | intégrée |
+| Rien ne franchit l'horizon vu de loin | Exact. La simulation montrait l'inverse | corrigée, intégrée |
+| Le trou noir d'*Interstellar* n'est pas rond | Vrai, à cause du spin. Notre ombre est ronde parce que notre trou noir ne tourne pas | expliquée, mode Kerr à faire |
+| Voir en vraie lumière | Le disque est quasi muet en visible : Sgr A* rayonne dans le submillimétrique | intégrée |
+| Le paradoxe des jumeaux façon *Interstellar* | Attention au sens : **ceux qui descendent vieillissent moins**. Et sans rotation le plafond est √2 — d'où le spin de Gargantua | intégrée, avec la correction |
+| Aller au centre galactique à 1 g | **19,8 ans à bord, 26 675 ans sur Terre.** γ = 13 768 au demi-tour | intégrée |
+| Traverser l'univers observable en ~40 ans | **47,7 ans** en espace plat — mais l'expansion plafonne à ~16 milliards d'al comobiles, soit **4,5 % du volume observable**. Le reste est hors d'atteinte pour toujours | à intégrer |
+| Andromède à 1 g | **28,6 ans** de vie. La distance cesse presque de compter | intégrée |
+| Télescope à filtres (radio, submm, IR, visible, X) | Sgr A* change réellement de visage selon la longueur d'onde | à construire |
+
+Au passage, deux corrections trouvées en vérifiant : Sgr A* n'est **pas** moins
+dense que l'eau (mille fois plus ; c'est M87* qui est moins dense que l'air), et
+8 277 pc font **27 000** années-lumière, pas 26 000.
+
 ## Notes
 
 - **Pas d'API dans le navigateur.** Une clé dans du JS statique est publique dès

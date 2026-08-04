@@ -43,10 +43,12 @@ function parcours(x){
   }
 }
 
-// Toute section porteuse de répliques doit figurer ici, sinon la voix est
-// silencieusement absente — c'est arrivé une fois avec les missions.
-parcours(C.reactions);
-parcours(C.questions);
-parcours(C.missions);
+// On parcourt TOUT le contenu plutôt qu'une liste de sections à tenir à jour :
+// l'oubli d'une section rend des répliques muettes sans rien signaler, et
+// c'est déjà arrivé deux fois. `sources` est exclu, il n'a pas de `t`.
+for(const [cle, valeur] of Object.entries(C)){
+  if(cle === "sources" || cle === "voix") continue;
+  parcours(valeur);
+}
 
 console.log(JSON.stringify({ voix: C.voix, lignes }, null, 1));

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Trou noir — orbites autour de Sagittarius A*</title>
+<title>Périastre — une expérience de l'espace-temps</title>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
   html,body { width:100%; height:100%; overflow:hidden; background:#000; }
@@ -268,6 +268,21 @@
     padding:24px; overflow-y:auto; transition:opacity .35s;
   }
   #accueil.parti { opacity:0; pointer-events:none; }
+  /* tant qu'on est dans le menu, l'interface du jeu s'efface : sinon
+     l'image d'accueil est mangée par des panneaux */
+  body.au-menu .hud, body.au-menu #mission { opacity:0; pointer-events:none; }
+  .hud, #mission { transition:opacity .35s; }
+  /* premier temps : on ne masque rien, l'image doit frapper */
+  #accueil.nu { background:linear-gradient(transparent 30%, rgba(4,3,10,.72)); backdrop-filter:none; }
+  #accueil.nu #acc-boite { align-self:end; padding-bottom:6vh; }
+
+  @keyframes monte { from { opacity:0; transform:translateY(16px) } to { opacity:1; transform:none } }
+  #acc-boite h1, #acc-boite > p, #acc-cartes > * { animation:monte .8s both; }
+  #acc-boite > p { animation-delay:.35s; }
+  #acc-cartes > *:nth-child(1) { animation-delay:.5s; }
+  #acc-cartes > *:nth-child(2) { animation-delay:.62s; }
+  #acc-cartes > *:nth-child(3) { animation-delay:.74s; }
+  #acc-cartes > *:nth-child(4) { animation-delay:.86s; }
   #acc-boite { width:100%; max-width:660px; text-align:center; }
   #acc-boite h1 {
     font-size:15px; font-weight:600; letter-spacing:.44em; text-transform:uppercase;
@@ -349,7 +364,7 @@
 
 <div class="hud" id="gauche">
   <div id="titre">
-    <h1>Trou noir <button id="b-cours" title="Replier le cours">▾</button></h1>
+    <h1>Périastre <button id="b-cours" title="Replier le cours">▾</button></h1>
     <p>Sagittarius A* — rien de ce que tu vois derrière n'est vraiment là.</p>
   </div>
 
@@ -1773,12 +1788,60 @@ function reglerVitesse(i){
 }
 
 const elAccueil = $("accueil"), elCartes = $("acc-cartes");
+const elTitre = $("acc-boite").querySelector("h1");
+const elChapo = $("acc-boite").querySelector("p");
 
-function menu(){
+function poseAccueil(nu){
   elAccueil.classList.remove("parti");
+  elAccueil.classList.toggle("nu", !!nu);
+  document.body.classList.add("au-menu");
   $("b-menu").classList.remove("vu");
   elCartes.innerHTML = "";
   elCartes.style.gridTemplateColumns = "";     // le détail passe en une colonne
+}
+
+// Premier temps : rien que l'image. Le décor est déjà en train de tourner
+// derrière, autant le laisser parler avant d'expliquer quoi que ce soit.
+function intro(){
+  poseAccueil(true);
+  elTitre.textContent = "Périastre";
+  elChapo.innerHTML = CONTENU.accueil.bienvenue.t;
+  const b = document.createElement("button");
+  b.id = "acc-go";
+  b.textContent = "Entrer";
+  b.onclick = () => { voixActive = true; majBoutonVoix(); niveauDemande(); };
+  elCartes.appendChild(b);
+  elCartes.style.gridTemplateColumns = "1fr";
+  elCartes.style.justifyItems = "center";
+}
+
+// Deuxième temps : on demande le niveau comme une question, pas comme un
+// réglage. Les trois réponses réutilisent les répliques `niveau-*`.
+function niveauDemande(){
+  poseAccueil(false);
+  elCartes.style.justifyItems = "";
+  elTitre.textContent = "Où en es-tu ?";
+  elChapo.innerHTML = CONTENU.accueil.niveau.t;
+  parle(CONTENU.accueil.niveau);
+  elCartes.style.gridTemplateColumns = "1fr";
+  CONTENU.niveauxLibelle.forEach((n, i) => {
+    const c = document.createElement("div");
+    c.className = "carte";
+    c.innerHTML = `<h2>${n.titre}</h2><p>${n.detail}</p>`;
+    c.onclick = () => {
+      iNiveau = i; majFiche();
+      [...boitierN.children].forEach((x, j) => x.classList.toggle("actif", j === i));
+      menu();
+    };
+    elCartes.appendChild(c);
+  });
+}
+
+function menu(){
+  poseAccueil(false);
+  elCartes.style.justifyItems = "";
+  elTitre.textContent = "Périastre";
+  elChapo.innerHTML = "Le point d'une orbite où l'on passe au plus près. Choisis par quoi commencer.";
   EXPERIENCES.forEach(x => {
     const c = document.createElement("div");
     c.className = "carte";
@@ -1804,13 +1867,14 @@ function detail(x){
     tais();
     MISE_EN_PLACE[x.id]?.();
     elAccueil.classList.add("parti");
+    document.body.classList.remove("au-menu");
     $("b-menu").classList.add("vu");
   };
   $("acc-retour").onclick = menu;
 }
 
 $("b-menu").onclick = () => { tais(); menu(); };
-menu();
+intro();
 
 // ============ dossier « pourquoi c'est exact » ============
 const METHODE = [

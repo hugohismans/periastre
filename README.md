@@ -1,4 +1,6 @@
-# Trou noir
+# Périastre
+
+*Périastre* : le point d'une orbite où l'on passe au plus près.
 
 Un site pour comprendre Sagittarius A*, le trou noir supermassif au centre de
 notre galaxie. L'image n'est pas une illustration : c'est une intégration des

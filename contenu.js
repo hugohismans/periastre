@@ -122,10 +122,26 @@ niveaux: ["Découverte", "Curieux", "Astrophysicien"],
 // `id` = nom du fichier : voix/<voix>/<id>.mp3. Ne jamais renommer un id sans
 // régénérer, sinon la réplique devient muette.
 voix: [
-  { id:"vivienne", nom:"Vivienne", modele:"fr-FR-VivienneMultilingualNeural" },
-  { id:"remy",     nom:"Rémy",     modele:"fr-FR-RemyMultilingualNeural"     },
-  { id:"denise",   nom:"Denise",   modele:"fr-FR-DeniseNeural"               },
-  { id:"henri",    nom:"Henri",    modele:"fr-FR-HenriNeural"                },
+  { id:"remy", nom:"Rémy", modele:"fr-FR-RemyMultilingualNeural" },
+],
+
+// --------------------------------------------------------------- accueil
+// Trois temps : l'image, la question du niveau, le menu. Court partout —
+// un débutant ne lit pas, il écoute et il clique.
+accueil: {
+  bienvenue: { id:"intro-bienvenue",
+    t:`Ce que tu regardes n'est pas une image. C'est un calcul, refait soixante fois par seconde.`,
+    sources:["chandrasekhar1983"] },
+  niveau: { id:"intro-niveau",
+    t:`Avant de t'embarquer : tu en es où, en astronomie ? Je m'adapte, il n'y a pas de mauvaise réponse.` },
+},
+
+// Les trois réponses réutilisent les répliques `niveau-*` : un seul jeu de
+// textes sert au routage, à l'affichage des fiches et à la voix.
+niveauxLibelle: [
+  { titre:"Je suis vraiment nul",     detail:"On part de zéro, tranquillement." },
+  { titre:"Passionné amateur",        detail:"Tu connais les bases, on creuse." },
+  { titre:"Je suis astronome",        detail:"Résultats récents et chiffres bruts." },
 ],
 
 // ------------------------------------------------------- répliques de Lumen
@@ -208,37 +224,34 @@ experiences: [
   id: "libre",
   titre: "Découvrir le trou noir",
   duree: "à ton rythme",
-  resume: "Lance des sondes, vois lesquelles tiennent en orbite et lesquelles tombent.",
-  quoi: `Sept petites missions, chacune tient en un geste. Tu n'as rien à savoir
-         d'avance — c'est la façon la plus simple de commencer.`,
+  resume: "Lance des sondes et vois lesquelles tiennent.",
+  quoi: `Sept missions, une seule chose à comprendre par mission.
+         Tu n'as besoin de rien savoir d'avance.`,
 },
 {
   id: "jumeaux",
   titre: "L'expérience des jumeaux",
-  duree: "environ 3 minutes",
-  resume: "Descends près du trou noir pendant qu'un vaisseau t'attend au loin. Vos deux horloges vont diverger.",
-  quoi: `Tu vas prendre place à bord d'une sonde en orbite serrée. Un vaisseau
-         reste au loin. Plus tu descends, plus ton temps ralentit par rapport au sien —
-         et l'écart ne se rattrape jamais. C'est le cœur d'<i>Interstellar</i>, sauf
-         qu'ici les chiffres sont les vrais.`,
+  duree: "3 minutes",
+  resume: "Ton temps va ralentir. Pas le sien.",
+  quoi: `Tu descends tout près, un vaisseau reste au loin. Vos deux horloges
+         s'écartent, et l'écart ne se rattrape jamais.
+         C'est <i>Interstellar</i>, avec les vrais chiffres.`,
 },
 {
   id: "reelle",
   titre: "Le voir en vraie lumière",
-  duree: "environ 1 minute",
-  resume: "Éteins les couleurs et cherche le trou noir comme le ferait un astronome.",
-  quoi: `Le beau disque orange, tu ne le verrais pas avec des yeux humains :
-         Sgr A* rayonne dans des ondes invisibles. On coupe la mise en scène,
-         et il ne reste que les étoiles déformées. À toi de le trouver.`,
+  duree: "1 minute",
+  resume: "Coupe les couleurs. Retrouve-le.",
+  quoi: `Le beau disque orange, un œil humain ne le verrait pas.
+         Il ne reste que les étoiles tordues autour du vide. À toi de le trouver.`,
 },
 {
   id: "exact",
-  titre: "Comment on sait que c'est exact",
+  titre: "Comment on sait que c'est vrai",
   duree: "à lire",
-  resume: "Le site relance son propre calcul devant toi et compare aux valeurs théoriques.",
-  quoi: `Rien de ce que tu vois n'a été dessiné. Cette page explique la méthode
-         à ton niveau, dit franchement ce qui est approximé, et propose un banc
-         d'essai qui vérifie le moteur en direct.`,
+  resume: "Le site vérifie son propre calcul devant toi.",
+  quoi: `Rien n'a été dessiné. On explique la méthode, on dit ce qui est
+         approximé, et un banc d'essai contrôle le moteur en direct.`,
 },
 ],
 
