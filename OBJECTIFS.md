@@ -5,6 +5,41 @@ même temps sans se marcher dessus.
 
 ---
 
+## Le salon, et ce qu'il impose
+
+La forme visée : on arrive **dans le salon d'un vaisseau**, en orbite. Par le
+hublot, le trou noir en **temps réel** — pas accéléré, comme dans la vraie vie.
+D'autres personnes sont là. Un robot parle, et tout le monde l'entend en même
+temps. À côté, une porte : la **salle de simulation**, où l'on fait ce qu'on
+veut des paramètres.
+
+La distinction est nette et elle structure tout :
+
+| | salon | simulation |
+|---|---|---|
+| temps | réel, non modifiable | accéléré à volonté |
+| état | partagé entre tous | personnel |
+| ton | on observe, on écoute | on manipule, on expérimente |
+
+**Ce que ça impose au code, et qui est déjà fait :** le temps simulé ne
+s'accumule plus, il se **déduit d'une horloge absolue** (`tempsGeoDirect()`).
+Deux personnes qui ouvrent la page à la même seconde voient rigoureusement le
+même ciel, sans rien synchroniser — il suffit qu'elles partagent l'origine.
+C'est le seul point où le rendu et le partage se touchent.
+
+**Ce qui reste à séparer :** l'état de session (missions, niveau, réglages,
+progression) est personnel et va dans `localStorage` ; l'état partagé (qui est
+là, ce que le robot vient de dire, l'heure de référence) irait dans Firebase.
+Aucune des deux couches ne doit connaître l'autre.
+
+**Sur Firebase, un point de sécurité qui n'est pas négociable :** la
+configuration web (`apiKey`, `projectId`…) est *publique par conception* et peut
+vivre dans le dépôt — la sécurité vient des règles Firestore, pas du secret de
+la clé. En revanche une clé de **compte de service** (`*-firebase-adminsdk-*.json`)
+est un secret complet : elle ne doit jamais entrer dans le dépôt ni dans le
+navigateur. Il y en a une qui traîne dans le dossier personnel ; elle n'a rien
+à faire ici.
+
 ## L'idée directrice
 
 Un seul voyage continu, de l'horizon de Sagittarius A* jusqu'à l'univers

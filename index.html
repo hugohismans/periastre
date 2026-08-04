@@ -1141,9 +1141,32 @@ const R_MERE = 20;
 const horloge = { bord: 0, mere: 0 };
 const cadence = r => Math.sqrt(Math.max(0, 1 - 1.5/r));
 
+// ---- horloge ----
+// En mode direct, le temps simulé se DÉDUIT d'une horloge absolue au lieu de
+// s'accumuler. Deux personnes qui ouvrent la page à la même seconde voient
+// alors rigoureusement le même ciel, sans rien synchroniser : il suffit qu'elles
+// partagent l'origine. C'est ce qui rendra un salon commun possible.
+const EPOQUE = Date.UTC(2026, 0, 1) / 1000;     // origine fixe, en secondes
+let modeDirect = false;
+let decalageHorloge = 0;                        // écart avec l'horloge de référence
+
+const maintenant = () => Date.now()/1000 + decalageHorloge;
+const tempsGeoDirect = () => (maintenant() - EPOQUE) / SEC_PAR_UNITE;
+
 function avance(dtSec){
+  if(modeDirect){
+    // temps réel strict : on ne triche pas, on regarde ce qui se passe
+    const cible = tempsGeoDirect();
+    const dtGeo = cible - tempsGeo;
+    tempsGeo = cible;
+    return avanceCorps(dtGeo, dtSec);
+  }
   const dtGeo = dtSec * VITESSES[iVitesse].mult / SEC_PAR_UNITE;
   tempsGeo += dtGeo;
+  return avanceCorps(dtGeo, dtSec);
+}
+
+function avanceCorps(dtGeo, dtSec){
 
   if(sondeSuivie !== null && sondes[sondeSuivie]){
     const s = sondes[sondeSuivie];
