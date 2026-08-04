@@ -482,7 +482,7 @@ experiences: [
   titre: "Découvrir le trou noir",
   duree: "à ton rythme",
   resume: "Lance des sondes et vois lesquelles tiennent.",
-  quoi: `Sept missions, une seule chose à comprendre par mission.
+  quoi: `Huit missions, une seule chose à comprendre par mission.
          Tu n'as besoin de rien savoir d'avance.`,
 },
 {
@@ -589,6 +589,55 @@ missions: [
     t:`Une demi-heure d'écart, et elle ne sera jamais rattrapée. Ton jumeau resté au loin a <b>vieilli plus que toi</b> — c'est bien lui qui a perdu du temps, pas toi. Mais regarde le compteur : au mieux ton temps tombe à <i>70,7 %</i>. Impossible de faire mieux ici, parce que ce trou noir <b>ne tourne pas</b>. Les 61 000 ans par heure d'<i>Interstellar</i> exigent un trou noir en rotation, qui entraîne l'espace et permet de tenir bien plus près.`,
     dire:`Une demi-heure d'écart, et elle ne sera jamais rattrapée. Ton jumeau resté au loin a vieilli plus que toi. C'est bien lui qui a perdu du temps, pas toi. Mais regarde le compteur : au mieux, ton temps tombe à soixante-dix virgule sept pour cent. Impossible de faire mieux ici, parce que ce trou noir ne tourne pas. Les soixante et un mille ans par heure d'Interstellar exigent un trou noir en rotation, qui entraîne l'espace et permet de tenir bien plus près.`,
     sources:["misner1973","bardeen1972","gravity2018"] },
+},
+],
+
+/* La quête d'accueil, jouée à bord.
+
+   Elle n'enseigne pas la relativité : elle apprend le lieu. Quatre gestes, tous
+   déjà possibles, dont chacun révèle une commande qu'on ne devinerait pas —
+   qu'on peut tourner la tête, qu'il y a quelqu'un à bord, que le temps est
+   accéléré et qu'on peut le remettre au vrai, et que le télescope est une porte.
+
+   La troisième étape est la seule qui enseigne un fait, et c'est un aveu : on
+   triche avec le temps pour que l'orbite se voie. Le dire tôt vaut mieux que
+   le laisser découvrir. */
+accueilQuete: [
+{
+  id: "a-baie",
+  titre: "Regarde par la baie",
+  consigne: "Fais glisser la souris — ou ton doigt — pour tourner la tête vers la vitre.",
+  reussi: { id:"a-baie-ok",
+    t:`Voilà Sagittarius A*. Il est à 27 000 années-lumière, il pèse quatre millions de Soleils, et ce que tu vois n'est pas une image : chaque point est un rayon lumineux qu'on suit dans l'espace-temps courbé.`,
+    dire:`Voilà Sagittarius A star. Il est à vingt-sept mille années-lumière, il pèse quatre millions de Soleils, et ce que tu vois n'est pas une image : chaque point est un rayon lumineux qu'on suit dans l'espace-temps courbé.`,
+    sources:["gravity2021","eht2022"] },
+},
+{
+  id: "a-lumen",
+  titre: "Tu n'es pas seul à bord",
+  consigne: "Un petit drone fait sa ronde. <b>Clique dessus</b> pour lui poser une question.",
+  reussi: { id:"a-lumen-ok",
+    t:`Je suis le système de bord. Pas une intelligence : un guide, avec un nombre fini de réponses préparées. Quand je cite un chiffre, un bouton <i>d'où ça sort ?</i> donne le calcul puis la référence.`,
+    dire:`Je suis le système de bord. Pas une intelligence : un guide, avec un nombre fini de réponses préparées. Quand je cite un chiffre, un bouton « d'où ça sort » donne le calcul, puis la référence.`,
+    sources:[] },
+},
+{
+  id: "a-temps",
+  titre: "Le temps est truqué, et il faut que tu le saches",
+  consigne: "Sur le pupitre, cinq lames règlent la vitesse. <b>Mets la plus courte</b> : le temps réel.",
+  reussi: { id:"a-temps-ok",
+    t:`Merci. À cette vitesse, plus rien ne bouge — et c'est la vérité : un tour d'orbite dure <b>4 h 44</b>. Tout le reste du site est exact ; l'accélération est un choix de confort, et c'est le seul endroit où l'on te ment. Remets ce que tu veux.`,
+    dire:`Merci. À cette vitesse, plus rien ne bouge, et c'est la vérité : un tour d'orbite dure quatre heures quarante-quatre. Tout le reste du site est exact. L'accélération est un choix de confort, et c'est le seul endroit où l'on te ment. Remets ce que tu veux.`,
+    sources:["misner1973"] },
+},
+{
+  id: "a-telescope",
+  titre: "Passe au télescope",
+  consigne: "Descends dans la fosse, à bâbord. <b>Clique sur l'instrument</b> — il donne la main sur tout le reste.",
+  reussi: { id:"a-telescope-ok",
+    t:`Te voilà à l'instrument. D'ici tu lances des sondes, tu changes de longueur d'onde, tu fais tourner le trou noir sur lui-même. Vas-y, casse quelque chose — on revient au vaisseau quand tu veux.`,
+    dire:`Te voilà à l'instrument. D'ici, tu lances des sondes, tu changes de longueur d'onde, tu fais tourner le trou noir sur lui-même. Vas-y, casse quelque chose. On revient au vaisseau quand tu veux.`,
+    sources:[] },
 },
 ],
 

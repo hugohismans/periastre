@@ -108,6 +108,28 @@
   }
   #rouage.actif { background:var(--braise-f); border-color:var(--braise-b); }
 
+  /* ---- quête d'accueil ---- */
+  #quete {
+    top:26px; left:50%; transform:translateX(-50%); width:min(376px, 88vw);
+    pointer-events:none; position:fixed; z-index:3;
+    background:rgba(10,8,20,.72); backdrop-filter:blur(15px);
+    border:1px solid var(--filet); border-radius:4px; padding:12px 14px 13px;
+    transition:border-color .3s, opacity .3s;
+  }
+  #quete.fini { border-color:rgba(110,255,180,.5); background:rgba(14,26,20,.72); }
+  #quete.parti { opacity:0; }
+  #q-num { font-size:8.5px; letter-spacing:.2em; text-transform:uppercase; color:var(--sourd); }
+  #q-titre { font-family:var(--serif); font-size:15.5px; color:#fff; margin:6px 0 5px; line-height:1.3; }
+  #q-consigne { font-size:11.5px; line-height:1.6; color:var(--pale); }
+  #q-consigne b { color:#e4e0f0; }
+  #q-jauge { display:flex; gap:5px; margin-top:9px; }
+  #q-jauge i { width:100%; height:2px; background:rgba(255,255,255,.14); border-radius:1px; }
+  #q-jauge i.ok { background:var(--braise-b); }
+  /* Pendant la quête, la barre du bas encombre : huit boutons face à une
+     consigne qui en désigne un seul. On la révèle une fois la quête close. */
+  body.en-quete #dock, body.en-quete #b-menu { opacity:0; pointer-events:none; }
+  body.au-menu #quete { opacity:0; }
+
   /* ---- missions ---- */
   #mission {
     top:26px; left:50%; transform:translateX(-50%); width:min(376px, 88vw);
@@ -558,6 +580,15 @@ body.tactile.au-salon #manette{ display:block; }
   <div id="m-jauge"></div>
 </div>
 
+<!-- La quête d'accueil a son propre panneau : celui des missions est masqué
+     par le CSS dès qu'on est au salon, et c'est justement là qu'elle se joue. -->
+<div id="quete">
+  <div id="q-num"></div>
+  <div id="q-titre"></div>
+  <div id="q-consigne"></div>
+  <div id="q-jauge"></div>
+</div>
+
 <div class="hud" id="dock">
   <button id="b-pluie">Lâcher 80 sondes</button>
   <button id="b-photon">Photon</button>
@@ -576,6 +607,8 @@ body.tactile.au-salon #manette{ display:block; }
   </div>
   <div id="tp-note"></div>
   <div class="grille" id="vitesses"></div>
+  <!-- Cet identifiant était employé deux fois : `getElementById` ne voyant que
+       le premier, le bloc jumeau des réglages restait vide en permanence. -->
 </div>
 
 <div id="spectre">
@@ -597,10 +630,6 @@ body.tactile.au-salon #manette{ display:block; }
     <div class="rangee">
       <button id="b-traj">Trajectoires</button>
     </div>
-  </div>
-  <div class="bloc">
-    <div class="etiq">Vitesse du temps</div>
-    <div class="grille" id="vitesses"></div>
   </div>
   <div class="bloc">
     <div class="etiq">Voix de Lumen</div>
@@ -829,7 +858,7 @@ void main(){
   // rouge avant le bleu, le compresseur ramène tout vers le blanc, et les
   // plaques qu'on vient de poser ressortent en crème uniforme : on a payé la
   // matière pour la laver au tirage.
-  vec3 c = tei * det * (CHAUD * lum * 1.55 * ouvert + 0.028);
+  vec3 c = tei * det * (CHAUD * lum * 1.55 * ouvert + 0.052);
 
   // Reflet spéculaire. Sans lui tout est mat comme du plâtre ; avec lui les
   // membrures, la main courante et le cadre de la baie accrochent la lumière
@@ -2342,8 +2371,13 @@ $("b-traj").onclick   = () => {
 };
 
 // Le salon : on n'est plus devant le trou noir, on est quelque part.
+/* La capture du pointeur n'a de sens que dans le salon : la vue libre se pilote
+   à la souris, et la garder prisonnière oblige à deviner Échap pour récupérer
+   le curseur. On la relâche donc avec le salon, sans exception — d'où ce
+   passage obligé par la bascule, qu'appellent aussi le télescope et `b-sonde`. */
 $("b-salon").onclick = () => {
   salon.actif = !salon.actif;
+  if(!salon.actif && document.exitPointerLock) document.exitPointerLock();
   $("b-salon").classList.toggle("actif", salon.actif);
   $("b-salon").textContent = salon.actif ? "Quitter le salon" : "Le salon";
   document.body.classList.toggle("au-salon", salon.actif);
@@ -2456,6 +2490,11 @@ function ecartDoigts(){
 }
 
 cv.addEventListener("pointerdown", e => {
+  // Au salon, ce même geste sert à tourner la tête. Sans ce garde-fou, un
+  // glissé sur la baie armait AUSSI une visée, et le relâchement lançait une
+  // vraie sonde depuis un point que personne n'avait choisi — ce qui pouvait
+  // valider une mission à l'aveugle, panneau invisible.
+  if(salon.actif) return;
   cinema.actif = false;
   cv.setPointerCapture(e.pointerId);
   const [px, py] = pointeur(e);
@@ -2602,6 +2641,7 @@ cv.addEventListener("pointerup", e => {
     return;
   }
   if(posteVise(capture() ? centreCanevas() : e) !== d.p) return;
+  queteVues.add(d.p.id);
   if(d.p.id === "lumen"){ ouvreQuestions(); return; }
   if(d.p.id === "telescope"){
     // On ne quitte pas « le salon » : on se met à l'instrument, et l'instrument
@@ -3188,6 +3228,102 @@ function oublie(){
   acquis = new Set(); iMission = 0;
 }
 
+/* ---- la quête d'accueil ----
+
+   Même mécanique que les missions : un prédicat par étape, évalué à chaque
+   image, et la main rendue toute seule. Elle s'en distingue sur un point qui
+   compte : elle se joue DANS le salon, où le panneau des missions est masqué
+   par le CSS. Elle a donc son propre panneau, et elle n'écrit pas dans
+   `acquis` — apprendre où sont les boutons n'est pas comprendre quelque chose,
+   et cette monnaie-là ne se gagne qu'en comprenant. */
+const QUETE = CONTENU.accueilQuete;
+
+const VERIFS_QUETE = {
+  // Regarder la baie : la direction du regard doit pointer vers la vitre.
+  // Un seuil sur le produit scalaire, tenu deux secondes — sinon un balayage
+  // rapide validerait sans qu'on ait rien regardé.
+  "a-baie": () => -regardSalon().av[2] > 0.80,
+  "a-lumen": () => queteVues.has("lumen"),
+  "a-temps": () => salon.facteur === 1,
+  "a-telescope": () => queteVues.has("telescope"),
+};
+
+const queteVues = new Set();     // les postes déjà activés, pour les étapes 2 et 4
+let iQuete = 0, queteActive = false, queteFinie = false, tQuete = 0, tRegard = 0;
+
+function majQuete(){
+  const el = $("quete");
+  if(!queteActive || iQuete >= QUETE.length){ el.classList.add("parti"); return; }
+  const q = QUETE[iQuete];
+  el.classList.remove("parti");
+  $("q-num").textContent = `${iQuete+1} sur ${QUETE.length}`;
+  $("q-titre").textContent = q.titre;
+  $("q-consigne").innerHTML = q.consigne;
+  $("q-jauge").innerHTML = QUETE.map((_, i) =>
+    `<i class="${i < iQuete ? "ok" : ""}"></i>`).join("");
+}
+
+function veilleQuete(now){
+  if(!queteActive || iQuete >= QUETE.length) return;
+  if(queteFinie){
+    if(now - tQuete > 4200){
+      queteFinie = false;
+      iQuete++;
+      $("quete").classList.remove("fini");
+      if(iQuete >= QUETE.length){ finQuete(); return; }
+      majQuete();
+    }
+    return;
+  }
+  const q = QUETE[iQuete];
+  const v = VERIFS_QUETE[q.id];
+  if(!v) return;
+
+  // La première étape demande de tenir le regard : on compte le temps passé
+  // à viser plutôt que l'instant où l'on passe devant.
+  if(q.id === "a-baie"){
+    tRegard = v() ? tRegard + 16 : 0;
+    if(tRegard < 1800) return;
+  } else if(!v()) return;
+
+  queteFinie = true; tQuete = now;
+  const el = $("quete");
+  el.classList.add("fini");
+  $("q-titre").textContent = "Bien";
+  $("q-jauge").innerHTML = QUETE.map(() => `<i class="ok"></i>`).join("");
+  dit(q.reussi, 13000, "", true);
+}
+
+/* La fin de la quête dépose au télescope, c'est-à-dire dans la vue libre, et
+   passe le relais aux huit missions. On demande le niveau de lecture ICI et
+   pas à l'entrée : personne ne sait répondre à « où en es-tu ? » avant d'avoir
+   vu de quoi on parle. */
+function finQuete(){
+  queteActive = false;
+  document.body.classList.remove("en-quete");
+  missionsActives = true;          // les huit missions prennent le relais
+  iMission = 0;
+  majMission();
+  majQuete();
+  try{ localStorage.setItem("periastre.quete", "1"); }catch(_){}
+  setTimeout(() => { if(!dejaNiveau) niveauDemande(); }, 1200);
+}
+
+function lanceQuete(){
+  queteActive = true; queteFinie = false; iQuete = 0; tRegard = 0;
+  queteVues.clear();
+  /* On se réveille DOS à la baie. Sans ça, la première consigne — tourner la
+     tête vers la vitre — se validait toute seule au bout de deux secondes,
+     puisqu'on regardait déjà dans la bonne direction. Et l'ouverture y gagne :
+     on découvre le trou noir en se retournant, au lieu de l'avoir sous le nez
+     avant d'avoir compris où l'on est. */
+  salon.lacet = Math.PI * 0.62; salon.tangage = -0.04;
+  joueur.p = [0.9, 0, 2.4]; joueur.v = [0,0,0];
+  missionsActives = false;          // une seule consigne à l'écran à la fois
+  majMission();
+  majQuete();
+}
+
 function majMission(){
   const el = $("mission");
   if(!missionsActives || iMission >= MISSIONS.length){
@@ -3333,7 +3469,16 @@ function intro(){
   const entre = son => {
     voixActive = son; majBoutonVoix(); sauve();
     if(son) avertitSonIOS();
-    dejaVenu ? menu() : niveauDemande();
+      /* Un testeur qui reçoit un lien n'explore pas : il regarde deux minutes.
+       On le dépose donc directement à bord, et la quête lui apprend le lieu.
+       Le niveau de lecture attend la fin — on ne sait pas répondre à « où en
+       es-tu ? » avant d'avoir vu de quoi il s'agit. */
+    if(dejaVenu){ menu(); return; }
+    elAccueil.classList.add("parti");
+    document.body.classList.remove("au-menu");
+    document.body.classList.add("en-quete");
+    if(!salon.actif) $("b-salon").click();
+    lanceQuete();
   };
   $("acc-go").onclick  = () => entre(true);
   $("acc-muet").onclick = () => entre(false);
@@ -3439,7 +3584,7 @@ function departDemande(){
         () => { if(!salon.actif) $("b-salon").click(); });
 
   porte("Apprendre, guidé",
-        "Sept missions, une chose à comprendre par mission. On n'a besoin de rien savoir "
+        "Huit missions, une chose à comprendre par mission. On n'a besoin de rien savoir "
         + "d'avance, et la première dure trois minutes.",
         () => menu());
 }
@@ -3501,6 +3646,7 @@ $("b-menu").onclick = () => { tais(); menu(); };
 // ---- restauration ----
 const memoire = charge();
 const dejaVenu = !!(memoire && memoire.deja);
+const dejaNiveau = !!(memoire && Number.isInteger(memoire.niveau));
 if(memoire){
   majFiche();
   [...boitierN.children].forEach((c, i) => c.classList.toggle("actif", i === iNiveau));
@@ -4290,6 +4436,7 @@ function boucle(now){
 
   veilleLumen(now);
   veilleMission(now);
+  veilleQuete(now);
 
   if(tFlash && now - tFlash > 90)   { elFlash.style.opacity = "0"; tFlash = 0; }
   if(tMsg   && now - tMsg   > 1100) { elMsg.style.opacity   = "0"; tMsg   = 0; }
