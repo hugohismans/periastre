@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="utf-8">
@@ -804,6 +804,12 @@ void main(){
 }
 </script>
 
+<!-- KaTeX, hébergé dans le dépôt : le site ne dépend d'aucun CDN et fonctionne
+     hors ligne. 0,5 Mo, chargé une fois. -->
+<link rel="stylesheet" href="vendor/katex/katex.min.css">
+<script defer src="vendor/katex/katex.min.js"></script>
+<script defer src="vendor/katex/auto-render.min.js"></script>
+
 <script src="contenu.js"></script>
 <script>
 "use strict";
@@ -1480,211 +1486,7 @@ function majLecture(){
 // référentiel. Le troisième suppose qu'on lit des papiers.
 const NIVEAUX = CONTENU.niveaux;
 
-const FICHES = [
-{
-  titre: "Sagittarius A*",
-  t: [
-   `Au milieu de notre galaxie, il y a un trou noir. Il pèse <i>4 millions de fois le Soleil</i>.
-    <br><br>Personne ne l'a jamais vu à l'œil nu. On a su qu'il était là parce que des
-    astronomes ont regardé le même petit coin de ciel <b>pendant trente ans</b>, nuit après
-    nuit — et qu'ils ont fini par voir des étoiles tourner autour de <i>rien</i>.
-    Un vide qui les faisait tourner.
-    <br><br>Il a fallu attendre 2022 pour en obtenir une image. Prends une seconde :
-    on a photographié une chose dont aucune lumière ne sort.`,
-
-   `Sagittarius A* fait 4,3 millions de masses solaires tassées dans une bille de
-    <i>12,7 millions de km</i> — ça tiendrait à l'intérieur de l'orbite de Mercure.
-    Sa masse a été mesurée en suivant pendant trente ans l'étoile S2, qui en fait le tour
-    en 16 ans à 3 % de la vitesse de la lumière. Ce travail a valu le
-    <b>prix Nobel de physique 2020</b>.`,
-
-   `M = 4,297 ± 0,013 × 10⁶ M☉ à R₀ = 8 277 ± 31 pc (GRAVITY, 2021), par astrométrie
-    infrarouge de S2 — dont la <b>précession de Schwarzschild</b> de 12′ par orbite est
-    mesurée. Image EHT de mai 2022 : anneau de <i>51,8 ± 2,3 μas</i>, compatible avec une
-    inclinaison faible, spin mal contraint. Accrétion en régime RIAF à ~10⁻⁹ L_Edd :
-    c'est un des trous noirs supermassifs les plus sous-lumineux connus.`,
-  ]
-},
-{
-  titre: "L'horizon des événements",
-  t: [
-   `L'horizon n'est pas un mur. Il n'y a rien à toucher, rien à voir, aucune paroi.
-    C'est simplement l'endroit à partir duquel il faudrait aller plus vite que la lumière
-    pour revenir — et rien ni personne ne va plus vite que la lumière.
-    <br><br>Le plus troublant : en le franchissant, <b>tu ne sentirais rien du tout</b>.
-    Pas de choc, pas de bruit, pas de frontière. Tu passerais, c'est tout.
-    Et à cet instant précis, <i>tous</i> les chemins devant toi mèneraient au même endroit.`,
-
-   `Son rayon vaut r<sub>s</sub> = 2GM/c², soit <i>12,7 millions de km</i> ici. Ce n'est pas
-    un endroit où la matière s'écrase : la courbure y est parfaitement finie. Sur un trou noir
-    aussi massif, l'étirement à l'horizon ne dépasse pas <b>un dix-millième de g</b> sur la
-    taille d'un corps humain. Tu le franchirais sans t'en apercevoir. Après, c'est autre chose.`,
-
-   `Surface nulle, pas singularité : l'invariant de Kretschmann K = 48G²M²/c⁴r⁶ reste fini
-    en r<sub>s</sub>. La dégénérescence de la métrique de Schwarzschild y est un artefact de
-    coordonnées, levé en Eddington-Finkelstein ou Kruskal-Szekeres. Les questions ouvertes
-    portent moins sur l'horizon lui-même que sur son contenu quantique :
-    <b>firewalls</b> (AMPS 2012), complémentarité, et depuis 2019 les courbes de Page
-    reconstruites par surfaces quantiques extrémales — l'information ressortirait,
-    sans mécanisme local identifié.`,
-  ]
-},
-{
-  titre: "Pourquoi la lumière tourne",
-  t: [
-   `La lumière va toujours tout droit. Toujours. Ce qui change, c'est <b>le sens de
-    « tout droit »</b>.
-    <br><br>Pose une bille lourde sur un drap tendu : le drap se creuse. Une bille légère
-    qui passe à côté suit ce creux. Elle n'est pas tirée — elle va tout droit, dans quelque
-    chose qui n'est plus plat. L'espace fait pareil autour d'une masse.
-    <br><br>Einstein a compris ça en 1915, <i>avec un crayon</i>. Il a fallu attendre quatre
-    ans pour aller le vérifier dans le ciel.`,
-
-   `C'est la <b>lentille gravitationnelle</b>. Regarde juste au-dessus du disque noir :
-    tu vois la face <i>inférieure</i> du disque, celle qui est derrière et en dessous.
-    Sa lumière part vers le bas, contourne le trou noir par l'arrière, et redescend vers toi.
-    Tu vois littéralement le dos de l'objet par-dessus sa tête.`,
-
-   `Géodésiques nulles de Schwarzschild. L'équation orbitale se réduit à
-    <i>d²u/dφ² + u = 3GMu²/c²</i> avec u = 1/r ; le membre de droite est le terme purement
-    relativiste, celui qui <b>double</b> la déflexion newtonienne. 1,75″ au limbe solaire est
-    la <i>prédiction</i> : les mesures de 1919 donnèrent 1,98″ ± 0,12 à Sobral et
-    1,61″ ± 0,30 à Príncipe — là où se trouvait Eddington, et c'est le résultat le moins précis
-    des deux. Aujourd'hui γ est contraint à 1,2 × 10⁻⁴ par VLBI, et à 2 × 10⁻⁵ par le retard
-    Shapiro de Cassini. C'est cette équation-là qui est intégrée à l'écran, pas une approximation.`,
-  ]
-},
-{
-  titre: "L'anneau de photons et l'ombre",
-  t: [
-   `Approche-toi assez près, et la lumière se met carrément <b>en orbite</b>. Elle tourne
-    en rond, parfois plusieurs fois, avant de repartir. Un rayon de lumière qui fait le tour
-    d'un objet : c'est déjà difficile à se représenter.
-    <br><br>Et le rond noir que tu vois n'est pas le trou noir — c'est son <b>ombre</b>,
-    et elle est <i>deux fois et demie plus grande</i> que lui. Toute la lumière qui frôle
-    de trop près est happée au passage.
-    <br><br>Ce que tu regardes, c'est un trou dans le ciel.`,
-
-   `La sphère des photons est à 1,5 fois le rayon de l'horizon. L'orbite y est
-    <b>instable</b> : le moindre écart, et le photon s'échappe ou tombe — comme une bille
-    en équilibre sur une crête. L'ombre, elle, fait 2,6 rayons d'horizon : c'est cet écart
-    qui explique qu'on voie un disque noir bien plus large que l'objet.
-    <i>Lance un photon</i> pour le voir tenir sur la crête.`,
-
-   `Sphère des photons à r = 3GM/c², ombre de rayon apparent √27 GM/c² ≈ 2,598 r<sub>s</sub>,
-    soit ~52 μas pour Sgr A* — d'où l'interférométrie à l'échelle du globe. Les sous-anneaux
-    n ≥ 1, portant la lumière ayant bouclé un demi-tour de plus, sont espacés d'un facteur
-    <i>e<sup>−π</sup> ≈ 0,043</i> en flux et sont quasi insensibles à l'astrophysique du disque.
-    C'est la cible de l'<b>EHT spatial</b> (BHEX) : l'anneau n = 1 deviendrait une mesure
-    directe de la métrique.`,
-  ]
-},
-{
-  titre: "Pourquoi ça brille",
-  t: [
-   `Rien ne brûle là-dedans. Pas de feu, pas de combustion, rien.
-    <br><br>Le gaz qui tourne autour frotte contre lui-même, et ce frottement le chauffe.
-    Frotte-toi les mains très fort : tu sens la chaleur. C'est exactement le même principe,
-    des millions de fois plus violent — jusqu'à <i>des millions de degrés</i>.
-    <br><br><b>C'est la chute qui fabrique la lumière.</b> Et pour transformer de la matière
-    en lumière, un trou noir est la machine la plus efficace de tout l'univers.
-    Bien meilleure qu'une étoile.`,
-
-   `Les couches proches tournent plus vite que les couches éloignées, et ce cisaillement
-    dissipe l'énergie de chute en chaleur. Le rendement est énorme : jusqu'à <i>6 %</i> de
-    l'énergie de masse convertie en lumière, contre 0,7 % pour la fusion nucléaire au cœur
-    d'une étoile. <b>Un trou noir est la machine la plus efficace de l'univers</b> pour
-    transformer de la matière en rayonnement.`,
-
-   `Disque mince Shakura-Sunyaev (1973), viscosité α portée par la MRI (Balbus-Hawley 1991).
-    Rendement 5,7 % en Schwarzschild, jusqu'à 42 % en Kerr extrême prograde.
-    Sgr A* n'est pas dans ce régime : à Ṁ ~ 10⁻⁸ M☉/an il est en <b>RIAF/ADAF</b>,
-    optiquement mince, refroidissement inefficace, l'essentiel de l'énergie étant advecté
-    au lieu d'être rayonné. Les GRMHD (KHARMA, BHAC) reproduisent l'anneau EHT mais
-    butent encore sur la variabilité intra-journalière.`,
-  ]
-},
-{
-  titre: "Un côté plus brillant",
-  t: [
-   `Regarde bien le disque : <b>un côté brille beaucoup plus fort que l'autre</b>.
-    Ce n'est pas un défaut d'image.
-    <br><br>Le gaz tourne à une bonne fraction de la vitesse de la lumière. Et à ces
-    vitesses-là, ce qui vient vers toi paraît plus lumineux, ce qui s'éloigne s'assombrit.
-    <br><br>C'est un peu comme la sirène d'une ambulance, plus aiguë quand elle approche.
-    Sauf qu'ici c'est la <i>lumière</i>, et que le contraste dépasse un facteur dix.`,
-
-   `C'est le <b>beaming relativiste</b>. Dans la partie interne, le gaz file à 30-40 %
-    de la vitesse de la lumière. Le côté qui approche voit son éclat multiplié par dix
-    et sa couleur décalée vers le bleu ; l'autre s'éteint et rougit.
-    Cette asymétrie est une <i>mesure directe du sens de rotation</i> du disque.`,
-
-   `Facteur Doppler D = 1/(γ(1 − β·n̂)), intensité observée en D³ pour une source
-    monochromatique, D⁴ en bolométrique intégrée. β ≈ 0,4 à l'ISCO de Schwarzschild.
-    C'est sur cette asymétrie que l'EHT a conclu au sens horaire de rotation de M87*
-    et à un jet aligné sur le spin. S'y superpose le <b>redshift gravitationnel</b>
-    √(1 − r<sub>s</sub>/r), qui lui ne dépend que du rayon d'émission.`,
-  ]
-},
-{
-  titre: "La dernière orbite stable",
-  t: [
-   `Autour de la Terre, on peut mettre un satellite aussi bas qu'on veut, tant qu'il évite
-    l'atmosphère. Il suffit d'aller à la bonne vitesse.
-    <br><br>Autour d'un trou noir, non. Il existe une distance en dessous de laquelle
-    <b>plus aucune orbite ne tient</b>. On tombe, quoi qu'on fasse, quelle que soit sa
-    vitesse, quelle que soit sa puissance. Le cercle en pointillés marque cette frontière.
-    <br><br>Cette règle n'existe nulle part ailleurs. Elle n'apparaît qu'ici.`,
-
-   `C'est l'<b>ISCO</b>, la dernière orbite circulaire stable, à 3 fois le rayon de l'horizon.
-    En gravité newtonienne, il y a toujours un équilibre possible : trop vite on s'éloigne,
-    trop lentement on se rapproche. En relativité, sous l'ISCO, cet équilibre disparaît —
-    <i>le puits n'a plus de fond</i>. C'est là que s'arrête le disque d'accrétion.`,
-
-   `r<sub>ISCO</sub> = 6GM/c² pour a = 0 ; elle descend à GM/c² en Kerr extrême prograde et
-    monte à 9GM/c² en rétrograde. Elle sort du potentiel effectif
-    V = −GM/r + L²/2r² <b>− GML²/c²r³</b> : le terme en r⁻³ supprime le minimum en deçà.
-    Sa position fixe le rendement radiatif, et c'est en ajustant le bord interne du disque
-    que la <b>méthode du continuum</b> contraint le spin — principale alternative à
-    l'élargissement de la raie Kα du fer à 6,4 keV.`,
-  ]
-},
-{
-  titre: "Est-ce que c'est vrai ?",
-  t: [
-   `Oui. Et c'est le plus beau de toute l'histoire.
-    <br><br>Personne n'a dessiné cette image. Pour chacun des deux millions de points de ton
-    écran, l'ordinateur lance un rayon de lumière et le suit <i>à l'envers</i>, en respectant
-    des équations écrites en 1915. L'anneau, l'ombre, le disque replié par-dessus :
-    <b>tout ça sort du calcul, tout seul</b>.
-    <br><br>Des gens ont écrit ces équations avec un crayon, il y a plus de cent ans, sans
-    ordinateur, sans avoir jamais vu de trou noir — certains doutaient même que ça existe.
-    Un siècle plus tard, une machine les applique et retrouve <b>exactement</b> ce que les
-    télescopes finissent par photographier.
-    <br><br>C'est ça, la physique. Et c'est fou.`,
-
-   `C'est du lancer de géodésiques, pas un filtre de déformation. Chaque pixel intègre la
-    trajectoire d'un photon dans la métrique de Schwarzschild. La preuve que ce n'est pas
-    truqué : la sphère des photons tombe <i>exactement</i> à 1,5 rayon d'horizon, l'ombre à
-    2,598, et l'image secondaire du disque apparaît sans avoir été demandée.
-    <b>Ce sont des résultats, pas des réglages.</b>`,
-
-   `<b>Exact</b> — géodésiques nulles intégrées sous forme cartésienne
-    a = −(3/2)h²r/r⁵ avec h = |r × ṙ|, équivalente à la Binet d²u/dφ² + u = 3Mu² :
-    d'où sphère des photons à 1,5 r<sub>s</sub>, ombre à √27/2, images d'ordre n,
-    Ω képlérien en r<sup>−3/2</sup>, et la période orbitale du photon 6√3·πGM/c³.<br><br>
-    <b>Approximé</b> — métrique statique (a = 0 : ni frame-dragging ni ergosphère).
-    Disque géométriquement mince et optiquement fin, émissivité ad hoc au lieu d'un GRMHD,
-    sans transfert radiatif. Le <i>redshift gravitationnel</i> n'est appliqué qu'en g¹ sur la
-    luminosité, avec un plancher, là où la loi est en g³ — et sans décalage de couleur :
-    c'est le même défaut que celui qu'on assume pour le Doppler. Ce dernier prend β en
-    coordonnées, le borne à 0,85 et omet γ, d'où une erreur de γ³−1 ≈ 32 % au bord interne,
-    et non 10 %. Le calque de trajectoires est projeté droit, sans lentille. Les sondes
-    suivent la géodésique de type temps (même équation plus le terme newtonien), intégrée en
-    <i>temps coordonnée</i> et non en temps propre.`,
-  ]
-},
-];
+const FICHES = CONTENU.fiches;
 
 let iNiveau = 0, iFiche = 0;
 
@@ -1704,12 +1506,33 @@ FICHES.forEach((f, i) => {
   boitierP.appendChild(s);
 });
 
+// KaTeX est chargé en `defer` : il n'existe pas encore quand ce script
+// s'exécute. On compose donc ce qu'on peut, et on repasse une fois prêt.
+function composeMaths(el){
+  if(!el || !window.renderMathInElement) return;
+  try {
+    renderMathInElement(el, {
+      delimiters: [
+        { left:"$$", right:"$$", display:true  },
+        { left:"$",  right:"$",  display:false },
+      ],
+      throwOnError: false,
+      errorColor: "#ff5d7a",
+    });
+  } catch(e){ /* une formule fautive ne doit pas casser la page */ }
+}
+
+addEventListener("DOMContentLoaded", () => {
+  ["f-texte", "d-texte", "bulle-texte", "sp-note"].forEach(id => composeMaths($(id)));
+});
+
 function majFiche(){
   const f = FICHES[iFiche];
   $("f-titre").textContent = f.titre;
   $("f-num").textContent   = (iFiche+1) + " / " + FICHES.length;
   $("f-texte").innerHTML   = f.t[iNiveau];
   $("f-texte").scrollTop   = 0;
+  composeMaths($("f-texte"));
   [...boitierN.children].forEach((c,i) => c.classList.toggle("actif", i === iNiveau));
   [...boitierP.children].forEach((c,i) => c.classList.toggle("actif", i === iFiche));
 }
@@ -1747,6 +1570,7 @@ function dit(o, duree, avant){
   questionsOuvertes = false;
   const html = typeof o === "string" ? o : o.t;
   elBulleTxt.innerHTML = (avant || "") + html;
+  composeMaths(elBulleTxt);
   elBulle.classList.add("vu");
   parle(o);
   const n = html.replace(/<[^>]+>/g, "").length;
@@ -2269,138 +2093,7 @@ if(memoire){
 intro();
 
 // ============ dossier « pourquoi c'est exact » ============
-const METHODE = [
-// ---------------------------------------------------------------- Découverte
-`<h3>D'abord, à quoi ressemble un faux</h3>
- <p>La manière facile de fabriquer un joli trou noir, c'est de prendre une photo
- d'étoiles et de la <b>tordre</b>, comme quand on regarde à travers le cul d'une bouteille.
- On pose un rond noir au milieu, un anneau orange autour, et c'est fini. Ça peut être
- très beau. Mais ça ne veut rien dire : on aurait pu faire le rond deux fois plus grand,
- personne n'y aurait vu de différence.</p>
-
- <h3>Ce que fait cette page</h3>
- <p>Ici, il n'y a <b>aucune image tordue et aucun rond dessiné</b>. Pour chacun des deux
- millions de points de ton écran, l'ordinateur se pose une question :
- <i>d'où vient la lumière qui arrive ici ?</i> Et il remonte le chemin de ce rayon
- à l'envers, petit bout par petit bout, en respectant la façon dont une masse
- creuse l'espace autour d'elle.</p>
- <p>Le rayon avance, il est un peu dévié. Il avance encore, il est dévié un peu plus.
- Au bout du voyage, trois choses peuvent lui arriver : il finit dans le trou noir
- — et le point est noir ; il traverse le gaz brûlant — le point est orange ;
- ou il repart vers les étoiles — le point est étoilé. C'est tout le programme.</p>
-
- <h3>Pourquoi ce n'est pas juste un joli dessin</h3>
- <p>Parce que <b>personne n'a décidé de la taille du rond noir</b>. Elle sort du calcul.
- Et la valeur qui en sort est exactement celle que des physiciens ont trouvée
- avec un papier et un crayon, bien avant les ordinateurs : 2,6 fois la taille du trou noir.
- Si le programme était faux, ce nombre serait faux.</p>
- <p>Même chose pour l'anneau lumineux, pour le fait qu'on voie le <i>dessous</i> du disque
- par-dessus, pour le côté qui brille plus que l'autre. Rien de tout ça n'a été dessiné
- à la main. Ce sont des <b>conséquences</b>.</p>
- <p>Et tu n'as pas à me croire sur parole : le bouton en bas relance le calcul
- sous tes yeux et compare ce que trouve la machine à ce que dit la théorie.</p>
-
- <h3>Ce qui, en revanche, n'est pas vrai</h3>
- <p>Autant être honnête. Les couleurs sont inventées : le vrai Sagittarius A* est
- beaucoup plus pâle, et on ne le voit qu'avec des antennes radio, pas avec des yeux.
- Et le vrai <b>tourne sur lui-même</b>, ce qui entraîne l'espace avec lui — ça, ce n'est
- pas simulé ici. La forme est juste. Le décor est plausible, mais peint à la main.</p>`,
-
-// ------------------------------------------------------------------- Curieux
-`<h3>Le faux : une déformation d'écran</h3>
- <p>Un rendu bon marché applique un <b>déplacement radial des pixels</b> autour d'un centre,
- puis superpose un anneau et un disque noir. La signature est reconnaissable :
- pas d'images multiples, la taille de l'ombre est un curseur libre, et la déformation
- ne réagit pas correctement quand on change l'angle de vue.</p>
-
- <h3>Le vrai : on suit la lumière</h3>
- <p>Chaque pixel définit une direction de départ. On intègre la trajectoire du photon
- dans la <b>métrique de Schwarzschild</b> jusqu'à ce qu'il passe sous l'horizon, coupe
- le disque, ou parte à l'infini. À chaque pas on connaît la position et la direction,
- et on applique une accélération :</p>
- <pre>a = −(3/2) · h² · r / r⁵      <span class="cm">h = |r × v|, conservé</span></pre>
- <p>C'est tout. Deux lignes, et toute l'optique du trou noir en découle.
- Le <code>h</code> est le moment cinétique du photon : il ne change pas le long du rayon,
- et le fait qu'il reste constant numériquement est déjà un contrôle de qualité.</p>
-
- <h3>Les quatre nombres qui tranchent</h3>
- <p>Une simulation exacte doit retrouver, <b>sans qu'on les lui souffle</b>, des valeurs
- calculées analytiquement il y a un siècle :</p>
- <ul>
-   <li>La sphère des photons à <i>1,5</i> rayon de Schwarzschild</li>
-   <li>Le rayon apparent de l'ombre : <i>√27 / 2 ≈ 2,598</i></li>
-   <li>La déflexion à grande distance : <i>α = 4GM/c²b</i></li>
-   <li>La dernière orbite stable pour la matière : <i>3</i> rayons</li>
- </ul>
- <p>Le troisième est le plus parlant. Newton <b>aussi</b> prédisait une déviation de la
- lumière — mais deux fois plus faible. C'est ce facteur 2 qu'Eddington est allé mesurer
- pendant l'éclipse de 1919, et qui a rendu Einstein célèbre en une nuit. Si le moteur
- de cette page donnait la valeur newtonienne, il serait faux, et le banc d'essai
- ci-dessous te le montrerait.</p>
-
- <h3>La limite, dite franchement</h3>
- <p>L'optique est exacte ; l'astrophysique ne l'est pas. Le disque est une texture
- plausible, pas une simulation d'écoulement de plasma. Et la métrique employée est
- celle d'un trou noir <b>immobile</b>, alors que les vrais tournent.</p>`,
-
-// ------------------------------------------------------------ Astrophysicien
-`<h3>Formulation</h3>
- <p>Ray-tracing rétrograde de géodésiques nulles en Schwarzschild. On intègre la forme
- cartésienne</p>
- <pre>a = −(3/2) h² r / r⁵        <span class="cm">h = |r × ṙ|, G = c = r_s = 1, donc M = 1/2</span></pre>
- <p>équivalente à l'équation de Binet <code>d²u/dφ² + u = 3Mu²</code> (u = 1/r), obtenue en
- éliminant le paramètre affine entre les intégrales premières <code>E = (1−2M/r)ṫ</code> et
- <code>L = r²φ̇</code>. Le terme <code>3Mu²</code> est le <b>seul</b> écart au cas newtonien :
- c'est lui qui porte toute la relativité générale de l'image.</p>
-
- <h3>Schéma numérique</h3>
- <p>Intégrateur Verlet-vitesse à pas adaptatif <code>dt = clamp(0,085 r ; 0,045 ; 1,4)/|ṙ|</code>,
- 240 pas au maximum, terminaison sur <code>r &lt; 1</code> (capture) ou <code>r &gt; 70</code>
- en s'éloignant. La direction n'est <b>jamais</b> renormalisée : λ est un paramètre affine,
- où <code>|dr/dλ|² = 1 + 2Mh²/r³</code> n'est pas constant. Forcer la norme à 1 est l'erreur
- naturelle, et elle gonfle l'ombre de 55 % — c'est le banc d'essai ci-dessous qui l'a
- débusquée. <code>h²</code> est évalué une fois au départ : ce n'est pas une contrainte
- imposée mais une constante du mouvement.</p>
- <p>Le banc rejoue ces géodésiques en JavaScript avec la même équation et les mêmes constantes
- que le GLSL, mais un pas des milliers de fois plus fin et sans plafond de pas : il mesure
- la justesse de la <i>formulation</i>, pas celle du budget temps réel du shader.
- Les quatre grandeurs obtenues sont des <b>sorties</b> du schéma, jamais des paramètres.</p>
-
- <h3>Les sondes de matière</h3>
- <p>Elles suivent <code>a = −(M/r³)(1 + 3h²/r²) r</code>, forme cartésienne de la Binet de
- type temps <code>d²u/dφ² + u = M/h² + 3Mu²</code>. Elle redonne
- <code>h² = Mr²/(r−3M)</code> pour les orbites circulaires — d'où la divergence en
- <code>r = 3M</code>, qui <i>est</i> la sphère des photons — et, en annulant
- <code>V″_eff</code>, l'ISCO à exactement <code>6M</code>. La précession du périastre en
- sort au bon ordre.</p>
- <p><b>Réserve :</b> l'intégration est paramétrée en temps coordonnée et non en temps propre.
- Les trajectoires dans l'espace sont bonnes ; la cadence à laquelle elles sont parcourues
- ne l'est plus près de l'horizon.</p>
-
- <h3>Ce qui n'est délibérément pas simulé</h3>
- <ul>
-   <li><b>Spin.</b> Métrique statique, a = 0. Ni frame-dragging, ni ergosphère, ni ISCO
-       déplacée, ni asymétrie prograde/rétrograde. Le spin réel de Sgr A* est non nul
-       mais mal contraint.</li>
-   <li><b>Transfert radiatif.</b> Émissivité ad hoc en bruit fractal, absorption grossière.
-       Pas d'opacité, pas de synchrotron, pas de comptonisation. Un rendu publiable part
-       d'un GRMHD (KHARMA, BHAC) post-traité par un code de transfert (ipole, RAPTOR).</li>
-   <li><b>Géométrie du disque.</b> Mince et plan, alors qu'un RIAF comme Sgr A* est
-       géométriquement épais, H/R ~ 1.</li>
-   <li><b>Doppler.</b> <code>D = 1/(1 − β·n̂)</code> sans le facteur γ. L'erreur sur
-       l'amplitude est d'ordre γ−1 ≈ 10 % au bord interne : l'asymétrie qualitative est
-       bonne, le contraste absolu non.</li>
-   <li><b>Simultanéité.</b> L'image est instantanée ; on ignore que la lumière venant de
-       l'arrière du disque est plus vieille que celle du bord avant.</li>
- </ul>
-
- <h3>Le test qui distingue vraiment</h3>
- <p>Un post-traitement en espace écran ne <b>peut pas</b> produire d'images d'ordre n :
- il est une bijection du plan image sur lui-même, alors que la vraie application
- observateur → source est infiniment repliée au voisinage de <code>b_c</code>.
- C'est le discriminant. Ici le second anneau du disque est visible à l'œil,
- et un troisième existe sous le seuil de résolution.</p>`,
-];
+const METHODE = CONTENU.methode;
 
 const elVoile = $("voile"), elDTexte = $("d-texte");
 let iDNiveau = 0;
@@ -2414,6 +2107,7 @@ NIVEAUX.forEach((nom, i) => {
 });
 function majDossier(){
   elDTexte.innerHTML = METHODE[iDNiveau];
+  composeMaths(elDTexte);
   [...boitierD.children].forEach((c, i) => c.classList.toggle("actif", i === iDNiveau));
 }
 $("b-methode").onclick = () => { iDNiveau = iNiveau; majDossier(); elVoile.classList.add("vu"); };
