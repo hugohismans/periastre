@@ -672,3 +672,30 @@ une vue extérieure, un curseur de temps en années, et de quoi désigner une
 
 **C'est la tête d'affiche de la version suivante**, pas de la bêta : elle mérite
 d'être faite proprement, et rien ne doit bouger pendant que les amis testent.
+
+## Discipline de branches — *à partir du 4 août 2026*
+
+Dès que les amis reçoivent le lien, `main` cesse d'être un brouillon : c'est ce
+que des gens utilisent. Hugo l'a posé au bon moment, et ça change la façon de
+travailler.
+
+**La règle :**
+
+- `main` est en production. On n'y pousse que ce qui est fini et vérifié.
+- `dev` est l'endroit où l'on travaille. Toute nouveauté y naît.
+- On fusionne dans `main` quand ça marche, pas quand ça compile.
+
+**Pourquoi ça compte ici en particulier.** Cette session a montré deux fois le
+même piège : une modification de nuanceur qui casse la compilation tue tout le
+bloc de script, et le symptôme est **muet** — la page se charge, le trou noir
+s'affiche, et seule la moitié des fonctions manque. Sur un site que personne
+n'utilise, on s'en aperçoit à l'essai suivant. Sur un site que dix personnes
+ouvrent, on ne s'en aperçoit pas du tout.
+
+**Le contrôle minimal avant toute fusion**, tiré de ces deux incidents : après
+une modification de nuanceur ou de script, vérifier qu'une variable déclarée
+*tard* dans le fichier existe encore. Si `salon` ou `$` a disparu, le bloc est
+mort quelque part au-dessus.
+
+`kerr` reste comme témoin de la branche d'exploration qui a servi au moteur de
+Kerr. Elle n'a plus d'usage courant.
