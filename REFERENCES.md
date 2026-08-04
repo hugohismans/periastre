@@ -6,7 +6,7 @@ Généré par `node outils/sources.mjs` — ne pas modifier à la main.
 Pour le *jugement* porté sur chaque affirmation après vérification,
 voir [SOURCES.md](SOURCES.md), qui est l'audit et non l'index.
 
-27 références, 27 effectivement citées.
+31 références, 31 effectivement citées.
 
 ## `gravity2021`
 
@@ -107,7 +107,7 @@ DOI : [10.3847/2041-8213/ac6674](https://doi.org/10.3847/2041-8213/ac6674)
   > M = 4,297 ± 0,013 × 10⁶ M☉ à R₀ = 8 277 ± 31 pc (GRAVITY, 2021), par astrométrie infrarouge de S2 — dont la pr…
 - Fiche 4 « L'anneau de photons et l'ombre » — Astrophysicien
   > Sphère des photons à r = 3GM/c², ombre de rayon apparent √27 GM/c² ≈ 2,598 rs, soit ~52 μas pour Sgr A* — d'où…
-- Fiche 8 « Est-ce que c'est vrai ? » — Astrophysicien
+- Fiche 9 « Est-ce que c'est vrai ? » — Astrophysicien
   > Exact — géodésiques nulles intégrées sous forme cartésienne l'intégration de $mathbf{a} = - frac{3}{2}h^{2}mat…
 - Dossier « pourquoi c'est exact » — Découverte
   > D'abord, à quoi ressemble un faux La manière facile de fabriquer un joli trou noir, c'est de prendre une photo…
@@ -210,7 +210,7 @@ DOI : [10.1086/151796](https://doi.org/10.1086/151796)
 
 **Ce qu'elle étaye :** ISCO à 6GM/c² (Schwarzschild), GM/c² (Kerr extrême prograde), 9GM/c² (rétrograde) ; rendements 5,7 % et 42 %
 
-**Citée 16 fois :**
+**Citée 19 fois :**
 
 - Fiche 5 « Pourquoi ça brille » — Curieux
   > Les couches proches tournent plus vite que les couches éloignées, et ce cisaillement dissipe l'énergie de chut…
@@ -224,7 +224,13 @@ DOI : [10.1086/151796](https://doi.org/10.1086/151796)
   > C'est l'ISCO, la dernière orbite circulaire stable, à 3 fois le rayon de l'horizon. En gravité newtonienne, il…
 - Fiche 7 « La dernière orbite stable » — Astrophysicien
   > rISCO = 6GM/c² pour a = 0 ; elle descend à GM/c² en Kerr extrême prograde et monte à 9GM/c² en rétrograde. Ell…
-- Fiche 8 « Est-ce que c'est vrai ? » — Astrophysicien
+- Fiche 8 « Quand le trou noir tourne » — Découverte
+  > Une masse immobile creuse l'espace. Une masse qui tourne fait quelque chose de plus : elle l'entraîne avec ell…
+- Fiche 8 « Quand le trou noir tourne » — Curieux
+  > L'entraînement des repères a été prédit en 1918 et mesuré autour de la Terre en 2011, où l'effet est minuscule…
+- Fiche 8 « Quand le trou noir tourne » — Astrophysicien
+  > Métrique de Kerr (1963), le seul autre paramètre admis par le théorème de calvitie. L'entraînement des repères…
+- Fiche 9 « Est-ce que c'est vrai ? » — Astrophysicien
   > Exact — géodésiques nulles intégrées sous forme cartésienne l'intégration de $mathbf{a} = - frac{3}{2}h^{2}mat…
 - Dossier « pourquoi c'est exact » — Curieux
   > Le faux : une déformation d'écran Un rendu bon marché applique un déplacement radial des pixels autour d'un ce…
@@ -259,7 +265,7 @@ J. M. Bardeen, « Timelike and null geodesics in the Kerr metric », dans Black 
   > La sphère des photons est à 1,5 fois le rayon de l'horizon. L'orbite y est instable : le moindre écart, et le …
 - Fiche 4 « L'anneau de photons et l'ombre » — Astrophysicien
   > Sphère des photons à r = 3GM/c², ombre de rayon apparent √27 GM/c² ≈ 2,598 rs, soit ~52 μas pour Sgr A* — d'où…
-- Fiche 8 « Est-ce que c'est vrai ? » — Curieux
+- Fiche 9 « Est-ce que c'est vrai ? » — Curieux
   > C'est du lancer de géodésiques, pas un filtre de déformation. Chaque pixel intègre la trajectoire d'un photon …
 - Dossier « pourquoi c'est exact » — Curieux
   > Le faux : une déformation d'écran Un rendu bon marché applique un déplacement radial des pixels autour d'un ce…
@@ -354,7 +360,7 @@ DOI : [10.1146/annurev-astro-082812-141003](https://doi.org/10.1146/annurev-astr
   > M = 4,297 ± 0,013 × 10⁶ M☉ à R₀ = 8 277 ± 31 pc (GRAVITY, 2021), par astrométrie infrarouge de S2 — dont la pr…
 - Fiche 5 « Pourquoi ça brille » — Astrophysicien
   > Disque mince Shakura-Sunyaev (1973), viscosité α portée par la MRI (Balbus-Hawley 1991). Rendement 5,7 % en Sc…
-- Fiche 8 « Est-ce que c'est vrai ? » — Astrophysicien
+- Fiche 9 « Est-ce que c'est vrai ? » — Astrophysicien
   > Exact — géodésiques nulles intégrées sous forme cartésienne l'intégration de $mathbf{a} = - frac{3}{2}h^{2}mat…
 - Dossier « pourquoi c'est exact » — Astrophysicien
   > Formulation Ray-tracing rétrograde de géodésiques nulles en Schwarzschild. On intègre la forme cartésienne $$\…
@@ -449,11 +455,11 @@ S. Chandrasekhar, The Mathematical Theory of Black Holes, Oxford University Pres
   > La sphère des photons est à 1,5 fois le rayon de l'horizon. L'orbite y est instable : le moindre écart, et le …
 - Fiche 7 « La dernière orbite stable » — Astrophysicien
   > rISCO = 6GM/c² pour a = 0 ; elle descend à GM/c² en Kerr extrême prograde et monte à 9GM/c² en rétrograde. Ell…
-- Fiche 8 « Est-ce que c'est vrai ? » — Découverte
+- Fiche 9 « Est-ce que c'est vrai ? » — Découverte
   > Oui. Et c'est le plus beau de toute l'histoire. Personne n'a dessiné cette image. Pour chacun des deux million…
-- Fiche 8 « Est-ce que c'est vrai ? » — Curieux
+- Fiche 9 « Est-ce que c'est vrai ? » — Curieux
   > C'est du lancer de géodésiques, pas un filtre de déformation. Chaque pixel intègre la trajectoire d'un photon …
-- Fiche 8 « Est-ce que c'est vrai ? » — Astrophysicien
+- Fiche 9 « Est-ce que c'est vrai ? » — Astrophysicien
   > Exact — géodésiques nulles intégrées sous forme cartésienne l'intégration de $mathbf{a} = - frac{3}{2}h^{2}mat…
 - Dossier « pourquoi c'est exact » — Découverte
   > D'abord, à quoi ressemble un faux La manière facile de fabriquer un joli trou noir, c'est de prendre une photo…
@@ -473,6 +479,62 @@ S. Chandrasekhar, The Mathematical Theory of Black Holes, Oxford University Pres
   > Prends ton temps, il en a pour onze minutes et demie — un seul tour. La lumière est ce qu'il y a de plus rapid…
 - accueil.bienvenue (intro-bienvenue)
   > Ce que tu regardes n'est pas une image. C'est un calcul, refait soixante fois par seconde.…
+
+## `kerr1963`
+
+R. P. Kerr, « Gravitational Field of a Spinning Mass as an Example of Algebraically Special Metrics », Physical Review Letters 11, 237 (1963)
+
+DOI : [10.1103/PhysRevLett.11.237](https://doi.org/10.1103/PhysRevLett.11.237)
+
+**Ce qu'elle étaye :** Métrique de Kerr : la solution décrivant un trou noir en rotation
+
+**Citée 1 fois :**
+
+- Fiche 8 « Quand le trou noir tourne » — Astrophysicien
+  > Métrique de Kerr (1963), le seul autre paramètre admis par le théorème de calvitie. L'entraînement des repères…
+
+## `lense1918`
+
+J. Lense, H. Thirring, Physikalische Zeitschrift 19, 156 (1918) ; mesure autour de la Terre : C. W. F. Everitt et al., « Gravity Probe B: Final Results of a Space Experiment to Test General Relativity », Physical Review Letters 106, 221101 (2011)
+
+DOI : [10.1103/PhysRevLett.106.221101](https://doi.org/10.1103/PhysRevLett.106.221101)
+
+**Ce qu'elle étaye :** Entraînement des repères par une masse en rotation, prédit en 1918 et mesuré autour de la Terre en 2011
+
+**Citée 3 fois :**
+
+- Fiche 8 « Quand le trou noir tourne » — Découverte
+  > Une masse immobile creuse l'espace. Une masse qui tourne fait quelque chose de plus : elle l'entraîne avec ell…
+- Fiche 8 « Quand le trou noir tourne » — Curieux
+  > L'entraînement des repères a été prédit en 1918 et mesuré autour de la Terre en 2011, où l'effet est minuscule…
+- Fiche 8 « Quand le trou noir tourne » — Astrophysicien
+  > Métrique de Kerr (1963), le seul autre paramètre admis par le théorème de calvitie. L'entraînement des repères…
+
+## `penrose1969`
+
+R. Penrose, « Gravitational Collapse: The Role of General Relativity », Rivista del Nuovo Cimento 1, 252 (1969)
+
+**Ce qu'elle étaye :** Extraction d'énergie de rotation depuis l'ergosphère (processus de Penrose)
+
+**Citée 1 fois :**
+
+- Fiche 8 « Quand le trou noir tourne » — Astrophysicien
+  > Métrique de Kerr (1963), le seul autre paramètre admis par le théorème de calvitie. L'entraînement des repères…
+
+## `blandford1977`
+
+R. D. Blandford, R. L. Znajek, « Electromagnetic extraction of energy from Kerr black holes », MNRAS 179, 433-456 (1977)
+
+DOI : [10.1093/mnras/179.3.433](https://doi.org/10.1093/mnras/179.3.433)
+
+**Ce qu'elle étaye :** Mécanisme alimentant les jets : extraction magnétique de l'énergie de rotation
+
+**Citée 2 fois :**
+
+- Fiche 8 « Quand le trou noir tourne » — Curieux
+  > L'entraînement des repères a été prédit en 1918 et mesuré autour de la Terre en 2011, où l'effet est minuscule…
+- Fiche 8 « Quand le trou noir tourne » — Astrophysicien
+  > Métrique de Kerr (1963), le seul autre paramètre admis par le théorème de calvitie. L'entraînement des repères…
 
 ## `yuan2003`
 

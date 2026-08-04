@@ -109,6 +109,25 @@ sources: {
     ref: "S. Chandrasekhar, The Mathematical Theory of Black Holes, Oxford University Press (1983), chap. 3",
     sert: "Équation des géodésiques (forme de Binet) pour Schwarzschild, sphère des photons à 3GM/c²",
   },
+  kerr1963: {
+    ref: "R. P. Kerr, « Gravitational Field of a Spinning Mass as an Example of Algebraically Special Metrics », Physical Review Letters 11, 237 (1963)",
+    doi: "10.1103/PhysRevLett.11.237",
+    sert: "Métrique de Kerr : la solution décrivant un trou noir en rotation",
+  },
+  lense1918: {
+    ref: "J. Lense, H. Thirring, Physikalische Zeitschrift 19, 156 (1918) ; mesure autour de la Terre : C. W. F. Everitt et al., « Gravity Probe B: Final Results of a Space Experiment to Test General Relativity », Physical Review Letters 106, 221101 (2011)",
+    doi: "10.1103/PhysRevLett.106.221101",
+    sert: "Entraînement des repères par une masse en rotation, prédit en 1918 et mesuré autour de la Terre en 2011",
+  },
+  penrose1969: {
+    ref: "R. Penrose, « Gravitational Collapse: The Role of General Relativity », Rivista del Nuovo Cimento 1, 252 (1969)",
+    sert: "Extraction d'énergie de rotation depuis l'ergosphère (processus de Penrose)",
+  },
+  blandford1977: {
+    ref: "R. D. Blandford, R. L. Znajek, « Electromagnetic extraction of energy from Kerr black holes », MNRAS 179, 433-456 (1977)",
+    doi: "10.1093/mnras/179.3.433",
+    sert: "Mécanisme alimentant les jets : extraction magnétique de l'énergie de rotation",
+  },
   yuan2003: {
     ref: "F. Yuan, E. Quataert, R. Narayan, « Nonthermal Electrons in Radiatively Inefficient Accretion Flow Models of Sagittarius A* », ApJ 598, 301 (2003)",
     doi: "10.1086/378716",
@@ -754,6 +773,58 @@ fiches: [
     Sa position fixe le rendement radiatif, et c'est en ajustant le bord interne du disque
     que la <b>méthode du continuum</b> contraint le spin — principale alternative à
     l'élargissement de la raie Kα du fer à 6,4 keV.`,
+  ]
+},
+{
+  id: "f-rotation",
+  titre: "Quand le trou noir tourne",
+  sources: [
+    ["lense1918", "bardeen1972"],
+    ["lense1918", "bardeen1972", "blandford1977"],
+    ["kerr1963", "bardeen1972", "penrose1969", "blandford1977", "lense1918"],
+  ],
+  t: [
+   `Une masse immobile <i>creuse</i> l'espace. Une masse qui tourne fait quelque chose
+    de plus : elle <b>l'entraîne avec elle</b>, comme l'eau autour d'une bonde.
+    <br><br>Et ça change tout. Il existe autour d'un trou noir en rotation une zone où
+    l'espace file si vite que <b>plus rien ne peut rester immobile</b> — aucun moteur,
+    aussi puissant soit-il, ne permet de tenir en place. Tu es forcé de tourner avec lui.
+    <br><br>Autre conséquence, visible à l'écran : en tournant <i>dans le même sens</i>
+    que lui, on peut s'approcher bien plus près. C'est pour ça que son ombre n'est plus
+    ronde — elle s'aplatit du côté où la rotation vient vers toi.
+    <br><br>Aucun trou noir réel n'est immobile. Ils naissent d'étoiles qui tournaient,
+    et se nourrissent de gaz qui tourne.`,
+
+   `L'entraînement des repères a été prédit en 1918 et mesuré autour de la Terre en 2011,
+    où l'effet est minuscule. Près d'un trou noir, il domine tout.
+    <br><br>La dernière orbite stable cesse d'être symétrique :
+    3 rayons dans les deux sens sans rotation, mais <b>1,16 rayon</b> dans le sens de la
+    rotation à a* = 0,9, contre 4,36 à contresens. Presque cinq fois plus près d'un côté
+    que de l'autre.
+    <br><br>D'où le point qui change vraiment tout : si la matière tombe plus près avant
+    de se stabiliser, elle libère bien plus d'énergie. Le rendement passe de <i>5,7 %</i>
+    de la masse convertie en lumière à <b>42 %</b> — quand la fusion nucléaire d'une étoile
+    plafonne à 0,7 %. Un trou noir en rotation est soixante fois plus efficace que la fusion.
+    <br><br>C'est ce qui fait des quasars les objets les plus lumineux de l'univers.`,
+
+   `Métrique de Kerr (1963), le seul autre paramètre admis par le théorème de calvitie.
+    L'entraînement des repères $\\omega = 2Mar/A$ engendre l'ergosphère
+    $r_E = M + \\sqrt{M^2 - a^2\\cos^2\\theta}$, où aucun observateur statique n'existe.
+    <br><br>L'ISCO se sépare :
+    $r_{\\text{ISCO}} = 6GM/c^2$ pour $a = 0$, tombant à $GM/c^2$ en prograde extrême et
+    montant à $9GM/c^2$ en rétrograde. Le rendement radiatif
+    $1 - E_{\\text{ISCO}}/mc^2$ passe de <b>5,72 %</b> ($1-\\sqrt{8/9}$) à
+    <b>42,3 %</b> ($1 - 1/\\sqrt{3}$).
+    <br><br>L'énergie de rotation est <b>extractible</b> : jusqu'à 29 % de la masse par le
+    processus de Penrose, et en pratique par le mécanisme de Blandford-Znajek, où des
+    lignes de champ magnétique enfilant l'horizon alimentent les jets — celui de M87*
+    court sur cinq mille années-lumière.
+    <br><br><b>Ce que cette page simule :</b> l'ombre asymétrique, mesurée à 2,30 contre
+    2,40 en théorie à a* = 0,9, et le bord interne du disque qui suit l'ISCO.
+    <b>Ce qu'elle ne simule pas :</b> l'ergosphère n'est pas figurée, le curseur s'arrête
+    à a* = 0,95 car l'intégrateur décroche quand l'orbite photonique prograde se colle à
+    l'horizon, et une couture reste visible sur l'axe polaire — singularité des
+    coordonnées de Boyer-Lindquist, non du calcul.`,
   ]
 },
 {

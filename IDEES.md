@@ -104,6 +104,41 @@ Dépend de 5.
 
 ---
 
+## Chantiers ouverts, par ordre de valeur
+
+1. **Fusionner `kerr` dans `main`.** L'ombre en D est mesurée conforme (2,30
+   contre 2,40 à a* = 0,9), le disque suit l'ISCO, la fiche est écrite. Ce qui
+   reste : la couture sur l'axe polaire en mode rotation — singularité de
+   Boyer-Lindquist, réparable seulement en passant en coordonnées de
+   Kerr-Schild, ce qui est une réécriture.
+2. **La fusion de deux trous noirs.** L'idée la plus spectaculaire du carnet, et
+   la plus lourde : la métrique d'un binaire n'a pas de forme analytique, il
+   faut une relativité numérique. Piste réaliste : rejouer une forme d'onde
+   déjà calculée (les catalogues SXS sont publics) plutôt que résoudre les
+   équations, et lenser sur la géométrie approchée. À cadrer honnêtement — ce
+   serait une reconstitution, pas un calcul, et il faudra le dire.
+3. **Le télescope à filtres dans le vaisseau**, et le salon partagé.
+4. **Le dézoom vers la Voie lactée**, moteur écrit (`voyage.js`) mais pas branché.
+5. **Mode « vue réelle » depuis une chute libre** : aberration à l'approche.
+
+## Ce qui a marché comme méthode
+
+À garder, parce que ça a trouvé cinq vrais bugs que la relecture n'aurait pas
+vus :
+
+- **Mesurer plutôt que regarder.** Le banc d'essai a trouvé l'ombre 55 % trop
+  grande, la période du photon fausse d'un facteur √3, et l'orbite circulaire
+  newtonienne au lieu de relativiste.
+- **Un contrôle qui doit tomber juste par construction.** Kerr à spin nul *est*
+  Schwarzschild : tout écart est un bug, sans discussion possible.
+- **Isoler avant de corriger.** Remplacer le ciel par une fonction lisse a
+  prouvé en un test que l'artefact venait de la trajectoire, pas du rendu.
+- **Ne pas mettre de scotch.** La borne sur sin θ « pour éviter la singularité »
+  *était* le bug. Quand un garde-fou masque un symptôme, il fausse souvent
+  l'équation.
+- **Séparer ce qui marche de ce qu'on explore.** `main` n'a jamais été cassé,
+  tout le travail risqué vit sur `kerr`.
+
 ## Anecdotes proposées par Hugo
 
 Chacune est vérifiée par le calcul avant d'entrer dans le site. Le statut dit

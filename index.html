@@ -95,6 +95,22 @@
   #m-jauge i { flex:1; height:2px; border-radius:1px; background:rgba(255,255,255,.14); }
   #m-jauge i.ok { background:#6effb4; }
 
+  /* ---- temps ---- */
+  #temps {
+    position:fixed; z-index:5; bottom:88px; left:50%; transform:translateX(-50%);
+    width:min(390px, 94vw); pointer-events:auto;
+    background:rgba(10,8,20,.80); backdrop-filter:blur(16px);
+    border:1px solid rgba(255,255,255,.12); border-radius:14px; padding:15px 17px 17px;
+    opacity:0; visibility:hidden; transition:opacity .2s;
+  }
+  #temps.vu { opacity:1; visibility:visible; }
+  #tp-tete { display:flex; align-items:baseline; justify-content:space-between; gap:12px; }
+  #tp-titre { font-size:14px; font-weight:600; color:#fff; }
+  #tp-val { font-size:12px; color:#7fd8ff; font-variant-numeric:tabular-nums; white-space:nowrap; }
+  #tp-note { font-size:11px; line-height:1.6; color:#a9a4bd; margin:6px 0 11px; min-height:3.2em; }
+  #temps .grille { grid-template-columns:repeat(2,1fr); }
+  @media (max-width:760px){ #temps { bottom:auto; top:56px; left:10px; right:10px; width:auto; transform:none; } }
+
   /* ---- spectre ---- */
   #spectre {
     position:fixed; z-index:5; bottom:88px; left:50%; transform:translateX(-50%);
@@ -441,7 +457,17 @@
   <button id="b-sonde">Monter à bord</button>
   <button id="b-reel">Lumière réelle</button>
   <button id="b-spectre">Spectre</button>
+  <button id="b-temps">Temps</button>
   <button id="b-vide">Effacer</button>
+</div>
+
+<div id="temps">
+  <div id="tp-tete">
+    <div id="tp-titre">Vitesse du temps</div>
+    <div id="tp-val"></div>
+  </div>
+  <div id="tp-note"></div>
+  <div class="grille" id="vitesses"></div>
 </div>
 
 <div id="spectre">
@@ -591,7 +617,7 @@ uniform int   uSteps;        // pas réellement exécutés, pour arbitrer coût/
 uniform float uPas;          // finesse du pas ; plus petit = plus juste, plus lent
 uniform float uSeuilCapture; // rayon sous lequel un rayon épuisé est déclaré capturé
 
-const float R_IN  = 3.0;    // l'ISCO : sous cette orbite le disque ne peut pas tenir
+uniform float uRin;         // bord interne du disque = ISCO, qui dépend du spin
 const float R_OUT = 11.0;
 const int   STEPS = 900;    // plafond ; le nombre réel vient de uSteps
 const float M_TN  = 0.5;    // masse, en unités où r_s = 2M = 1 quand a = 0
@@ -645,7 +671,7 @@ vec3 ciel(vec3 d){
 // ---------- disque d'accrétion ----------
 vec4 disque(vec3 p, vec3 rd){
   float r = length(p.xz);
-  float t = (r - R_IN) / (R_OUT - R_IN);
+  float t = (r - uRin) / (R_OUT - uRin);
   float ang = atan(p.z, p.x);
 
   // rotation képlérienne : Ω = sqrt(M/r³), le gaz interne tourne bien plus vite
@@ -866,7 +892,7 @@ void main(){
         float f  = pos.y / (pos.y - np.y);
         vec3  cp = mix(pos, np, f);
         float rr = length(cp.xz);
-        if(rr > R_IN && rr < R_OUT){
+        if(rr > uRin && rr < R_OUT){
           vec4 d = disque(cp, normalize(dir));
           // En lumière visible, le flux d'accrétion de Sgr A* est presque muet :
           // il rayonne dans le submillimétrique, et il est sous-lumineux d'un
@@ -980,7 +1006,7 @@ void main(){
       if(cos(y.y)*cos(yn.y) < 0.0 && reste > 0.004){
         float f  = cos(y.y) / (cos(y.y) - cos(yn.y));
         float rr = mix(y.x, yn.x, f);
-        if(rr > R_IN && rr < R_OUT){
+        if(rr > uRin && rr < R_OUT){
           float pf = mix(ph, phn, f);
           vec3 cp = vec3(rr*cos(pf), 0.0, rr*sin(pf));
           vec4 d = disque(cp, normalize(pc - pcPrec));
@@ -1103,7 +1129,8 @@ const uRes = U("uRes"), uTemps = U("uTemps"), uCam = U("uCam"), uBasis = U("uBas
       uVitesse = U("uVitesse"), uReel = U("uReel"),
       uSpectre = U("uSpectre"), uRphoto = U("uRphoto"),
       uTeinte = U("uTeinte"), uEclat = U("uEclat"), uSpin = U("uSpin"),
-      uSteps = U("uSteps"), uPas = U("uPas"), uSeuilCapture = U("uSeuilCapture");
+      uSteps = U("uSteps"), uPas = U("uPas"), uSeuilCapture = U("uSeuilCapture"),
+      uRin = U("uRin");
 
 // ============ vecteurs ============
 const cross = (u,v) => [u[1]*v[2]-u[2]*v[1], u[2]*v[0]-u[0]*v[2], u[0]*v[1]-u[1]*v[0]];
@@ -1553,6 +1580,16 @@ $("b-reel").onclick = () => {
   if(actif) reagit("reel");
 };
 
+// Le réglage du temps était enterré dans les paramètres alors que c'est un des
+// gestes les plus parlants du site. Il passe dans la barre, avec sa conséquence
+// écrite noir sur blanc plutôt qu'un multiplicateur abstrait.
+const CONSEQUENCE = [
+  "Rien ne bouge, ou presque. C'est l'échelle réelle : la lumière met 11 min 31 s pour un tour d'anneau.",
+  "Une minute par seconde. Le disque commence à peine à tourner.",
+  "Dix minutes par seconde. Le gaz interne défile, le bord externe rampe encore.",
+  "Une heure par seconde. Le bord externe boucle son orbite en quelques secondes — quatre heures en vrai.",
+];
+
 const boitierV = $("vitesses");
 VITESSES.forEach((v, i) => {
   const b = document.createElement("button");
@@ -1560,10 +1597,25 @@ VITESSES.forEach((v, i) => {
   b.onclick = () => {
     iVitesse = i;
     [...boitierV.children].forEach((c, j) => c.classList.toggle("actif", j === i));
+    $("tp-val").textContent = v.nom;
+    $("tp-note").textContent = CONSEQUENCE[i];
     reagit("vitesse" + i);
   };
   boitierV.appendChild(b);
 });
+
+$("b-temps").onclick = () => {
+  const v = $("temps").classList.toggle("vu");
+  $("b-temps").classList.toggle("actif", v);
+  if(v){
+    $("spectre").classList.remove("vu");
+    $("b-spectre").classList.remove("actif");
+    spectreActif = false;
+    $("tp-val").textContent = VITESSES[iVitesse].nom;
+    $("tp-note").textContent = CONSEQUENCE[iVitesse];
+    [...boitierV.children].forEach((c, j) => c.classList.toggle("actif", j === iVitesse));
+  }
+};
 boitierV.children[iVitesse].classList.add("actif");
 
 // ---- souris ----
@@ -2093,6 +2145,8 @@ $("b-spectre").onclick = () => {
   $("spectre").classList.toggle("vu", spectreActif);
   $("b-spectre").classList.toggle("actif", spectreActif);
   if(!spectreActif) return;
+  $("temps").classList.remove("vu");            // un seul panneau à la fois
+  $("b-temps").classList.remove("actif");
   // les niveaux avancés savent lire une SED, on ne leur impose pas la leçon
   if(iNiveau === 0 && !leconSpectreVue) leconSpectre();
   else majSpectre();
@@ -2813,6 +2867,10 @@ function boucle(now){
   gl.uniform1i(uSteps, nbPas);
   gl.uniform1f(uPas, finesse);
   gl.uniform1f(uSeuilCapture, seuilCapture);
+  // Le disque s'arrête à la dernière orbite stable, qui se rapproche quand le
+  // trou noir tourne : 3 rayons à l'arrêt, 1,16 à a* = 0,9. Voir le disque
+  // DESCENDRE quand on monte le spin, c'est voir la rotation agir.
+  gl.uniform1f(uRin, KERR.rIsco(spin*M, true));
   if(spectreActif){
     gl.uniform1f(uRphoto, rPhotosphere(lgLambda));
     gl.uniform3fv(uTeinte, COUL_BANDE[bandeA(lgLambda).id] || [1,1,1]);
