@@ -335,6 +335,20 @@ reactions: {
   embarque: { id:"embarque", t:`Te voilà à bord. Attention, à cette vitesse le ciel n'est plus où tu crois : l'<b>aberration</b> le tasse vers l'avant. Ce que tu vois sur les côtés vient en réalité de derrière toi.`,
     dire:`Te voilà à bord. Attention, à cette vitesse le ciel n'est plus où tu crois : l'aberration le tasse vers l'avant. Ce que tu vois sur les côtés vient en réalité de derrière toi.`,
     sources:["misner1973"] },
+  jumeauxDepart: { id:"jumeaux-depart",
+    t:`Te voilà à bord. Ton jumeau, lui, reste là-haut, très loin.
+       <br><br>Regarde les <b>deux horloges</b> en bas de l'écran : elles sont à égalité
+       pour l'instant. Descends avec la molette — ou deux doigts — et regarde-les s'écarter.
+       <i>La tienne va prendre du retard.</i>`,
+    dire:`Te voilà à bord. Ton jumeau, lui, reste là-haut, très loin. Regarde les deux horloges en bas de l'écran : elles sont à égalité pour l'instant. Descends avec la molette, ou deux doigts, et regarde-les s'écarter. La tienne va prendre du retard.`,
+    pourquoi:`Ce n'est pas une illusion d'optique ni un artifice du jeu. Sur une orbite
+              circulaire en Schwarzschild, le temps propre s'écoule au rythme
+              $d\\tau/dt = \\sqrt{1 - 3GM/rc^{2}}$ par rapport à un observateur lointain.
+              La dilatation gravitationnelle et celle due à la vitesse s'y combinent.
+              <br><br>À la dernière orbite stable, r = 3 r<sub>s</sub>, ce facteur vaut
+              exactement $\\sqrt{1/2} \\approx 70{,}7\\,\\%$ — et c'est le <b>plancher</b> :
+              impossible de ralentir davantage autour d'un trou noir qui ne tourne pas.`,
+    sources:["misner1973","bardeen1972"] },
   reel: { id:"reel", t:`Voilà la vérité, et elle est austère : en lumière visible, le disque est <b>quasiment muet</b>. Sgr A* rayonne dans le submillimétrique. Ce qui le trahirait, ce sont les étoiles tordues derrière lui.`,
     dire:`Voilà la vérité, et elle est austère : en lumière visible, le disque est quasiment muet. Sagittarius A étoile rayonne dans le submillimétrique. Ce qui le trahirait, ce sont les étoiles tordues derrière lui.`,
     sources:["yuan2014","eht2022"] },

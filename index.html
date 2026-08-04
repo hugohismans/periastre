@@ -234,6 +234,8 @@
   kbd { font:inherit; background:rgba(255,255,255,.08); border:1px solid var(--filet); border-radius:4px; padding:0 5px; color:#c2bcd6; }
 
   /* ---- Lumen, la mascotte ---- */
+  /* à bord, la bulle remonte : la console du cockpit occupe le bas */
+  body.a-bord #lumen { bottom:200px; }
   #lumen { bottom:26px; left:28px; display:flex; align-items:flex-end; gap:11px; pointer-events:none; }
   #lumen-corps {
     width:54px; height:54px; flex:none; cursor:pointer; pointer-events:auto;
@@ -1252,6 +1254,7 @@ function embarque(i){
   if(i === null || !sondes[i]){ sondeSuivie = null; }
   else { sondeSuivie = i; regard.lacet = 0; regard.tangage = 0; }
   $("b-sonde").classList.toggle("actif", sondeSuivie !== null);
+  document.body.classList.toggle("a-bord", sondeSuivie !== null);
   $("b-sonde").textContent = sondeSuivie !== null ? "Redescendre" : "Monter dans une sonde";
   majCamera();
   if(sondeSuivie !== null) reagit("embarque");
@@ -2384,7 +2387,10 @@ const MISE_EN_PLACE = {
     majMission();
     horloge.bord = horloge.mere = 0;
     sondes.length = 0;
-    const r = 3.4, a = 0.6;
+    // On démarre plus haut : à 3,4 rayons le trou noir mange toute la fenêtre
+    // et on ne voit plus rien. De 9, on le voit en entier — et surtout on a de
+    // la marge pour DESCENDRE, ce qui est tout l'intérêt de l'expérience.
+    const r = 9, a = 0.6;
     const p = [Math.cos(a)*r, 0, Math.sin(a)*r];
     const t = norm(cross([0,1,0], p)), vc = vCirc(r);
     lance(p, [t[0]*vc, 0, t[2]*vc]);
@@ -2395,6 +2401,9 @@ const MISE_EN_PLACE = {
     reglerVitesse(1);
     $("fiches").classList.add("replie");
     if(reelCible > 0.5) $("b-reel").click();
+    // Se retrouver embarqué sans explication est déroutant : on dit ce qui
+    // vient de se passer, et où regarder.
+    setTimeout(() => dit(REACTIONS.jumeauxDepart, 22000, "", true), 700);
   },
   reelle(){
     missionsActives = true;
@@ -2819,7 +2828,8 @@ function dessineCockpit(){
   const maree = 1.0/(r*r*r);                  // ∝ M/r³, en unités du site
 
   const m  = Math.min(W, H);
-  const bx = m*0.055, by = m*0.045, bas = m*0.115;
+  // on réserve la bande basse pour la barre d'actions, qui est en HTML par-dessus
+  const bx = m*0.055, by = m*0.045, bas = m*0.115 + 72;
 
   // ---- hublot : on assombrit hors du cadre ----
   ctx.save();
@@ -2856,12 +2866,15 @@ function dessineCockpit(){
   ctx.strokeStyle = "rgba(127,216,255,0.18)";
   ctx.beginPath(); ctx.moveTo(0, H - bas); ctx.lineTo(W, H - bas); ctx.stroke();
 
+  // « Temps qui passe » d'abord : c'est le cadran qui explique les horloges.
+  // La marée disparaît quand elle est négligeable — un cadran qui affiche
+  // toujours « négligeable » n'apprend rien et prend la place.
   const cadrans = [
-    ["vitesse locale",   v.toFixed(3).replace(".", ",") + " c",              v],
-    ["rayon d'orbite",   r.toFixed(2).replace(".", ",") + " rₛ",        Math.min(1, 3/r)],
-    ["temps qui passe",  (tau*100).toFixed(1).replace(".", ",") + " %",      1 - tau],
-    ["marée",            maree < 0.01 ? "négligeable" : maree.toFixed(3).replace(".", ","), Math.min(1, maree*20)],
+    ["ton temps s'écoule à", (tau*100).toFixed(1).replace(".", ",") + " %",  1 - tau],
+    ["ta vitesse",           v.toFixed(3).replace(".", ",") + " c",          v],
+    ["ton altitude",         r.toFixed(2).replace(".", ",") + " rₛ",    Math.min(1, 3/r)],
   ];
+  if(maree > 0.01) cadrans.push(["marée", maree.toFixed(3).replace(".", ","), Math.min(1, maree*20)]);
   const larg = Math.min(W/cadrans.length, m*0.34);
   const gauche = W/2 - larg*cadrans.length/2;
   cadrans.forEach(([nom, val, jauge], i) => {
@@ -2883,22 +2896,40 @@ function dessineCockpit(){
   ctx.textAlign = "center";
 
   // ---- les deux horloges ----
+  // Quand elles tournent, c'est LE sujet : on leur donne la taille et les mots
+  // qui vont avec, au lieu de les glisser entre deux cadrans.
   const ecart = horloge.mere - horloge.bord;
   if(horloge.mere > 1){
-    const hy = H - bas - m*0.052;
-    ctx.fillStyle = "rgba(9,8,18,0.80)";
-    ctx.fillRect(W/2 - m*0.20, hy - m*0.021, m*0.40, m*0.042);
-    ctx.font = `${(m*0.0125).toFixed(1)}px -apple-system, Segoe UI, sans-serif`;
-    ctx.fillStyle = "#7d7894";
-    ctx.fillText("À BORD", W/2 - m*0.125, hy - m*0.004);
-    ctx.fillText("VAISSEAU-MÈRE", W/2 + m*0.125, hy - m*0.004);
-    ctx.font = `500 ${(m*0.019).toFixed(1)}px -apple-system, Segoe UI, sans-serif`;
-    ctx.fillStyle = "#7fd8ff"; ctx.fillText(tempsFr(horloge.bord), W/2 - m*0.125, hy + m*0.015);
-    ctx.fillStyle = "#ffd08a"; ctx.fillText(tempsFr(horloge.mere), W/2 + m*0.125, hy + m*0.015);
-    if(ecart > 30){
-      ctx.font = `${(m*0.013).toFixed(1)}px -apple-system, Segoe UI, sans-serif`;
-      ctx.fillStyle = "#ff9ab0";
-      ctx.fillText(`il a vieilli de ${tempsFr(ecart)} de plus que toi`, W/2, hy + m*0.036);
+    const hy = H - bas - m*0.105;
+    const dx = m*0.155;
+
+    ctx.fillStyle = "rgba(6,5,13,0.86)";
+    ctx.fillRect(W/2 - m*0.30, hy - m*0.05, m*0.60, m*0.115);
+    ctx.strokeStyle = "rgba(255,157,77,0.22)";
+    ctx.lineWidth = 1;
+    ctx.strokeRect(W/2 - m*0.30, hy - m*0.05, m*0.60, m*0.115);
+
+    ctx.font = `${(m*0.0135).toFixed(1)}px -apple-system, Segoe UI, sans-serif`;
+    ctx.fillStyle = "#8f8aa6";
+    ctx.fillText("TOI, ICI", W/2 - dx, hy - m*0.028);
+    ctx.fillStyle = "#8f8aa6";
+    ctx.fillText("TON JUMEAU, RESTÉ LOIN", W/2 + dx, hy - m*0.028);
+
+    ctx.font = `500 ${(m*0.036).toFixed(1)}px ui-monospace, Consolas, monospace`;
+    ctx.fillStyle = "#7fd8ff"; ctx.fillText(tempsFr(horloge.bord), W/2 - dx, hy + m*0.008);
+    ctx.fillStyle = "#ffd08a"; ctx.fillText(tempsFr(horloge.mere), W/2 + dx, hy + m*0.008);
+
+    // le séparateur, pour qu'on lise deux colonnes et non une phrase
+    ctx.strokeStyle = "rgba(255,255,255,0.10)";
+    ctx.beginPath(); ctx.moveTo(W/2, hy - m*0.038); ctx.lineTo(W/2, hy + m*0.018); ctx.stroke();
+
+    ctx.font = `${(m*0.0155).toFixed(1)}px -apple-system, Segoe UI, sans-serif`;
+    if(ecart > 20){
+      ctx.fillStyle = "#ff9d4d";
+      ctx.fillText(`il a vieilli de ${tempsFr(ecart)} de plus que toi`, W/2, hy + m*0.048);
+    } else {
+      ctx.fillStyle = "#6a6580";
+      ctx.fillText("descends plus près, et regarde-les s'écarter", W/2, hy + m*0.048);
     }
   }
   ctx.textAlign = "left";
@@ -3009,6 +3040,7 @@ function boucle(now){
 
   dessine();
 
+  $("lecture-flottant").style.opacity = sondeSuivie !== null ? "0" : "";
   $("s-orbite").textContent = sondes.length;
   $("s-chute").textContent  = nChute;
   $("s-fuite").textContent  = nFuite;

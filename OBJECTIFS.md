@@ -5,6 +5,35 @@ même temps sans se marcher dessus.
 
 ---
 
+## La forme visée, telle qu'Hugo l'a décrite
+
+Le vaisseau n'est pas un décor : c'est **le lieu**, et il voyage.
+
+- On arrive dans un **salon d'astronautes**. D'autres personnes y sont. Par le
+  hublot, l'objet du moment — en temps réel, jamais accéléré.
+- Ce salon a une **destination courante**, et elle change. Il orbite un trou
+  noir cette semaine ; la semaine prochaine il fait route vers le système
+  solaire. Le voyage est l'événement, et il donne un rythme au site.
+- Depuis le salon, on entre dans un **simulateur** — le site actuel : là on
+  triche avec le temps, on lance des sondes, on monte le spin. Le salon reste
+  honnête, le simulateur est le bac à sable.
+- Chacun a un **avatar** qu'on habille, et les tenues se débloquent en
+  comprenant des choses.
+
+Ce que ça impose à l'architecture :
+
+| | salon | simulateur |
+|---|---|---|
+| temps | réel, non modifiable | à volonté |
+| état | partagé | personnel |
+| destination | commune, change avec le calendrier | choisie |
+
+La conséquence à retenir : une **destination** doit être une donnée, pas du
+code en dur. Le trou noir d'aujourd'hui, le système solaire de la semaine
+prochaine et le nuage d'Oort du mois suivant sont le même objet — une scène
+avec sa plage d'échelles, ses fiches et son rendu. C'est exactement le contrat
+de scène décrit plus bas : il a été pensé pour le dézoom, il sert aussi à ça.
+
 ## Le salon, et ce qu'il impose
 
 La forme visée : on arrive **dans le salon d'un vaisseau**, en orbite. Par le
