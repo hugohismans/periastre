@@ -3421,6 +3421,15 @@ function boucle(now){
     tampon[i*3] = photons[i].p[0]; tampon[i*3+1] = photons[i].p[1]; tampon[i*3+2] = photons[i].p[2];
   }
 
+  // Le programme doit être activé AVANT d'envoyer ses uniformes : un
+  // gl.uniform* s'applique au programme courant, pas à celui dont vient
+  // l'emplacement. Depuis que la passe du salon en active un second, ces
+  // envois partaient dans le mauvais et étaient ignorés — la caméra restait
+  // figée sur la toute première image.
+  gl.useProgram(prog);
+  gl.bindVertexArray(vaoPlein);
+  gl.disable(gl.DEPTH_TEST);
+
   gl.uniform2f(uRes, cv.width, cv.height);
   gl.uniform1f(uTemps, tempsGeo);
   gl.uniform3fv(uCam, camPos);
@@ -3430,9 +3439,6 @@ function boucle(now){
   gl.uniform1i(uNbPhotons, Math.min(photons.length, 4));
   gl.uniform3fv(uVitesse, vitesseLocale);
   gl.uniform1f(uReel, reel);
-  gl.useProgram(prog);
-  gl.bindVertexArray(vaoPlein);
-  gl.disable(gl.DEPTH_TEST);
   gl.uniform1f(uSpectre, spectreActif ? 1 : 0);
   gl.uniform1f(uSpin, spin*M);            // spin réduit a* -> a
   gl.uniform1i(uSteps, nbPas);
