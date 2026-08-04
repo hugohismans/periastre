@@ -3326,10 +3326,62 @@ function niveauDemande(){
     c.onclick = () => {
       iNiveau = i; majFiche(); sauve();
       [...boitierN.children].forEach((x, j) => x.classList.toggle("actif", j === i));
-      menu();
+      departDemande();
     };
     elCartes.appendChild(c);
   });
+}
+
+/* Par où l'on entre.
+
+   Trois manières d'aborder le même objet, et elles ne demandent pas le même
+   effort. La vue libre est légère et immédiate — c'est ce qu'il faut sur un
+   téléphone, ou quand on veut juste voir. Le vaisseau est un lieu où l'on
+   marche : plus lourd, plus lent à comprendre, mais c'est là qu'on a envie de
+   rester. Les missions sont le chemin guidé.
+
+   Poser la question évite le pire des défauts : imposer à quelqu'un venu
+   regarder deux minutes un décor qu'il faut apprendre à habiter — et
+   inversement, priver de vaisseau celui qui serait venu pour ça. Le choix
+   n'engage à rien : les trois portes mènent au même site, et la barre du bas
+   reste là. */
+function departDemande(){
+  poseAccueil(false);
+  elCartes.style.justifyItems = "";
+  elTitre.textContent = "Par où veux-tu commencer ?";
+  elChapo.innerHTML = "Tu pourras changer à tout moment. Ce n'est qu'une porte d'entrée.";
+  elCartes.style.gridTemplateColumns = "1fr";
+
+  const porte = (titre, detail, action) => {
+    const c = document.createElement("div");
+    c.className = "carte";
+    c.innerHTML = `<h2>${titre}</h2><p>${detail}</p>`;
+    c.onclick = () => {
+      tais();
+      cinema.actif = false;
+      elAccueil.classList.add("parti");
+      document.body.classList.remove("au-menu");
+      $("b-menu").classList.add("vu");
+      action();
+    };
+    elCartes.appendChild(c);
+  };
+
+  porte("Regarder le trou noir",
+        "La vue libre, autour de l'astre. On tourne, on zoome, on lance des sondes. "
+        + "Le plus léger, et ce qui marche le mieux sur téléphone.",
+        () => {});
+
+  porte("Monter à bord",
+        "Le salon d'un vaisseau en orbite, avec une baie vitrée. On s'y déplace à pied, "
+        + "on parle au robot de bord, on règle la vitesse du temps au mur. "
+        + "Plus gourmand — mieux vaut un ordinateur.",
+        () => { if(!salon.actif) $("b-salon").click(); });
+
+  porte("Apprendre, guidé",
+        "Sept missions, une chose à comprendre par mission. On n'a besoin de rien savoir "
+        + "d'avance, et la première dure trois minutes.",
+        () => menu());
 }
 
 function menu(){
