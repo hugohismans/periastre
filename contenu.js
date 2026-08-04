@@ -155,7 +155,7 @@ reactions: {
   photon: { id:"photon", t:`Ah, un collègue ! Il est sur la crête : trop lent il tombe, trop vite il part. Personne ne reste. <i>Passe en temps réel</i> pour voir à quel point c'est lent.`,
     sources:["chandrasekhar1983"] },
   photonAvale: { id:"photon-avale", t:`Bon. Il a glissé du mauvais côté de la crête.` },
-  photonFuite: { id:"photon-fuite", t:`Il s'en sort. Maintenant il file tout droit pendant 26 000 ans avant que quelqu'un le voie.`,
+  photonFuite: { id:"photon-fuite", t:`Il s'en sort. Maintenant il file tout droit pendant 27 000 ans avant que quelqu'un le voie.`,
     sources:["gravity2021"] },
   traj: { id:"traj", t:`Voilà l'avenir de tout le monde, déjà tracé. Une orbite ne se décide pas en route : la vitesse de départ contient toute l'histoire.` },
   embarque: { id:"embarque", t:`Te voilà à bord. Attention, à cette vitesse le ciel n'est plus où tu crois : l'<b>aberration</b> le tasse vers l'avant. Ce que tu vois sur les côtés vient en réalité de derrière toi.`,
@@ -190,6 +190,12 @@ reactions: {
       sources:["eht2022","bardeen1972"] },
     { id:"inactif-5", t:`Le disque brille parce que le gaz frotte contre lui-même en tombant. Rien ne brûle là-dedans — c'est la chute qui fait la lumière.`,
       sources:["shakura1973","balbus1991"] },
+    { id:"inactif-6", t:`Un vaisseau qui tiendrait <i>1 g</i> tout le trajet — la moitié en accélérant, la moitié en freinant — arriverait ici en <b>19,8 ans</b> de vie à bord. Sur Terre il se serait écoulé 26 675 ans. Personne ne t'attendrait.`,
+      dire:`Un vaisseau qui tiendrait un g tout le trajet, la moitié en accélérant, la moitié en freinant, arriverait ici en dix-neuf ans et dix mois de vie à bord. Sur Terre, il se serait écoulé vingt-six mille six cent soixante-quinze ans. Personne ne t'attendrait.`,
+      sources:["gravity2021","misner1973"] },
+    { id:"inactif-7", t:`Avec la même poussée d'<i>1 g</i>, Andromède est à <b>28,6 ans</b> de vie. Deux millions et demi d'années-lumière. La distance ne compte presque plus, parce que ton temps se contracte avec elle — reste le carburant, et là c'est sans espoir.`,
+      dire:`Avec la même poussée d'un g, Andromède est à vingt-huit ans et demi de vie. Deux millions et demi d'années-lumière. La distance ne compte presque plus, parce que ton temps se contracte avec elle. Reste le carburant, et là, c'est sans espoir.`,
+      sources:["misner1973"] },
   ],
 },
 
@@ -262,6 +268,15 @@ missions: [
     dire:`Regarde le cadran « temps qui passe ». Il est en dessous de cent pour cent : ici, ton temps s'écoule plus lentement qu'ailleurs. Ce n'est pas une impression. Tu vieillis moins vite que quelqu'un resté loin.`,
     sources:["misner1973","gravity2018"] },
 },
+{
+  id: "m-jumeaux",
+  titre: "Le voyage des jumeaux",
+  consigne: "Reste à bord et <b>descends au plus près</b> : molette, ou deux doigts. Le vaisseau-mère t'attend au loin, et vos deux horloges vont diverger.",
+  reussi: { id:"m-jumeaux-ok",
+    t:`Une demi-heure d'écart, et elle ne sera jamais rattrapée. Ton jumeau resté au loin a <b>vieilli plus que toi</b> — c'est bien lui qui a perdu du temps, pas toi. Mais regarde le compteur : au mieux ton temps tombe à <i>70,7 %</i>. Impossible de faire mieux ici, parce que ce trou noir <b>ne tourne pas</b>. Les 61 000 ans par heure d'<i>Interstellar</i> exigent un trou noir en rotation, qui entraîne l'espace et permet de tenir bien plus près.`,
+    dire:`Une demi-heure d'écart, et elle ne sera jamais rattrapée. Ton jumeau resté au loin a vieilli plus que toi. C'est bien lui qui a perdu du temps, pas toi. Mais regarde le compteur : au mieux, ton temps tombe à soixante-dix virgule sept pour cent. Impossible de faire mieux ici, parce que ce trou noir ne tourne pas. Les soixante et un mille ans par heure d'Interstellar exigent un trou noir en rotation, qui entraîne l'espace et permet de tenir bien plus près.`,
+    sources:["misner1973","bardeen1972","gravity2018"] },
+},
 ],
 
 questions: [
@@ -303,7 +318,7 @@ questions: [
     sources:["gravity2021","gravity2018","gravity2020","nobel2020"] },
 ]},
 { q:"Est-ce que ça peut aspirer la Terre ?", niv:[
-  { id:"q5-0", t:`Non. Un trou noir n'attire pas plus qu'une étoile de la même masse. Si le Soleil en devenait un tout de suite, la Terre garderait <b>exactement</b> la même orbite — il ferait juste nuit et très froid. Et celui-ci est à 26 000 années-lumière.`,
+  { id:"q5-0", t:`Non. Un trou noir n'attire pas plus qu'une étoile de la même masse. Si le Soleil en devenait un tout de suite, la Terre garderait <b>exactement</b> la même orbite — il ferait juste nuit et très froid. Et celui-ci est à 27 000 années-lumière.`,
     sources:["birkhoff1923","gravity2021"] },
   { id:"q5-1", t:`Non : la gravité ne dépend que de la masse et de la distance, pas de la compacité. À 150 millions de km, le champ d'un trou noir d'une masse solaire est identique à celui du Soleil. Il faut s'approcher à quelques rayons d'horizon pour que quoi que ce soit change.`,
     sources:["birkhoff1923"] },

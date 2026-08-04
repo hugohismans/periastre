@@ -985,9 +985,23 @@ const VITESSES = [
 let iVitesse = 2;
 let tempsGeo = 0;           // temps simulé, en unités géométriques
 
+// Horloges du paradoxe des jumeaux. Pour une orbite circulaire en Schwarzschild,
+// dτ/dt = √(1 − 3M/r) : la dilatation gravitationnelle et celle de la vitesse
+// s'y combinent. À l'ISCO, r = 3 r_s, elle vaut √½ — et c'est le plancher.
+// Sans rotation, on ne peut pas ralentir son temps de plus d'un facteur √2.
+const R_MERE = 20;
+const horloge = { bord: 0, mere: 0 };
+const cadence = r => Math.sqrt(Math.max(0, 1 - 1.5/r));
+
 function avance(dtSec){
   const dtGeo = dtSec * VITESSES[iVitesse].mult / SEC_PAR_UNITE;
   tempsGeo += dtGeo;
+
+  if(sondeSuivie !== null && sondes[sondeSuivie]){
+    const s = sondes[sondeSuivie];
+    horloge.bord += dtGeo * SEC_PAR_UNITE * cadence(len(s.p));
+    horloge.mere += dtGeo * SEC_PAR_UNITE * cadence(R_MERE);
+  }
 
   // sondes
   const n = Math.max(1, Math.min(Math.ceil(dtGeo/0.03), 32));
@@ -1279,7 +1293,7 @@ const FICHES = [
   titre: "Sagittarius A*",
   t: [
    `Au milieu de notre galaxie, il y a un trou noir. Il pèse <i>4 millions de fois le Soleil</i>,
-    et il est si loin que sa lumière met 26 000 ans à nous parvenir.
+    et il est si loin que sa lumière met 27 000 ans à nous parvenir.
     On ne l'a photographié qu'en 2022. Avant ça, on savait qu'il était là
     <b>parce qu'on voyait des étoiles tourner autour de quelque chose d'invisible</b>.`,
 
@@ -1602,6 +1616,7 @@ const VERIFS = {
   "m-photon": () => photons.length > 0 && iVitesse === 0,
   "m-reel":   () => reelCible > 0.5,
   "m-bord":   () => sondeSuivie !== null,
+  "m-jumeaux":() => horloge.mere - horloge.bord > 1800,
 };
 
 let iMission = 0, missionFinie = false, tMission = 0, missionsActives = true;
@@ -2110,6 +2125,27 @@ function dessineCockpit(){
     ctx.fillStyle = jauge > 0.72 ? "#ff5d7a" : "#7fd8ff";
     ctx.fillRect(x - jw/2, cy + m*0.022, jw*Math.max(0.02, Math.min(1, jauge)), 2);
   });
+  ctx.textAlign = "center";
+
+  // ---- les deux horloges ----
+  const ecart = horloge.mere - horloge.bord;
+  if(horloge.mere > 1){
+    const hy = H - bas - m*0.052;
+    ctx.fillStyle = "rgba(9,8,18,0.80)";
+    ctx.fillRect(W/2 - m*0.20, hy - m*0.021, m*0.40, m*0.042);
+    ctx.font = `${(m*0.0125).toFixed(1)}px -apple-system, Segoe UI, sans-serif`;
+    ctx.fillStyle = "#7d7894";
+    ctx.fillText("À BORD", W/2 - m*0.125, hy - m*0.004);
+    ctx.fillText("VAISSEAU-MÈRE", W/2 + m*0.125, hy - m*0.004);
+    ctx.font = `500 ${(m*0.019).toFixed(1)}px -apple-system, Segoe UI, sans-serif`;
+    ctx.fillStyle = "#7fd8ff"; ctx.fillText(tempsFr(horloge.bord), W/2 - m*0.125, hy + m*0.015);
+    ctx.fillStyle = "#ffd08a"; ctx.fillText(tempsFr(horloge.mere), W/2 + m*0.125, hy + m*0.015);
+    if(ecart > 30){
+      ctx.font = `${(m*0.013).toFixed(1)}px -apple-system, Segoe UI, sans-serif`;
+      ctx.fillStyle = "#ff9ab0";
+      ctx.fillText(`il a vieilli de ${tempsFr(ecart)} de plus que toi`, W/2, hy + m*0.036);
+    }
+  }
   ctx.textAlign = "left";
 
   // ---- l'occupant, vu de dos ----
