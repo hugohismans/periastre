@@ -517,13 +517,22 @@
 /* --------------------------------------------------------- commandes tactiles */
 #manette{ display:none; }
 body.tactile.au-salon #manette{ display:block; }
+
+/* Le manche naît sous le pouce.
+
+   Il était posé en bas à gauche, à un endroit qu'il fallait viser — donc on
+   regardait ses doigts au lieu de regarder le vaisseau. Désormais il apparaît
+   là où l'on touche, n'importe où dans la moitié gauche, et disparaît quand on
+   lâche. C'est le geste habituel des jeux à la première personne, et il a ceci
+   de bon qu'il ne demande aucune précision : on pose, on pousse. */
 #stick{
-  position:fixed; left:calc(18px + env(safe-area-inset-left));
-  bottom:calc(24px + env(safe-area-inset-bottom));
-  width:118px; height:118px; border-radius:50%; z-index:60;
-  background:rgba(12,12,16,.34); border:1px solid rgba(255,255,255,.16);
-  touch-action:none; backdrop-filter:blur(2px);
+  position:fixed; width:124px; height:124px; margin:-62px 0 0 -62px;
+  border-radius:50%; z-index:60; opacity:0;
+  background:rgba(12,12,16,.30); border:1px solid rgba(255,255,255,.15);
+  touch-action:none; pointer-events:none; backdrop-filter:blur(2px);
+  transition:opacity .12s;
 }
+body.stick-pose #stick{ opacity:1; }
 #stick i{
   position:absolute; left:50%; top:50%; width:46px; height:46px; margin:-23px 0 0 -23px;
   border-radius:50%; background:rgba(255,154,60,.5);
@@ -606,8 +615,12 @@ body.tactile.au-salon #manette{ display:block; }
   #sp-reperes button { white-space:nowrap; flex:0 0 auto; padding:6px 9px; font-size:10px; }
 
   #bulle { max-width:min(300px, 44vw); font-size:10.5px; }
-  #stick { width:88px; height:88px; bottom:8px; left:8px; }
-  #stick i { width:36px; height:36px; margin:-18px 0 0 -18px; }
+  /* On redimensionne, mais on ne repose NI `left` NI `bottom` : le manche est
+     placé au doigt par le script, et une position fixe se battait avec lui —
+     d'où un manche décalé de dix-huit pixels sous le pouce. La marge doit
+     suivre la taille, puisque c'est elle qui centre. */
+  #stick { width:100px; height:100px; margin:-50px 0 0 -50px; }
+  #stick i { width:38px; height:38px; margin:-19px 0 0 -19px; }
   #t-saut { width:58px; height:58px; bottom:12px; right:10px; font-size:.62rem; }
 }
 /* Le conseil de rotation. Un trou noir est large : en portrait on n'en voit
@@ -1786,41 +1799,45 @@ addEventListener("keydown", e => {
 
 const axe = { x:0, y:0 };
 
-function brancheManette(){
+/* Le manche flottant, moitié gauche de l'écran.
+
+   `pouceMarche` retient le doigt qui marche, pour qu'il ne soit pas confondu
+   avec celui qui oriente le regard — on doit pouvoir faire les deux à la fois,
+   et c'est même tout l'intérêt du partage en deux moitiés. */
+let pouceMarche = null;
+const R_STICK = 46;
+
+function poseStick(x, y){
+  const base = document.getElementById("stick");
+  base.style.left = x + "px"; base.style.top = y + "px";
+  document.body.classList.add("stick-pose");
+}
+
+function bougeStick(x, y){
   const base = document.getElementById("stick");
   const pouce = base.querySelector("i");
-  let id = null;
-  const R = 42;                       // course utile du stick, en pixels
+  let dx = x - pouceMarche.x, dy = y - pouceMarche.y;
+  const d = Math.hypot(dx, dy);
+  if(d > R_STICK){ dx = dx/d*R_STICK; dy = dy/d*R_STICK; }
+  pouce.style.transform = `translate(${dx}px, ${dy}px)`;
+  // Zone morte : sans elle, un doigt simplement posé fait dériver le personnage.
+  const n = Math.hypot(dx, dy)/R_STICK;
+  const g = n < 0.14 ? 0 : (n - 0.14)/0.86;
+  axe.x = d ? dx/Math.max(d, 1e-3)*g : 0;
+  axe.y = d ? dy/Math.max(d, 1e-3)*g : 0;
+}
 
-  const bouge = e => {
-    const r = base.getBoundingClientRect();
-    let dx = e.clientX - (r.left + r.width/2);
-    let dy = e.clientY - (r.top + r.height/2);
-    const d = Math.hypot(dx, dy);
-    if(d > R){ dx = dx/d*R; dy = dy/d*R; }
-    pouce.style.transform = `translate(${dx}px, ${dy}px)`;
-    // Zone morte : sans elle, un doigt posé fait dériver le personnage.
-    const n = Math.hypot(dx, dy)/R;
-    const g = n < 0.16 ? 0 : (n - 0.16)/0.84;
-    axe.x = d ? dx/Math.max(d, 1e-3)*g : 0;
-    axe.y = d ? dy/Math.max(d, 1e-3)*g : 0;
-  };
+function lacheStick(){
+  pouceMarche = null; axe.x = axe.y = 0;
+  document.body.classList.remove("stick-pose");
+  const i = document.getElementById("stick").querySelector("i");
+  if(i) i.style.transform = "";
+}
 
-  base.addEventListener("pointerdown", e => {
-    id = e.pointerId; base.setPointerCapture(id); bouge(e); e.preventDefault();
-    e.stopPropagation();     // sinon le détecteur ferait disparaître la manette
-  });
-  base.addEventListener("pointermove", e => { if(e.pointerId === id) bouge(e); });
-  const lache = e => {
-    if(e.pointerId !== id) return;
-    id = null; axe.x = axe.y = 0; pouce.style.transform = "";
-  };
-  base.addEventListener("pointerup", lache);
-  base.addEventListener("pointercancel", lache);
-
+function brancheManette(){
   const saut = document.getElementById("t-saut");
   saut.addEventListener("pointerdown", e => {
-    e.preventDefault();
+    e.preventDefault(); e.stopPropagation();
     joueur.touches.add(" ");
     setTimeout(() => joueur.touches.delete(" "), 120);
   });
@@ -2774,6 +2791,19 @@ document.addEventListener("pointerlockchange", () => {
 
 cv.addEventListener("pointerdown", e => {
   if(!salon.actif) return;
+
+  /* L'écran se partage en deux au doigt : à gauche on marche, à droite on
+     regarde. C'est la convention des jeux à la première personne, et elle a
+     surtout l'avantage de permettre les deux EN MÊME TEMPS — un manche posé
+     dans un coin obligeait à choisir. La souris, elle, garde tout l'écran :
+     elle n'a pas ce problème puisqu'elle a un clavier à côté. */
+  if(e.pointerType === "touch" && e.clientX < innerWidth*0.5 && !pouceMarche){
+    pouceMarche = { id:e.pointerId, x:e.clientX, y:e.clientY };
+    poseStick(e.clientX, e.clientY);
+    e.preventDefault();
+    return;                       // ce doigt-là marche, il ne vise rien
+  }
+
   posteDepart = { x:e.clientX, y:e.clientY,
                   p: capture() ? posteVise(centreCanevas()) : posteVise(e) };
   if(!capture()) glisse = { id:e.pointerId, x:e.clientX, y:e.clientY };
@@ -2781,6 +2811,10 @@ cv.addEventListener("pointerdown", e => {
 
 cv.addEventListener("pointermove", e => {
   if(!salon.actif){ salon.vise = null; glisse = null; return; }
+  if(pouceMarche && e.pointerId === pouceMarche.id){
+    bougeStick(e.clientX, e.clientY);
+    return;
+  }
   if(glisse && e.pointerId === glisse.id){
     tourne(e.clientX - glisse.x, e.clientY - glisse.y);
     glisse.x = e.clientX; glisse.y = e.clientY;
@@ -2795,11 +2829,15 @@ document.addEventListener("mousemove", e => {
   if(capture() && salon.actif) tourne(e.movementX, e.movementY);
 });
 
-const relacheGlisse = e => { if(glisse && e.pointerId === glisse.id) glisse = null; };
+const relacheGlisse = e => {
+  if(pouceMarche && e.pointerId === pouceMarche.id) lacheStick();
+  if(glisse && e.pointerId === glisse.id) glisse = null;
+};
 cv.addEventListener("pointerup", relacheGlisse);
 cv.addEventListener("pointercancel", relacheGlisse);
 
 cv.addEventListener("pointerup", e => {
+  if(pouceMarche && e.pointerId === pouceMarche.id) return;   // celui-là marchait
   const d = posteDepart; posteDepart = null;
   if(!salon.actif || !d) return;
   const bref = Math.hypot(e.clientX - d.x, e.clientY - d.y) <= 6;
