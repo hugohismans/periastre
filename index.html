@@ -3094,11 +3094,31 @@ function justification(o){
   return d;
 }
 
+/* Une réplique ne se redit pas tout de suite.
+
+   Hugo, en lançant des photons à la chaîne : « ils balancent toujours la même
+   phrase, c'est super chiant, moi je veux juste mettre des photons ». Le geste
+   se répète, donc la réaction se répétait avec lui — et un guide qui redit la
+   même chose quand on insiste est pire que silencieux, parce qu'il transforme
+   une action en punition.
+
+   On retient donc la dernière fois qu'un motif a parlé. Le délai est long à
+   dessein : ce n'est pas un anti-rebond de quelques secondes, c'est
+   l'engagement de ne pas se répéter tant qu'on n'a pas eu le temps d'oublier.
+   Le geste reste possible autant qu'on veut ; c'est le commentaire qui se
+   tait. */
+const derniereFois = new Map();
+const REPOS = 75000;
+
 function reagit(cle, doux){
   if(questionsOuvertes) return;
-  if(doux && tMasque && performance.now() < tMasque) return;
+  const now = performance.now();
+  if(doux && tMasque && now < tMasque) return;
+  if(now - (derniereFois.get(cle) || -1e9) < REPOS) return;
   const t = REACTIONS[cle];
-  if(t) dit(resous(t));
+  if(!t) return;
+  derniereFois.set(cle, now);
+  dit(resous(t));
 }
 
 function ouvreQuestions(){
