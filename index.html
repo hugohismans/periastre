@@ -95,6 +95,40 @@
   #m-jauge i { flex:1; height:2px; border-radius:1px; background:rgba(255,255,255,.14); }
   #m-jauge i.ok { background:#6effb4; }
 
+  /* ---- spectre ---- */
+  #spectre {
+    position:fixed; z-index:5; bottom:88px; left:50%; transform:translateX(-50%);
+    width:min(560px, 94vw); pointer-events:auto;
+    background:rgba(10,8,20,.80); backdrop-filter:blur(16px);
+    border:1px solid rgba(255,255,255,.12); border-radius:14px; padding:15px 17px 17px;
+    opacity:0; visibility:hidden; transition:opacity .2s, transform .2s;
+  }
+  #spectre.vu { opacity:1; visibility:visible; }
+  #sp-tete { display:flex; align-items:baseline; justify-content:space-between; gap:12px; }
+  #sp-bande { font-size:15px; font-weight:600; color:#fff; }
+  #sp-lambda { font-size:12px; color:#8b86a3; font-variant-numeric:tabular-nums; white-space:nowrap; }
+  #sp-note { font-size:11.5px; line-height:1.6; color:#a9a4bd; margin-top:6px; min-height:3.2em; }
+  #sp-note b { color:#e4e0f0; }
+
+  #sp-graphe { width:100%; height:74px; display:block; margin:11px 0 3px; }
+
+  #sp-regle { width:100%; margin:2px 0 11px; accent-color:#7fd8ff; }
+  input[type=range]{ -webkit-appearance:none; appearance:none; height:4px; border-radius:2px;
+    background:linear-gradient(90deg,#c9b3ff,#5aa8ff,#eaeaf0,#ffcc4d,#ff9d3c,#ff5a3c); outline:none; }
+  input[type=range]::-webkit-slider-thumb{ -webkit-appearance:none; width:15px; height:15px;
+    border-radius:50%; background:#fff; border:2px solid #0b0a16; cursor:pointer; }
+  input[type=range]::-moz-range-thumb{ width:15px; height:15px; border-radius:50%;
+    background:#fff; border:2px solid #0b0a16; cursor:pointer; }
+
+  #sp-reperes { display:flex; flex-wrap:wrap; gap:5px; }
+  #sp-reperes button { padding:5px 9px; font-size:10.5px; }
+  #sp-reperes button.actif { background:rgba(127,216,255,.20); border-color:rgba(127,216,255,.5); }
+
+  @media (max-width:760px){
+    #spectre { bottom:auto; top:56px; left:10px; right:10px; width:auto; transform:none; }
+    #sp-note { min-height:0; }
+  }
+
   /* ---- barre d'actions ---- */
   #dock {
     bottom:24px; left:50%; transform:translateX(-50%); pointer-events:auto;
@@ -405,7 +439,19 @@
   <button id="b-photon">Photon</button>
   <button id="b-sonde">Monter à bord</button>
   <button id="b-reel">Lumière réelle</button>
+  <button id="b-spectre">Spectre</button>
   <button id="b-vide">Effacer</button>
+</div>
+
+<div id="spectre">
+  <div id="sp-tete">
+    <div id="sp-bande"></div>
+    <div id="sp-lambda"></div>
+  </div>
+  <div id="sp-note"></div>
+  <canvas id="sp-graphe"></canvas>
+  <input type="range" id="sp-regle" min="-13" max="0.5" step="0.02" value="-6.22">
+  <div id="sp-reperes"></div>
 </div>
 
 <div class="hud" id="lecture-flottant"><div id="lecture"></div></div>
@@ -526,6 +572,10 @@ uniform vec3  uPhotons[4];
 uniform int   uNbPhotons;
 uniform vec3  uVitesse;      // vitesse de la caméra mesurée par l'observateur statique local
 uniform float uReel;         // 0 = image travaillée, 1 = ce que verrait un œil humain
+uniform float uSpectre;      // 1 = on observe dans une bande précise
+uniform float uRphoto;       // rayon où le flux devient opaque à cette longueur d'onde
+uniform vec3  uTeinte;       // fausse couleur de la bande
+uniform float uEclat;        // luminosité relative, tirée de la SED mesurée
 
 const float R_IN  = 3.0;    // l'ISCO : sous cette orbite le disque ne peut pas tenir
 const float R_OUT = 11.0;
@@ -668,6 +718,17 @@ void main(){
 
   for(int i = 0; i < STEPS; i++){
     float r = length(pos);
+
+    // Photosphère : aux grandes longueurs d'onde le flux d'accrétion est
+    // opaque. Le rayon s'y arrête bien avant l'horizon, et l'ombre disparaît
+    // derrière une tache brillante. C'est la vraie raison pour laquelle on
+    // n'a jamais pu photographier l'ombre en ondes radio.
+    if(uSpectre > 0.5 && r < uRphoto){
+      float f = 1.0 - r/max(uRphoto, 1e-3);
+      col += reste * uTeinte * uEclat * (0.9 + 2.6*f*f);
+      reste = 0.0; avale = true; break;
+    }
+
     if(r < 1.0){ avale = true; break; }
     if(r > 70.0 && dot(pos, dir) > 0.0) break;
 
@@ -698,7 +759,11 @@ void main(){
         // En lumière visible, le flux d'accrétion de Sgr A* est presque muet :
         // il rayonne dans le submillimétrique, et il est sous-lumineux d'un
         // facteur ~10⁹ par rapport à sa limite d'Eddington.
-        col   += reste * d.rgb * mix(1.0, 0.006, uReel);
+        vec3 e = d.rgb * mix(1.0, 0.006, uReel);
+        // en mode spectral, la couleur thermique cède la place à une fausse
+        // couleur de bande, pondérée par la SED mesurée
+        e = mix(e, uTeinte * uEclat * dot(d.rgb, vec3(0.33)), uSpectre);
+        col   += reste * e;
         reste *= 1.0 - d.a*0.86*(1.0 - uReel*0.97);
       }
     }
@@ -712,7 +777,9 @@ void main(){
     pos = np; dir = nd;
   }
 
-  if(!avale) col += reste * ciel(normalize(dir));
+  // Le ciel d'étoiles reste comme repère, mais il s'efface hors du visible :
+  // en radio ou en X, ce ne sont pas les mêmes sources qui brillent.
+  if(!avale) col += reste * ciel(normalize(dir)) * (1.0 - uSpectre*0.72);
 
   col += vec3(1.0, 0.98, 0.92) * lueur * 7.0;   // le photon, lensé comme le reste
 
@@ -788,7 +855,9 @@ gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
 const U = n => gl.getUniformLocation(prog, n);
 const uRes = U("uRes"), uTemps = U("uTemps"), uCam = U("uCam"), uBasis = U("uBasis"),
       uFocal = U("uFocal"), uPhotons = U("uPhotons"), uNbPhotons = U("uNbPhotons"),
-      uVitesse = U("uVitesse"), uReel = U("uReel");
+      uVitesse = U("uVitesse"), uReel = U("uReel"),
+      uSpectre = U("uSpectre"), uRphoto = U("uRphoto"),
+      uTeinte = U("uTeinte"), uEclat = U("uEclat");
 
 // ============ vecteurs ============
 const cross = (u,v) => [u[1]*v[2]-u[2]*v[1], u[2]*v[0]-u[0]*v[2], u[0]*v[1]-u[1]*v[0]];
@@ -1751,6 +1820,129 @@ function veilleLumen(now){
 
 setTimeout(() => reagit("accueil"), 1400);
 
+// ============ spectre électromagnétique ============
+// Le fait central : c'est la longueur d'onde qui décide si l'ombre est visible.
+// En radio le gaz est opaque et forme une photosphère ; vers le millimétrique
+// il devient transparent. Tout le reste découle de la SED mesurée.
+const SPECTRE = CONTENU.spectre;
+
+// Convention des fausses couleurs en astronomie : long = rouge, court = bleu.
+const COUL_BANDE = {
+  radio:[1.00,0.35,0.24], submm:[1.00,0.62,0.24], ir:[1.00,0.80,0.30],
+  visible:[0.92,0.92,0.96], uv:[0.64,0.49,1.00], x:[0.35,0.66,1.00], gamma:[0.82,0.70,1.00],
+};
+
+let spectreActif = false, lgLambda = -6.22;
+const SED_MAX = Math.max(...SPECTRE.sed.map(p => p[1]));
+
+// νLν interpolé linéairement en log-log
+function sedA(lg){
+  const p = [...SPECTRE.sed].sort((a,b) => a[0]-b[0]);
+  if(lg <= p[0][0]) return p[0][1];
+  if(lg >= p[p.length-1][0]) return p[p.length-1][1];
+  for(let i = 1; i < p.length; i++){
+    if(lg <= p[i][0]){
+      const t = (lg - p[i-1][0])/(p[i][0] - p[i-1][0]);
+      return p[i-1][1] + t*(p[i][1] - p[i-1][1]);
+    }
+  }
+  return p[p.length-1][1];
+}
+
+const bandeA = lg => SPECTRE.bandes.find(b => lg >= b.min && lg < b.max) || SPECTRE.bandes[0];
+
+// Rayon de la photosphère synchrotron, calé sur deux faits observés : à 1,3 mm
+// le flux est devenu transparent à l'échelle de l'horizon — c'est ce qui permet
+// à l'EHT d'y voir l'ombre — et en centimétrique il masque quelques dizaines de
+// rayons. Entre les deux, la taille apparente varie à peu près comme λ.
+const rPhotosphere = lg => {
+  const r = Math.pow(10, 0.079 + (lg + 2.886));
+  return r < 1.5 ? 0 : Math.min(r, 60);
+};
+const eclatA = lg => Math.pow(10, (sedA(lg) - SED_MAX)*0.45);
+
+function longueurFr(lg){
+  const m = Math.pow(10, lg);
+  if(m < 1e-9)  return (m*1e12).toPrecision(3) + " pm";
+  if(m < 1e-6)  return (m*1e9).toPrecision(3)  + " nm";
+  if(m < 1e-3)  return (m*1e6).toPrecision(3)  + " µm";
+  if(m < 1)     return (m*1e3).toPrecision(3)  + " mm";
+  return m.toPrecision(3) + " m";
+}
+
+const gr = $("sp-graphe"), grc = gr.getContext("2d");
+
+function dessineSED(){
+  const dpr = Math.min(devicePixelRatio || 1, 2);
+  const W = gr.clientWidth, H = gr.clientHeight;
+  gr.width = W*dpr; gr.height = H*dpr;
+  grc.setTransform(dpr, 0, 0, dpr, 0, 0);
+  grc.clearRect(0, 0, W, H);
+
+  const x = lg => (lg + 13)/13.5 * W;
+  const y = v  => H - 6 - (v - 30.5)/(SED_MAX - 30.5) * (H - 16);
+
+  // aire sous la courbe
+  grc.beginPath();
+  grc.moveTo(x(-13), H);
+  for(let lg = -13; lg <= 0.5; lg += 0.1) grc.lineTo(x(lg), y(sedA(lg)));
+  grc.lineTo(x(0.5), H); grc.closePath();
+  const d = grc.createLinearGradient(0, 0, W, 0);
+  d.addColorStop(0, "rgba(180,150,255,.20)"); d.addColorStop(.45, "rgba(120,190,255,.20)");
+  d.addColorStop(.75, "rgba(255,200,90,.22)"); d.addColorStop(1, "rgba(255,90,60,.22)");
+  grc.fillStyle = d; grc.fill();
+
+  grc.beginPath();
+  for(let lg = -13; lg <= 0.5; lg += 0.1){
+    const p = [x(lg), y(sedA(lg))];
+    lg === -13 ? grc.moveTo(...p) : grc.lineTo(...p);
+  }
+  grc.strokeStyle = "rgba(255,255,255,.55)"; grc.lineWidth = 1.4; grc.stroke();
+
+  // position courante
+  const px = x(lgLambda);
+  grc.strokeStyle = "#7fd8ff"; grc.lineWidth = 1.4;
+  grc.beginPath(); grc.moveTo(px, 2); grc.lineTo(px, H); grc.stroke();
+  grc.fillStyle = "#7fd8ff";
+  grc.beginPath(); grc.arc(px, y(sedA(lgLambda)), 3.4, 0, 6.2832); grc.fill();
+
+  grc.font = "9px -apple-system, Segoe UI, sans-serif";
+  grc.fillStyle = "#6d6885";
+  grc.textAlign = "left";  grc.fillText("γ", 2, H - 1);
+  grc.textAlign = "right"; grc.fillText("radio", W - 2, H - 1);
+  grc.textAlign = "center"; grc.fillText("νLν", W/2, 9);
+}
+
+function majSpectre(){
+  const b = bandeA(lgLambda);
+  $("sp-bande").textContent = b.nom;
+  $("sp-lambda").textContent = longueurFr(lgLambda);
+  $("sp-note").innerHTML = b.note;
+  $("sp-regle").value = lgLambda;
+  [...$("sp-reperes").children].forEach((c, i) =>
+    c.classList.toggle("actif", Math.abs(SPECTRE.reperes[i].lg - lgLambda) < 0.02));
+  dessineSED();
+}
+
+SPECTRE.reperes.forEach(r => {
+  const b = document.createElement("button");
+  b.innerHTML = `${r.nom} <span style="color:#6d6885">· ${r.sous}</span>`;
+  b.onclick = () => {
+    lgLambda = r.lg; majSpectre();
+    $("sp-note").innerHTML = r.pourquoi;      // le repère explique mieux que la bande
+  };
+  $("sp-reperes").appendChild(b);
+});
+
+$("sp-regle").oninput = e => { lgLambda = parseFloat(e.target.value); majSpectre(); };
+
+$("b-spectre").onclick = () => {
+  spectreActif = !spectreActif;
+  $("spectre").classList.toggle("vu", spectreActif);
+  $("b-spectre").classList.toggle("actif", spectreActif);
+  if(spectreActif) majSpectre();
+};
+
 // ============ missions ============
 // La porte d'entrée pour qui ne connaît rien : un geste, une chose comprise.
 // Chaque condition lit l'état réel du jeu — rien n'est validé sans l'être.
@@ -2560,6 +2752,16 @@ function boucle(now){
   }
 
   avance(dt);
+
+  // En radio, la région qui émet est bien plus grande que le trou noir : à 3 cm
+  // elle atteint 37 rayons. Si la caméra reste à 21 elle est DANS le brouillard
+  // et l'écran vire au monochrome. On recule donc pour garder l'objet en vue —
+  // c'est aussi ce que fait un astronome qui change d'instrument.
+  if(spectreActif && sondeSuivie === null){
+    const voulu = Math.max(21, rPhotosphere(lgLambda)*2.1);
+    cam.dist += (voulu - cam.dist) * Math.min(1, dt*2.2);
+  }
+
   if(sondeSuivie === null) cam.azim += dt*0.012;   // dérive lente, pour que la lentille vive
   majCamera();
   reel += (reelCible - reel) * Math.min(1, dt*3);
@@ -2577,6 +2779,12 @@ function boucle(now){
   gl.uniform1i(uNbPhotons, Math.min(photons.length, 4));
   gl.uniform3fv(uVitesse, vitesseLocale);
   gl.uniform1f(uReel, reel);
+  gl.uniform1f(uSpectre, spectreActif ? 1 : 0);
+  if(spectreActif){
+    gl.uniform1f(uRphoto, rPhotosphere(lgLambda));
+    gl.uniform3fv(uTeinte, COUL_BANDE[bandeA(lgLambda).id] || [1,1,1]);
+    gl.uniform1f(uEclat, eclatA(lgLambda));
+  }
   gl.drawArrays(gl.TRIANGLES, 0, 3);
 
   dessine();

@@ -109,6 +109,21 @@ sources: {
     ref: "S. Chandrasekhar, The Mathematical Theory of Black Holes, Oxford University Press (1983), chap. 3",
     sert: "Équation des géodésiques (forme de Binet) pour Schwarzschild, sphère des photons à 3GM/c²",
   },
+  yuan2003: {
+    ref: "F. Yuan, E. Quataert, R. Narayan, « Nonthermal Electrons in Radiatively Inefficient Accretion Flow Models of Sagittarius A* », ApJ 598, 301 (2003)",
+    doi: "10.1086/378716",
+    sert: "Distribution spectrale d'énergie de Sgr A* : montée radio, pic submillimétrique, creux infrarouge, bosse X",
+  },
+  genzel2010: {
+    ref: "R. Genzel, F. Eisenhauer, S. Gillessen, « The Galactic Center massive black hole and nuclear star cluster », Reviews of Modern Physics 82, 3121 (2010)",
+    doi: "10.1103/RevModPhys.82.3121",
+    sert: "Revue du centre galactique : SED, sursauts infrarouges et X, luminosité bolométrique ~10⁻⁹ L_Edd",
+  },
+  balick1974: {
+    ref: "B. Balick, R. L. Brown, « Intense sub-arcsecond structure in the galactic center », ApJ 194, 265 (1974)",
+    doi: "10.1086/153242",
+    sert: "Découverte de Sgr A* en ondes radio, en 1974",
+  },
   bussard1960: {
     ref: "R. W. Bussard, « Galactic Matter and Interstellar Flight », Astronautica Acta 6, 179-194 (1960)",
     sert: "Statoréacteur interstellaire : collecter l'hydrogène du milieu interstellaire, le fusionner, l'éjecter — donc ne pas emporter son carburant",
@@ -137,6 +152,87 @@ niveaux: ["Découverte", "Curieux", "Astrophysicien"],
 voix: [
   { id:"remy", nom:"Rémy", modele:"fr-FR-RemyMultilingualNeural" },
 ],
+
+// ---------------------------------------------------- spectre électromagnétique
+// Le fait à faire passer : c'est la longueur d'onde qui décide si l'ombre est
+// visible. En radio le flux d'accrétion est opaque et forme une photosphère qui
+// bouche tout ; vers le millimétrique il devient transparent et l'anneau
+// apparaît. C'est la raison d'être de l'EHT à 1,3 mm.
+//
+// `sed` : distribution spectrale, en [log₁₀(λ en m), log₁₀(νLν en erg/s)].
+// Ordres de grandeur d'après Yuan+2003 et la revue Genzel+2010.
+spectre: {
+  sed: [
+    [-0.52, 33.5], [-1.52, 34.0], [-2.52, 34.7], [-2.89, 35.0],
+    [-3.52, 35.5], [-4.00, 35.2], [-4.52, 34.0], [-5.66, 33.5],
+    [-6.22, 32.5], [-7.00, 32.0], [-8.90, 33.3], [-9.90, 33.2],
+    [-12.1, 31.0],
+  ],
+  // Longueurs d'onde où il se passe quelque chose, et pourquoi on s'y arrête.
+  reperes: [
+    { nom:"3 cm", lg:-1.52, sous:"La découverte, 1974",
+      pourquoi:`Balick et Brown trouvent ici une source minuscule et intense au centre
+                de la Galaxie. On ne voit qu'une tache : à cette longueur d'onde le gaz
+                est <b>opaque</b>, et il cache tout ce qui se passe en dessous.`,
+      sources:["balick1974"] },
+    { nom:"1,3 mm", lg:-2.886, sous:"L'œil de l'Event Horizon Telescope",
+      pourquoi:`La fenêtre. Le gaz devient <b>transparent</b> et l'ombre apparaît enfin.
+                C'est pour cette unique raison que l'EHT observe à cette longueur d'onde —
+                et il a fallu un interféromètre grand comme la Terre pour la résoudre.`,
+      sources:["eht2022"] },
+    { nom:"300 μm", lg:-3.52, sous:"Le pic d'émission",
+      pourquoi:`Le maximum de la bosse submillimétrique : c'est là que Sgr A* rayonne
+                le plus. Un trou noir bien nourri brillerait surtout en X ;
+                celui-ci, sous-alimenté, brille dans une bande que l'œil ignore.`,
+      sources:["yuan2003"] },
+    { nom:"2,2 μm", lg:-5.66, sous:"Bande K — les sursauts",
+      pourquoi:`Calme la plupart du temps, puis des <b>sursauts</b> plusieurs fois par jour,
+                jusqu'à cent fois plus brillants. C'est ce que l'instrument GRAVITY
+                surveille, et c'est ainsi qu'on a vu de la matière tourner à quelques
+                rayons de l'horizon.`,
+      sources:["gravity2018","genzel2010"] },
+    { nom:"600 nm", lg:-6.22, sous:"L'œil humain",
+      pourquoi:`Presque rien. Toute la beauté orange des images est une convention :
+                à cette longueur d'onde, le trou noir ne se trahit que par les
+                <b>étoiles déformées</b> derrière lui.`,
+      sources:["yuan2003"] },
+    { nom:"1 keV", lg:-8.9, sous:"Chandra",
+      pourquoi:`Une émission faible mais <b>bien plus étendue</b> que le trou noir :
+                elle vient du gaz capturé loin, à des milliers de rayons. Plus des
+                sursauts. Sgr A* est ici un million de fois trop pâle pour sa masse.`,
+      sources:["genzel2010","yuan2014"] },
+  ],
+  bandes: [
+    { id:"radio",   nom:"Ondes radio",  min:-2.0,  max:0.5,
+      note:`C'est ici qu'on l'a <b>découvert</b>, en 1974. Mais le gaz y est opaque :
+            il forme une photosphère qui masque complètement l'ombre.`,
+      sources:["balick1974","yuan2003"] },
+    { id:"submm",   nom:"Submillimétrique", min:-3.3, max:-2.0,
+      note:`Le <b>pic d'émission</b>, et la fenêtre de l'Event Horizon Telescope à 1,3 mm.
+            Le gaz devient transparent : c'est la seule bande où l'anneau apparaît.`,
+      sources:["eht2022","yuan2003"] },
+    { id:"ir",      nom:"Infrarouge",   min:-6.15, max:-3.3,
+      note:`Calme, avec des <b>sursauts</b> plusieurs fois par jour — c'est ce que
+            GRAVITY surveille. L'émission devient compacte.`,
+      sources:["gravity2018","genzel2010"] },
+    { id:"visible", nom:"Lumière visible", min:-6.40, max:-6.15,
+      note:`Presque <b>rien</b>. Rien ne brille à l'œil nu ici. Le trou noir ne se
+            trahit que par les étoiles déformées derrière lui.`,
+      sources:["yuan2003"] },
+    { id:"uv",      nom:"Ultraviolet",  min:-8.0,  max:-6.40,
+      note:`Toujours presque rien, et sur le trajet depuis la Terre tout est absorbé
+            par la poussière du disque galactique.`,
+      sources:["genzel2010"] },
+    { id:"x",       nom:"Rayons X",     min:-11.0, max:-8.0,
+      note:`Une émission faible et <b>étendue</b>, bien plus large que le trou noir,
+            plus des sursauts. Chandra l'observe depuis 1999.`,
+      sources:["genzel2010","yuan2014"] },
+    { id:"gamma",   nom:"Rayons gamma", min:-13.0, max:-11.0,
+      note:`Rien qu'on sache attribuer à Sgr A* lui-même. Le centre galactique
+            en émet, mais d'autres sources s'y mêlent.`,
+      sources:["genzel2010"] },
+  ],
+},
 
 // --------------------------------------------------------------- accueil
 // Trois temps : l'image, la question du niveau, le menu. Court partout —
