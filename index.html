@@ -1936,11 +1936,33 @@ SPECTRE.reperes.forEach(r => {
 
 $("sp-regle").oninput = e => { lgLambda = parseFloat(e.target.value); majSpectre(); };
 
+// Un débutant qui ouvre l'outil voit d'abord de quoi il s'agit. Une seule fois :
+// on ne réexplique pas à quelqu'un qui a déjà lu.
+let leconSpectreVue = false;
+
+function leconSpectre(){
+  $("sp-bande").textContent = "Le spectre électromagnétique";
+  $("sp-lambda").textContent = "";
+  $("sp-note").innerHTML = resous(SPECTRE.lecon) +
+    `<div style="margin-top:13px"><button id="sp-compris">J'ai compris, ouvre l'outil</button></div>`;
+  gr.style.display = "none";
+  $("sp-regle").style.display = "none";
+  $("sp-reperes").style.display = "none";
+  $("sp-compris").onclick = () => {
+    leconSpectreVue = true;
+    gr.style.display = ""; $("sp-regle").style.display = ""; $("sp-reperes").style.display = "";
+    majSpectre();
+  };
+}
+
 $("b-spectre").onclick = () => {
   spectreActif = !spectreActif;
   $("spectre").classList.toggle("vu", spectreActif);
   $("b-spectre").classList.toggle("actif", spectreActif);
-  if(spectreActif) majSpectre();
+  if(!spectreActif) return;
+  // les niveaux avancés savent lire une SED, on ne leur impose pas la leçon
+  if(iNiveau === 0 && !leconSpectreVue) leconSpectre();
+  else majSpectre();
 };
 
 // ============ missions ============

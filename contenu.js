@@ -168,6 +168,36 @@ spectre: {
     [-6.22, 32.5], [-7.00, 32.0], [-8.90, 33.3], [-9.90, 33.2],
     [-12.1, 31.0],
   ],
+  // Un débutant qui ouvre l'outil tombe sur une réglette et une courbe sans
+  // légende. On explique d'abord, et on ne le fait qu'une fois.
+  lecon: { niv:[
+    `<b>Une seconde — c'est un outil d'astronome.</b>
+     <br><br>Ce que tu appelles « lumière » n'est qu'une <i>toute petite fenêtre</i>.
+     Les mêmes ondes existent en plus long et en plus court : les ondes radio de
+     ta voiture, la chaleur que tu sens près d'un feu, les rayons X de l'hôpital.
+     C'est la même chose, avec des longueurs différentes. Ton œil n'en voit qu'une
+     bande minuscule ; les astronomes ont des instruments pour toutes les autres.
+     <br><br>La <b>courbe</b> ci-dessous montre combien Sgr A* envoie d'énergie
+     dans chaque longueur d'onde. Plus elle est haute, plus il brille dans cette
+     bande. Tu vas voir quelque chose de troublant : il ne brille presque pas
+     là où ton œil regarde.
+     <br><br>Les <b>boutons</b> sont les longueurs d'onde où il s'est passé
+     quelque chose d'important. Chacun t'explique quoi.`,
+
+    `La courbe est la <b>distribution spectrale</b> de Sgr A* : l'énergie émise
+     à chaque longueur d'onde, mesurée. Elle monte en radio, culmine dans le
+     submillimétrique, s'effondre dans le visible, et remonte un peu en X.
+     <br><br>Le point à retenir : la <b>transparence</b> du gaz dépend de la
+     longueur d'onde. En radio il est opaque et cache l'ombre. C'est pour ça que
+     l'EHT a dû aller chercher 1,3 mm.`,
+
+    `SED de Sgr A* d'après Yuan, Quataert &amp; Narayan (2003) et la revue de
+     Genzel, Eisenhauer &amp; Gillessen (2010) — ordres de grandeur en νLν.
+     <br><br>La photosphère synchrotron est modélisée avec une taille apparente
+     variant à peu près comme λ, calée sur la transition à τ ~ 1 vers 230 GHz.
+     Les couleurs sont conventionnelles hors du visible.`,
+  ]},
+
   // Longueurs d'onde où il se passe quelque chose, et pourquoi on s'y arrête.
   reperes: [
     { nom:"3 cm", lg:-1.52, sous:"La découverte, 1974",
