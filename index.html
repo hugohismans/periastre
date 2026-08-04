@@ -479,6 +479,13 @@
   border:1px solid rgba(255,255,255,.18); background:rgba(255,255,255,.07);
   color:inherit; font:inherit; cursor:pointer;
 }
+/* Le réticule, visible seulement quand la souris est capturée : sans curseur,
+   il faut bien savoir ce qu'on vise. Discret — on regarde le trou noir. */
+.vise-au-centre::after{
+  content:""; position:fixed; left:50%; top:50%; width:6px; height:6px;
+  margin:-3px 0 0 -3px; border-radius:50%; pointer-events:none; z-index:70;
+  background:rgba(255,255,255,.62); box-shadow:0 0 0 1.5px rgba(0,0,0,.55);
+}
 </style>
 </head>
 <body>
@@ -2349,23 +2356,81 @@ cv.addEventListener("pointercancel", relache);
    On distingue un clic d'un glissé au déplacement parcouru : dans le salon, le
    même bouton sert à tourner la tête et à actionner. Sans ce seuil, chaque
    regard vers la droite déclencherait ce qui traîne sous le pointeur. */
-let posteDepart = null;
+let posteDepart = null, glisse = null;
+
+// Sensibilité du regard, en radians par pixel. Assez lent pour qu'on puisse
+// viser un objet, assez vif pour faire demi-tour d'un geste.
+const SENS = 0.0032;
+const TANGAGE_MAX = 1.15;      // on ne se casse pas la nuque
+
+function tourne(dx, dy){
+  salon.lacet += dx*SENS;
+  salon.tangage = Math.max(-TANGAGE_MAX, Math.min(TANGAGE_MAX, salon.tangage - dy*SENS));
+}
+
+/* Deux façons de regarder, et il en faut deux.
+
+   Le GLISSÉ marche partout, y compris au doigt sur un téléphone, mais il
+   occupe un bouton : on tourne en maintenant, ce qui est pénible quand on
+   marche en même temps.
+
+   La CAPTURE DU POINTEUR donne la vraie sensation de jeu — la souris tourne la
+   tête sans rien tenir. Elle a un coût : le curseur disparaît, donc viser se
+   fait par un réticule au centre. C'est pour ça qu'elle est proposée et pas
+   imposée, et qu'on en sort par Échap comme partout ailleurs. */
+const capture = () => document.pointerLockElement === cv;
+
+function centreCanevas(){
+  const r = cv.getBoundingClientRect();
+  return { clientX: r.left + r.width/2, clientY: r.top + r.height/2 };
+}
+
+document.addEventListener("pointerlockchange", () => {
+  document.body.classList.toggle("vise-au-centre", capture());
+  if(!capture()) salon.vise = null;
+});
+
 cv.addEventListener("pointerdown", e => {
   if(!salon.actif) return;
-  posteDepart = { x:e.clientX, y:e.clientY, p:posteVise(e) };
+  posteDepart = { x:e.clientX, y:e.clientY,
+                  p: capture() ? posteVise(centreCanevas()) : posteVise(e) };
+  if(!capture()) glisse = { id:e.pointerId, x:e.clientX, y:e.clientY };
 });
 
 cv.addEventListener("pointermove", e => {
-  if(!salon.actif){ salon.vise = null; return; }
-  salon.vise = posteVise(e);
-  cv.style.cursor = salon.vise ? "pointer" : "";
+  if(!salon.actif){ salon.vise = null; glisse = null; return; }
+  if(glisse && e.pointerId === glisse.id){
+    tourne(e.clientX - glisse.x, e.clientY - glisse.y);
+    glisse.x = e.clientX; glisse.y = e.clientY;
+  }
+  salon.vise = posteVise(capture() ? centreCanevas() : e);
+  cv.style.cursor = (salon.vise && !capture()) ? "pointer" : "";
 });
+
+// La capture livre les déplacements bruts : le curseur n'existe plus, donc
+// clientX ne bouge plus. C'est `movementX` qui porte l'information.
+document.addEventListener("mousemove", e => {
+  if(capture() && salon.actif) tourne(e.movementX, e.movementY);
+});
+
+const relacheGlisse = e => { if(glisse && e.pointerId === glisse.id) glisse = null; };
+cv.addEventListener("pointerup", relacheGlisse);
+cv.addEventListener("pointercancel", relacheGlisse);
 
 cv.addEventListener("pointerup", e => {
   const d = posteDepart; posteDepart = null;
-  if(!salon.actif || !d || !d.p) return;
-  if(Math.hypot(e.clientX - d.x, e.clientY - d.y) > 6) return;   // c'était un glissé
-  if(posteVise(e) !== d.p) return;                               // relâché ailleurs
+  if(!salon.actif || !d) return;
+  const bref = Math.hypot(e.clientX - d.x, e.clientY - d.y) <= 6;
+  if(!bref) return;                                    // c'était un glissé du regard
+
+  if(!d.p){
+    // Un clic dans le vide propose la capture du pointeur : c'est le geste le
+    // plus naturel pour dire « je veux jouer », et il n'entre en conflit avec
+    // rien puisqu'il n'y avait rien à activer.
+    if(!capture() && cv.requestPointerLock) cv.requestPointerLock();
+    return;
+  }
+  if(posteVise(capture() ? centreCanevas() : e) !== d.p) return;
   if(d.p.id === "lumen"){ ouvreQuestions(); return; }
   salon.facteur = d.p.valeur;
   reagit("vitesse");
