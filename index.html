@@ -92,6 +92,120 @@
   #aide { bottom:24px; left:28px; font-size:11px; letter-spacing:.03em; color:#7d7894; line-height:1.75; pointer-events:none; max-width:32ch; }
   kbd { font:inherit; background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.13); border-radius:4px; padding:0 5px; color:#c2bcd6; }
 
+  /* ---- Lumen, la mascotte ---- */
+  #lumen { bottom:92px; left:28px; display:flex; align-items:flex-end; gap:11px; pointer-events:none; }
+  #lumen-corps {
+    width:54px; height:54px; flex:none; cursor:pointer; pointer-events:auto;
+    padding:0; border:0; background:none; border-radius:50%;
+    animation:flotte 4.2s ease-in-out infinite; transition:transform .16s;
+  }
+  #lumen-corps:hover { background:none; }
+  #lumen-corps svg { width:100%; height:100%; display:block; }
+  #lumen-corps:hover { transform:scale(1.09); }
+  #lumen-corps:active { transform:scale(.96); }
+  @keyframes flotte { 0%,100%{ transform:translateY(0) } 50%{ transform:translateY(-7px) } }
+  @keyframes cligne { 0%,94%,100%{ transform:scaleY(1) } 97%{ transform:scaleY(.12) } }
+  .oeil { animation:cligne 5.4s infinite; transform-origin:center; transform-box:fill-box; }
+
+  #bulle {
+    position:relative; max-width:302px; pointer-events:auto;
+    background:rgba(12,10,24,.72); backdrop-filter:blur(14px);
+    border:1px solid rgba(255,255,255,.13); border-radius:13px;
+    padding:11px 13px; font-size:11.5px; line-height:1.62; color:#c7c2d9;
+    opacity:0; transform:translateY(7px); transition:opacity .28s, transform .28s;
+  }
+  #bulle.vu { opacity:1; transform:translateY(0); }
+  #bulle::before {
+    content:""; position:absolute; left:-5px; bottom:17px; width:9px; height:9px;
+    background:inherit; border-left:1px solid rgba(255,255,255,.13);
+    border-bottom:1px solid rgba(255,255,255,.13); transform:rotate(45deg);
+  }
+  #bulle b { color:#eae6f5; font-weight:600; }
+  #bulle i { color:#ffd9a0; font-style:normal; }
+  #bulle .q {
+    display:block; width:100%; text-align:left; margin:3px 0 0; padding:6px 9px;
+    font-size:11px; line-height:1.45; border-radius:7px;
+  }
+  #bulle .q:first-of-type { margin-top:8px; }
+  #b-voix {
+    position:absolute; top:-9px; right:-9px; width:24px; height:24px; padding:0;
+    border-radius:50%; font-size:11px; line-height:1; display:grid; place-items:center;
+    background:rgba(20,16,34,.95);
+  }
+
+  /* ---- dossier « pourquoi c'est exact » ---- */
+  #b-methode { width:100%; background:rgba(127,216,255,.13); border-color:rgba(127,216,255,.34); color:#cdeeff; }
+  #b-methode:hover { background:rgba(127,216,255,.22); border-color:rgba(127,216,255,.55); }
+
+  #voile {
+    position:fixed; inset:0; z-index:6; display:none;
+    background:rgba(4,3,10,.72); backdrop-filter:blur(7px);
+    overflow-y:auto; padding:40px 20px;
+  }
+  #voile.vu { display:block; }
+  #dossier {
+    max-width:760px; margin:0 auto; position:relative;
+    background:rgba(13,11,25,.94); border:1px solid rgba(255,255,255,.12);
+    border-radius:16px; padding:30px 34px 34px;
+  }
+  #d-fermer { position:absolute; top:16px; right:16px; width:30px; height:30px; padding:0; border-radius:50%; font-size:15px; }
+  #dossier h2 { font-size:20px; font-weight:600; color:#fff; letter-spacing:-.01em; margin-bottom:5px; }
+  #dossier .chapeau { font-size:12px; color:#8b86a3; margin-bottom:20px; }
+  #d-niveaux { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; margin-bottom:24px; max-width:340px; }
+  #d-niveaux button { padding:7px 4px; font-size:10.5px; }
+
+  #d-texte { font-size:13px; line-height:1.78; color:#b5b0c9; }
+  #d-texte h3 {
+    font-size:11px; font-weight:600; letter-spacing:.15em; text-transform:uppercase;
+    color:#7fd8ff; margin:26px 0 10px;
+  }
+  #d-texte h3:first-child { margin-top:0; }
+  #d-texte p { margin-bottom:12px; }
+  #d-texte b { color:#e9e5f4; font-weight:600; }
+  #d-texte i { color:#ffd9a0; font-style:normal; }
+  #d-texte ul { margin:0 0 12px 17px; }
+  #d-texte li { margin-bottom:7px; }
+  #d-texte code {
+    font-family:ui-monospace,"Cascadia Code",Consolas,monospace; font-size:12px;
+    background:rgba(255,255,255,.06); border-radius:4px; padding:1px 5px; color:#cfe9ff;
+  }
+  #d-texte pre {
+    font-family:ui-monospace,"Cascadia Code",Consolas,monospace; font-size:11.5px; line-height:1.6;
+    background:rgba(0,0,0,.38); border:1px solid rgba(255,255,255,.08); border-radius:9px;
+    padding:13px 15px; margin-bottom:13px; overflow-x:auto; color:#c3dcf0;
+  }
+  #d-texte pre .cm { color:#6f6a86; }
+
+  /* banc d'essai */
+  #banc { margin-top:28px; border-top:1px solid rgba(255,255,255,.10); padding-top:22px; }
+  #b-lancer { background:rgba(110,255,180,.13); border-color:rgba(110,255,180,.34); color:#c8ffe4; }
+  #b-lancer:hover { background:rgba(110,255,180,.22); border-color:rgba(110,255,180,.55); }
+  #essais { margin-top:16px; font-size:12px; }
+  table.essais { width:100%; border-collapse:collapse; font-variant-numeric:tabular-nums; }
+  table.essais th {
+    text-align:left; font-size:9px; letter-spacing:.15em; text-transform:uppercase;
+    color:#7d7894; font-weight:500; padding:0 8px 8px 0; border-bottom:1px solid rgba(255,255,255,.10);
+  }
+  table.essais td { padding:9px 8px 9px 0; border-bottom:1px solid rgba(255,255,255,.055); vertical-align:top; }
+  table.essais td:first-child { color:#d3cfe2; }
+  table.essais .num { color:#fff; white-space:nowrap; }
+  table.essais .th  { color:#8b86a3; white-space:nowrap; }
+  .verdict { font-weight:600; white-space:nowrap; }
+  .verdict.ok  { color:#6effb4; }
+  .verdict.bof { color:#ffd08a; }
+  .verdict.non { color:#ff5d7a; }
+  #essais .apres { margin-top:14px; font-size:11.5px; color:#8b86a3; line-height:1.65; }
+
+  @media (max-width:760px) {
+    #voile { padding:16px 10px; }
+    #dossier { padding:24px 18px 26px; }
+    #d-niveaux { max-width:none; }
+    table.essais, table.essais tbody, table.essais tr, table.essais td { display:block; width:100%; }
+    table.essais thead { display:none; }
+    table.essais tr { padding:10px 0; border-bottom:1px solid rgba(255,255,255,.07); }
+    table.essais td { border:0; padding:2px 0; }
+  }
+
   #flash {
     position:fixed; inset:0; z-index:3; pointer-events:none;
     background:radial-gradient(circle at center, rgba(255,70,90,.42), transparent 60%);
@@ -110,6 +224,7 @@
     #aide  { display:none; }
     #panneau { bottom:16px; right:16px; left:16px; width:auto; padding:12px; }
     #f-texte { max-height:26vh; }
+    #lumen { display:none; }
   }
 </style>
 </head>
@@ -143,7 +258,7 @@
 
 <div class="hud" id="stats">
   <div class="stat orbite"><b id="s-orbite">0</b><span>en orbite</span></div>
-  <div class="stat chute"><b id="s-chute">0</b><span>avalées</span></div>
+  <div class="stat chute"><b id="s-chute">0</b><span>figées à l'horizon</span></div>
   <div class="stat fuite"><b id="s-fuite">0</b><span>échappées</span></div>
 </div>
 
@@ -164,12 +279,62 @@
     <div class="etiq">Vitesse du temps</div>
     <div class="grille" id="vitesses"></div>
   </div>
+  <div class="bloc"><button id="b-methode">Pourquoi c'est exact ?</button></div>
   <div id="lecture"></div>
+</div>
+
+<div class="hud" id="lumen">
+  <button id="lumen-corps" aria-label="Parler à Lumen">
+  <svg viewBox="0 0 60 60" aria-hidden="true">
+    <defs>
+      <radialGradient id="halo">
+        <stop offset="0%"   stop-color="#fff6e0" stop-opacity=".85"/>
+        <stop offset="42%"  stop-color="#ffcf8a" stop-opacity=".34"/>
+        <stop offset="100%" stop-color="#ff9a3c" stop-opacity="0"/>
+      </radialGradient>
+      <radialGradient id="coeur" cx="38%" cy="34%">
+        <stop offset="0%"   stop-color="#ffffff"/>
+        <stop offset="58%"  stop-color="#ffeec4"/>
+        <stop offset="100%" stop-color="#ffc369"/>
+      </radialGradient>
+    </defs>
+    <circle cx="30" cy="30" r="29" fill="url(#halo)">
+      <animate attributeName="r" values="26;29.5;26" dur="3.1s" repeatCount="indefinite"/>
+    </circle>
+    <path d="M6 40 Q15 46 24 43" stroke="#ffcf8a" stroke-opacity=".45" stroke-width="1.6"
+          stroke-linecap="round" fill="none"/>
+    <path d="M4 32 Q14 36 22 34" stroke="#ffcf8a" stroke-opacity=".22" stroke-width="1.3"
+          stroke-linecap="round" fill="none"/>
+    <circle cx="31" cy="30" r="15" fill="url(#coeur)"/>
+    <ellipse class="oeil" cx="26" cy="28" rx="2.1" ry="3.1" fill="#3b2410"/>
+    <ellipse class="oeil" cx="36" cy="28" rx="2.1" ry="3.1" fill="#3b2410"/>
+    <path d="M27 36 Q31 39 35 35.5" stroke="#3b2410" stroke-opacity=".65" stroke-width="1.5"
+          stroke-linecap="round" fill="none"/>
+  </svg>
+  </button>
+  <div id="bulle">
+    <button id="b-voix" title="Lire à voix haute">🔇</button>
+    <div id="bulle-texte"></div>
+  </div>
 </div>
 
 <div class="hud" id="aide">
   Glisse depuis un point du disque pour lancer une sonde à la main.<br>
   <kbd>molette</kbd> zoom · <kbd>clic droit</kbd> pivoter · <kbd>espace</kbd> pluie · <kbd>P</kbd> photon · <kbd>T</kbd> trajectoires
+</div>
+
+<div id="voile">
+  <div id="dossier">
+    <button id="d-fermer" aria-label="Fermer">✕</button>
+    <h2>Pourquoi cette image est exacte</h2>
+    <div class="chapeau">Et ce qui, dedans, ne l'est pas.</div>
+    <div id="d-niveaux"></div>
+    <div id="d-texte"></div>
+    <div id="banc">
+      <button id="b-lancer">Vérifier le moteur maintenant</button>
+      <div id="essais"></div>
+    </div>
+  </div>
 </div>
 
 <script id="vs" type="x-shader">#version 300 es
@@ -282,12 +447,29 @@ vec4 disque(vec3 p, vec3 rd){
 
 void main(){
   vec2 uv = (gl_FragCoord.xy*2.0 - uRes) / uRes.y;
-  vec3 dir = normalize(uBasis[0]*uv.x + uBasis[1]*uv.y + uBasis[2]*uFocal);
+  vec3 vue = normalize(uBasis[0]*uv.x + uBasis[1]*uv.y + uBasis[2]*uFocal);
   vec3 pos = uCam;
 
-  // moment cinétique du photon : pilote la courbure de sa trajectoire
-  vec3 L = cross(pos, dir);
-  float h2 = dot(L, L);
+  // Conditions initiales exactes pour un observateur statique.
+  //   b = r sinψ / sqrt(1 − r_s/r)          (ψ = angle local au rayon)
+  //   |dr/dλ|² = 1 + 2M h²/r³               (condition de genre nul)
+  // λ est le paramètre AFFINE : la « vitesse » n'y est pas unitaire, et c'est
+  // précisément ce qui interdit de renormaliser la direction pendant la marche.
+  float r0    = length(pos);
+  vec3  rh    = pos / r0;
+  float cospsi = dot(vue, rh);
+  float sinpsi = sqrt(max(0.0, 1.0 - cospsi*cospsi));
+  float h  = r0 * sinpsi / sqrt(max(1.0 - 1.0/r0, 1e-6));
+  float h2 = h*h;
+
+  vec3 dir;
+  if(sinpsi < 1e-6){
+    dir = sign(cospsi) * rh;                       // rayon radial
+  } else {
+    vec3 th = normalize(vue - cospsi*rh);
+    float vr2 = 1.0 + h2/(r0*r0*r0) - h2/(r0*r0);  // 2M = 1
+    dir = sign(cospsi)*sqrt(max(vr2, 0.0))*rh + (h/r0)*th;
+  }
 
   vec3  col   = vec3(0.0);
   float reste = 1.0;
@@ -299,17 +481,22 @@ void main(){
     if(r < 1.0){ avale = true; break; }
     if(r > 70.0 && dot(pos, dir) > 0.0) break;
 
-    float dt = clamp(r*0.085, 0.045, 1.4);
+    // le pas est une longueur d'arc : on le divise par la « vitesse » affine,
+    // qui n'est pas unitaire
+    float vn = max(length(dir), 1e-4);
+    float dt = clamp(r*0.085, 0.045, 1.4) / vn;
 
     // pas plus fin près d'un photon, sinon il scintille
     for(int k = 0; k < 4; k++){
       if(k >= uNbPhotons) break;
-      dt = min(dt, max(0.05, length(uPhotons[k]-pos)*0.40));
+      dt = min(dt, max(0.05, length(uPhotons[k]-pos)*0.40/vn));
     }
 
+    // Verlet-vitesse ; surtout pas de normalize sur nd, λ est un paramètre affine
     vec3 acc = -1.5 * h2 * pos / pow(r, 5.0);
     vec3 np  = pos + dir*dt + 0.5*acc*dt*dt;
-    vec3 nd  = normalize(dir + acc*dt);
+    vec3 an  = -1.5 * h2 * np / pow(length(np), 5.0);
+    vec3 nd  = dir + 0.5*(acc + an)*dt;
 
     // traversée du plan du disque
     if(pos.y*np.y < 0.0 && reste > 0.004){
@@ -317,7 +504,7 @@ void main(){
       vec3  cp = mix(pos, np, f);
       float rr = length(cp.xz);
       if(rr > R_IN && rr < R_OUT){
-        vec4 d = disque(cp, dir);
+        vec4 d = disque(cp, normalize(dir));
         col   += reste * d.rgb;
         reste *= 1.0 - d.a*0.86;
       }
@@ -332,7 +519,7 @@ void main(){
     pos = np; dir = nd;
   }
 
-  if(!avale) col += reste * ciel(dir);
+  if(!avale) col += reste * ciel(normalize(dir));
 
   col += vec3(1.0, 0.98, 0.92) * lueur * 7.0;   // le photon, lensé comme le reste
 
@@ -469,13 +656,37 @@ function integre(p, v, dt){
           [ v[0]+am[0]*dt, v[1]+am[1]*dt, v[2]+am[2]*dt ]];
 }
 
-// Lumière : même équation que le shader. h² est constant le long du rayon.
+// Lumière : même équation que le shader, en paramètre affine λ. h² est constant
+// le long du rayon, et la « vitesse » |dr/dλ| ne l'est pas — d'où l'absence de
+// renormalisation, qui fausserait la trajectoire.
+// Verlet-vitesse : l'accélération est réévaluée à l'arrivée et moyennée.
+// Un simple Euler sur la vitesse dérive assez pour faire passer un rayon sous
+// la sphère des photons, ce qui est géométriquement impossible.
 function integrePhoton(p, d, h2, dt){
   const r = len(p);
   const k = -1.5*h2 / Math.pow(r, 5);
-  const a = [ k*p[0], k*p[1], k*p[2] ];
-  return [[ p[0]+d[0]*dt+0.5*a[0]*dt*dt, p[1]+d[1]*dt+0.5*a[1]*dt*dt, p[2]+d[2]*dt+0.5*a[2]*dt*dt ],
-          norm([ d[0]+a[0]*dt, d[1]+a[1]*dt, d[2]+a[2]*dt ])];
+  const np = [ p[0] + d[0]*dt + 0.5*k*p[0]*dt*dt,
+               p[1] + d[1]*dt + 0.5*k*p[1]*dt*dt,
+               p[2] + d[2]*dt + 0.5*k*p[2]*dt*dt ];
+  const kn = -1.5*h2 / Math.pow(len(np), 5);
+  return [np, [ d[0] + 0.5*(k*p[0] + kn*np[0])*dt,
+                d[1] + 0.5*(k*p[1] + kn*np[1])*dt,
+                d[2] + 0.5*(k*p[2] + kn*np[2])*dt ]];
+}
+
+// Conditions initiales d'un rayon vu par un observateur statique en `p`, visant
+// la direction unitaire locale `vue`. Rend h² et la vitesse affine de départ.
+function rayonDepuis(p, vue){
+  const r0 = len(p);
+  const rh = [p[0]/r0, p[1]/r0, p[2]/r0];
+  const c  = dot(vue, rh);
+  const s  = Math.sqrt(Math.max(0, 1 - c*c));
+  const h  = r0*s / Math.sqrt(Math.max(1 - R_HORIZON/r0, 1e-9));
+  const h2 = h*h;
+  if(s < 1e-9) return { h2:0, d:[Math.sign(c)*rh[0], Math.sign(c)*rh[1], Math.sign(c)*rh[2]] };
+  const th = norm([vue[0]-c*rh[0], vue[1]-c*rh[1], vue[2]-c*rh[2]]);
+  const vr = Math.sign(c) * Math.sqrt(Math.max(0, 1 + h2/(r0*r0*r0) - h2/(r0*r0)));
+  return { h2, d:[ vr*rh[0] + h/r0*th[0], vr*rh[1] + h/r0*th[1], vr*rh[2] + h/r0*th[2] ] };
 }
 
 const vCirc = r => Math.sqrt(M/r);
@@ -566,16 +777,29 @@ function avance(dtSec){
   const pas = dtGeo/n;
   for(let i = sondes.length - 1; i >= 0; i--){
     const s = sondes[i];
+
+    // Dilatation du temps : vue de loin, une sonde qui approche de l'horizon
+    // ralentit et ne le franchit JAMAIS. Elle se fige, rougit, et s'éteint.
+    // Le facteur (1 − r_s/r) est la relation entre temps propre et temps
+    // coordonnée ; sans lui la sonde traverserait, ce qu'aucun observateur
+    // extérieur ne peut voir.
+    const dilat = Math.max(0, 1 - R_HORIZON/len(s.p));
+    const pasEff = pas * dilat;
     for(let k = 0; k < n; k++){
-      const [np, nv] = integre(s.p, s.v, pas);
+      const [np, nv] = integre(s.p, s.v, pasEff);
       s.p = np; s.v = nv;
     }
     s.trace.push([s.p[0], s.p[1], s.p[2]]);
     if(s.trace.length > 46) s.trace.shift();
 
     const r = len(s.p);
-    if(r < R_HORIZON*1.1){ sondes.splice(i,1); nChute++; flash(); message("avalée"); }
-    else if(r > 52)      { sondes.splice(i,1); nFuite++; }
+    // le flux perçu décroît exponentiellement, d'échelle ~ r_s/c
+    if(dilat < 0.06){
+      s.gel = (s.gel || 0) + dtGeo;
+      if(s.gel > 14){ sondes.splice(i,1); nChute++; continue; }
+      if(!s.vue){ s.vue = true; flash(); message("figée à l'horizon"); reagit("avalee", true); }
+    }
+    if(r > 52){ sondes.splice(i,1); nFuite++; }
   }
 
   // photons — pas plus fin, ils frôlent l'horizon
@@ -597,8 +821,8 @@ function avance(dtSec){
     if(f.trace.length > 200) f.trace.shift();
 
     const r = len(f.p);
-    if(r < R_HORIZON*1.02){ photons.splice(i,1); message("photon absorbé"); }
-    else if(r > 45)       { photons.splice(i,1); message("photon échappé"); }
+    if(r < R_HORIZON*1.02){ photons.splice(i,1); message("photon absorbé"); reagit("photonAvale", true); }
+    else if(r > 45)       { photons.splice(i,1); message("photon échappé"); reagit("photonFuite", true); }
   }
 }
 
@@ -620,12 +844,13 @@ let montreTraj = false;
 let visee = null, pivot = null;
 
 // ---- boutons ----
-$("b-pluie").onclick  = () => pluie(80);
-$("b-photon").onclick = () => lancePhoton();
+$("b-pluie").onclick  = () => { pluie(80); reagit("pluie"); };
+$("b-photon").onclick = () => { lancePhoton(); reagit("photon"); };
 $("b-vide").onclick   = () => { sondes.length = 0; photons.length = 0; nChute = 0; nFuite = 0; };
 $("b-traj").onclick   = () => {
   montreTraj = !montreTraj;
   $("b-traj").classList.toggle("actif", montreTraj);
+  if(montreTraj) reagit("traj");
 };
 
 const boitierV = $("vitesses");
@@ -635,6 +860,7 @@ VITESSES.forEach((v, i) => {
   b.onclick = () => {
     iVitesse = i;
     [...boitierV.children].forEach((c, j) => c.classList.toggle("actif", j === i));
+    reagit("vitesse" + i);
   };
   boitierV.appendChild(b);
 });
@@ -918,7 +1144,7 @@ const boitierN = $("niveaux");
 NIVEAUX.forEach((nom, i) => {
   const b = document.createElement("button");
   b.textContent = nom;
-  b.onclick = () => { iNiveau = i; majFiche(); };
+  b.onclick = () => { iNiveau = i; majFiche(); reagit("niveau"); };
   boitierN.appendChild(b);
 });
 
@@ -943,6 +1169,534 @@ const vaFiche = d => { iFiche = (iFiche + d + FICHES.length) % FICHES.length; ma
 $("f-prec").onclick = () => vaFiche(-1);
 $("f-suiv").onclick = () => vaFiche(1);
 majFiche();
+
+// ============ Lumen ============
+// Un tableau = tirage au sort. { niv:[...] } = une version par niveau.
+const resous = x =>
+  Array.isArray(x)  ? resous(x[Math.floor(Math.random()*x.length)]) :
+  (x && x.niv)      ? x.niv[iNiveau] : x;
+
+const REACTIONS = {
+  accueil: { niv:[
+    `Salut ! Moi c'est <b>Lumen</b>, je suis un photon. Je tourne autour de ce truc depuis
+     un moment. Clique sur moi si tu as des questions.`,
+    `Salut, <b>Lumen</b>, photon en orbite. Pose-moi ce que tu veux, j'ai le temps :
+     je boucle un tour toutes les six minutes et demie.`,
+    `<b>Lumen</b>, photon piégé sur la sphère à 1,5 r<sub>s</sub>. Orbite instable,
+     donc je ne suis pas là pour longtemps. Clique si tu veux parler métrique.`,
+  ]},
+  pluie: [
+    `Quatre-vingts sondes d'un coup. Regarde les couleurs : <i>bleu</i> elles tiennent,
+     <i>rose</i> elles tombent, <i>vert</i> elles s'en vont. Tout se joue sur la vitesse de départ.`,
+    `Même endroit, même trou noir — et trois destins différents. La seule chose qui change,
+     c'est de combien elles vont trop vite ou pas assez.`,
+  ],
+  avalee: [
+    `Regarde-la bien : elle ne <b>traverse</b> pas. Vue d'ici, elle ralentit, rougit,
+     et s'éteint sans jamais atteindre le bord. Pour elle, la traversée a déjà eu lieu.`,
+    `Elle n'a pas été « aspirée » : elle est tombée, comme une pierre qui rate son virage.
+     Et de notre point de vue, elle <i>tombe encore</i>. Elle tombera toujours.`,
+    `Voilà pourquoi on disait autrefois « étoile gelée ». De loin, rien ne franchit
+     jamais l'horizon — l'image se fige sur le seuil et s'efface.`,
+  ],
+  photon: `Ah, un collègue ! Il est sur la crête : trop lent il tombe, trop vite il part.
+           Personne ne reste. <i>Passe en temps réel</i> pour voir à quel point c'est lent.`,
+  photonAvale: `Bon. Il a glissé du mauvais côté de la crête.`,
+  photonFuite: `Il s'en sort. Maintenant il file tout droit pendant 26 000 ans
+                avant que quelqu'un le voie.`,
+  traj: `Voilà l'avenir de tout le monde, déjà tracé. Une orbite ne se décide pas en route :
+         la vitesse de départ contient toute l'histoire.`,
+  vitesse0: `Là tu es en <b>temps réel</b>. Je me déplace de deux centièmes de rayon par seconde.
+             Va faire un café : il me faut <i>6 min 39 s</i> pour un tour.`,
+  vitesse3: `Une heure par seconde. À ce rythme le bord externe du disque fait son tour
+             pendant que tu clignes des yeux — et ça reste un mois de vrai temps.`,
+  niveau: { niv:[
+    `Je repars des bases, promis, et sans jargon.`,
+    `On monte d'un cran.`,
+    `Très bien. Je ne t'épargne plus rien.`,
+  ]},
+  inactif: [
+    `Un trou noir n'aspire pas. Si le Soleil en devenait un <i>à masse égale</i>,
+     la Terre garderait exactement la même orbite. Il ferait juste très froid.`,
+    `Sagittarius A* est énorme, mais sa densité moyenne est ridicule : <i>moins dense que l'eau</i>.
+     Plus un trou noir est massif, moins il est dense.`,
+    `L'ombre que tu regardes fait 52 millionièmes de seconde d'arc dans le ciel.
+     C'est une <i>orange posée sur la Lune</i>.`,
+    `Tu ne verrais jamais personne franchir l'horizon. De loin, il ralentit, rougit, et se fige.
+     Lui, il passe sans rien remarquer.`,
+    `Ce trou noir-là tourne sur lui-même et entraîne l'espace avec lui.
+     Ça, je ne le simule pas : ma version est immobile. <i>Fiche 8.</i>`,
+    `Le disque brille parce que le gaz frotte contre lui-même en tombant.
+     Rien ne brûle là-dedans — c'est la chute qui fait la lumière.`,
+  ],
+};
+
+const QUESTIONS = [
+{
+  q: "C'est quoi un trou noir, exactement ?",
+  r: { niv:[
+    `De la matière tellement tassée que plus rien ne peut s'en échapper, <b>même pas la lumière</b>.
+     Ce n'est ni un trou ni un aspirateur : juste un endroit d'où on ne revient pas.`,
+    `Une région où la vitesse nécessaire pour s'échapper dépasse celle de la lumière.
+     Comme rien ne va plus vite, rien ne sort. Ce n'est pas un objet solide :
+     c'est une <b>région de l'espace-temps</b> délimitée par un horizon.`,
+    `Une solution du vide des équations d'Einstein possédant un horizon des événements —
+     la frontière du passé causal de l'infini nul futur. Les théorèmes de singularité de
+     <b>Penrose-Hawking</b> garantissent qu'un effondrement suffisant en produit une ;
+     la censure cosmique, elle, reste conjecturale.`,
+  ]}
+},
+{
+  q: "Qu'est-ce qui se passe si je tombe dedans ?",
+  r: { niv:[
+    `Sur celui-ci, tu franchirais la limite <b>sans rien sentir</b>. Ensuite, plus aucune
+     direction ne te ramène en arrière : tomber devient aussi inévitable que le passage du temps.
+     Et plus bas, tu serais étiré comme un spaghetti.`,
+    `Sur Sgr A*, l'étirement à l'horizon est plus faible que celui que la Lune t'inflige :
+     tu passes sans le remarquer. À l'intérieur, la distance au centre cesse d'être une direction
+     d'espace pour devenir une <b>direction de temps</b> — le fond n'est plus un lieu, c'est un futur.`,
+    `Traversée régulière en Eddington-Finkelstein. En intérieur de Schwarzschild r devient de type
+     temps : atteindre r = 0 est inévitable et le temps propre restant est majoré par
+     <i>πGM/c³ ≈ 60 s</i> ici. Les marées divergent en M/r³, donc négligeables à l'horizon d'un
+     supermassif. La question ouverte est quantique : firewall, ou strictement rien.`,
+  ]}
+},
+{
+  q: "Pourquoi c'est noir au milieu ?",
+  r: { niv:[
+    `Parce qu'aucune lumière venant de là ne peut t'atteindre. Ce n'est pas un objet noir,
+     c'est une <b>absence</b>. Et ce rond est plus grand que le trou noir lui-même :
+     la lumière qui passe trop près est happée au passage.`,
+    `C'est l'ombre. Tout rayon dont la trajectoire, remontée à l'envers, finit sous l'horizon
+     te donne du noir. Le seuil tombe à <i>2,6 rayons d'horizon</i> — bien plus large que
+     l'horizon, parce que frôler suffit à être capturé.`,
+    `Section efficace de capture : paramètre d'impact critique b_c = √27 GM/c², d'où un rayon
+     apparent de <i>2,598 r<sub>s</sub></i>. Le bord est en fait un anneau empilant les images
+     d'ordre n, espacées d'un facteur e<sup>−π</sup> en flux. C'est cette structure que l'EHT vise.`,
+  ]}
+},
+{
+  q: "Comment on pèse un truc invisible ?",
+  r: { niv:[
+    `On regarde ce qui tourne autour. Une étoile appelée <b>S2</b> en fait le tour en 16 ans ;
+     sa vitesse et la taille de son orbite donnent la masse — exactement comme on pèse
+     le Soleil en regardant la Terre tourner.`,
+    `Troisième loi de Kepler. S2 boucle son orbite en <i>16,05 ans</i>, passe au plus près
+     à 120 unités astronomiques et y file à 7 650 km/s. Demi-grand axe et période suffisent :
+     4,3 millions de masses solaires, dans un volume trop petit pour un amas d'étoiles.`,
+    `Astrométrie et spectroscopie infrarouge de l'amas S sur trois décennies (Keck, VLT/GRAVITY).
+     Au-delà de Kepler, S2 fournit du post-newtonien testable : redshift gravitationnel détecté
+     au périastre 2018, <b>précession de Schwarzschild</b> de 12,1′/orbite confirmée en 2020.
+     Nobel de physique 2020 à Genzel et Ghez.`,
+  ]}
+},
+{
+  q: "Est-ce que ça peut aspirer la Terre ?",
+  r: { niv:[
+    `Non. Un trou noir n'attire pas plus qu'une étoile de la même masse. Si le Soleil en devenait
+     un tout de suite, la Terre garderait <b>exactement</b> la même orbite — il ferait juste nuit
+     et très froid. Et celui-ci est à 26 000 années-lumière.`,
+    `Non : la gravité ne dépend que de la masse et de la distance, pas de la compacité.
+     À 150 millions de km, le champ d'un trou noir d'une masse solaire est identique à celui
+     du Soleil. Il faut s'approcher à quelques rayons d'horizon pour que quoi que ce soit change.`,
+    `Le <b>théorème de Birkhoff</b> garantit qu'à l'extérieur d'une distribution sphérique la
+     métrique ne dépend que de M : un effondrement à symétrie sphérique ne touche pas aux orbites
+     externes. Les écarts relativistes n'émergent que pour r de l'ordre de quelques r<sub>s</sub>.
+     Sgr A* est à 8,3 kpc.`,
+  ]}
+},
+{
+  q: "Ce que je vois, c'est vraiment ça ?",
+  r: { niv:[
+    `La <b>forme</b>, oui : elle est calculée avec les vraies équations, personne ne l'a dessinée.
+     Les couleurs, non. Le vrai Sgr A* est très pâle et ne s'observe qu'en ondes radio.
+     Ce serait l'image qu'on aurait avec des yeux beaucoup plus sensibles.`,
+    `La géométrie est exacte : anneau, ombre, disque replié par-dessus, tout sort de l'intégration
+     des trajectoires de la lumière. En revanche le disque est une <b>invention plausible</b>,
+     pas une observation — Sgr A* accrète très peu, et son image EHT est un anneau flou
+     en ondes radio, pas ce spectacle.`,
+    `Optique gravitationnelle exacte, astrophysique décorative. Manquent : le spin (Kerr,
+     frame-dragging, ergosphère, ISCO déplacée), le transfert radiatif en plasma optiquement
+     mince, la géométrie épaisse d'un RIAF, la variabilité. Un vrai rendu part d'un post-traitement
+     GRMHD ; ici l'émissivité est posée à la main. <i>Fiche 8.</i>`,
+  ]}
+},
+];
+
+const elBulle = $("bulle"), elBulleTxt = $("bulle-texte");
+let voixActive = false, voixFr = null, tMasque = 0, tDernier = performance.now(), questionsOuvertes = false;
+
+function chargeVoix(){
+  if(!window.speechSynthesis) return;
+  const v = speechSynthesis.getVoices().filter(x => x.lang.toLowerCase().startsWith("fr"));
+  voixFr = v.find(x => /denise|hortense|julie|audrey|amelie|google/i.test(x.name)) || v[0] || null;
+}
+if(window.speechSynthesis){
+  chargeVoix();
+  speechSynthesis.addEventListener("voiceschanged", chargeVoix);
+}
+
+function parle(html){
+  if(!voixActive || !window.speechSynthesis) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(
+    html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim()
+  );
+  u.lang = "fr-FR"; u.rate = 1.02; u.pitch = 1.12;
+  if(voixFr) u.voice = voixFr;
+  speechSynthesis.speak(u);
+}
+
+function dit(html, duree){
+  questionsOuvertes = false;
+  elBulleTxt.innerHTML = html;
+  elBulle.classList.add("vu");
+  parle(html);
+  const n = html.replace(/<[^>]+>/g, "").length;
+  tMasque = performance.now() + (duree || Math.min(14000, Math.max(5200, 3000 + n*48)));
+  tDernier = performance.now();
+}
+
+// `doux` : réaction déclenchée par le monde et non par un clic — elle ne coupe
+// jamais une bulle déjà à l'écran.
+function reagit(cle, doux){
+  if(questionsOuvertes) return;
+  if(doux && tMasque && performance.now() < tMasque) return;
+  const t = REACTIONS[cle];
+  if(t) dit(resous(t));
+}
+
+function ouvreQuestions(){
+  if(window.speechSynthesis) speechSynthesis.cancel();
+  elBulleTxt.innerHTML = "Vas-y, demande :";
+  QUESTIONS.forEach((q, i) => {
+    const b = document.createElement("button");
+    b.className = "q";
+    b.textContent = q.q;
+    b.onclick = () => { dit(`<b>${q.q}</b><br>` + resous(q.r), 20000); };
+    elBulleTxt.appendChild(b);
+  });
+  elBulle.classList.add("vu");
+  questionsOuvertes = true;
+  tMasque = performance.now() + 26000;
+  tDernier = performance.now();
+}
+
+$("lumen-corps").onclick = () => questionsOuvertes ? (tMasque = 0) : ouvreQuestions();
+
+$("b-voix").onclick = e => {
+  e.stopPropagation();
+  voixActive = !voixActive;
+  $("b-voix").textContent = voixActive ? "🔊" : "🔇";
+  $("b-voix").title = voixActive ? "Couper la voix" : "Lire à voix haute";
+  if(voixActive) parle(elBulleTxt.textContent);
+  else if(window.speechSynthesis) speechSynthesis.cancel();
+};
+
+function veilleLumen(now){
+  if(tMasque && now > tMasque){
+    elBulle.classList.remove("vu");
+    tMasque = 0; questionsOuvertes = false;
+    if(window.speechSynthesis) speechSynthesis.cancel();
+  }
+  if(!tMasque && now - tDernier > 34000) reagit("inactif");
+}
+
+setTimeout(() => reagit("accueil"), 1400);
+
+// ============ dossier « pourquoi c'est exact » ============
+const METHODE = [
+// ---------------------------------------------------------------- Découverte
+`<h3>D'abord, à quoi ressemble un faux</h3>
+ <p>La manière facile de fabriquer un joli trou noir, c'est de prendre une photo
+ d'étoiles et de la <b>tordre</b>, comme quand on regarde à travers le cul d'une bouteille.
+ On pose un rond noir au milieu, un anneau orange autour, et c'est fini. Ça peut être
+ très beau. Mais ça ne veut rien dire : on aurait pu faire le rond deux fois plus grand,
+ personne n'y aurait vu de différence.</p>
+
+ <h3>Ce que fait cette page</h3>
+ <p>Ici, il n'y a <b>aucune image tordue et aucun rond dessiné</b>. Pour chacun des deux
+ millions de points de ton écran, l'ordinateur se pose une question :
+ <i>d'où vient la lumière qui arrive ici ?</i> Et il remonte le chemin de ce rayon
+ à l'envers, petit bout par petit bout, en respectant la façon dont une masse
+ creuse l'espace autour d'elle.</p>
+ <p>Le rayon avance, il est un peu dévié. Il avance encore, il est dévié un peu plus.
+ Au bout du voyage, trois choses peuvent lui arriver : il finit dans le trou noir
+ — et le point est noir ; il traverse le gaz brûlant — le point est orange ;
+ ou il repart vers les étoiles — le point est étoilé. C'est tout le programme.</p>
+
+ <h3>Pourquoi ce n'est pas juste un joli dessin</h3>
+ <p>Parce que <b>personne n'a décidé de la taille du rond noir</b>. Elle sort du calcul.
+ Et la valeur qui en sort est exactement celle que des physiciens ont trouvée
+ avec un papier et un crayon, bien avant les ordinateurs : 2,6 fois la taille du trou noir.
+ Si le programme était faux, ce nombre serait faux.</p>
+ <p>Même chose pour l'anneau lumineux, pour le fait qu'on voie le <i>dessous</i> du disque
+ par-dessus, pour le côté qui brille plus que l'autre. Rien de tout ça n'a été dessiné
+ à la main. Ce sont des <b>conséquences</b>.</p>
+ <p>Et tu n'as pas à me croire sur parole : le bouton en bas relance le calcul
+ sous tes yeux et compare ce que trouve la machine à ce que dit la théorie.</p>
+
+ <h3>Ce qui, en revanche, n'est pas vrai</h3>
+ <p>Autant être honnête. Les couleurs sont inventées : le vrai Sagittarius A* est
+ beaucoup plus pâle, et on ne le voit qu'avec des antennes radio, pas avec des yeux.
+ Et le vrai <b>tourne sur lui-même</b>, ce qui entraîne l'espace avec lui — ça, ce n'est
+ pas simulé ici. La forme est juste. Le décor est plausible, mais peint à la main.</p>`,
+
+// ------------------------------------------------------------------- Curieux
+`<h3>Le faux : une déformation d'écran</h3>
+ <p>Un rendu bon marché applique un <b>déplacement radial des pixels</b> autour d'un centre,
+ puis superpose un anneau et un disque noir. La signature est reconnaissable :
+ pas d'images multiples, la taille de l'ombre est un curseur libre, et la déformation
+ ne réagit pas correctement quand on change l'angle de vue.</p>
+
+ <h3>Le vrai : on suit la lumière</h3>
+ <p>Chaque pixel définit une direction de départ. On intègre la trajectoire du photon
+ dans la <b>métrique de Schwarzschild</b> jusqu'à ce qu'il passe sous l'horizon, coupe
+ le disque, ou parte à l'infini. À chaque pas on connaît la position et la direction,
+ et on applique une accélération :</p>
+ <pre>a = −(3/2) · h² · r / r⁵      <span class="cm">h = |r × v|, conservé</span></pre>
+ <p>C'est tout. Deux lignes, et toute l'optique du trou noir en découle.
+ Le <code>h</code> est le moment cinétique du photon : il ne change pas le long du rayon,
+ et le fait qu'il reste constant numériquement est déjà un contrôle de qualité.</p>
+
+ <h3>Les quatre nombres qui tranchent</h3>
+ <p>Une simulation exacte doit retrouver, <b>sans qu'on les lui souffle</b>, des valeurs
+ calculées analytiquement il y a un siècle :</p>
+ <ul>
+   <li>La sphère des photons à <i>1,5</i> rayon de Schwarzschild</li>
+   <li>Le rayon apparent de l'ombre : <i>√27 / 2 ≈ 2,598</i></li>
+   <li>La déflexion à grande distance : <i>α = 4GM/c²b</i></li>
+   <li>La dernière orbite stable pour la matière : <i>3</i> rayons</li>
+ </ul>
+ <p>Le troisième est le plus parlant. Newton <b>aussi</b> prédisait une déviation de la
+ lumière — mais deux fois plus faible. C'est ce facteur 2 qu'Eddington est allé mesurer
+ pendant l'éclipse de 1919, et qui a rendu Einstein célèbre en une nuit. Si le moteur
+ de cette page donnait la valeur newtonienne, il serait faux, et le banc d'essai
+ ci-dessous te le montrerait.</p>
+
+ <h3>La limite, dite franchement</h3>
+ <p>L'optique est exacte ; l'astrophysique ne l'est pas. Le disque est une texture
+ plausible, pas une simulation d'écoulement de plasma. Et la métrique employée est
+ celle d'un trou noir <b>immobile</b>, alors que les vrais tournent.</p>`,
+
+// ------------------------------------------------------------ Astrophysicien
+`<h3>Formulation</h3>
+ <p>Ray-tracing rétrograde de géodésiques nulles en Schwarzschild. On intègre la forme
+ cartésienne</p>
+ <pre>a = −(3/2) h² r / r⁵        <span class="cm">h = |r × ṙ|, G = c = r_s = 1, donc M = 1/2</span></pre>
+ <p>équivalente à l'équation de Binet <code>d²u/dφ² + u = 3Mu²</code> (u = 1/r), obtenue en
+ éliminant le paramètre affine entre les intégrales premières <code>E = (1−2M/r)ṫ</code> et
+ <code>L = r²φ̇</code>. Le terme <code>3Mu²</code> est le <b>seul</b> écart au cas newtonien :
+ c'est lui qui porte toute la relativité générale de l'image.</p>
+
+ <h3>Schéma numérique</h3>
+ <p>Intégrateur position-Verlet à pas adaptatif <code>dt = clamp(0,085 r ; 0,045 ; 1,4)</code>,
+ direction renormalisée à chaque pas, 240 pas au maximum, terminaison sur
+ <code>r &lt; 1</code> (capture) ou <code>r &gt; 70</code> en s'éloignant. <code>h²</code> est
+ évalué une fois au départ : ce n'est pas une contrainte imposée mais une constante du
+ mouvement, et sa conservation numérique est un diagnostic en soi.</p>
+ <p>Le banc d'essai ci-dessous rejoue ces géodésiques en JavaScript avec la même équation
+ et les mêmes constantes que le GLSL — la version shader en est la transcription littérale.
+ Les quatre grandeurs mesurées sont des <b>sorties</b> du schéma, jamais des paramètres.</p>
+
+ <h3>Les sondes de matière</h3>
+ <p>Elles suivent <code>a = −(M/r³)(1 + 3h²/r²) r</code>, forme cartésienne de la Binet de
+ type temps <code>d²u/dφ² + u = M/h² + 3Mu²</code>. Elle redonne
+ <code>h² = Mr²/(r−3M)</code> pour les orbites circulaires — d'où la divergence en
+ <code>r = 3M</code>, qui <i>est</i> la sphère des photons — et, en annulant
+ <code>V″_eff</code>, l'ISCO à exactement <code>6M</code>. La précession du périastre en
+ sort au bon ordre.</p>
+ <p><b>Réserve :</b> l'intégration est paramétrée en temps coordonnée et non en temps propre.
+ Les trajectoires dans l'espace sont bonnes ; la cadence à laquelle elles sont parcourues
+ ne l'est plus près de l'horizon.</p>
+
+ <h3>Ce qui n'est délibérément pas simulé</h3>
+ <ul>
+   <li><b>Spin.</b> Métrique statique, a = 0. Ni frame-dragging, ni ergosphère, ni ISCO
+       déplacée, ni asymétrie prograde/rétrograde. Le spin réel de Sgr A* est non nul
+       mais mal contraint.</li>
+   <li><b>Transfert radiatif.</b> Émissivité ad hoc en bruit fractal, absorption grossière.
+       Pas d'opacité, pas de synchrotron, pas de comptonisation. Un rendu publiable part
+       d'un GRMHD (KHARMA, BHAC) post-traité par un code de transfert (ipole, RAPTOR).</li>
+   <li><b>Géométrie du disque.</b> Mince et plan, alors qu'un RIAF comme Sgr A* est
+       géométriquement épais, H/R ~ 1.</li>
+   <li><b>Doppler.</b> <code>D = 1/(1 − β·n̂)</code> sans le facteur γ. L'erreur sur
+       l'amplitude est d'ordre γ−1 ≈ 10 % au bord interne : l'asymétrie qualitative est
+       bonne, le contraste absolu non.</li>
+   <li><b>Simultanéité.</b> L'image est instantanée ; on ignore que la lumière venant de
+       l'arrière du disque est plus vieille que celle du bord avant.</li>
+ </ul>
+
+ <h3>Le test qui distingue vraiment</h3>
+ <p>Un post-traitement en espace écran ne <b>peut pas</b> produire d'images d'ordre n :
+ il est une bijection du plan image sur lui-même, alors que la vraie application
+ observateur → source est infiniment repliée au voisinage de <code>b_c</code>.
+ C'est le discriminant. Ici le second anneau du disque est visible à l'œil,
+ et un troisième existe sous le seuil de résolution.</p>`,
+];
+
+const elVoile = $("voile"), elDTexte = $("d-texte");
+let iDNiveau = 0;
+
+const boitierD = $("d-niveaux");
+NIVEAUX.forEach((nom, i) => {
+  const b = document.createElement("button");
+  b.textContent = nom;
+  b.onclick = () => { iDNiveau = i; majDossier(); };
+  boitierD.appendChild(b);
+});
+function majDossier(){
+  elDTexte.innerHTML = METHODE[iDNiveau];
+  [...boitierD.children].forEach((c, i) => c.classList.toggle("actif", i === iDNiveau));
+}
+$("b-methode").onclick = () => { iDNiveau = iNiveau; majDossier(); elVoile.classList.add("vu"); };
+$("d-fermer").onclick  = () => elVoile.classList.remove("vu");
+elVoile.onclick = e => { if(e.target === elVoile) elVoile.classList.remove("vu"); };
+addEventListener("keydown", e => { if(e.key === "Escape") elVoile.classList.remove("vu"); });
+majDossier();
+
+// ============ banc d'essai ============
+// On rejoue les mêmes équations que le rendu et on compare aux valeurs analytiques.
+// Toutes les grandeurs mesurées ici sont des sorties du schéma, pas des réglages.
+
+// Photon lancé de très loin, parallèle à z, à un paramètre d'impact b.
+// Loin du trou noir l'espace est plat : h = b et la vitesse affine vaut 1 à
+// 10⁻¹⁰ près, ce qui donne des conditions initiales sans ambiguïté.
+function tirePhoton(b, r0 = 20000){
+  const h2 = b*b;
+  const rd = Math.hypot(b, r0);
+  let p = [b, 0, -r0], d = [0, 0, Math.sqrt(1 + h2/(rd*rd*rd))];
+  let rmin = Infinity;
+  for(let i = 0; i < 2000000; i++){
+    const r = len(p);
+    if(r < rmin) rmin = r;
+    if(r < 1.0) return { capture:true, rmin, d };
+    if(r > rd && dot(p, d) > 0) return { capture:false, rmin, d };
+    [p, d] = integrePhoton(p, d, h2, Math.max(0.0004, r*0.004/Math.max(len(d), 1e-6)));
+  }
+  return { capture:false, rmin, d };
+}
+
+// Orbite circulaire de matière à r, perturbée vers l'intérieur à moment cinétique
+// constant : elle revient (stable) ou elle plonge (instable).
+// La fréquence épicyclique s'annule à l'ISCO : juste au-dessus, le retour est
+// très lent. D'où une perturbation faible et une intégration longue.
+function orbiteTient(r){
+  const vt = Math.sqrt(M/(r - 3*M));
+  const r2 = r*0.995, v2 = vt*r/r2;          // moment cinétique conservé
+  let p = [r2, 0, 0], v = [0, 0, v2];
+  for(let i = 0; i < 90000; i++){
+    [p, v] = integre(p, v, 0.03);
+    if(len(p) < 1.05) return false;
+  }
+  return true;
+}
+
+const ESSAIS = [
+{
+  nom: "Sphère des photons",
+  quoi: "Rayon de l'orbite circulaire de la lumière",
+  theorie: 1.5, unite: " r<sub>s</sub>",
+  attendu: "3M = 1,5",
+  mesure(){
+    // en frôlant le seuil de capture, le rayon s'enroule sur la sphère des photons
+    return tirePhoton(bisecteCapture()*(1 + 1e-9)).rmin;
+  }
+},
+{
+  nom: "Rayon de l'ombre",
+  quoi: "Paramètre d'impact critique de capture",
+  theorie: Math.sqrt(27)*M, unite: " r<sub>s</sub>",
+  attendu: "√27·M ≈ 2,598",
+  mesure: () => bisecteCapture(),
+},
+{
+  nom: "Déflexion de la lumière",
+  quoi: "Déviation d'un rayon rasant à b = 1000",
+  theorie: 4*M/1000, unite: " rad", chiffres: 6,
+  attendu: "4M/b = 0,002",
+  mesure(){
+    const t = tirePhoton(1000, 400000);
+    return Math.acos(Math.min(1, dot(norm(t.d), [0,0,1])));
+  }
+},
+{
+  nom: "Dernière orbite stable",
+  quoi: "En deçà, aucune orbite de matière ne tient",
+  theorie: 6*M, unite: " r<sub>s</sub>",
+  attendu: "6M = 3",
+  mesure(){
+    let bas = 2.2, haut = 5.0;
+    for(let i = 0; i < 18; i++){
+      const m = (bas + haut)/2;
+      if(orbiteTient(m)) haut = m; else bas = m;
+    }
+    return (bas + haut)/2;
+  }
+},
+];
+
+function bisecteCapture(){
+  let bas = 1.5, haut = 5.0;                  // bas capturé, haut échappé
+  for(let i = 0; i < 42; i++){
+    const m = (bas + haut)/2;
+    if(tirePhoton(m).capture) bas = m; else haut = m;
+  }
+  return (bas + haut)/2;
+}
+
+const nb = (x, n) => x.toLocaleString("fr-FR", { minimumFractionDigits:n, maximumFractionDigits:n });
+
+$("b-lancer").onclick = () => {
+  const zone = $("essais"), bouton = $("b-lancer");
+  bouton.disabled = true;
+  bouton.textContent = "Calcul en cours…";
+  zone.innerHTML = "";
+
+  const t = document.createElement("table");
+  t.className = "essais";
+  t.innerHTML = `<thead><tr><th>Grandeur</th><th>Théorie</th><th>Mesuré ici</th><th>Écart</th></tr></thead><tbody></tbody>`;
+  zone.appendChild(t);
+  const corps = t.querySelector("tbody");
+
+  let i = 0;
+  const t0 = performance.now();
+  (function suivant(){
+    if(i >= ESSAIS.length){
+      const p = document.createElement("p");
+      p.className = "apres";
+      p.innerHTML =
+        `Calculé en ${nb((performance.now()-t0)/1000, 1)} s dans ton navigateur, avec l'équation ` +
+        `qui dessine l'image ci-derrière. Aucune de ces quatre valeurs n'est écrite dans le code : ` +
+        `ce sont des <b>sorties</b>.` +
+        `<br><br>Sur la déflexion, l'écart résiduel n'est pas une erreur : ` +
+        `<code>4M/b</code> n'est que le premier ordre. Le terme suivant vaut ` +
+        `<code>15πM²/4b² = ${nb(15*Math.PI*M*M/(4*1e6), 8)}</code>, soit précisément le décalage mesuré — ` +
+        `l'intégration est plus juste que la formule de référence.` +
+        `<br><br>Et Newton, lui, prédisait <b>${nb(2*M/1000, 6)} rad</b> : exactement la moitié. ` +
+        `C'est ce facteur 2 qu'Eddington est allé mesurer en 1919.`;
+      zone.appendChild(p);
+      bouton.disabled = false;
+      bouton.textContent = "Relancer la vérification";
+      return;
+    }
+    const e = ESSAIS[i++];
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td><b>${e.nom}</b><br><span style="color:#7d7894;font-size:11px">${e.quoi}</span></td>
+                    <td class="th">${e.attendu}</td><td class="num">…</td><td>…</td>`;
+    corps.appendChild(tr);
+
+    setTimeout(() => {
+      const v = e.mesure();
+      const ecart = Math.abs(v - e.theorie) / Math.abs(e.theorie);
+      const c = ecart < 0.005 ? "ok" : ecart < 0.03 ? "bof" : "non";
+      const mot = c === "ok" ? "conforme" : c === "bof" ? "proche" : "écart";
+      tr.children[2].innerHTML = nb(v, e.chiffres || 4) + e.unite;
+      tr.children[3].innerHTML = `<span class="verdict ${c}">${nb(ecart*100, 2)} % · ${mot}</span>`;
+      suivant();
+    }, 30);
+  })();
+};
 
 // ============ dessin du calque ============
 function trace(pts, sur, alpha, ep){
@@ -987,10 +1741,16 @@ function dessine(){
     if(occulte(s.p)) continue;
     const q = projette(s.p);
     if(!q) continue;
-    const c = TEINTES[s.sort];
-    ctx.fillStyle = `rgba(${c[0]},${c[1]},${c[2]},0.20)`;
+    let c = TEINTES[s.sort], a = 1;
+    if(s.gel){
+      // figée à l'horizon : elle rougit et son flux s'éteint exponentiellement
+      const t = Math.min(1, s.gel/5);
+      a = Math.exp(-s.gel/4.5);
+      c = [ c[0]+(255-c[0])*t, c[1]+(38-c[1])*t, c[2]+(18-c[2])*t ];
+    }
+    ctx.fillStyle = `rgba(${c[0]|0},${c[1]|0},${c[2]|0},${(0.20*a).toFixed(3)})`;
     ctx.beginPath(); ctx.arc(q[0], q[1], 4.2, 0, 6.2832); ctx.fill();
-    ctx.fillStyle = `rgba(${c[0]},${c[1]},${c[2]},0.95)`;
+    ctx.fillStyle = `rgba(${c[0]|0},${c[1]|0},${c[2]|0},${(0.95*a).toFixed(3)})`;
     ctx.beginPath(); ctx.arc(q[0], q[1], 1.5, 0, 6.2832); ctx.fill();
   }
 
@@ -1070,6 +1830,8 @@ function boucle(now){
   $("s-chute").textContent  = nChute;
   $("s-fuite").textContent  = nFuite;
   majLecture();
+
+  veilleLumen(now);
 
   if(tFlash && now - tFlash > 90)   { elFlash.style.opacity = "0"; tFlash = 0; }
   if(tMsg   && now - tMsg   > 1100) { elMsg.style.opacity   = "0"; tMsg   = 0; }
