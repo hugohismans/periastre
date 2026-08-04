@@ -95,8 +95,8 @@ function cree(){
   }
   n.buffer = buf; n.loop = true;
   const pb = ctx.createBiquadFilter();
-  pb.type = "lowpass"; pb.frequency.value = 130;
-  souffle = ctx.createGain(); souffle.gain.value = 0.10;
+  pb.type = "lowpass"; pb.frequency.value = 95;   // plus sourd, donc moins present
+  souffle = ctx.createGain(); souffle.gain.value = 0.028;
   n.connect(pb); pb.connect(souffle); souffle.connect(comp);
   n.start();
 
@@ -151,7 +151,7 @@ function avance(dt){
   voix[3].o.detune.setTargetAtTime(2.0 - tension * 14, n, 0.5);
 
   nappe.gain.setTargetAtTime(0.012 + tension * 0.052, n, 0.7);
-  souffle.gain.setTargetAtTime(0.10 + tension * 0.14, n, 0.5);
+  souffle.gain.setTargetAtTime(0.028 + tension * 0.045, n, 0.5);
 }
 
 /* Un coup, pour marquer un moment.

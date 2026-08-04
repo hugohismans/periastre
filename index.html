@@ -730,6 +730,9 @@ body.tactile.au-salon #manette{ display:block; }
   <div class="bloc">
     <div class="etiq">Guide</div>
     <div class="rangee"><button id="b-missions">Missions</button></div>
+    <!-- Un fond sonore qu'on ne peut pas éteindre est ce qui fait fermer un
+         onglet. Il se coupe donc d'un bouton, et le choix est mémorisé. -->
+    <div class="rangee"><button id="b-musique">Musique</button></div>
     <!-- Qui est déjà venu ne repasse jamais par l'introduction : elle ne se
          joue qu'au tout premier chargement. Sans ce bouton, la refaire
          supposait de vider soi-même la mémoire du navigateur. -->
@@ -2744,6 +2747,14 @@ cv.addEventListener("wheel", e => {
   cam.dist = Math.max(6, Math.min(46, cam.dist * (1 + Math.sign(e.deltaY)*0.09)));
 }, { passive:false });
 
+let musiqueVoulue = true;
+$("b-musique").onclick = () => {
+  musiqueVoulue = !musiqueVoulue;
+  $("b-musique").classList.toggle("actif", musiqueVoulue);
+  musiqueVoulue ? MUSIQUE.demarre() : MUSIQUE.arrete();
+  sauve();
+};
+
 $("b-quete").onclick = () => {
   tais();
   elAccueil.classList.add("parti");
@@ -3299,7 +3310,7 @@ function sauve(){
   try {
     localStorage.setItem(CLE, JSON.stringify({
       niveau: iNiveau, acquis: [...acquis], voix: voixActive,
-      anecdotes: intervalleAnecdote, taille: zoomSonde, volume: volumeVoix, spin, deja: true,
+      anecdotes: intervalleAnecdote, taille: zoomSonde, volume: volumeVoix, spin, musique: musiqueVoulue, deja: true,
     }));
   } catch(e){ /* navigation privée : on continue sans mémoire */ }
 }
@@ -3314,6 +3325,7 @@ function charge(){
     if(typeof d.taille === "number") zoomSonde = d.taille;
     if(typeof d.volume === "number") volumeVoix = d.volume;
     if(typeof d.spin === "number") spin = d.spin;
+    if(typeof d.musique === "boolean") musiqueVoulue = d.musique;
     return d;
   } catch(e){ return null; }
 }
@@ -3577,7 +3589,11 @@ function intro(){
   // Qui revient a déjà répondu sur son niveau : on ne le redemande pas.
   const entre = son => {
     voixActive = son; majBoutonVoix(); sauve();
-    if(son){ avertitSonIOS(); MUSIQUE.demarre(); }
+    if(son){
+      avertitSonIOS();
+      if(musiqueVoulue) MUSIQUE.demarre();
+    }
+    $("b-musique").classList.toggle("actif", musiqueVoulue);
       /* Un testeur qui reçoit un lien n'explore pas : il regarde deux minutes.
        On le dépose donc directement à bord, et la quête lui apprend le lieu.
        Le niveau de lecture attend la fin — on ne sait pas répondre à « où en
