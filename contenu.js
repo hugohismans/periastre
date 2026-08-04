@@ -1176,6 +1176,14 @@ methode: [
        étant de 5 à 7 %. Limite assumée : l'axe polaire est singulier par construction en
        Boyer-Lindquist, d'où une couture fine quand la rotation est active ; la corriger
        demanderait un passage en Kerr-Schild.</li>
+   <li><b>La photosphère radio.</b> Son rayon suit une loi tirée des mesures — le
+       flux devient opaque à grande longueur d'onde, et c'est pour cette raison
+       que l'ombre est inobservable en radio et que l'Event Horizon Telescope
+       travaille à 1,3 mm. En revanche son <i>aspect</i> est composé :
+       l'assombrissement centre-bord est celui d'une sphère lumineuse, mais la
+       moucheture qui l'anime est un bruit déterministe, pas une carte de
+       brillance mesurée. Elle sert à faire comprendre qu'on regarde à travers
+       un gaz plutôt qu'un aplat de peinture. Rien n'est prédit là-dedans.</li>
    <li><b>Transfert radiatif.</b> Émissivité ad hoc en bruit fractal, absorption grossière.
        Pas d'opacité, pas de synchrotron, pas de comptonisation. Un rendu publiable part
        d'un GRMHD (KHARMA, BHAC) post-traité par un code de transfert (ipole, RAPTOR).</li>
