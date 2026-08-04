@@ -426,6 +426,14 @@
     <div class="grille" id="voix-choix"></div>
   </div>
   <div class="bloc">
+    <div class="etiq">Anecdotes spontanées</div>
+    <div class="grille" id="anecdotes"></div>
+  </div>
+  <div class="bloc">
+    <div class="etiq">Taille des sondes</div>
+    <div class="grille" id="taille-sondes"></div>
+  </div>
+  <div class="bloc">
     <div class="etiq">Guide</div>
     <div class="rangee"><button id="b-missions">Missions</button></div>
   </div>
@@ -454,6 +462,9 @@
           stroke-linecap="round" fill="none"/>
     <path d="M4 32 Q14 36 22 34" stroke="#ffcf8a" stroke-opacity=".22" stroke-width="1.3"
           stroke-linecap="round" fill="none"/>
+    <circle id="anneau" cx="30" cy="30" r="28" fill="none" stroke="#7fd8ff" stroke-opacity=".45"
+            stroke-width="1.6" stroke-linecap="round" transform="rotate(-90 30 30)"
+            stroke-dasharray="175.9" stroke-dashoffset="175.9"/>
     <circle cx="31" cy="30" r="15" fill="url(#coeur)"/>
     <ellipse class="oeil" cx="26" cy="28" rx="2.1" ry="3.1" fill="#3b2410"/>
     <ellipse class="oeil" cx="36" cy="28" rx="2.1" ry="3.1" fill="#3b2410"/>
@@ -1146,6 +1157,22 @@ function message(txt){ elMsg.textContent = txt; elMsg.style.opacity = "1"; tMsg 
 let montreTraj = false;
 let visee = null, pivot = null;
 
+// Une sonde réelle serait invisible : à cette échelle, un vaisseau fait
+// quelques millionièmes de pixel. On assume donc de la grossir, et on laisse
+// le choix plutôt que d'imposer une taille arbitraire.
+let zoomSonde = 1;
+const boitierT = $("taille-sondes");
+[["à peine visible", 0.6], ["normale", 1], ["grosse", 2.2], ["énorme", 4]].forEach(([nom, k], i) => {
+  const b = document.createElement("button");
+  b.textContent = nom;
+  b.onclick = () => {
+    zoomSonde = k;
+    [...boitierT.children].forEach((c, j) => c.classList.toggle("actif", j === i));
+  };
+  boitierT.appendChild(b);
+});
+boitierT.children[1].classList.add("actif");
+
 // ---- boutons ----
 $("b-pluie").onclick  = () => { pluie(80); reagit("pluie"); };
 $("b-photon").onclick = () => { lancePhoton(); reagit("photon"); };
@@ -1644,6 +1671,18 @@ CONTENU.voix.forEach((v, i) => {
   };
   boitierVoix.appendChild(b);
 });
+const boitierA = $("anecdotes");
+[["30 s", 30000], ["1 min", 60000], ["3 min", 180000], ["jamais", 0]].forEach(([nom, ms], i) => {
+  const b = document.createElement("button");
+  b.textContent = nom;
+  b.onclick = () => {
+    intervalleAnecdote = ms; tDernier = performance.now();
+    [...boitierA.children].forEach((c, j) => c.classList.toggle("actif", j === i));
+  };
+  boitierA.appendChild(b);
+});
+boitierA.children[1].classList.add("actif");
+
 function majBoutonVoix(){
   [...boitierVoix.children].forEach((c, i) => c.classList.toggle("actif", voixActive && i === iVoix));
   $("b-voix").textContent = voixActive ? "🔊" : "🔇";
@@ -1660,13 +1699,25 @@ $("b-voix").onclick = e => {
 };
 majBoutonVoix();
 
+// Lumen ne surgit plus sans prévenir : un anneau se referme autour de lui, on
+// voit venir. Et on peut le faire taire complètement.
+let intervalleAnecdote = 60000;
+const elAnneau = $("anneau");
+const TOUR = 175.9;
+
 function veilleLumen(now){
   if(tMasque && now > tMasque){
     elBulle.classList.remove("vu");
     tMasque = 0; questionsOuvertes = false;
     tais();
   }
-  if(!tMasque && now - tDernier > 34000) reagit("inactif");
+  if(!intervalleAnecdote || tMasque){
+    elAnneau.setAttribute("stroke-dashoffset", TOUR);
+  } else {
+    const p = Math.min(1, (now - tDernier)/intervalleAnecdote);
+    elAnneau.setAttribute("stroke-dashoffset", (TOUR*(1 - p)).toFixed(1));
+    if(p >= 1) reagit("inactif");
+  }
 }
 
 setTimeout(() => reagit("accueil"), 1400);
@@ -1806,13 +1857,20 @@ function intro(){
   poseAccueil(true);
   elTitre.textContent = "Périastre";
   elChapo.innerHTML = CONTENU.accueil.bienvenue.t;
-  const b = document.createElement("button");
-  b.id = "acc-go";
-  b.textContent = "Entrer";
-  b.onclick = () => { voixActive = true; majBoutonVoix(); niveauDemande(); };
-  elCartes.appendChild(b);
+  // On demande avant de parler. Une voix qui démarre toute seule, c'est
+  // désagréable, et ça se coupe toujours trop tard.
+  const rangee = document.createElement("div");
+  rangee.id = "acc-actions";
+  rangee.style.justifyContent = "center";
+  rangee.innerHTML =
+    `<button id="acc-go">🔊 Entrer, avec la voix de Lumen</button>
+     <button id="acc-muet">Entrer en silence</button>`;
+  elCartes.appendChild(rangee);
   elCartes.style.gridTemplateColumns = "1fr";
   elCartes.style.justifyItems = "center";
+  const entre = son => { voixActive = son; majBoutonVoix(); niveauDemande(); };
+  $("acc-go").onclick  = () => entre(true);
+  $("acc-muet").onclick = () => entre(false);
 }
 
 // Deuxième temps : on demande le niveau comme une question, pas comme un
@@ -2205,11 +2263,12 @@ function dessine(){
   ctx.globalCompositeOperation = "lighter";
 
   // trajectoires complètes, calculées au lancement
-  if(montreTraj) for(const s of sondes) trace(s.chemin, TEINTES[s.sort], 0.17, 1);
+  const ep = Math.sqrt(zoomSonde);
+  if(montreTraj) for(const s of sondes) trace(s.chemin, TEINTES[s.sort], 0.17, ep);
 
   // traînées vives
-  for(const s of sondes) trace(s.trace, TEINTES[s.sort], 0.30, 1.1);
-  for(const f of photons) trace(f.trace, [255,250,235], 0.30, 1.1);
+  for(const s of sondes) trace(s.trace, TEINTES[s.sort], 0.30, 1.1*ep);
+  for(const f of photons) trace(f.trace, [255,250,235], 0.30, 1.1*ep);
 
   // têtes
   for(let i = 0; i < sondes.length; i++){
@@ -2226,9 +2285,9 @@ function dessine(){
       c = [ c[0]+(255-c[0])*t, c[1]+(38-c[1])*t, c[2]+(18-c[2])*t ];
     }
     ctx.fillStyle = `rgba(${c[0]|0},${c[1]|0},${c[2]|0},${(0.20*a).toFixed(3)})`;
-    ctx.beginPath(); ctx.arc(q[0], q[1], 4.2, 0, 6.2832); ctx.fill();
+    ctx.beginPath(); ctx.arc(q[0], q[1], 4.2*zoomSonde, 0, 6.2832); ctx.fill();
     ctx.fillStyle = `rgba(${c[0]|0},${c[1]|0},${c[2]|0},${(0.95*a).toFixed(3)})`;
-    ctx.beginPath(); ctx.arc(q[0], q[1], 1.5, 0, 6.2832); ctx.fill();
+    ctx.beginPath(); ctx.arc(q[0], q[1], 1.5*zoomSonde, 0, 6.2832); ctx.fill();
   }
 
   // visée
