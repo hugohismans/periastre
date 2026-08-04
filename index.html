@@ -2354,8 +2354,40 @@ majFiche();
 // ============ Lumen ============
 // Un tableau = tirage au sort. { niv:[...] } = une version par niveau.
 // Chaque réplique est un objet { id, t, dire?, sources? } venu de contenu.js.
+/* Un sac de tirage, pas un dé.
+
+   Tirer au sort à chaque fois paraît juste et ne l'est pas : avec onze
+   répliques, c'est une chance sur onze de répéter la précédente aussitôt, et
+   par l'effet anniversaire on entend un doublon au bout de quelques tirages.
+   Ce n'est pas une impression — c'est ce que fait une loi uniforme, et c'est
+   exactement ce qu'on ne veut pas d'un guide qui parle tout seul.
+
+   On mélange donc le paquet et on le vide avant d'en refaire un : toutes les
+   répliques passent avant qu'aucune revienne. Et la première du nouveau sac
+   n'est jamais la dernière de l'ancien, sans quoi la couture entre deux
+   paquets rendrait le seul doublon audible qu'on cherchait à éviter. */
+const sacs = new WeakMap();
+
+function tire(liste){
+  if(liste.length < 2) return liste[0];
+  let sac = sacs.get(liste);
+  if(!sac || !sac.reste.length){
+    const ordre = liste.slice();
+    for(let i = ordre.length - 1; i > 0; i--){       // mélange de Fisher-Yates
+      const j = Math.floor(Math.random()*(i + 1));
+      const t = ordre[i]; ordre[i] = ordre[j]; ordre[j] = t;
+    }
+    const dernier = sac ? sac.dernier : null;
+    if(ordre[0] === dernier){ ordre[0] = ordre[1]; ordre[1] = dernier; }
+    sac = { reste: ordre, dernier };
+    sacs.set(liste, sac);
+  }
+  sac.dernier = sac.reste.shift();
+  return sac.dernier;
+}
+
 const resous = x =>
-  Array.isArray(x) ? resous(x[Math.floor(Math.random()*x.length)]) :
+  Array.isArray(x) ? resous(tire(x)) :
   (x && x.niv)     ? resous(x.niv[iNiveau]) : x;
 
 const REACTIONS = CONTENU.reactions;
