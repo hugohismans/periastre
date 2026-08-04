@@ -199,7 +199,7 @@
   kbd { font:inherit; background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.13); border-radius:4px; padding:0 5px; color:#c2bcd6; }
 
   /* ---- Lumen, la mascotte ---- */
-  #lumen { bottom:92px; left:28px; display:flex; align-items:flex-end; gap:11px; pointer-events:none; }
+  #lumen { bottom:26px; left:28px; display:flex; align-items:flex-end; gap:11px; pointer-events:none; }
   #lumen-corps {
     width:54px; height:54px; flex:none; cursor:pointer; pointer-events:auto;
     padding:0; border:0; background:none; border-radius:50%;
@@ -361,7 +361,7 @@
   #acc-go { background:rgba(127,216,255,.18); border-color:rgba(127,216,255,.45); color:#d6f2ff; padding:10px 20px; }
   #acc-go:hover { background:rgba(127,216,255,.28); }
 
-  #b-menu { position:fixed; z-index:2; top:26px; left:28px; pointer-events:auto; display:none; }
+  #b-menu { display:none; pointer-events:auto; flex:none; padding:6px 12px; font-size:11px; }
   #b-menu.vu { display:block; }
 
   @media (max-width:760px){
@@ -381,7 +381,8 @@
   }
 
   @media (max-width:900px) {
-    #gauche { top:12px; left:12px; right:12px; width:auto; }
+    /* on s'arrête avant le rouage, sinon le titre passe dessous */
+    #gauche { top:12px; left:12px; right:58px; width:auto; }
     #titre p { display:none; }
     #titre h1 { font-size:11px; letter-spacing:.3em; }
     #stats { display:none; }
@@ -415,11 +416,11 @@
 
 <div class="hud" id="gauche">
   <div id="titre">
-    <h1>Périastre <button id="b-cours" title="Replier le cours">▾</button></h1>
+    <h1>Périastre <button id="b-cours" title="Afficher le cours">Cours ▸</button></h1>
     <p>Sagittarius A* — rien de ce que tu vois derrière n'est vraiment là.</p>
   </div>
 
-  <div id="fiches">
+  <div id="fiches" class="replie">
     <div id="niveaux"></div>
     <div id="f-tete">
       <div id="f-titre"></div>
@@ -440,6 +441,7 @@
     <div class="stat chute"><b id="s-chute">0</b><span>figées</span></div>
     <div class="stat fuite"><b id="s-fuite">0</b><span>échappées</span></div>
   </div>
+  <button id="b-menu">← Menu</button>
   <button id="rouage" title="Réglages — Échap">⚙</button>
 </div>
 
@@ -560,10 +562,6 @@
   </div>
 </div>
 
-<div class="hud" id="aide">
-  Glisse depuis le disque pour lancer une sonde.<br>
-  <kbd>molette</kbd> zoom · <kbd>clic droit</kbd> pivoter · <kbd>V</kbd> à bord · <kbd>Échap</kbd> réglages
-</div>
 
 <div id="accueil">
   <div id="acc-boite">
@@ -574,7 +572,7 @@
   </div>
 </div>
 
-<button id="b-menu" class="hud">← Menu</button>
+
 
 <div id="voile">
   <div id="dossier">
@@ -1852,28 +1850,45 @@ const QUESTIONS = CONTENU.questions;
 
 const elBulle = $("bulle"), elBulleTxt = $("bulle-texte");
 let voixActive = false, iVoix = 0, audio = null;
-let volumeVoix = 0.45;   // les voix neuronales sortent fort : on part bas
+let volumeVoix = 0.28;   // volontairement trop bas : mieux vaut qu'on monte le son que subir
 let tMasque = 0, tDernier = performance.now(), questionsOuvertes = false;
 
 // Les répliques étant scriptées, la voix est pré-synthétisée hors ligne
 // (voir outils/voix.py) : aucune clé d'API, et la même voix neuronale pour
 // tout le monde au lieu des voix système, qui sont mauvaises et inégales.
-function tais(){ if(audio){ audio.pause(); audio = null; } }
-function parle(o){
-  tais();
+function tais(){
+  if(audio){
+    audio.pause();
+    audio.removeAttribute("src");   // pause() seul ne suffit pas si play() n'a pas encore résolu
+    audio.load();
+    audio = null;
+  }
+}
+
+// Une voix commencée va au bout. Rien ne lui coupe la parole, sauf une demande
+// explicite du visiteur — cliquer sur Lumen ou choisir une question. Sans cette
+// règle, enchaîner quelques boutons empile les voix les unes sur les autres.
+const parleEnCours = () => !!(audio && !audio.ended && !audio.paused);
+
+function parle(o, prioritaire){
   if(!voixActive || !o || !o.id) return;
+  if(parleEnCours() && !prioritaire) return;
+  tais();
   audio = new Audio(`voix/${CONTENU.voix[iVoix].id}/${o.id}.mp3`);
   audio.volume = volumeVoix;
   audio.play().catch(() => {});     // l'autoplay reste bloqué tant qu'on n'a pas cliqué
 }
 
-function dit(o, duree, avant){
+function dit(o, duree, avant, prioritaire){
+  // Si une réplique est en cours, on ne la double pas — ni en son ni en texte,
+  // sinon la bulle et la voix racontent deux choses différentes.
+  if(voixActive && parleEnCours() && !prioritaire) return;
   questionsOuvertes = false;
   const html = typeof o === "string" ? o : o.t;
   elBulleTxt.innerHTML = (avant || "") + html;
   composeMaths(elBulleTxt);
   elBulle.classList.add("vu");
-  parle(o);
+  parle(o, prioritaire);
   const n = html.replace(/<[^>]+>/g, "").length;
   tMasque = performance.now() + (duree || Math.min(16000, Math.max(5200, 3000 + n*54)));
   tDernier = performance.now();
@@ -1895,7 +1910,7 @@ function ouvreQuestions(){
     const b = document.createElement("button");
     b.className = "q";
     b.textContent = q.q;
-    b.onclick = () => dit(resous(q), 24000, `<b>${q.q}</b><br>`);
+    b.onclick = () => dit(resous(q), 24000, `<b>${q.q}</b><br>`, true);
     elBulleTxt.appendChild(b);
   });
   elBulle.classList.add("vu");
@@ -1912,7 +1927,7 @@ CONTENU.voix.forEach((v, i) => {
   b.onclick = () => {
     iVoix = i; voixActive = true;
     majBoutonVoix();
-    dit(resous(REACTIONS.accueil));
+    dit(resous(REACTIONS.accueil), 0, "", true);   // demande explicite : elle coupe
   };
   boitierVoix.appendChild(b);
 });
@@ -1941,7 +1956,7 @@ const boitierSpin = $("spin-choix");
 boitierSpin.children[0].classList.add("actif");
 
 const boitierVol = $("volume");
-[["très bas", 0.18], ["bas", 0.45], ["moyen", 0.7], ["fort", 1.0]].forEach(([nom, v], i) => {
+[["discret", 0.28], ["normal", 0.5], ["fort", 0.75], ["très fort", 1.0]].forEach(([nom, v], i) => {
   const b = document.createElement("button");
   b.textContent = nom;
   b.onclick = () => {
@@ -1952,6 +1967,7 @@ const boitierVol = $("volume");
   };
   boitierVol.appendChild(b);
 });
+boitierVol.children[0].classList.add("actif");
 
 const boitierA = $("anecdotes");
 [["30 s", 30000], ["1 min", 60000], ["3 min", 180000], ["jamais", 0]].forEach(([nom, ms], i) => {
@@ -1964,7 +1980,7 @@ const boitierA = $("anecdotes");
   };
   boitierA.appendChild(b);
 });
-boitierA.children[1].classList.add("actif");
+boitierA.children[2].classList.add("actif");
 
 function majBoutonVoix(){
   [...boitierVoix.children].forEach((c, i) => c.classList.toggle("actif", voixActive && i === iVoix));
@@ -1984,7 +2000,7 @@ majBoutonVoix();
 
 // Lumen ne surgit plus sans prévenir : un anneau se referme autour de lui, on
 // voit venir. Et on peut le faire taire complètement.
-let intervalleAnecdote = 60000;
+let intervalleAnecdote = 180000;   // Lumen s'invite rarement, et on le voit venir
 const elAnneau = $("anneau");
 const TOUR = 175.9;
 
@@ -2264,7 +2280,10 @@ const MISE_EN_PLACE = {
     reglerVitesse(2);
     if(sondeSuivie !== null) embarque(null);
     if(reelCible > 0.5) $("b-reel").click();
-    $("fiches").classList.remove("replie");
+    // Le cours reste replié : proposé, jamais imposé. Personne n'a envie
+    // d'arriver devant un pavé de texte.
+    $("fiches").classList.add("replie");
+    $("b-cours").textContent = "Cours ▸";
   },
   jumeaux(){
     missionsActives = true;
@@ -2427,7 +2446,7 @@ if(memoire){
   [...boitierA.children].forEach((c, i) => c.classList.toggle("actif", i === iA));
   const iT = [0.6, 1, 2.2, 4].indexOf(zoomSonde);
   [...boitierT.children].forEach((c, i) => c.classList.toggle("actif", i === iT));
-  const iVol = [0.18, 0.45, 0.7, 1.0].indexOf(volumeVoix);
+  const iVol = [0.28, 0.5, 0.75, 1.0].indexOf(volumeVoix);
   [...boitierVol.children].forEach((c, i) => c.classList.toggle("actif", i === iVol));
   // reprendre là où on s'était arrêté
   const suivante = MISSIONS.findIndex(m => !acquis.has(m.id));
