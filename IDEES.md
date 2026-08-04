@@ -607,3 +607,68 @@ précisément la position d'où le défaut se voyait.
    aujourd'hui.
 
 La seconde est la bonne. Elle attend que le vaisseau cesse de bouger.
+
+## Les étoiles S — *la preuve, et le meilleur reste à faire*
+
+Idée d'Hugo : se placer en vue extérieure, voir les étoiles référencées tourner
+autour de Sagittarius A* en accéléré, et comprendre qu'on détecte un trou noir
+**parce qu'il attire ce qui l'entoure**.
+
+C'est la meilleure idée qui reste au carnet, et il faut dire pourquoi : le site
+montre aujourd'hui à quoi ressemble un trou noir, jamais **comment on sait
+qu'il est là**. Or l'image de 2022 est arrivée après trente ans de mesures
+d'orbites. La preuve est venue avant la photo.
+
+### Le raisonnement, qui tient en trois lignes
+
+On suit une étoile pendant une révolution. On mesure son demi-grand axe et sa
+période. La troisième loi de Kepler donne la masse au foyer. On trouve quatre
+millions de soleils dans un volume plus petit que l'orbite — et rien de connu
+ne peut être aussi dense sans s'effondrer.
+
+C'est tout. Aucune image n'est nécessaire, et c'est ce qui a valu le prix Nobel
+de physique 2020 à Genzel et Ghez.
+
+### Ce que la scène doit montrer
+
+**S2 d'abord**, la mieux mesurée : environ seize ans de période, une excentricité
+proche de 0,88, et un périastre à quelque cent vingt unités astronomiques — soit
+à peu près la taille de la bulle du système solaire. Le rapprochement est déjà
+noté dans `OBJECTIFS.md` : la même distance se retrouve aux deux bouts du
+voyage.
+
+À ce périastre elle file à près de **2,5 % de la vitesse de la lumière**, ce qui
+est visible à l'œil quand on accélère : elle rampe pendant des années puis fouette
+en quelques mois. C'est la deuxième loi de Kepler qui devient une évidence.
+
+**Puis l'essaim.** Une dizaine d'étoiles aux orbites inclinées dans tous les
+sens, sans plan commun — ce désordre est lui-même une information : elles ne
+sont pas nées là.
+
+**Et deux effets relativistes réellement mesurés**, qui font le lien avec le
+reste du site : le décalage vers le rouge gravitationnel au périastre de 2018,
+et la précession du périastre — l'orbite ne se referme pas sur elle-même,
+exactement comme celle de Mercure mais bien plus fort.
+
+### Avant de construire
+
+Toutes les valeurs ci-dessus sont de mémoire et doivent être **re-sourcées une
+par une** : éléments orbitaux de chaque étoile retenue, barres d'erreur, année
+de mesure. Les clés `gravity2021`, `gravity2018` et `nobel2020` existent déjà
+au registre ; il en faudra d'autres.
+
+Attention en particulier aux étoiles à très courte période annoncées ces
+dernières années : certaines sont contestées, et le site ne doit pas trancher un
+débat en cours. Une seule règle, la même que partout — ce dont on n'est pas sûr
+se déclare, ou ne se met pas.
+
+### Le coût, honnêtement
+
+Plus faible qu'il n'y paraît. Les orbites sont képlériennes à cette distance :
+des ellipses calculées depuis leurs éléments, pas des géodésiques intégrées. La
+précession relativiste s'ajoute comme une lente rotation du grand axe. Il faut
+une vue extérieure, un curseur de temps en années, et de quoi désigner une
+étoile pour lire ses chiffres.
+
+**C'est la tête d'affiche de la version suivante**, pas de la bêta : elle mérite
+d'être faite proprement, et rien ne doit bouger pendant que les amis testent.
