@@ -361,6 +361,17 @@ reactions: {
   embarque: { id:"embarque", t:`Te voilà à bord. Attention, à cette vitesse le ciel n'est plus où tu crois : l'<b>aberration</b> le tasse vers l'avant. Ce que tu vois sur les côtés vient en réalité de derrière toi.`,
     dire:`Te voilà à bord. Attention, à cette vitesse le ciel n'est plus où tu crois : l'aberration le tasse vers l'avant. Ce que tu vois sur les côtés vient en réalité de derrière toi.`,
     sources:["misner1973"] },
+  salon: { id:"salon",
+    t:`Bienvenue dans le salon. Nous sommes en <b>orbite excentrique</b> : le vaisseau
+       s'approche, s'éloigne, et le trou noir grossit puis rétrécit derrière la vitre.
+       <br><br>Un tour complet dure <i>4 h 44</i> en vrai. On l'accélère pour que ça se voie —
+       les écrans te disent de combien.`,
+    dire:`Bienvenue dans le salon. Nous sommes en orbite excentrique : le vaisseau s'approche, s'éloigne, et le trou noir grossit puis rétrécit derrière la vitre. Un tour complet dure quatre heures quarante-quatre en vrai. On l'accélère pour que ça se voie. Les écrans te disent de combien.`,
+    pourquoi:`L'orbite n'est pas décorative : le vaisseau suit la même géodésique de type
+              temps que les sondes, celle que le banc d'essai valide. D'où la précession du
+              périastre — l'ellipse tourne lentement sur elle-même, effet purement
+              relativiste, visible sur l'écran de position.`,
+    sources:["bardeen1972","gravity2020"] },
   jumeauxDepart: { id:"jumeaux-depart",
     t:`Te voilà à bord. Ton jumeau, lui, reste là-haut, très loin.
        <br><br>Regarde les <b>deux horloges</b> en bas de l'écran : elles sont à égalité

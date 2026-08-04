@@ -236,6 +236,10 @@
   /* ---- Lumen, la mascotte ---- */
   /* à bord, la bulle remonte : la console du cockpit occupe le bas */
   body.a-bord #lumen { bottom:200px; }
+  /* le salon n'est pas un simulateur : ses commandes n'y ont pas leur place */
+  body.au-salon #mission,
+  body.au-salon #lecture-flottant,
+  body.au-salon #stats { opacity:0; pointer-events:none; }
   #lumen { bottom:26px; left:28px; display:flex; align-items:flex-end; gap:11px; pointer-events:none; }
   #lumen-corps {
     width:54px; height:54px; flex:none; cursor:pointer; pointer-events:auto;
@@ -507,6 +511,7 @@
 <div class="hud" id="dock">
   <button id="b-pluie">Lâcher 80 sondes</button>
   <button id="b-photon">Photon</button>
+  <button id="b-salon">Le salon</button>
   <button id="b-sonde">Monter à bord</button>
   <button id="b-reel">Lumière réelle</button>
   <button id="b-spectre">Spectre</button>
@@ -1372,7 +1377,9 @@ function majCameraSalon(){
   // alors même qu'on file autour de lui.
   const vise = norm([-P[0], -P[1], -P[2]]);
   const nOrb = norm(cross(salon.p, salon.v));
-  const ang  = 0.30*Math.sin(tempsGeo*0.9) + 0.10*Math.sin(tempsGeo*0.31);
+  // Amplitude bornée : la baie ne couvre qu'environ 25° de part et d'autre,
+  // au-delà l'astre sort par le bord et on perd ce qu'on était venu voir.
+  const ang  = 0.10*Math.sin(tempsGeo*0.9) + 0.045*Math.sin(tempsGeo*0.31);
   // rotation de `vise` autour de la normale orbitale (formule de Rodrigues)
   const ca = Math.cos(ang), sa = Math.sin(ang);
   const cr = cross(nOrb, vise), pd = dot(nOrb, vise);
@@ -1807,7 +1814,23 @@ $("b-traj").onclick   = () => {
   if(montreTraj) reagit("traj");
 };
 
+// Le salon : on n'est plus devant le trou noir, on est quelque part.
+$("b-salon").onclick = () => {
+  salon.actif = !salon.actif;
+  $("b-salon").classList.toggle("actif", salon.actif);
+  $("b-salon").textContent = salon.actif ? "Quitter le salon" : "Le salon";
+  document.body.classList.toggle("au-salon", salon.actif);
+  if(salon.actif){
+    if(sondeSuivie !== null) embarque(null);
+    cinema.actif = false;
+    poseSalon();
+    reagit("salon");
+  }
+  majCamera();
+};
+
 $("b-sonde").onclick = () => {
+  if(salon.actif) $("b-salon").click();      // on ne peut pas être aux deux endroits
   if(sondeSuivie !== null){ embarque(null); return; }
   let i = meilleureSonde();
   if(i === null){                       // aucune orbite disponible : on en pose une
