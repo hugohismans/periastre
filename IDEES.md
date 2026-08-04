@@ -251,6 +251,17 @@ peu notre effet : on est une simulation, on explique, on dit — ce n'est pas
 n'importe quoi que vous voyez, c'est un vrai trou noir, comme si vous y
 étiez. »*
 
+**Public visé : de 6 à 160 ans.** La borne basse n'est pas affaire de niveau —
+le mode découverte ne suppose rien, pas même la notion de référentiel. C'est
+affaire de bon sens : à trois ans on ne regarde pas un écran, on regarde
+ailleurs, et c'est très bien. La borne haute est fixée au jugé, et on la
+relèvera si quelqu'un se plaint.
+
+Étant entendu que ces 160 ans s'entendent **en temps propre**. Si vous avez
+séjourné près de Sagittarius A*, comptez large : à trois rayons de
+Schwarzschild, votre horloge tourne à 71 % de la nôtre, et vous avez donc droit
+à un supplément que nous honorerons sans discuter.
+
 Ce n'est pas un slogan, c'est un critère de tri. Toute fonctionnalité doit
 passer ce test : **est-ce qu'elle aide à comprendre, et est-ce qu'on peut
 montrer d'où elle sort ?** Le jeu, les tenues, la monnaie, le vaisseau sont des
