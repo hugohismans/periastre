@@ -613,6 +613,12 @@ body.tactile.au-salon #manette{ display:block; }
    Qui préfère les boutons les retrouve dans les réglages. C'est une option,
    pas le défaut : l'immersion se perd dès qu'on offre le raccourci d'emblée. */
 body.au-salon:not(.mode-boutons) #dock { opacity:0; pointer-events:none; }
+/* La vue embarquée est retirée de la bêta. Retirer la mission ne suffisait pas :
+   le bouton « Monter à bord » y menait directement, et le comparateur
+   d'horloges s'affiche dès qu'on est sur une sonde — c'est par là qu'Hugo est
+   retombé dessus. On masque donc la porte plutôt que d'espérer que personne ne
+   la pousse. Le motif est dans JUMEAUX.md, et rien n'est supprimé. */
+#b-sonde { display:none; }
 </style>
 </head>
 <body>
@@ -2802,7 +2808,7 @@ addEventListener("keydown", e => {
   else if(k === "p") lancePhoton();
   else if(k === "t") $("b-traj").click();
   else if(k === "r") $("b-vide").click();
-  else if(k === "v") $("b-sonde").click();
+  // la touche « v » menait à la vue embarquée, retirée de la bêta
   else if(k === "escape" && !$("voile").classList.contains("vu")) $("rouage").click();
 });
 
@@ -3343,7 +3349,7 @@ $("b-spectre").onclick = () => {
    `JUMEAUX.md` — l'expérience embarque sur une sonde sans expliquer ce qu'on
    incarne ni pourquoi la vue change, et elle arrive en dernier, c'est-à-dire
    là où l'on juge l'ensemble. */
-const MIS_DE_COTE = new Set(["m-jumeaux"]);
+const MIS_DE_COTE = new Set(["m-jumeaux", "m-bord"]);
 const MISSIONS = CONTENU.missions.filter(m => !MIS_DE_COTE.has(m.id));
 
 const VERIFS = {
