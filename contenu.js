@@ -416,9 +416,22 @@ reactions: {
       sources:["eht2022"] },
     { id:"inactif-3", t:`Tu ne verrais jamais personne franchir l'horizon. De loin, il ralentit, rougit, et se fige. Lui, il passe sans rien remarquer.`,
       sources:["misner1973"] },
-    { id:"inactif-4", t:`Ce trou noir-là tourne sur lui-même et entraîne l'espace avec lui. Ça, je ne le simule pas : ma version est immobile. <i>Fiche 8.</i>`,
-      dire:`Ce trou noir-là tourne sur lui-même et entraîne l'espace avec lui. Ça, je ne le simule pas : ma version est immobile. Va voir la fiche huit.`,
+    { id:"inactif-4", t:`Ce trou noir-là tourne sur lui-même et entraîne l'espace avec lui. Monte le curseur de rotation : l'ombre se décentre, et un bord se rapproche. <i>Fiche 8.</i>`,
+      dire:`Ce trou noir-là tourne sur lui-même, et il entraîne l'espace avec lui. Monte le curseur de rotation : l'ombre se décentre, et un bord se rapproche. Va voir la fiche huit.`,
       sources:["eht2022","bardeen1972"] },
+    { id:"inactif-10", t:`Avis aux passagers. Nous orbitons, donc nous sommes en chute libre, donc vous devriez tous flotter. <b>Pour des raisons de confort et de scénario, la direction a décrété que la gravité serait magique à bord.</b> C'est le seul mensonge de ce vaisseau. Tout le reste est calculé.`,
+      dire:`Avis aux passagers. Nous orbitons, donc nous sommes en chute libre, donc vous devriez tous flotter. Pour des raisons de confort et de scénario, la direction a décrété que la gravité serait magique à bord. C'est le seul mensonge de ce vaisseau. Tout le reste est calculé.`,
+      pourquoi:`Rien ne plaque un corps au plancher d'un vaisseau en orbite : l'habitacle et son
+                occupant suivent la même géodésique, et l'occupant flotte. C'est pour cette
+                raison que l'équipage de la Station spatiale internationale est en apesanteur
+                alors que la gravité terrestre y vaut encore <b>88 %</b> de sa valeur au sol —
+                à 420 km d'altitude, $(6371/6791)^{2} = 0{,}88$. L'apesanteur n'est pas
+                l'absence de gravité, c'est la chute libre.
+                Une gravité artificielle par rotation serait physiquement honnête, mais elle
+                ferait tourner le paysage dans la baie : l'astre défilerait en boucle et
+                deviendrait illisible. Il a donc fallu choisir entre un vaisseau exact et un
+                trou noir observable. On a choisi le trou noir.`,
+      sources:["misner1973"] },
     { id:"inactif-5", t:`Le disque brille parce que le gaz frotte contre lui-même en tombant. Rien ne brûle là-dedans — c'est la chute qui fait la lumière.`,
       sources:["shakura1973","balbus1991"] },
     { id:"inactif-6", t:`Un vaisseau qui tiendrait <i>1 g</i> tout le trajet — la moitié en accélérant, la moitié en freinant — arriverait ici en <b>19,8 ans</b> de vie à bord. Sur Terre il se serait écoulé 26 675 ans. Personne ne t'attendrait.`,
@@ -991,8 +1004,15 @@ methode: [
  <h3>Ce qui, en revanche, n'est pas vrai</h3>
  <p>Autant être honnête. Les couleurs sont inventées : le vrai Sagittarius A* est
  beaucoup plus pâle, et on ne le voit qu'avec des antennes radio, pas avec des yeux.
- Et le vrai <b>tourne sur lui-même</b>, ce qui entraîne l'espace avec lui — ça, ce n'est
- pas simulé ici. La forme est juste. Le décor est plausible, mais peint à la main.</p>`,
+ La forme est juste. Le décor est plausible, mais peint à la main.</p>
+ <p>Et puis il y a le vaisseau. On est en orbite, c'est-à-dire en <b>chute libre</b> :
+ dans la vraie vie, tout flotterait. Toi, ton voisin, et la tasse que quelqu'un a
+ laissée sur le pupitre.</p>
+ <p>Donc, en toute transparence : <b>pour des raisons de confort et de scénario, la
+ direction a décrété que la gravité serait magique à bord.</b> Il fallait bien poser
+ les tasses quelque part.</p>
+ <p>C'est le seul mensonge de cette page. Tout le reste est calculé, et je préfère te
+ le dire avant que tu le remarques — ça m'évite d'avoir l'air de l'avoir oublié.</p>`,
 
 // ------------------------------------------------------------------- Curieux
 `<h3>Le faux : une déformation d'écran</h3>
