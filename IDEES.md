@@ -513,3 +513,62 @@ Trois conséquences, à ne pas défaire :
   c'est, on comprend pourquoi c'est particulier, et on part au moment où l'on a
   envie de partir. Un bouton posé avant l'explication attrape ceux qui n'ont
   pas encore de raison d'y aller.
+
+## L'interface — *le prochain gros morceau*
+
+Hugo, après avoir tout parcouru : *« Il y a une dimension un peu luxe, un peu
+classe — et je ne la retrouve pas dans les boutons. L'interface, je ne la
+trouve pas très jolie, on peut faire mieux. »*
+
+Le diagnostic est juste et il est précis : le **rendu** a cette tenue, le
+**mobilier de l'interface** ne l'a pas. Une barre de huit boutons rectangulaires
+tous identiques, un panneau de réglages en grilles, des cartes de menu — c'est
+fonctionnel et ça n'a aucun point de vue. Le contraste avec l'image est ce qui
+le rend visible.
+
+Trois contraintes qu'il a posées, dans ses mots :
+
+- **Peu de mouvement.** *« Je ne pense pas à des trucs qui flottent. »* La
+  retenue fait la classe ; l'animation en enlève. Ce qui bouge doit bouger
+  parce que la simulation bouge, pas pour décorer.
+- **Un peu quand même.** *« Peut-être un truc qui bouge. »* Donc du mouvement
+  motivé, rare, et lent.
+- **Ça reste une simulation sérieuse.** Le cinéma est un assaisonnement.
+
+### Le chemin initiatique — l'idée forte
+
+*« Peut-être un parcours initiatique à la Duolingo. Du chemin à suivre pour
+comprendre le trou noir. Prends-moi par la main : on va commencer par là, on va
+comprendre des choses. Et si tu veux tu peux faire autre chose, mais viens, suis
+l'aventure principale. »*
+
+C'est la meilleure réponse au problème réel du site : **on ne sait pas où on en
+est ni où l'on va.** Huit missions existent, la progression est mémorisée, mais
+rien ne se voit — le menu est une grille de quatre cartes sans ordre apparent.
+
+Ce qu'il faudrait, et qui n'existe pas :
+
+- **Un tracé visible**, avec les étapes franchies derrière et la suivante en
+  avant. Le geste est celui de Duolingo, mais la forme doit venir d'ici : une
+  orbite qu'on remonte vers l'astre, chaque palier à un rayon plus faible. La
+  progression devient alors une descente, ce qui est vrai à la lettre.
+- **Une étape suivante toujours désignée.** Pas un menu où l'on choisit : un
+  endroit où l'on va, avec une porte de côté pour qui veut fouiller.
+- **Ce qui est compris reste acquis et se voit.** La mémoire existe déjà
+  (`acquis`), elle n'est affichée que par huit pastilles minuscules.
+
+Cohérent avec la règle déjà posée — *on ne débloque qu'en comprenant* — et avec
+le leitmotiv : on ressort grandi, donc on doit pouvoir mesurer de combien.
+
+### Ce que je ferais, dans l'ordre
+
+1. **La barre du bas.** Huit boutons égaux, dont trois seulement servent au
+   premier passage. Hiérarchiser : ce qui agit sur la scène, ce qui change de
+   lieu, ce qui règle. Le reste passe derrière un repli.
+2. **Le tracé de progression**, en remplacement du menu de cartes.
+3. **Les panneaux** (réglages, spectre, temps) : même vocabulaire que les écrans
+   du vaisseau, qui eux ont déjà la bonne tenue — filets fins, capitales
+   espacées, chiffres en chasse fixe.
+
+Point de méthode : l'interface se juge à l'œil, donc elle ne se délègue pas à
+un agent qui ne voit pas le résultat. C'est la leçon du vaisseau.
