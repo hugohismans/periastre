@@ -653,25 +653,47 @@ void main(){
 precision highp float;
 in vec3 vNor; in vec3 vTei; in vec3 vPos;
 out vec4 oCoul;
-uniform vec3 uVersAstre;   // direction de la baie, en coordonnées de la pièce
+uniform vec3  uVersAstre;   // direction de la baie, en coordonnées de la pièce
+uniform float uBaieX;       // demi-largeur de l'ouverture
+uniform float uBaieBas;
+uniform float uBaieHaut;
 
 void main(){
   vec3 n = normalize(vNor);
 
-  // L'astre est la seule vraie source : la lumière vient de la baie. Tout ce
-  // qui lui tourne le dos reste dans le noir, et c'est ce qui donne le relief.
-  float k = max(dot(n, uVersAstre), 0.0);
+  // L'astre est la SEULE source. Ce n'est pas une économie : une pièce
+  // éclairée de l'intérieur ferait concurrence à l'image, alors qu'ici tout le
+  // relief vient de la baie. Le disque est chaud, on l'assume dans la teinte.
+  const vec3 CHAUD = vec3(1.00, 0.72, 0.44);
 
-  // Un rappel froid au plafond, pour que la pièce ne soit pas plate là où
-  // l'astre ne porte pas.
-  float ciel = max(-n.y, 0.0)*0.25 + 0.06;
+  // Source étendue plutôt que ponctuelle : on éclaire depuis le rectangle de
+  // la baie, ce qui adoucit les ombres comme le ferait une vraie fenêtre.
+  vec3 lum = vec3(0.0);
+  for(int i = -1; i <= 1; i++){
+    for(int j = -1; j <= 1; j++){
+      vec3 p = vec3(float(i)*uBaieX*0.55,
+                    mix(uBaieBas, uBaieHaut, 0.5 + float(j)*0.35),
+                    -3.25);
+      vec3 v = p - vPos;
+      float d2 = max(dot(v, v), 0.35);
+      lum += max(dot(n, normalize(v)), 0.0) / d2;
+    }
+  }
+  lum /= 9.0;
 
-  vec3 c = vTei * (0.18 + 1.5*k) + vec3(0.05,0.05,0.09)*ciel;
+  // Occultation grossière : un coin reçoit moins qu'un mur dégagé.
+  float ouvert = clamp(1.0 - (vPos.z + 3.25)/7.5, 0.15, 1.0);
 
-  // Les surfaces proches de la baie captent davantage — la lumière décroît.
-  float d = clamp(1.0 - (vPos.z + 3.25)/7.0, 0.0, 1.0);
-  c *= 0.55 + 0.75*d;
+  vec3 c = vTei * (CHAUD * lum * 34.0 * ouvert + 0.075);
 
+  // Reflet rasant sur le sol, qui prolonge la baie dans la pièce
+  if(n.y > 0.9){
+    float t = clamp(1.0 - (vPos.z + 3.25)/4.5, 0.0, 1.0);
+    float bande = smoothstep(uBaieX*0.62, 0.0, abs(vPos.x));
+    c += CHAUD * 0.10 * t*t * bande;
+  }
+
+  c = c / (c + 0.85);                       // compression douce des hautes lumières
   c = pow(clamp(c, 0.0, 1.0), vec3(1.0/2.2));
   oCoul = vec4(c, 1.0);
 }
@@ -1237,7 +1259,14 @@ const uRes = U("uRes"), uTemps = U("uTemps"), uCam = U("uCam"), uBasis = U("uBas
 // test de profondeur. La baie n'est pas un objet — c'est l'absence de
 // géométrie. Les deux passes partagent la caméra et le champ, donc la
 // perspective s'aligne d'elle-même.
-const salon = { actif:false, rayon:32, phase:0.4, lacet:0, tangage:0 };
+// Le salon orbite. En temps strictement réel on ne verrait rien : à 22 rayons
+// un tour dure près de onze heures. On accélère donc — mais on l'affiche, et
+// c'est justement ce qui donne l'échelle. La lenteur de l'objet dit sa taille.
+const salon = { actif:false, rayon:22, phase:0.4, lacet:0, tangage:-0.03, facteur:120 };
+
+// Période orbitale, en secondes réelles. Ω = √(M/r³) en unités géométriques.
+const periodeSalon = () =>
+  2*Math.PI*Math.pow(salon.rayon, 1.5)/Math.sqrt(M) * SEC_PAR_UNITE;
 
 const progSalon = programme(
   document.getElementById("vs-salon").textContent,
@@ -1245,6 +1274,9 @@ const progSalon = programme(
   ["aPos", "aNor", "aTei"]);
 const uMVP = gl.getUniformLocation(progSalon, "uMVP");
 const uVersAstre = gl.getUniformLocation(progSalon, "uVersAstre");
+const uBaieX    = gl.getUniformLocation(progSalon, "uBaieX");
+const uBaieBas  = gl.getUniformLocation(progSalon, "uBaieBas");
+const uBaieHaut = gl.getUniformLocation(progSalon, "uBaieHaut");
 VAISSEAU.construit(gl);
 
 // Repère du regard dans la pièce. Avant = −z, la baie est de ce côté.
@@ -1261,7 +1293,7 @@ function regardSalon(){
 // est exactement à sa place.
 function mvpSalon(){
   const { av, dr, ht } = regardSalon();
-  const oeil = [0, VAISSEAU.OEIL, 1.4];
+  const oeil = [0, VAISSEAU.OEIL, 2.55];
   const f = FOCAL, aspect = cv.width/cv.height;
   const pres = 0.05, loin = 200;
   const nf = 1/(pres - loin);
@@ -3128,7 +3160,8 @@ function boucle(now){
     cam.dist += (voulu - cam.dist) * Math.min(1, dt*2.2);
   }
 
-  if(sondeSuivie === null) cam.azim += dt*0.012;   // dérive lente, pour que la lentille vive
+  if(salon.actif) salon.phase += dt * salon.facteur * 2*Math.PI/periodeSalon();
+  else if(sondeSuivie === null) cam.azim += dt*0.012;   // dérive lente, pour que la lentille vive
   majCamera();
   reel += (reelCible - reel) * Math.min(1, dt*3);
 
@@ -3173,6 +3206,9 @@ function boucle(now){
     gl.useProgram(progSalon);
     gl.uniformMatrix4fv(uMVP, false, mvpSalon());
     gl.uniform3f(uVersAstre, 0, 0, -1);      // la baie est en −z dans la pièce
+    gl.uniform1f(uBaieX, VAISSEAU.BAIE.x/2);
+    gl.uniform1f(uBaieBas, VAISSEAU.BAIE.bas);
+    gl.uniform1f(uBaieHaut, VAISSEAU.BAIE.haut);
     VAISSEAU.dessine(gl);
     gl.disable(gl.DEPTH_TEST);
   }
