@@ -732,34 +732,35 @@ void main(){
   // lui-même, par ses bandeaux et ses écrans. Le disque est chaud, on l'assume.
   const vec3 CHAUD = vec3(1.00, 0.72, 0.44);
 
-  // La lumière entre par la baie, mais elle vient de l'ASTRE — et l'astre
-  // dérive dans la fenêtre au fil de l'orbite. On échantillonne donc
-  // l'ouverture en pondérant chaque point par sa proximité à sa direction :
-  // le rectangle reste la porte, l'astre décide de quel côté ça éclaire.
-  float lum = 0.0, poids = 0.0;
-  for(int i = -2; i <= 2; i++){
-    for(int j = -1; j <= 1; j++){
-      vec3 p = vec3(float(i)*uBaieX*0.42,
-                    mix(uBaieBas, uBaieHaut, 0.5 + float(j)*0.36),
-                    uBaieZ);
-      // ce point de la baie laisse-t-il passer l'astre ?
-      vec3 versP = normalize(p - vec3(0.0, 1.5, 1.0));
-      float w = pow(max(dot(versP, uVersAstre), 0.0), 5.0) + 0.05;
-      vec3 v = p - vPos;
-      float d2 = max(dot(v, v), 0.35);
-      lum   += w * max(dot(n, normalize(v)), 0.0) / d2;
-      poids += w;
-    }
+  /* La lumière entre par la baie, mais elle vient de l'ASTRE — et l'astre est
+     à des milliers de rayons. Sa lumière arrive donc en FAISCEAU PARALLÈLE, pas
+     d'une lampe qu'on aurait posée dans la fenêtre.
+
+     La conséquence est tout l'effet : un point de la pièce est éclairé si, en
+     remontant vers l'astre, le rayon ressort par l'ouverture. Ce test projette
+     une vraie tache en forme de baie, qui glisse sur le sol et sur les parois
+     au fil de l'orbite, et qui s'éteint quand l'astre passe derrière nous.
+     L'ancienne version moyennait des points de la fenêtre : elle éclairait à
+     peu près partout pareil, et c'est pour ça que rien ne se passait. */
+  float direct = 0.0;
+  if(uVersAstre.z < -0.02){
+    vec3 q = vPos + uVersAstre * ((uBaieZ - vPos.z)/uVersAstre.z);
+    float bx = smoothstep(uBaieX + 0.20, uBaieX - 0.20, abs(q.x));
+    float by = smoothstep(-0.20, 0.20, q.y - uBaieBas)
+             * smoothstep(-0.20, 0.20, uBaieHaut - q.y);
+    direct = max(dot(n, uVersAstre), 0.0) * bx * by;
   }
-  lum = lum / max(poids, 1e-3) * uEclatAstre;
 
-  // Occultation grossière : un coin reçoit moins qu'un mur dégagé.
-  float ouvert = clamp(1.0 - (vPos.z - uBaieZ)/7.5, 0.15, 1.0);
+  // Et ce que la pièce se renvoie à elle-même. Sans ce terme, tout ce que la
+  // tache ne touche pas serait de l'encre, ce qui est aussi faux que l'inverse.
+  vec3 versBaie = normalize(vec3(0.0, (uBaieBas + uBaieHaut)*0.5, uBaieZ) - vPos);
+  float diffus = max(dot(n, versBaie), 0.0) * 0.26;
 
-  // L'exposition mérite d'être basse. Trop haute, la teinte chaude sature le
-  // rouge avant le bleu, le compresseur ramène tout vers le blanc, et les
-  // plaques qu'on vient de poser ressortent en crème uniforme : on a payé la
-  // matière pour la laver au tirage.
+  float lum = (direct + diffus) * uEclatAstre;
+
+  // Occultation grossière : le fond de la salle reçoit moins que le devant.
+  float ouvert = clamp(1.0 - (vPos.z - uBaieZ)/9.0, 0.22, 1.0);
+
   // ---- la matière, calculée ----
   vec3 an = abs(n);
   vec2 uv = an.y > max(an.x, an.z) ? vPos.xz
@@ -788,14 +789,14 @@ void main(){
   // rouge avant le bleu, le compresseur ramène tout vers le blanc, et les
   // plaques qu'on vient de poser ressortent en crème uniforme : on a payé la
   // matière pour la laver au tirage.
-  vec3 c = tei * det * (CHAUD * lum * 7.5 * ouvert + 0.050);
+  vec3 c = tei * det * (CHAUD * lum * 1.55 * ouvert + 0.028);
 
   // Reflet spéculaire. Sans lui tout est mat comme du plâtre ; avec lui les
   // membrures, la main courante et le cadre de la baie accrochent la lumière
   // et se détachent — c'est ce qui dit « métal » en une ligne.
   vec3 versOeil = normalize(uOeil - vPos);
   float spec = pow(max(dot(n, normalize(versOeil + uVersAstre)), 0.0), 42.0);
-  c += CHAUD * spec * 0.55 * lum * 7.5 * ouvert * (1.0 - emi);
+  c += CHAUD * spec * 0.9 * direct * uEclatAstre * (1.0 - emi);
 
   // Reflet rasant sur le sol, qui prolonge la baie dans la pièce
   if(n.y > 0.9){
@@ -808,7 +809,7 @@ void main(){
   // Les surfaces qui brillent d'elles-mêmes : bandeaux, corniches, écrans,
   // rayures d'avertissement. Elles ne s'éteignent jamais, donc la pièce garde
   // sa structure lisible même quand l'astre est passé hors de la baie.
-  c += tei * emi * 1.25;
+  c += tei * emi * 0.95;
 
   c = c / (c + 0.85);                       // compression douce des hautes lumières
   c = pow(clamp(c, 0.0, 1.0), vec3(1.0/2.2));
@@ -1466,10 +1467,149 @@ function regardSalon(){
 // Matrice caméra de l'habitacle, avec le MÊME champ que le lancer de rayons :
 // tan(demi-champ) = 1/uFocal. C'est ce qui garantit que l'astre vu par la baie
 // est exactement à sa place.
-// Où se tient l'observateur dans la pièce. Une seule définition : le rendu, le
-// spéculaire et le pointage doivent tous partir du même point, sans quoi on
-// vise à côté de ce qu'on voit.
-const OEIL_SALON = [0, VAISSEAU.OEIL, 2.55];
+/* ------------------------------------------------------- le contrôleur
+
+   Ce n'est pas un moteur physique, et ce serait une erreur d'en importer un.
+   Un moteur de corps rigides simule des caisses qui tombent ; quelqu'un qui
+   marche n'est pas une caisse — il ne glisse pas sur les pentes, il monte les
+   marches, il s'arrête net et il ne bascule jamais. Les studios qui embarquent
+   un moteur du commerce écrivent quand même leur contrôleur à la main, pour
+   cette raison exactement.
+
+   Ici : une position, un sol donné par une fonction, et une tolérance de
+   marche. Aucune dépendance, rien à télécharger, et ça marche hors ligne. */
+const joueur = {
+  p:[0.6, 0, 2.7],        // position des PIEDS, en coordonnées de la pièce
+  v:[0, 0, 0],
+  auSol:true, pas:0,      // `pas` fait osciller la tête quand on marche
+  vue:1,                  // 1 = première personne, 3 = troisième
+  touches:new Set(),
+};
+
+const TAILLE = 1.62, RAYON = 0.34, MARCHE = 0.36;
+const VITESSE = 2.7, COURSE = 4.8, SAUT = 3.6, PESANTEUR = 9.2;
+
+// Le mobilier : on monte dessus s'il est bas, il arrête s'il est haut. La même
+// règle sert aux deux, ce qui évite d'entretenir deux listes qui divergeraient.
+const MEUBLES = [
+  { x0:-4.45, x1:-1.45, z0:-2.50, z1:-1.80, h:VAISSEAU.FOSSE + 0.40 },  // banquette
+  { x0: 1.85, x1: 3.85, z0:-3.05, z1:-2.45, h:VAISSEAU.FOSSE + 0.97 },  // pupitre
+];
+
+/* La hauteur du sol sous un point.
+
+   Deux niveaux, et une rampe à bâbord. On peut sauter dans la fosse de
+   n'importe où — la chute est libre —, mais on n'en remonte que par la rampe,
+   puisque le ressaut de 58 cm dépasse la tolérance de marche. Ce n'est pas une
+   limitation, c'est ce qui donne un sens au plan : il y a une entrée. */
+function hauteurSol(x, z){
+  let h = VAISSEAU.FOSSE;
+  if(z >= VAISSEAU.ZF) h = 0;
+  else {
+    const R = VAISSEAU.RAMPE;
+    if(x > R.x0 && x < R.x1 && z > VAISSEAU.ZF - R.long)
+      h = VAISSEAU.FOSSE * (VAISSEAU.ZF - z)/R.long;
+  }
+  for(const m of MEUBLES)
+    if(x > m.x0 - RAYON && x < m.x1 + RAYON && z > m.z0 - RAYON && z < m.z1 + RAYON)
+      h = Math.max(h, m.h);
+  return h;
+}
+
+const TOUCHES_JEU = new Set(["z","q","s","d","w","a"," ","shift",
+                             "arrowup","arrowdown","arrowleft","arrowright","v"]);
+
+function majJoueur(dt){
+  const t = joueur.touches;
+  const enf = (...l) => l.some(k => t.has(k));
+  const av = (enf("z","w","arrowup") ? 1 : 0) - (enf("s","arrowdown") ? 1 : 0);
+  const dr = (enf("d","arrowright") ? 1 : 0) - (enf("q","a","arrowleft") ? 1 : 0);
+
+  // On se déplace dans le plan : le tangage sert à regarder, pas à voler.
+  const c = Math.cos(salon.lacet), si = Math.sin(salon.lacet);
+  let dx = si*av + c*dr, dz = -c*av + si*dr;
+  const n = Math.hypot(dx, dz);
+  if(n > 0){
+    const vit = enf("shift") ? COURSE : VITESSE;
+    dx = dx/n*vit; dz = dz/n*vit;
+  }
+
+  // Amortissement plutôt qu'affectation : le départ et l'arrêt gardent un peu
+  // d'inertie, sans quoi la marche a l'air d'un curseur qu'on fait glisser. En
+  // l'air on n'a presque plus de prise — on ne se dirige pas dans le vide.
+  const k = Math.min(1, dt*(joueur.auSol ? 14 : 3.2));
+  joueur.v[0] += (dx - joueur.v[0])*k;
+  joueur.v[2] += (dz - joueur.v[2])*k;
+
+  // Horizontal, un axe à la fois : buter contre un mur ne doit pas annuler le
+  // glissement le long de ce mur, sinon on se colle dans les angles.
+  const bx = VAISSEAU.L/2 - RAYON, bz = VAISSEAU.P/2 - RAYON;
+  const essaie = (i, d) => {
+    const q = joueur.p.slice();
+    q[i] = Math.min(i === 0 ? bx : bz, Math.max(i === 0 ? -bx : -bz, q[i] + d));
+    if(joueur.auSol && hauteurSol(q[0], q[2]) - joueur.p[1] > MARCHE) return;
+    joueur.p[i] = q[i];
+  };
+  essaie(0, joueur.v[0]*dt);
+  essaie(2, joueur.v[2]*dt);
+
+  // Vertical.
+  if(joueur.auSol && enf(" ")){ joueur.v[1] = SAUT; joueur.auSol = false; }
+  joueur.v[1] -= PESANTEUR*dt;
+  joueur.p[1] += joueur.v[1]*dt;
+
+  const sol = hauteurSol(joueur.p[0], joueur.p[2]);
+  if(joueur.p[1] <= sol){
+    joueur.p[1] = sol;
+    if(joueur.v[1] < 0) joueur.v[1] = 0;
+    joueur.auSol = true;
+  } else if(joueur.p[1] > sol + 0.02) joueur.auSol = false;
+  joueur.p[1] = Math.min(joueur.p[1], VAISSEAU.H - TAILLE - 0.05);
+
+  // Le balancement du pas. Deux centimètres — mais c'est lui qui sépare
+  // marcher de glisser, et on le remarque surtout quand il manque.
+  const allure = Math.hypot(joueur.v[0], joueur.v[2]);
+  joueur.pas += dt*allure*2.6;
+  if(allure < 0.05) joueur.pas *= Math.max(0, 1 - dt*6);
+}
+
+/* Où se tient l'œil. Une seule définition : le rendu, le spéculaire et le
+   pointage doivent tous partir du même point, sans quoi on vise à côté de ce
+   qu'on voit. */
+function oeilSalon(){
+  const allure = Math.hypot(joueur.v[0], joueur.v[2]);
+  const bal = Math.sin(joueur.pas*2)*0.019*Math.min(1, allure/2.4);
+  const y = joueur.p[1] + TAILLE + bal;
+  if(joueur.vue === 1) return [joueur.p[0], y, joueur.p[2]];
+
+  /* Troisième personne : on recule dans l'axe du regard — mais en raccourcissant
+     tant que la caméra sortirait de la pièce. Sans ce recul progressif, elle
+     traverse la cloison et l'on se retrouve à filmer le dos d'un mur, ce qui
+     est exactement ce qu'elle vient de faire. */
+  const { av } = regardSalon();
+  const mx = VAISSEAU.L/2 - 0.28, mz = VAISSEAU.P/2 - 0.28;
+  const tete = [joueur.p[0], y + 0.42, joueur.p[2]];
+  let d = 2.6;
+  const borne = (v, dv, m) => (dv > 1e-4) ? (m - v)/dv
+                            : (dv < -1e-4 ? (-m - v)/dv : 1e9);
+  d = Math.min(d, borne(tete[0], -av[0], mx), borne(tete[2], -av[2], mz),
+                  borne(tete[1] - (VAISSEAU.FOSSE + VAISSEAU.H)/2, -av[1],
+                        (VAISSEAU.H - VAISSEAU.FOSSE)/2 - 0.28));
+  d = Math.max(0, d);
+  return [tete[0] - av[0]*d, tete[1] - av[1]*d, tete[2] - av[2]*d];
+}
+
+addEventListener("keydown", e => {
+  const k = e.key.toLowerCase();
+  if(!salon.actif || !TOUCHES_JEU.has(k)) return;
+  if(/^(input|textarea)$/i.test((e.target.tagName || ""))) return;
+  if(k === " ") e.preventDefault();      // sinon la page défile sous les pieds
+  if(k === "v" && !joueur.touches.has("v")) joueur.vue = joueur.vue === 1 ? 3 : 1;
+  joueur.touches.add(k);
+});
+addEventListener("keyup", e => joueur.touches.delete(e.key.toLowerCase()));
+// Passer à une autre fenêtre touche enfoncée laisserait le joueur courir seul.
+addEventListener("blur", () => joueur.touches.clear());
 
 /* Le rayon qui part de l'œil et traverse le pixel visé.
 
@@ -1516,11 +1656,12 @@ const POSTE_LUMEN = { id:"lumen", c:[0,0,0], d:[0,0,0] };
 // Le poste le plus proche sous le pointeur, s'il y en a un.
 function posteVise(ev){
   const d = rayonSalon(ev);
+  const oeil = oeilSalon();
   const b = ROBOT.boiteVisee(salon.horloge);
   POSTE_LUMEN.c = b.c; POSTE_LUMEN.d = b.d;
   let meilleur = null, dmin = 1e9;
   for(const p of VAISSEAU.POSTES.concat(POSTE_LUMEN)){
-    const t = toucheBoite(OEIL_SALON, d, p.c, p.d, 0.045);
+    const t = toucheBoite(oeil, d, p.c, p.d, 0.045);
     if(t !== null && t < dmin){ dmin = t; meilleur = p; }
   }
   return meilleur;
@@ -1528,7 +1669,7 @@ function posteVise(ev){
 
 function mvpSalon(){
   const { av, dr, ht } = regardSalon();
-  const oeil = OEIL_SALON;
+  const oeil = oeilSalon();
   const f = FOCAL, aspect = cv.width/cv.height;
   const pres = 0.05, loin = 200;
   const nf = 1/(pres - loin);
@@ -3699,6 +3840,7 @@ function boucle(now){
 
   if(salon.actif){
     salon.horloge += dt;
+    majJoueur(dt);
     // Le vaisseau suit la même géodésique que les sondes, accélérée pour
     // qu'on la voie. À l'échelle réelle, un tour dure des heures.
     const dtGeo = dt * salon.facteur / SEC_PAR_UNITE;
@@ -3769,7 +3911,7 @@ function boucle(now){
     gl.uniform1f(uBaieBas, VAISSEAU.BAIE.bas);
     gl.uniform1f(uBaieHaut, VAISSEAU.BAIE.haut);
     gl.uniform1f(uBaieZ, -VAISSEAU.P/2);
-    gl.uniform3fv(uOeil, OEIL_SALON);
+    gl.uniform3fv(uOeil, oeilSalon());
     gl.uniform1f(uForce, 0);
     gl.uniformMatrix4fv(uModele, false, IDENTITE);
     VAISSEAU.dessine(gl);
@@ -3799,8 +3941,17 @@ function boucle(now){
       [1,0,0,0, 0,1,0,0, 0,0,1,0, 1.95,VAISSEAU.FOSSE,-2.70,1],
       salon.horloge + 11.3, versAstre);
 
+    // Soi-même, à la troisième personne. En première on ne se dessine pas :
+    // on verrait l'intérieur de son propre casque.
+    if(joueur.vue === 3){
+      const c = Math.cos(salon.lacet), si = Math.sin(salon.lacet);
+      PERSONNAGE.dessine(gl, envoie,
+        [c,0,-si,0, 0,1,0,0, si,0,c,0, joueur.p[0],joueur.p[1],joueur.p[2],1],
+        salon.horloge, 0);
+    }
+
     // Lumen, qui fait sa ronde. Il s'éveille quand on le vise ou qu'il parle.
-    ROBOT.dessine(gl, envoie, salon.horloge, OEIL_SALON,
+    ROBOT.dessine(gl, envoie, salon.horloge, oeilSalon(),
       (salon.vise === POSTE_LUMEN || questionsOuvertes) ? 1 : 0);
     gl.disable(gl.DEPTH_TEST);
   }

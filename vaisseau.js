@@ -41,6 +41,10 @@ const BAIE = { x:6.2, bas:0.30, haut:2.72, montants:2 };
 
 // La fosse d'observation : on descend vers la vitre.
 const FOSSE = -0.58;
+const ZF = -P/2 + 2.6;      // son bord, côté salle
+// La rampe d'accès, à bâbord. Le contrôleur en a besoin autant que la
+// géométrie : c'est le seul endroit par où l'on remonte.
+const RAMPE = { x0:-3.9, x1:-1.3, long:0.9 };
 
 // ------------------------------------------------------------- palette
 // Elle vient du matériel spatial soviétique et des sous-marins : vert-de-gris
@@ -135,7 +139,7 @@ function construitGeometrie(){
   const T = { pos:[], nor:[], tei:[], emi:[] };
 
   const x0 = -L/2, x1 = L/2, z0 = -P/2, z1 = P/2;
-  const zF = z0 + 2.6;    // bord de la fosse
+  const zF = ZF;         // la meme que celle du controleur, par construction
 
   // ---- deux niveaux de sol ----
   // Le sol plat unique était une facilité, et c'est lui qui faisait « boîte » :
@@ -159,10 +163,13 @@ function construitGeometrie(){
          jaune ? AMBRE : NOIR, jaune ? 0.30 : 0);
   }
 
-  // Deux marches décalées vers la gauche : on n'entre pas par le milieu.
-  for(let i = 0; i < 3; i++){
-    const y = -0.193*(i+1), z = zF - 0.26*i;
-    boite(T, [-2.6 + i*0.12, y + 0.096, z + 0.13], [1.25, 0.096, 0.13], CADRE);
+  // La volée d'accès, à bâbord : on n'entre pas par le milieu. Les marches
+  // habillent la rampe que le contrôleur emprunte — elles ne la remplacent pas,
+  // sinon monter dépendrait de la position exacte du pied sur un nez de marche.
+  const rxc = (RAMPE.x0 + RAMPE.x1)/2, rl = (RAMPE.x1 - RAMPE.x0)/2;
+  for(let i = 0; i < 4; i++){
+    const t = (i + 0.5)/4;
+    boite(T, [rxc, FOSSE*t + 0.055, zF - RAMPE.long*t], [rl, 0.055, RAMPE.long/8], CADRE);
   }
 
   quad(T, [x0,H,z1], [x1,H,z1], [x1,H,z0], [x0,H,z0], PLAFOND);
@@ -360,7 +367,7 @@ function dessine(gl){
   gl.bindVertexArray(null);
 }
 
-global.VAISSEAU = { L, H, P, OEIL, FOSSE, BAIE, POSTES, AMBRE, CYAN,
+global.VAISSEAU = { L, H, P, OEIL, FOSSE, ZF, RAMPE, BAIE, POSTES, AMBRE, CYAN,
                     construit, dessine, dessineCube,
                     get sommets(){ return nSommets; } };
 
