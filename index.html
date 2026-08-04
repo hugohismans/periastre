@@ -581,10 +581,13 @@ uniform float uRphoto;       // rayon où le flux devient opaque à cette longue
 uniform vec3  uTeinte;       // fausse couleur de la bande
 uniform float uEclat;        // luminosité relative, tirée de la SED mesurée
 uniform float uSpin;         // moment cinétique a, dans [0, M] — 0 = Schwarzschild
+uniform int   uSteps;        // pas réellement exécutés, pour arbitrer coût/justesse
+uniform float uPas;          // finesse du pas ; plus petit = plus juste, plus lent
+uniform float uSeuilCapture; // rayon sous lequel un rayon épuisé est déclaré capturé
 
 const float R_IN  = 3.0;    // l'ISCO : sous cette orbite le disque ne peut pas tenir
 const float R_OUT = 11.0;
-const int   STEPS = 170;    // RK4 coûte quatre évaluations par pas
+const int   STEPS = 900;    // plafond ; le nombre réel vient de uSteps
 const float M_TN  = 0.5;    // masse, en unités où r_s = 2M = 1 quand a = 0
 
 // ---------- bruit ----------
@@ -825,6 +828,7 @@ void main(){
   vec3  pc    = uCam, pcPrec = uCam - vue;
 
   for(int i = 0; i < STEPS; i++){
+    if(i >= uSteps) break;
     float r = y.x;
 
     // Photosphère : aux grandes longueurs d'onde le flux d'accrétion est
@@ -837,7 +841,7 @@ void main(){
       reste = 0.0; avale = true; break;
     }
 
-    if(r < rh*1.002){ avale = true; break; }
+    if(r < rh + 2e-4){ avale = true; break; }
     if(r > 70.0 && y.z > 0.0) break;
 
     vec4 k1 = deriveK(y, E, L, a);
@@ -847,7 +851,7 @@ void main(){
     float dph0 = dPhiK(y, E, L, a);
     float sth  = max(sin(y.y), 1e-2);      // même borne que dans les dérivées
     float vit  = max(sqrt(k1.x*k1.x + r*r*k1.y*k1.y + r*r*sth*sth*dph0*dph0), 1e-5);
-    float dl = clamp(0.05*(r - rh) + 0.022*r, 0.012, 1.4) / vit;
+    float dl = clamp(uPas*2.3*(r - rh) + uPas*r, uPas*0.55, 1.4) / vit;
 
     // L'axe polaire est une singularité de coordonnées : φ doit y basculer de π
     // presque instantanément. Un pas qui saute par-dessus le pôle rate ce
@@ -908,7 +912,7 @@ void main(){
 
   // Un rayon qui n'a pas fui après tous ces pas et se traîne encore au fond du
   // puits est capturé : lui attribuer le ciel remplirait l'ombre d'étoiles.
-  if(!avale && y.x < 8.0) avale = true;   // r<8 : trop profond pour ressortir
+  if(!avale && y.x < uSeuilCapture) avale = true;
 
   // Le ciel d'étoiles reste comme repère, mais il s'efface hors du visible :
   // en radio ou en X, ce ne sont pas les mêmes sources qui brillent.
@@ -999,7 +1003,8 @@ const uRes = U("uRes"), uTemps = U("uTemps"), uCam = U("uCam"), uBasis = U("uBas
       uFocal = U("uFocal"), uPhotons = U("uPhotons"), uNbPhotons = U("uNbPhotons"),
       uVitesse = U("uVitesse"), uReel = U("uReel"),
       uSpectre = U("uSpectre"), uRphoto = U("uRphoto"),
-      uTeinte = U("uTeinte"), uEclat = U("uEclat"), uSpin = U("uSpin");
+      uTeinte = U("uTeinte"), uEclat = U("uEclat"), uSpin = U("uSpin"),
+      uSteps = U("uSteps"), uPas = U("uPas"), uSeuilCapture = U("uSeuilCapture");
 
 // ============ vecteurs ============
 const cross = (u,v) => [u[1]*v[2]-u[2]*v[1], u[2]*v[0]-u[0]*v[2], u[0]*v[1]-u[1]*v[0]];
@@ -1394,6 +1399,9 @@ let visee = null, pivot = null;
 // Spin réduit a* = a/M, dans [0, 1[. À 0 la métrique redevient Schwarzschild —
 // c'est le contrôle permanent du moteur de Kerr.
 let spin = 0;
+// Réglages d'intégration, mesurables : on arbitre coût contre justesse avec
+// des chiffres, pas au jugé.
+let nbPas = 400, finesse = 0.010, seuilCapture = 1.2;
 
 // Une sonde réelle serait invisible : à cette échelle, un vaisseau fait
 // quelques millionièmes de pixel. On assume donc de la grossir, et on laisse
@@ -2678,6 +2686,9 @@ function boucle(now){
   gl.uniform1f(uReel, reel);
   gl.uniform1f(uSpectre, spectreActif ? 1 : 0);
   gl.uniform1f(uSpin, spin*M);            // spin réduit a* -> a
+  gl.uniform1i(uSteps, nbPas);
+  gl.uniform1f(uPas, finesse);
+  gl.uniform1f(uSeuilCapture, seuilCapture);
   if(spectreActif){
     gl.uniform1f(uRphoto, rPhotosphere(lgLambda));
     gl.uniform3fv(uTeinte, COUL_BANDE[bandeA(lgLambda).id] || [1,1,1]);
