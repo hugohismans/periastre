@@ -36,12 +36,17 @@ function ajoute(o){
 function parcours(x){
   if(Array.isArray(x)) x.forEach(parcours);
   else if(x && typeof x === "object"){
-    if(typeof x.id === "string") ajoute(x);
+    // une mission porte un `id` mais pas de texte : sa réplique est dans
+    // `reussi`, donc on continue à descendre au lieu de s'arrêter sur l'id
+    if(typeof x.id === "string" && (x.t || x.dire)) ajoute(x);
     else Object.values(x).forEach(parcours);
   }
 }
 
+// Toute section porteuse de répliques doit figurer ici, sinon la voix est
+// silencieusement absente — c'est arrivé une fois avec les missions.
 parcours(C.reactions);
 parcours(C.questions);
+parcours(C.missions);
 
 console.log(JSON.stringify({ voix: C.voix, lignes }, null, 1));

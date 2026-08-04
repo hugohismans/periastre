@@ -193,6 +193,77 @@ reactions: {
   ],
 },
 
+// ------------------------------------------------------------- missions
+// Une mission = un geste, et une seule chose comprise à la fin. Pas de points,
+// pas de badges : la récompense est que quelque chose se passe à l'écran et
+// qu'on sache pourquoi. C'est la porte d'entrée pour qui ne connaît rien.
+// La vérification vit dans index.html, indexée par `id`.
+missions: [
+{
+  id: "m-chute",
+  titre: "Fais tomber quelque chose",
+  consigne: "Pose ton doigt sur le disque orange et tire <b>tout doucement</b>, puis lâche.",
+  reussi: { id:"m-chute-ok",
+    t:`Regarde-la bien : elle ne traverse pas. Vue d'ici elle ralentit, rougit, et s'éteint sur le bord. <b>Rien ne franchit jamais l'horizon</b>, pour nous qui regardons de loin.`,
+    dire:`Regarde-la bien : elle ne traverse pas. Vue d'ici, elle ralentit, rougit, et s'éteint sur le bord. Rien ne franchit jamais l'horizon, pour nous qui regardons de loin.`,
+    sources:["misner1973"] },
+},
+{
+  id: "m-orbite",
+  titre: "Maintenant, mets-en une en orbite",
+  consigne: "Recommence, mais tire <b>plus fort</b>. Le trait devient vert quand la vitesse est bonne.",
+  reussi: { id:"m-orbite-ok",
+    t:`Voilà. Ce qui décide de tout, ce n'est pas la distance — c'est la <b>vitesse</b>. Trop lent on tombe, trop vite on s'en va. Une orbite, c'est une chute qui rate sa cible pour toujours.`,
+    dire:`Voilà. Ce qui décide de tout, ce n'est pas la distance, c'est la vitesse. Trop lent on tombe, trop vite on s'en va. Une orbite, c'est une chute qui rate sa cible pour toujours.`,
+    sources:["bardeen1972"] },
+},
+{
+  id: "m-pluie",
+  titre: "Lâche-en quatre-vingts d'un coup",
+  consigne: "Le bouton <b>Lâcher 80 sondes</b>, en bas. Puis regarde les couleurs.",
+  reussi: { id:"m-pluie-ok",
+    t:`Trois destins, une seule différence : la vitesse de départ. <i>Bleu</i> elles tiennent, <i>rose</i> elles tombent, <i>vert</i> elles s'échappent. Appuie sur <b>Trajectoires</b> pour voir leur avenir déjà tracé.`,
+    dire:`Trois destins, une seule différence : la vitesse de départ. Bleu elles tiennent, rose elles tombent, vert elles s'échappent. Appuie sur Trajectoires pour voir leur avenir, déjà tracé.`,
+    sources:["bardeen1972"] },
+},
+{
+  id: "m-limite",
+  titre: "Trouve la limite",
+  consigne: "Essaie de mettre une sonde en orbite <b>très près</b>, à l'intérieur du cercle en pointillés.",
+  reussi: { id:"m-limite-ok",
+    t:`Tu n'y arriveras pas, et ce n'est pas un défaut du jeu. Sous cette limite, <b>aucune orbite ne tient</b>, quelle que soit ta vitesse. Autour d'une étoile ça n'existe pas. Autour d'un trou noir, si.`,
+    dire:`Tu n'y arriveras pas, et ce n'est pas un défaut du jeu. Sous cette limite, aucune orbite ne tient, quelle que soit ta vitesse. Autour d'une étoile, ça n'existe pas. Autour d'un trou noir, si.`,
+    sources:["bardeen1972"] },
+},
+{
+  id: "m-photon",
+  titre: "Lance un rayon de lumière",
+  consigne: "Bouton <b>Photon</b>. Puis passe la vitesse du temps sur <b>temps réel</b>, dans le rouage.",
+  reussi: { id:"m-photon-ok",
+    t:`Prends ton temps, il en a pour <b>onze minutes et demie</b> — un seul tour. La lumière est ce qu'il y a de plus rapide dans l'univers, et ici elle a l'air lente. C'est que ce truc est <i>énorme</i>.`,
+    dire:`Prends ton temps, il en a pour onze minutes et demie. Un seul tour. La lumière est ce qu'il y a de plus rapide dans l'univers, et ici elle a l'air lente. C'est que ce truc est énorme.`,
+    sources:["gravity2021","chandrasekhar1983"] },
+},
+{
+  id: "m-reel",
+  titre: "Éteins la lumière",
+  consigne: "Dans le rouage, appuie sur <b>Lumière réelle</b>. Et cherche le trou noir.",
+  reussi: { id:"m-reel-ok",
+    t:`Il est toujours là. Le beau disque orange, en vrai, tu ne le verrais <b>pas</b> : il brille dans des ondes que l'œil ne capte pas. Ce qui le trahit, ce sont les étoiles <i>tordues</i> autour de lui. C'est comme ça qu'on les cherche vraiment.`,
+    dire:`Il est toujours là. Le beau disque orange, en vrai, tu ne le verrais pas : il brille dans des ondes que l'œil ne capte pas. Ce qui le trahit, ce sont les étoiles tordues autour de lui. C'est comme ça qu'on les cherche, vraiment.`,
+    sources:["yuan2014","eht2022"] },
+},
+{
+  id: "m-bord",
+  titre: "Monte à bord",
+  consigne: "Bouton <b>Monter à bord</b>. Tu prends la place de la sonde.",
+  reussi: { id:"m-bord-ok",
+    t:`Regarde le cadran « temps qui passe ». Il est <b>en dessous de 100 %</b> : ici, ton temps s'écoule plus lentement qu'ailleurs. Ce n'est pas une impression. Tu vieillis moins vite que quelqu'un resté loin.`,
+    dire:`Regarde le cadran « temps qui passe ». Il est en dessous de cent pour cent : ici, ton temps s'écoule plus lentement qu'ailleurs. Ce n'est pas une impression. Tu vieillis moins vite que quelqu'un resté loin.`,
+    sources:["misner1973","gravity2018"] },
+},
+],
+
 questions: [
 { q:"C'est quoi un trou noir, exactement ?", niv:[
   { id:"q1-0", t:`De la matière tellement tassée que plus rien ne peut s'en échapper, <b>même pas la lumière</b>. Ce n'est ni un trou ni un aspirateur : juste un endroit d'où on ne revient pas.` },

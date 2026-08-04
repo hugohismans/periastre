@@ -73,6 +73,28 @@
   }
   #rouage.actif { background:rgba(127,216,255,.20); border-color:rgba(127,216,255,.5); }
 
+  /* ---- missions ---- */
+  #mission {
+    top:26px; left:50%; transform:translateX(-50%); width:min(376px, 88vw);
+    pointer-events:auto; position:fixed; z-index:2;
+    background:rgba(10,8,20,.66); backdrop-filter:blur(15px);
+    border:1px solid rgba(255,255,255,.12); border-radius:12px; padding:12px 34px 13px 14px;
+    transition:border-color .3s, opacity .3s;
+  }
+  #mission.fini { border-color:rgba(110,255,180,.5); background:rgba(14,26,20,.66); }
+  #mission.parti { opacity:0; pointer-events:none; }
+  #m-num { font-size:8.5px; letter-spacing:.2em; text-transform:uppercase; color:#7d7894; }
+  #m-titre { font-size:13.5px; font-weight:600; color:#fff; margin:6px 0 5px; line-height:1.3; }
+  #m-consigne { font-size:11.5px; line-height:1.6; color:#b5b0c9; }
+  #m-consigne b { color:#e4e0f0; }
+  #m-fermer {
+    position:absolute; top:9px; right:9px; width:22px; height:22px; padding:0;
+    border-radius:6px; font-size:11px; display:grid; place-items:center;
+  }
+  #m-jauge { display:flex; gap:4px; margin-top:10px; }
+  #m-jauge i { flex:1; height:2px; border-radius:1px; background:rgba(255,255,255,.14); }
+  #m-jauge i.ok { background:#6effb4; }
+
   /* ---- barre d'actions ---- */
   #dock {
     bottom:24px; left:50%; transform:translateX(-50%); pointer-events:auto;
@@ -269,7 +291,10 @@
     }
     #dock::-webkit-scrollbar { display:none; }
     #dock button { padding:9px 12px; font-size:11px; white-space:nowrap; }
-    #lecture-flottant { bottom:64px; left:10px; right:10px; transform:none; max-width:none; }
+    #lecture-flottant { display:none; }
+
+    /* en haut il n'y a plus la place : la mission passe au-dessus de la barre */
+    #mission { top:auto; bottom:64px; left:10px; right:10px; width:auto; transform:none; }
   }
 </style>
 </head>
@@ -310,6 +335,14 @@
   <button id="rouage" title="Réglages — Échap">⚙</button>
 </div>
 
+<div id="mission">
+  <button id="m-fermer" title="Masquer les missions">✕</button>
+  <div id="m-num"></div>
+  <div id="m-titre"></div>
+  <div id="m-consigne"></div>
+  <div id="m-jauge"></div>
+</div>
+
 <div class="hud" id="dock">
   <button id="b-pluie">Lâcher 80 sondes</button>
   <button id="b-photon">Photon</button>
@@ -334,6 +367,10 @@
   <div class="bloc">
     <div class="etiq">Voix de Lumen</div>
     <div class="grille" id="voix-choix"></div>
+  </div>
+  <div class="bloc">
+    <div class="etiq">Guide</div>
+    <div class="rangee"><button id="b-missions">Missions</button></div>
   </div>
   <div class="bloc"><button id="b-methode">Pourquoi c'est exact ?</button></div>
 </div>
@@ -881,10 +918,13 @@ function destin(p0, v0){
   return { sort, chemin };
 }
 
+let essaisPres = 0;      // tentatives lancées sous la dernière orbite stable
+
 function lance(p, v){
   const { sort, chemin } = destin(p, v);
+  if(len(p) < R_ISCO - 0.1) essaisPres++;
   if(sondes.length >= MAX_SONDES) sondes.shift();
-  sondes.push({ p:[...p], v:[...v], sort, chemin, trace:[] });
+  sondes.push({ p:[...p], v:[...v], sort, chemin, age:0, trace:[] });
 }
 
 function pluie(n = 80){
@@ -912,16 +952,27 @@ function pluie(n = 80){
 const photons = [];
 
 function lancePhoton(){
-  // juste au-dessus de la sphère des photons, tangentiellement : l'orbite est
-  // instable, il fait quelques tours puis part. Placé face à la caméra.
+  // La sphère des photons est une crête : du bon côté le rayon s'échappe après
+  // quelques tours, du mauvais il tombe. On tire donc chaque fois d'un point et
+  // dans un sens différents — deux photons voisins ont des destins opposés,
+  // et c'est précisément ce qu'il faut montrer.
+  //
   // Les conditions initiales passent par rayonDepuis : poser naïvement |d| = 1
-  // donne h² = r² = 2,25 au lieu de b_c² = 6,75, et fait tourner le photon
-  // √3 fois trop vite.
-  const a = cam.azim;
-  const p = [ Math.cos(a)*R_PHOTON*1.008, 0, Math.sin(a)*R_PHOTON*1.008 ];
-  const r = rayonDepuis(p, norm(cross([0,1,0], p)));
+  // donnerait h² = r² = 2,25 au lieu de b_c² = 6,75, et ferait tourner le
+  // photon √3 fois trop vite.
+  const a = Math.random()*6.2832;
+  const r = R_PHOTON * (0.975 + Math.random()*0.07);
+  const p = [ Math.cos(a)*r, 0, Math.sin(a)*r ];
+  const sens = Math.random() < 0.5 ? 1 : -1;          // prograde ou rétrograde
+  const t = norm(cross([0,1,0], p)), rh = norm(p);
+  const vise = norm([
+    sens*t[0] + rh[0]*(Math.random()-0.5)*0.13,
+    (Math.random()-0.5)*0.45,                          // un peu hors du plan
+    sens*t[2] + rh[2]*(Math.random()-0.5)*0.13,
+  ]);
+  const ray = rayonDepuis(p, vise);
   if(photons.length >= 4) photons.shift();
-  photons.push({ p, d:r.d, h2:r.h2, temps:0, angle:0, trace:[] });
+  photons.push({ p, d:ray.d, h2:ray.h2, temps:0, angle:0, trace:[] });
 }
 
 // ============ temps ============
@@ -955,6 +1006,7 @@ function avance(dtSec){
       const [np, nv] = integre(s.p, s.v, pasEff);
       s.p = np; s.v = nv;
     }
+    s.age += dtSec;
     s.trace.push([s.p[0], s.p[1], s.p[2]]);
     if(s.trace.length > 46) s.trace.shift();
 
@@ -1161,6 +1213,14 @@ cv.addEventListener("wheel", e => {
   e.preventDefault();
   cam.dist = Math.max(6, Math.min(46, cam.dist * (1 + Math.sign(e.deltaY)*0.09)));
 }, { passive:false });
+
+$("b-missions").onclick = () => {
+  missionsActives = !missionsActives;
+  if(missionsActives && iMission >= MISSIONS.length) iMission = 0;
+  $("b-missions").classList.toggle("actif", missionsActives);
+  majMission();
+};
+$("b-missions").classList.add("actif");
 
 // ---- rouage et repli du cours ----
 $("rouage").onclick = () => {
@@ -1528,6 +1588,70 @@ function veilleLumen(now){
 }
 
 setTimeout(() => reagit("accueil"), 1400);
+
+// ============ missions ============
+// La porte d'entrée pour qui ne connaît rien : un geste, une chose comprise.
+// Chaque condition lit l'état réel du jeu — rien n'est validé sans l'être.
+const MISSIONS = CONTENU.missions;
+
+const VERIFS = {
+  "m-chute":  () => nChute > 0,
+  "m-orbite": () => sondes.some(s => s.sort === "orbite" && !s.gel && s.age > 4),
+  "m-pluie":  () => sondes.length >= 50,
+  "m-limite": () => essaisPres >= 1,
+  "m-photon": () => photons.length > 0 && iVitesse === 0,
+  "m-reel":   () => reelCible > 0.5,
+  "m-bord":   () => sondeSuivie !== null,
+};
+
+let iMission = 0, missionFinie = false, tMission = 0, missionsActives = true;
+
+function majMission(){
+  const el = $("mission");
+  if(!missionsActives || iMission >= MISSIONS.length){
+    el.classList.add("parti");
+    return;
+  }
+  const m = MISSIONS[iMission];
+  el.classList.remove("parti");
+  $("m-num").textContent = `Mission ${iMission+1} sur ${MISSIONS.length}`;
+  $("m-titre").textContent = m.titre;
+  $("m-consigne").innerHTML = m.consigne;
+  $("m-jauge").innerHTML = MISSIONS.map((_, i) =>
+    `<i class="${i < iMission ? "ok" : ""}"></i>`).join("");
+}
+
+function veilleMission(now){
+  if(!missionsActives || iMission >= MISSIONS.length) return;
+  if(missionFinie){
+    if(now - tMission > 4200){          // le temps de lire la chute
+      missionFinie = false;
+      iMission++;
+      $("mission").classList.remove("fini");
+      majMission();
+    }
+    return;
+  }
+  const m = MISSIONS[iMission];
+  const v = VERIFS[m.id];
+  if(v && v()){
+    missionFinie = true;
+    tMission = now;
+    $("mission").classList.add("fini");
+    $("m-num").textContent = "Réussi";
+    $("m-consigne").innerHTML = "";
+    $("m-jauge").innerHTML = MISSIONS.map((_, i) =>
+      `<i class="${i <= iMission ? "ok" : ""}"></i>`).join("");
+    dit(m.reussi, 12000);
+  }
+}
+
+$("m-fermer").onclick = () => {
+  missionsActives = false;
+  majMission();
+  $("b-missions").classList.remove("actif");
+};
+majMission();
 
 // ============ dossier « pourquoi c'est exact » ============
 const METHODE = [
@@ -2063,6 +2187,7 @@ function boucle(now){
   majLecture();
 
   veilleLumen(now);
+  veilleMission(now);
 
   if(tFlash && now - tFlash > 90)   { elFlash.style.opacity = "0"; tFlash = 0; }
   if(tMsg   && now - tMsg   > 1100) { elMsg.style.opacity   = "0"; tMsg   = 0; }
