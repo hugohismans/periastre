@@ -109,6 +109,19 @@ sources: {
     ref: "S. Chandrasekhar, The Mathematical Theory of Black Holes, Oxford University Press (1983), chap. 3",
     sert: "Équation des géodésiques (forme de Binet) pour Schwarzschild, sphère des photons à 3GM/c²",
   },
+  bussard1960: {
+    ref: "R. W. Bussard, « Galactic Matter and Interstellar Flight », Astronautica Acta 6, 179-194 (1960)",
+    sert: "Statoréacteur interstellaire : collecter l'hydrogène du milieu interstellaire, le fusionner, l'éjecter — donc ne pas emporter son carburant",
+  },
+  zubrin1989: {
+    ref: "D. G. Andrews, R. M. Zubrin, « Magnetic Sails and Interstellar Travel », Journal of the British Interplanetary Society 43, 265-272 (1990) ; voir aussi A. Bond, JBIS 27, 674 (1974)",
+    sert: "Le collecteur magnétique du statoréacteur produit plus de traînée que de poussée : le concept freine au lieu d'accélérer",
+  },
+  dyson1968: {
+    ref: "F. J. Dyson, « Interstellar Transport », Physics Today 21, 10, 41-45 (1968) ; et A. Bond et al., « Project Daedalus », JBIS Supplement (1978)",
+    doi: "10.1063/1.3034534",
+    sert: "Propulsion nucléaire pulsée (Orion) et fusion pulsée (Daedalus) : les seuls concepts à l'échelle de l'ingénierie, ~3 à 12 % de c",
+  },
   misner1973: {
     ref: "C. W. Misner, K. S. Thorne, J. A. Wheeler, Gravitation, W. H. Freeman (1973), §25 et §31",
     sert: "Marées en M/r³, chute libre régulière à travers l'horizon, temps propre maximal πGM/c³",
@@ -212,6 +225,12 @@ reactions: {
     { id:"inactif-7", t:`Avec la même poussée d'<i>1 g</i>, Andromède est à <b>28,6 ans</b> de vie. Deux millions et demi d'années-lumière. La distance ne compte presque plus, parce que ton temps se contracte avec elle — reste le carburant, et là c'est sans espoir.`,
       dire:`Avec la même poussée d'un g, Andromède est à vingt-huit ans et demi de vie. Deux millions et demi d'années-lumière. La distance ne compte presque plus, parce que ton temps se contracte avec elle. Reste le carburant, et là, c'est sans espoir.`,
       sources:["misner1973"] },
+    { id:"inactif-8", t:`Le carburant, justement. Même une fusée <b>à photons parfaite</b> — toute sa masse changée en lumière — devrait en annihiler <i>758 000 tonnes</i> pour qu'un seul kilo arrive ici. Avec de la fusion, le rapport dépasse la masse de l'univers observable.`,
+      dire:`Le carburant, justement. Même une fusée à photons parfaite, toute sa masse changée en lumière, devrait en annihiler sept cent cinquante-huit mille tonnes pour qu'un seul kilo arrive ici. Avec de la fusion, le rapport dépasse la masse de l'univers observable.`,
+      sources:["misner1973","dyson1968"] },
+    { id:"inactif-9", t:`D'où l'idée de <b>Bussard</b>, en 1960 : ne pas emporter son carburant, mais le ramasser en route avec un immense filet magnétique. Élégant. Sauf qu'on a montré depuis que ce filet <i>freine plus qu'il ne pousse</i>.`,
+      dire:`D'où l'idée de Bussard, en 1960 : ne pas emporter son carburant, mais le ramasser en route avec un immense filet magnétique. Élégant. Sauf qu'on a montré depuis que ce filet freine plus qu'il ne pousse.`,
+      sources:["bussard1960","zubrin1989"] },
   ],
 },
 
