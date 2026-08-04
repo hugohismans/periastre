@@ -639,6 +639,44 @@
   </div>
 </div>
 
+<script id="vs-salon" type="x-shader">#version 300 es
+in vec3 aPos; in vec3 aNor; in vec3 aTei;
+uniform mat4 uMVP;
+out vec3 vNor; out vec3 vTei; out vec3 vPos;
+void main(){
+  gl_Position = uMVP * vec4(aPos, 1.0);
+  vNor = aNor; vTei = aTei; vPos = aPos;
+}
+</script>
+
+<script id="fs-salon" type="x-shader">#version 300 es
+precision highp float;
+in vec3 vNor; in vec3 vTei; in vec3 vPos;
+out vec4 oCoul;
+uniform vec3 uVersAstre;   // direction de la baie, en coordonnées de la pièce
+
+void main(){
+  vec3 n = normalize(vNor);
+
+  // L'astre est la seule vraie source : la lumière vient de la baie. Tout ce
+  // qui lui tourne le dos reste dans le noir, et c'est ce qui donne le relief.
+  float k = max(dot(n, uVersAstre), 0.0);
+
+  // Un rappel froid au plafond, pour que la pièce ne soit pas plate là où
+  // l'astre ne porte pas.
+  float ciel = max(-n.y, 0.0)*0.25 + 0.06;
+
+  vec3 c = vTei * (0.18 + 1.5*k) + vec3(0.05,0.05,0.09)*ciel;
+
+  // Les surfaces proches de la baie captent davantage — la lumière décroît.
+  float d = clamp(1.0 - (vPos.z + 3.25)/7.0, 0.0, 1.0);
+  c *= 0.55 + 0.75*d;
+
+  c = pow(clamp(c, 0.0, 1.0), vec3(1.0/2.2));
+  oCoul = vec4(c, 1.0);
+}
+</script>
+
 <script id="vs" type="x-shader">#version 300 es
 in vec2 aPos;
 void main(){ gl_Position = vec4(aPos, 0.0, 1.0); }
@@ -1125,6 +1163,7 @@ void main(){
 
 <script src="contenu.js"></script>
 <script src="kerr.js"></script>
+<script src="vaisseau.js"></script>
 <script>
 "use strict";
 
@@ -1159,18 +1198,30 @@ function compile(type, src){
   if(!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s));
   return s;
 }
-const prog = gl.createProgram();
-gl.attachShader(prog, compile(gl.VERTEX_SHADER,   document.getElementById("vs").textContent));
-gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, document.getElementById("fs").textContent));
-gl.linkProgram(prog);
-if(!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(prog));
+// Deux programmes cohabitent désormais : le lancer de rayons et l'habitacle.
+function programme(vs, fs, attributs){
+  const p = gl.createProgram();
+  gl.attachShader(p, compile(gl.VERTEX_SHADER, vs));
+  gl.attachShader(p, compile(gl.FRAGMENT_SHADER, fs));
+  (attributs || []).forEach((nom, i) => gl.bindAttribLocation(p, i, nom));
+  gl.linkProgram(p);
+  if(!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p));
+  return p;
+}
+
+const prog = programme(document.getElementById("vs").textContent,
+                       document.getElementById("fs").textContent, ["aPos"]);
 gl.useProgram(prog);
 
-gl.bindVertexArray(gl.createVertexArray());
+// Le triangle plein écran garde son propre VAO : l'habitacle a le sien, et
+// chaque passe rebranche le bon avant de dessiner.
+const vaoPlein = gl.createVertexArray();
+gl.bindVertexArray(vaoPlein);
 gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
 gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 3,-1, -1,3]), gl.STATIC_DRAW);
 gl.enableVertexAttribArray(0);
 gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+gl.bindVertexArray(null);
 
 const U = n => gl.getUniformLocation(prog, n);
 const uRes = U("uRes"), uTemps = U("uTemps"), uCam = U("uCam"), uBasis = U("uBasis"),
@@ -1180,6 +1231,57 @@ const uRes = U("uRes"), uTemps = U("uTemps"), uCam = U("uCam"), uBasis = U("uBas
       uTeinte = U("uTeinte"), uEclat = U("uEclat"), uSpin = U("uSpin"),
       uSteps = U("uSteps"), uPas = U("uPas"), uSeuilCapture = U("uSeuilCapture"),
       uRin = U("uRin");
+
+// ============ le salon ============
+// Deux passes : le lancer de géodésiques d'abord, l'habitacle par-dessus avec
+// test de profondeur. La baie n'est pas un objet — c'est l'absence de
+// géométrie. Les deux passes partagent la caméra et le champ, donc la
+// perspective s'aligne d'elle-même.
+const salon = { actif:false, rayon:32, phase:0.4, lacet:0, tangage:0 };
+
+const progSalon = programme(
+  document.getElementById("vs-salon").textContent,
+  document.getElementById("fs-salon").textContent,
+  ["aPos", "aNor", "aTei"]);
+const uMVP = gl.getUniformLocation(progSalon, "uMVP");
+const uVersAstre = gl.getUniformLocation(progSalon, "uVersAstre");
+VAISSEAU.construit(gl);
+
+// Repère du regard dans la pièce. Avant = −z, la baie est de ce côté.
+function regardSalon(){
+  const cl = Math.cos(salon.lacet), sl = Math.sin(salon.lacet);
+  const ct = Math.cos(salon.tangage), st = Math.sin(salon.tangage);
+  const av = [ ct*sl, st, -ct*cl ];
+  const dr = [ cl, 0, sl ];
+  return { av, dr, ht: [dr[1]*av[2]-dr[2]*av[1], dr[2]*av[0]-dr[0]*av[2], dr[0]*av[1]-dr[1]*av[0]] };
+}
+
+// Matrice caméra de l'habitacle, avec le MÊME champ que le lancer de rayons :
+// tan(demi-champ) = 1/uFocal. C'est ce qui garantit que l'astre vu par la baie
+// est exactement à sa place.
+function mvpSalon(){
+  const { av, dr, ht } = regardSalon();
+  const oeil = [0, VAISSEAU.OEIL, 1.4];
+  const f = FOCAL, aspect = cv.width/cv.height;
+  const pres = 0.05, loin = 200;
+  const nf = 1/(pres - loin);
+  const P = [ f/aspect,0,0,0,  0,f,0,0,  0,0,(loin+pres)*nf,-1,  0,0,2*loin*pres*nf,0 ];
+  const V = [
+    dr[0], ht[0], -av[0], 0,
+    dr[1], ht[1], -av[1], 0,
+    dr[2], ht[2], -av[2], 0,
+    -(dr[0]*oeil[0]+dr[1]*oeil[1]+dr[2]*oeil[2]),
+    -(ht[0]*oeil[0]+ht[1]*oeil[1]+ht[2]*oeil[2]),
+     (av[0]*oeil[0]+av[1]*oeil[1]+av[2]*oeil[2]), 1,
+  ];
+  const M = new Float32Array(16);
+  for(let i=0;i<4;i++) for(let j=0;j<4;j++){
+    let s = 0;
+    for(let k=0;k<4;k++) s += P[k*4+j]*V[i*4+k];
+    M[i*4+j] = s;
+  }
+  return M;
+}
 
 // ============ vecteurs ============
 const cross = (u,v) => [u[1]*v[2]-u[2]*v[1], u[2]*v[0]-u[0]*v[2], u[0]*v[1]-u[1]*v[0]];
@@ -1197,7 +1299,28 @@ let sondeSuivie = null;
 const regard = { lacet: 0, tangage: 0 };
 let vitesseLocale = [0, 0, 0];
 
+// Depuis le salon, la caméra est celle d'une personne debout derrière la baie.
+// Le vaisseau orbite lentement, en temps réel — le salon ne triche pas.
+function majCameraSalon(){
+  const P = [Math.cos(salon.phase)*salon.rayon, 0, Math.sin(salon.phase)*salon.rayon];
+  camPos = P;
+  // Repère de la pièce dans le monde : l'avant, donc la baie, regarde l'astre.
+  const f  = norm([-P[0], -P[1], -P[2]]);
+  const d0 = norm(cross(f, [0,1,0]));
+  const h0 = cross(d0, f);
+  // Le regard tourne dans ce repère, exactement comme dans la pièce.
+  const { av, dr } = regardSalon();
+  const versMonde = v => [
+    v[0]*d0[0] + v[1]*h0[0] - v[2]*f[0],
+    v[0]*d0[1] + v[1]*h0[1] - v[2]*f[1],
+    v[0]*d0[2] + v[1]*h0[2] - v[2]*f[2],
+  ];
+  const a = norm(versMonde(av)), d = norm(versMonde(dr));
+  basis = { d, h: cross(d, a), a };
+}
+
 function majCamera(){
+  if(salon.actif){ majCameraSalon(); return; }
   if(sondeSuivie !== null && sondes[sondeSuivie]){ majCameraSonde(); return; }
   sondeSuivie = null;
   vitesseLocale = [0, 0, 0];
@@ -3022,6 +3145,9 @@ function boucle(now){
   gl.uniform1i(uNbPhotons, Math.min(photons.length, 4));
   gl.uniform3fv(uVitesse, vitesseLocale);
   gl.uniform1f(uReel, reel);
+  gl.useProgram(prog);
+  gl.bindVertexArray(vaoPlein);
+  gl.disable(gl.DEPTH_TEST);
   gl.uniform1f(uSpectre, spectreActif ? 1 : 0);
   gl.uniform1f(uSpin, spin*M);            // spin réduit a* -> a
   gl.uniform1i(uSteps, nbPas);
@@ -3037,6 +3163,19 @@ function boucle(now){
     gl.uniform1f(uEclat, eclatA(lgLambda));
   }
   gl.drawArrays(gl.TRIANGLES, 0, 3);
+
+  // Seconde passe : l'habitacle par-dessus. Le tampon de profondeur part
+  // vierge, donc tout ce qui a de la géométrie recouvre le fond — et la baie,
+  // qui n'en a pas, laisse passer l'astre.
+  if(salon.actif){
+    gl.clear(gl.DEPTH_BUFFER_BIT);
+    gl.enable(gl.DEPTH_TEST);
+    gl.useProgram(progSalon);
+    gl.uniformMatrix4fv(uMVP, false, mvpSalon());
+    gl.uniform3f(uVersAstre, 0, 0, -1);      // la baie est en −z dans la pièce
+    VAISSEAU.dessine(gl);
+    gl.disable(gl.DEPTH_TEST);
+  }
 
   dessine();
 

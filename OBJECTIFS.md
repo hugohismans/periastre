@@ -34,6 +34,38 @@ prochaine et le nuage d'Oort du mois suivant sont le même objet — une scène
 avec sa plage d'échelles, ses fiches et son rendu. C'est exactement le contrat
 de scène décrit plus bas : il a été pensé pour le dézoom, il sert aussi à ça.
 
+## Avatars, monnaie et progression
+
+Ce qu'Hugo veut : un personnage qu'on habille, des tenues à débloquer ou
+acheter avec une monnaie gagnée en missions, des quêtes journalières. Des
+personnages **à la Kerbal Space Program** — un peu extraterrestres, un peu
+drôles. Et une figure de mentor, « gardien de l'espace », qui transmet son
+savoir.
+
+**Sur les modèles 3D, la réponse honnête.** Je ne peux pas aller chercher des
+modèles sur une banque d'assets : je n'ai pas de quoi vérifier les licences, et
+un modèle mal licencié sur un site public est un vrai problème. Mais ce n'est
+pas une limite ici, c'est une chance : le style Kerbal est fait de **formes
+simples** — capsule, sphère, cylindres. Il se génère très bien par le calcul,
+comme tout le reste du site. Cela garde la promesse « ce que tu vois est
+calculé », évite toute question de droits, et pèse quelques kilo-octets au lieu
+de plusieurs mégas.
+
+**Sur la monnaie, une réserve de méthode.** La valeur de ce site est sa rigueur
+et l'émerveillement qu'elle produit. Une boucle de récompense mal posée la
+dégrade : si on gagne des pièces en cliquant, on clique au lieu de comprendre.
+
+La règle que je propose, et qui prolonge ce qui plaît déjà — la mémoire garde
+« ce qui a été compris » : **on ne débloque qu'en comprenant**. La monnaie ne
+se gagne pas au temps passé ni au nombre de clics, mais à la mission validée,
+à la question posée, au « d'où ça sort ? » ouvert. Une quête journalière est
+alors une invitation à comprendre une chose de plus, pas une corvée de retour.
+
+**Lumen est déjà le mentor.** Plutôt qu'inventer une seconde figure, il prend
+corps dans le salon : il flotte près de la baie, il commente, et c'est lui qui
+remet les tenues. Un photon qui tourne autour du trou noir depuis toujours et
+qui transmet ce qu'il a vu — c'est déjà un gardien de l'espace.
+
 ## Le salon, et ce qu'il impose
 
 La forme visée : on arrive **dans le salon d'un vaisseau**, en orbite. Par le
