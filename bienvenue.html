@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Périastre — tu veux bien tester ?</title>
+<meta name="color-scheme" content="dark light">
+<meta name="description" content="Une simulation de Sagittarius A* calculée avec les équations d'Einstein.">
+<style>*,*::before,*::after{box-sizing:border-box}body{margin:0}img{max-width:100%}</style>
+</head>
+<body>
+<style>
+:root{
+  --fond:#0a0a0d; --fond-2:#101015; --trait:#22222c;
+  --texte:#e8e5e0; --sourdine:#9a958e;
+  --ambre:#ff9a3c; --ambre-sourd:#c9762c;
+  --vert:#6fbf8f; --rouge:#e0674f;
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+  --sans:"Inter var",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  --mono:ui-monospace,"SF Mono","Cascadia Mono","Roboto Mono",Menlo,monospace;
+}
+@media (prefers-color-scheme: light){
+  :root{ --fond:#f5f2ec; --fond-2:#ebe7df; --trait:#d6d0c4;
+         --texte:#191713; --sourdine:#645e55;
+         --ambre:#a8560d; --ambre-sourd:#8a480c; --vert:#2c6b45; --rouge:#a83a22; }
+}
+:root[data-theme="dark"]{
+  --fond:#0a0a0d; --fond-2:#101015; --trait:#22222c;
+  --texte:#e8e5e0; --sourdine:#9a958e;
+  --ambre:#ff9a3c; --ambre-sourd:#c9762c; --vert:#6fbf8f; --rouge:#e0674f;
+}
+:root[data-theme="light"]{
+  --fond:#f5f2ec; --fond-2:#ebe7df; --trait:#d6d0c4;
+  --texte:#191713; --sourdine:#645e55;
+  --ambre:#a8560d; --ambre-sourd:#8a480c; --vert:#2c6b45; --rouge:#a83a22;
+}
+
+body{ background:var(--fond); color:var(--texte); font-family:var(--sans);
+      font-size:17px; line-height:1.65; -webkit-font-smoothing:antialiased;
+      overflow-x:hidden; }
+.page{ max-width:42rem; margin:0 auto; padding:0 1.4rem 5rem; }
+h1,h2{ font-family:var(--serif); font-weight:400; text-wrap:balance; }
+h2{ font-size:1.75rem; line-height:1.2; margin:0 0 .5rem; letter-spacing:-.01em; }
+p{ margin:0 0 1rem; }
+a{ color:var(--ambre); }
+strong{ font-weight:600; }
+em{ font-style:italic; color:var(--sourdine); }
+
+.eyebrow{ font-family:var(--mono); font-size:.7rem; letter-spacing:.16em;
+  text-transform:uppercase; color:var(--ambre-sourd); margin:0 0 1.5rem; }
+.tete{ padding:4.5rem 0 2.5rem; }
+.tete h1{ font-size:clamp(2.2rem,6.5vw,3.4rem); line-height:1.05;
+  letter-spacing:-.02em; margin:0 0 1.2rem; }
+.chapo{ font-size:1.1rem; color:var(--sourdine); max-width:33rem; }
+
+section{ padding:2.6rem 0; border-top:1px solid var(--trait); }
+.intro{ color:var(--sourdine); margin-bottom:1.4rem; max-width:33rem; }
+
+/* ---- le protocole, en étapes numérotées : ici l'ordre compte vraiment ---- */
+.etapes{ list-style:none; counter-reset:e; margin:1.4rem 0 0; padding:0; }
+.etapes li{ counter-increment:e; position:relative; padding:0 0 1.5rem 3rem; }
+.etapes li::before{
+  content:counter(e); position:absolute; left:0; top:-.1rem;
+  width:2rem; height:2rem; border-radius:50%; display:grid; place-items:center;
+  font-family:var(--mono); font-size:.82rem; color:var(--ambre);
+  border:1px solid var(--ambre-sourd);
+}
+.etapes h3{ font-family:var(--serif); font-weight:400; font-size:1.1rem;
+  margin:0 0 .25rem; }
+.etapes p{ margin:0; color:var(--sourdine); font-size:.96rem; }
+.duree{ font-family:var(--mono); font-size:.7rem; letter-spacing:.1em;
+  text-transform:uppercase; color:var(--ambre-sourd); display:block;
+  margin-bottom:.2rem; }
+
+.deux{ display:grid; gap:1px; background:var(--trait); border:1px solid var(--trait);
+       grid-template-columns:1fr; margin:1.5rem 0; }
+@media (min-width:38rem){ .deux{ grid-template-columns:1fr 1fr; } }
+.deux > div{ background:var(--fond); padding:1.2rem 1.1rem; }
+.deux .titre{ font-family:var(--mono); font-size:.68rem; letter-spacing:.14em;
+  text-transform:uppercase; margin:0 0 .7rem; }
+.faux .titre{ color:var(--rouge); }
+.vrai .titre{ color:var(--vert); }
+.deux ul{ margin:0; padding:0; list-style:none; font-size:.93rem; }
+.deux li{ padding:.4rem 0 .4rem 1rem; position:relative; color:var(--sourdine); }
+.deux li::before{ content:""; position:absolute; left:0; top:1.05em;
+  width:5px; height:1px; background:currentColor; }
+.deux li b{ color:var(--texte); font-weight:600; }
+
+.note{ font-size:.9rem; color:var(--sourdine); border-left:2px solid var(--ambre-sourd);
+  padding:.1rem 0 .1rem .95rem; margin:1.4rem 0; }
+
+.cta{ display:inline-block; font-family:var(--mono); font-size:.78rem;
+  letter-spacing:.1em; text-transform:uppercase; color:var(--fond);
+  background:var(--ambre); padding:.8rem 1.5rem; border-radius:2px;
+  text-decoration:none; margin:.4rem .6rem .4rem 0; }
+.cta.second{ background:transparent; color:var(--ambre);
+  border:1px solid var(--ambre-sourd); }
+
+/* Le départ. Il est à la FIN et il occupe toute la largeur : on part au moment
+   où l'on a une raison de partir, pas avant d'avoir lu pourquoi. */
+.depart{ border-top:1px solid var(--trait); padding:3.5rem 0 3rem; text-align:center; }
+.compte{ font-family:var(--mono); font-size:.68rem; letter-spacing:.14em;
+  text-transform:uppercase; color:var(--ambre-sourd); margin:0 0 1.8rem; }
+a.grand{
+  display:inline-block; font-family:var(--serif); font-size:clamp(1.5rem,5vw,2.1rem);
+  letter-spacing:.01em; text-decoration:none; color:var(--fond);
+  background:var(--ambre); padding:1rem 2.6rem; border-radius:3px;
+  box-shadow:0 0 0 1px var(--ambre), 0 0 42px -8px var(--ambre);
+}
+@media (prefers-reduced-motion: no-preference){
+  a.grand{ transition:transform .18s ease, box-shadow .18s ease; }
+  a.grand:hover{ transform:translateY(-2px); box-shadow:0 0 0 1px var(--ambre), 0 0 60px -6px var(--ambre); }
+}
+.sous{ margin:1.4rem 0 0; color:var(--sourdine); font-style:italic; }
+.carnet{ margin:2.2rem 0 0; font-size:.88rem; color:var(--sourdine); }
+
+.pied{ border-top:1px solid var(--trait); padding-top:2rem; margin-top:1rem;
+  color:var(--sourdine); font-size:.9rem; }
+</style>
+
+<div class="page">
+
+<header class="tete">
+  <p class="eyebrow">Périastre — version bêta</p>
+  <h1>Tu veux bien casser mon trou noir&nbsp;?</h1>
+  <p class="chapo">J'ai fait un site sur le trou noir au centre de notre galaxie.
+  Ce n'est pas une image : c'est calculé en direct avec les équations d'Einstein.
+  J'ai besoin de savoir ce que ça donne pour quelqu'un qui arrive sans rien savoir —
+  et tu es exactement cette personne.</p>
+  <p class="chapo"><strong>Un quart d'heure, montre en main.</strong> Dix minutes à
+  jouer, cinq à me répondre. Si tu n'as pas le temps, ne te force pas : un retour
+  bâclé m'aide moins que pas de retour du tout.</p>
+</header>
+
+<section>
+  <h2>Ce que je te demande, dans l'ordre</h2>
+  <p class="intro">Ne lis rien à l'avance et ne me demande pas d'aide.
+  <strong>Le moment où tu es perdu est l'information la plus utile</strong> que tu
+  puisses me donner — et c'est ma faute, pas la tienne.</p>
+
+  <ol class="etapes">
+    <li>
+      <span class="duree">1 minute</span>
+      <h3>Ouvre le site, sur un ordinateur si tu peux</h3>
+      <p>Ça marche sur téléphone, mais couche-le : un trou noir est large.
+      Le son est optionnel et se coupe à tout moment.</p>
+    </li>
+    <li>
+      <span class="duree">4 minutes</span>
+      <h3>Fais l'introduction à bord</h3>
+      <p>Tu te réveilles dans un vaisseau en orbite. Quatre consignes s'enchaînent
+      en haut de l'écran. Suis-les. Si tu bloques, il y a une croix pour passer —
+      et note-le, ça m'intéresse plus que si tu réussis.</p>
+    </li>
+    <li>
+      <span class="duree">5 minutes</span>
+      <h3>Puis fais les trois premières missions</h3>
+      <p>Elles s'enchaînent toutes seules après l'introduction. Arrête-toi quand
+      tu veux ; continue si ça t'amuse.</p>
+    </li>
+    <li>
+      <span class="duree">5 minutes</span>
+      <h3>Remplis le carnet</h3>
+      <p>Cinq notes et trois questions. Il fabrique un texte que tu me renvoies
+      d'un copier-coller. Ouvre-le sur ton téléphone à côté pendant que tu joues,
+      c'est fait pour.</p>
+    </li>
+  </ol>
+
+</section>
+
+<section>
+  <h2>De quoi il s'agit, en deux minutes</h2>
+  <p class="intro">Pour que tu saches quoi juger. La plupart des trous noirs qu'on
+  voit sur le web sont des dessins — et une fois qu'on sait où regarder, ça se
+  remarque.</p>
+
+  <div class="deux">
+    <div class="faux">
+      <p class="titre">Un rendu bon marché</p>
+      <ul>
+        <li>Les pixels sont <b>déplacés en cercle</b> autour d'un centre, puis on
+          pose un anneau et un disque noir par-dessus.</li>
+        <li>La taille de l'ombre est un <b>curseur libre</b> : on la règle à ce
+          qui fait joli.</li>
+        <li>La lumière ne fait jamais le tour : <b>pas d'images multiples</b>.</li>
+      </ul>
+    </div>
+    <div class="vrai">
+      <p class="titre">Ce qui tourne ici</p>
+      <ul>
+        <li>Chaque pixel lance un <b>rayon lumineux</b> qu'on suit pas à pas dans
+          l'espace-temps courbé.</li>
+        <li>L'ombre a la taille qu'elle a. C'est une <b>conséquence</b>, pas un
+          réglage.</li>
+        <li>On voit le <b>dessous du disque par-dessus</b> — la lumière a
+          contourné l'astre.</li>
+      </ul>
+    </div>
+  </div>
+
+  <p>Un bouton dans le site relance le calcul sous tes yeux et le compare à la
+  théorie. Au moment où j'écris, l'écart est de <strong>0,002 %</strong> sur le
+  rayon de l'ombre.</p>
+
+  <p class="note">Et une chose qu'on triche, autant le dire avant que tu la
+  remarques : en orbite on est en chute libre, donc tout devrait flotter. Pour des
+  raisons de confort, la direction a décrété que la gravité serait magique à bord.
+  C'est le seul mensonge du site.</p>
+</section>
+
+<section>
+  <h2>Ce que je cherche à savoir</h2>
+  <p class="intro">Cinq questions, et ce sont exactement celles du carnet.</p>
+  <p>Est-ce que c'était <strong>intéressant</strong>. Est-ce que tu as cru que
+  c'était une <strong>vraie simulation</strong>, ou est-ce que ça t'a semblé être
+  de la poudre aux yeux. Est-ce que tu as <strong>appris</strong> quelque chose.
+  Est-ce que c'était <strong>agréable</strong> à utiliser. Et est-ce que tu
+  aimerais <strong>en voir plus</strong>.</p>
+  <p>Sois franc, surtout sur ce qui t'a agacé. Les compliments ne me disent pas
+  quoi corriger.</p>
+</section>
+
+<section class="depart">
+  <p class="compte">27 000 années-lumière · 4 millions de Soleils · 0 pixel arrangé</p>
+  <a class="grand" href="https://hugohismans.github.io/periastre/">Je me lance</a>
+  <p class="sous">Tu te réveilles à bord. Retourne-toi.</p>
+  <p class="carnet">Et quand tu auras fini —
+    <a href="carnet.html">le carnet à remplir</a>.</p>
+</section>
+
+<footer class="pied">
+  <p>Gratuit, sans compte, sans bandeau de cookies — il n'y a rien à déposer.
+  Tout ce qui est à l'écran est calculé : aucune image, aucune texture, aucun
+  modèle importé.</p>
+  <p><em>C'est une bêta : il y a des choses cassées, et c'est pour ça que je te
+  la montre.</em></p>
+</footer>
+
+</div>
+
+</body>
+</html>
