@@ -107,6 +107,7 @@
   #sp-tete { display:flex; align-items:baseline; justify-content:space-between; gap:12px; }
   #sp-bande { font-size:15px; font-weight:600; color:#fff; }
   #sp-lambda { font-size:12px; color:#8b86a3; font-variant-numeric:tabular-nums; white-space:nowrap; }
+  #spin-note { font-size:10.5px; line-height:1.55; color:#8b86a3; margin-top:8px; }
   #sp-note { font-size:11.5px; line-height:1.6; color:#a9a4bd; margin-top:6px; min-height:3.2em; }
   #sp-note b { color:#e4e0f0; }
 
@@ -472,6 +473,11 @@
     <div class="grille" id="voix-choix"></div>
   </div>
   <div class="bloc">
+    <div class="etiq">Rotation du trou noir</div>
+    <div class="grille" id="spin-choix"></div>
+    <div id="spin-note"></div>
+  </div>
+  <div class="bloc">
     <div class="etiq">Volume de la voix</div>
     <div class="grille" id="volume"></div>
   </div>
@@ -794,129 +800,222 @@ void main(){
   vec3 vue = normalize(uBasis[0]*uv.x + uBasis[1]*uv.y + uBasis[2]*uFocal);
   vue = aberre(vue, uVitesse);
 
-  float a  = uSpin;
-  float rh = M_TN + sqrt(max(M_TN*M_TN - a*a, 0.0));   // horizon externe
-
-  vec3 bl = versBL(uCam, a);
-  float r0 = bl.x, th0 = bl.y, ph0 = bl.z;
-  float s0 = sin(th0), c0 = cos(th0);
-
-  // Repère orthonormé local. On prend la base sphérique : l'aplatissement
-  // sphéroïdal vaut a²/r², soit moins de 0,1 % à la distance de la caméra.
-  vec3 er = vec3(s0*cos(ph0), c0, s0*sin(ph0));
-  vec3 et = vec3(c0*cos(ph0), -s0, c0*sin(ph0));
-  vec3 ep = vec3(-sin(ph0), 0.0, cos(ph0));
-  float nr = dot(vue, er), nt = dot(vue, et), np_ = dot(vue, ep);
-
-  // Tétrade du ZAMO : le seul observateur défini partout hors de l'horizon.
-  // Le statique, lui, cesse d'exister dans l'ergosphère.
-  float S0 = r0*r0 + a*a*c0*c0;
-  float D0 = r0*r0 - 2.0*M_TN*r0 + a*a;
-  float A0 = (r0*r0 + a*a)*(r0*r0 + a*a) - a*a*D0*s0*s0;
-  float alpha = sqrt(max(S0*D0/A0, 1e-9));      // lapse
-  float omega = 2.0*M_TN*a*r0/A0;               // entraînement des repères
-  float L = np_ * s0 * sqrt(A0/S0);
-  float E = alpha + omega*L;
-
-  vec4 y = vec4(r0, th0, nr*sqrt(S0/D0), nt*sqrt(S0));
-  float ph = ph0;
-
   vec3  col   = vec3(0.0);
   float reste = 1.0;
   bool  avale = false;
   float lueur = 0.0;
-  vec3  pc    = uCam, pcPrec = uCam - vue;
+  vec3  sortie;
 
-  for(int i = 0; i < STEPS; i++){
-    if(i >= uSteps) break;
-    float r = y.x;
-
-    // Photosphère : aux grandes longueurs d'onde le flux d'accrétion est
-    // opaque. Le rayon s'y arrête bien avant l'horizon, et l'ombre disparaît
-    // derrière une tache brillante. C'est la vraie raison pour laquelle on
-    // n'a jamais pu photographier l'ombre en ondes radio.
-    if(uSpectre > 0.5 && r < uRphoto){
-      float f = 1.0 - r/max(uRphoto, 1e-3);
-      col += reste * uTeinte * uEclat * (0.9 + 2.6*f*f);
-      reste = 0.0; avale = true; break;
+  if(uSpin < 1e-6){
+    // ---- Schwarzschild, forme cartésienne ----
+    // Aucune singularité de coordonnées : l'image est exempte d'artefact.
+    // C'est la version validée par le banc d'essai, on la garde telle quelle.
+    vec3 pos = uCam;
+    float r0    = length(pos);
+    vec3  rh    = pos / r0;
+    float cospsi = dot(vue, rh);
+    float sinpsi = sqrt(max(0.0, 1.0 - cospsi*cospsi));
+    float h  = r0 * sinpsi / sqrt(max(1.0 - 1.0/r0, 1e-6));
+    float h2 = h*h;
+  
+    vec3 dir;
+    if(sinpsi < 1e-6){
+      dir = sign(cospsi) * rh;                       // rayon radial
+    } else {
+      vec3 th = normalize(vue - cospsi*rh);
+      float vr2 = 1.0 + h2/(r0*r0*r0) - h2/(r0*r0);  // 2M = 1
+      dir = sign(cospsi)*sqrt(max(vr2, 0.0))*rh + (h/r0)*th;
     }
-
-    if(r < rh + 2e-4){ avale = true; break; }
-    if(r > 70.0 && y.z > 0.0) break;
-
-    vec4 k1 = deriveK(y, E, L, a);
-    // Pas exprimé en longueur d'arc, converti en pas affine par la « vitesse ».
-    // Les TROIS composantes comptent : pour un rayon tangentiel dr/dλ et dθ/dλ
-    // sont nuls et seul dφ/dλ subsiste — l'oublier fait exploser le pas.
-    float dph0 = dPhiK(y, E, L, a);
-    float sth  = max(sin(y.y), 1e-2);      // même borne que dans les dérivées
-    float vit  = max(sqrt(k1.x*k1.x + r*r*k1.y*k1.y + r*r*sth*sth*dph0*dph0), 1e-5);
-    float dl = clamp(uPas*2.3*(r - rh) + uPas*r, uPas*0.55, 1.4) / vit;
-
-    // L'axe polaire est une singularité de coordonnées : φ doit y basculer de π
-    // presque instantanément. Un pas qui saute par-dessus le pôle rate ce
-    // basculement, et le rayon ressort dans une direction fausse — c'était la
-    // colonne d'artefacts. On interdit donc d'y arriver en un seul pas.
-    float versPole = min(y.y, 3.14159265 - y.y);
-    if(versPole < 0.35 && abs(k1.y) > 1e-9)
-      dl = min(dl, max(0.25*versPole/abs(k1.y), 0.004));
-
-    for(int k = 0; k < 4; k++){
-      if(k >= uNbPhotons) break;
-      dl = min(dl, max(0.04, length(uPhotons[k]-pc)*0.40/vit));
-    }
-
-    vec4 k2 = deriveK(y + 0.5*dl*k1, E, L, a);
-    vec4 k3 = deriveK(y + 0.5*dl*k2, E, L, a);
-    vec4 k4 = deriveK(y + dl*k3, E, L, a);
-    vec4 yn = y + dl*(k1 + 2.0*k2 + 2.0*k3 + k4)/6.0;
-    float phn = ph + dl*(dph0 + 2.0*dPhiK(y+0.5*dl*k1,E,L,a)
-                       + 2.0*dPhiK(y+0.5*dl*k2,E,L,a) + dPhiK(y+dl*k3,E,L,a))/6.0;
-
-    // Réflexion aux pôles : θ doit rester dans [0, π]. Un rayon qui franchit
-    // l'axe ressort de l'autre côté, avec p_θ inversé et φ décalé de π.
-    if(yn.y < 0.0)      { yn.y = -yn.y;              yn.w = -yn.w; phn += 3.14159265; }
-    else if(yn.y > 3.14159265) { yn.y = 6.28318531 - yn.y; yn.w = -yn.w; phn += 3.14159265; }
-
-    // traversée du plan équatorial : le disque y vit
-    if(cos(y.y)*cos(yn.y) < 0.0 && reste > 0.004){
-      float f  = cos(y.y) / (cos(y.y) - cos(yn.y));
-      float rr = mix(y.x, yn.x, f);
-      if(rr > R_IN && rr < R_OUT){
-        float pf = mix(ph, phn, f);
-        vec3 cp = vec3(rr*cos(pf), 0.0, rr*sin(pf));
-        vec4 d = disque(cp, normalize(pc - pcPrec));
-        // En lumière visible, le flux d'accrétion de Sgr A* est presque muet :
-        // il rayonne dans le submillimétrique, et il est sous-lumineux d'un
-        // facteur ~10⁹ par rapport à sa limite d'Eddington.
-        vec3 e = d.rgb * mix(1.0, 0.006, uReel);
-        // en mode spectral, la couleur thermique cède la place à une fausse
-        // couleur de bande, pondérée par la SED mesurée
-        e = mix(e, uTeinte * uEclat * dot(d.rgb, vec3(0.33)), uSpectre);
-        col   += reste * e;
-        reste *= 1.0 - d.a*0.86*(1.0 - uReel*0.97);
+  
+    for(int i = 0; i < STEPS; i++){
+      if(i >= uSteps) break;
+      float r = length(pos);
+  
+      // Photosphère : aux grandes longueurs d'onde le flux d'accrétion est
+      // opaque. Le rayon s'y arrête bien avant l'horizon, et l'ombre disparaît
+      // derrière une tache brillante. C'est la vraie raison pour laquelle on
+      // n'a jamais pu photographier l'ombre en ondes radio.
+      if(uSpectre > 0.5 && r < uRphoto){
+        float f = 1.0 - r/max(uRphoto, 1e-3);
+        col += reste * uTeinte * uEclat * (0.9 + 2.6*f*f);
+        reste = 0.0; avale = true; break;
       }
+  
+      if(r < 1.0){ avale = true; break; }
+      if(r > 70.0 && dot(pos, dir) > 0.0) break;
+  
+      // le pas est une longueur d'arc : on le divise par la « vitesse » affine,
+      // qui n'est pas unitaire
+      float vn = max(length(dir), 1e-4);
+      float dt = clamp(r*0.085, 0.045, 1.4) / vn;
+  
+      // pas plus fin près d'un photon, sinon il scintille
+      for(int k = 0; k < 4; k++){
+        if(k >= uNbPhotons) break;
+        dt = min(dt, max(0.05, length(uPhotons[k]-pos)*0.40/vn));
+      }
+  
+      // Verlet-vitesse ; surtout pas de normalize sur nd, λ est un paramètre affine
+      vec3 acc = -1.5 * h2 * pos / pow(r, 5.0);
+      vec3 np  = pos + dir*dt + 0.5*acc*dt*dt;
+      vec3 an  = -1.5 * h2 * np / pow(length(np), 5.0);
+      vec3 nd  = dir + 0.5*(acc + an)*dt;
+  
+      // traversée du plan du disque
+      if(pos.y*np.y < 0.0 && reste > 0.004){
+        float f  = pos.y / (pos.y - np.y);
+        vec3  cp = mix(pos, np, f);
+        float rr = length(cp.xz);
+        if(rr > R_IN && rr < R_OUT){
+          vec4 d = disque(cp, normalize(dir));
+          // En lumière visible, le flux d'accrétion de Sgr A* est presque muet :
+          // il rayonne dans le submillimétrique, et il est sous-lumineux d'un
+          // facteur ~10⁹ par rapport à sa limite d'Eddington.
+          vec3 e = d.rgb * mix(1.0, 0.006, uReel);
+          // en mode spectral, la couleur thermique cède la place à une fausse
+          // couleur de bande, pondérée par la SED mesurée
+          e = mix(e, uTeinte * uEclat * dot(d.rgb, vec3(0.33)), uSpectre);
+          col   += reste * e;
+          reste *= 1.0 - d.a*0.86*(1.0 - uReel*0.97);
+        }
+      }
+  
+      for(int k = 0; k < 4; k++){
+        if(k >= uNbPhotons) break;
+        vec3 q = uPhotons[k] - pos;
+        lueur += exp(-dot(q,q)*26.0) * dt * reste;
+      }
+  
+      pos = np; dir = nd;
     }
-
-    pcPrec = pc;
-    pc = versCart(yn.x, yn.y, phn, a);
-
-    for(int k = 0; k < 4; k++){
-      if(k >= uNbPhotons) break;
-      vec3 q = uPhotons[k] - pc;
-      lueur += exp(-dot(q,q)*26.0) * dl*vit * reste;
+  
+    // Le ciel d'étoiles reste comme repère, mais il s'efface hors du visible :
+    // en radio ou en X, ce ne sont pas les mêmes sources qui brillent.
+    sortie = dir;
+  } else {
+    // ---- Kerr, Boyer-Lindquist ----
+    // L'axe polaire y est singulier PAR CONSTRUCTION. C'est le prix de la
+    // métrique tournante : la forme cartésienne compacte n'existe plus.
+    float a  = uSpin;
+    float rh = M_TN + sqrt(max(M_TN*M_TN - a*a, 0.0));   // horizon externe
+  
+    vec3 bl = versBL(uCam, a);
+    float r0 = bl.x, th0 = bl.y, ph0 = bl.z;
+    float s0 = sin(th0), c0 = cos(th0);
+  
+    // Repère orthonormé local. On prend la base sphérique : l'aplatissement
+    // sphéroïdal vaut a²/r², soit moins de 0,1 % à la distance de la caméra.
+    vec3 er = vec3(s0*cos(ph0), c0, s0*sin(ph0));
+    vec3 et = vec3(c0*cos(ph0), -s0, c0*sin(ph0));
+    vec3 ep = vec3(-sin(ph0), 0.0, cos(ph0));
+    float nr = dot(vue, er), nt = dot(vue, et), np_ = dot(vue, ep);
+  
+    // Tétrade du ZAMO : le seul observateur défini partout hors de l'horizon.
+    // Le statique, lui, cesse d'exister dans l'ergosphère.
+    float S0 = r0*r0 + a*a*c0*c0;
+    float D0 = r0*r0 - 2.0*M_TN*r0 + a*a;
+    float A0 = (r0*r0 + a*a)*(r0*r0 + a*a) - a*a*D0*s0*s0;
+    float alpha = sqrt(max(S0*D0/A0, 1e-9));      // lapse
+    float omega = 2.0*M_TN*a*r0/A0;               // entraînement des repères
+    float L = np_ * s0 * sqrt(A0/S0);
+    float E = alpha + omega*L;
+  
+    vec4 y = vec4(r0, th0, nr*sqrt(S0/D0), nt*sqrt(S0));
+    float ph = ph0;
+  
+    vec3  pc    = uCam, pcPrec = uCam - vue;
+  
+    for(int i = 0; i < STEPS; i++){
+      if(i >= uSteps) break;
+      float r = y.x;
+  
+      // Photosphère : aux grandes longueurs d'onde le flux d'accrétion est
+      // opaque. Le rayon s'y arrête bien avant l'horizon, et l'ombre disparaît
+      // derrière une tache brillante. C'est la vraie raison pour laquelle on
+      // n'a jamais pu photographier l'ombre en ondes radio.
+      if(uSpectre > 0.5 && r < uRphoto){
+        float f = 1.0 - r/max(uRphoto, 1e-3);
+        col += reste * uTeinte * uEclat * (0.9 + 2.6*f*f);
+        reste = 0.0; avale = true; break;
+      }
+  
+      if(r < rh + 2e-4){ avale = true; break; }
+      if(r > 70.0 && y.z > 0.0) break;
+  
+      vec4 k1 = deriveK(y, E, L, a);
+      // Pas exprimé en longueur d'arc, converti en pas affine par la « vitesse ».
+      // Les TROIS composantes comptent : pour un rayon tangentiel dr/dλ et dθ/dλ
+      // sont nuls et seul dφ/dλ subsiste — l'oublier fait exploser le pas.
+      float dph0 = dPhiK(y, E, L, a);
+      float sth  = max(sin(y.y), 1e-2);      // même borne que dans les dérivées
+      float vit  = max(sqrt(k1.x*k1.x + r*r*k1.y*k1.y + r*r*sth*sth*dph0*dph0), 1e-5);
+      float dl = clamp(uPas*2.3*(r - rh) + uPas*r, uPas*0.55, 1.4) / vit;
+  
+      // L'axe polaire est une singularité de coordonnées : φ doit y basculer de π
+      // presque instantanément. Un pas qui saute par-dessus le pôle rate ce
+      // basculement, et le rayon ressort dans une direction fausse — c'était la
+      // colonne d'artefacts. On interdit donc d'y arriver en un seul pas.
+      float versPole = min(y.y, 3.14159265 - y.y);
+      if(versPole < 0.35 && abs(k1.y) > 1e-9)
+        dl = min(dl, max(0.25*versPole/abs(k1.y), 0.004));
+  
+      for(int k = 0; k < 4; k++){
+        if(k >= uNbPhotons) break;
+        dl = min(dl, max(0.04, length(uPhotons[k]-pc)*0.40/vit));
+      }
+  
+      vec4 k2 = deriveK(y + 0.5*dl*k1, E, L, a);
+      vec4 k3 = deriveK(y + 0.5*dl*k2, E, L, a);
+      vec4 k4 = deriveK(y + dl*k3, E, L, a);
+      vec4 yn = y + dl*(k1 + 2.0*k2 + 2.0*k3 + k4)/6.0;
+      float phn = ph + dl*(dph0 + 2.0*dPhiK(y+0.5*dl*k1,E,L,a)
+                         + 2.0*dPhiK(y+0.5*dl*k2,E,L,a) + dPhiK(y+dl*k3,E,L,a))/6.0;
+  
+      // Réflexion aux pôles : θ doit rester dans [0, π]. Un rayon qui franchit
+      // l'axe ressort de l'autre côté, avec p_θ inversé et φ décalé de π.
+      if(yn.y < 0.0)      { yn.y = -yn.y;              yn.w = -yn.w; phn += 3.14159265; }
+      else if(yn.y > 3.14159265) { yn.y = 6.28318531 - yn.y; yn.w = -yn.w; phn += 3.14159265; }
+  
+      // traversée du plan équatorial : le disque y vit
+      if(cos(y.y)*cos(yn.y) < 0.0 && reste > 0.004){
+        float f  = cos(y.y) / (cos(y.y) - cos(yn.y));
+        float rr = mix(y.x, yn.x, f);
+        if(rr > R_IN && rr < R_OUT){
+          float pf = mix(ph, phn, f);
+          vec3 cp = vec3(rr*cos(pf), 0.0, rr*sin(pf));
+          vec4 d = disque(cp, normalize(pc - pcPrec));
+          // En lumière visible, le flux d'accrétion de Sgr A* est presque muet :
+          // il rayonne dans le submillimétrique, et il est sous-lumineux d'un
+          // facteur ~10⁹ par rapport à sa limite d'Eddington.
+          vec3 e = d.rgb * mix(1.0, 0.006, uReel);
+          // en mode spectral, la couleur thermique cède la place à une fausse
+          // couleur de bande, pondérée par la SED mesurée
+          e = mix(e, uTeinte * uEclat * dot(d.rgb, vec3(0.33)), uSpectre);
+          col   += reste * e;
+          reste *= 1.0 - d.a*0.86*(1.0 - uReel*0.97);
+        }
+      }
+  
+      pcPrec = pc;
+      pc = versCart(yn.x, yn.y, phn, a);
+  
+      for(int k = 0; k < 4; k++){
+        if(k >= uNbPhotons) break;
+        vec3 q = uPhotons[k] - pc;
+        lueur += exp(-dot(q,q)*26.0) * dl*vit * reste;
+      }
+  
+      y = yn; ph = phn;
     }
-
-    y = yn; ph = phn;
+  
+    // Un rayon qui n'a pas fui après tous ces pas et se traîne encore au fond du
+    // puits est capturé : lui attribuer le ciel remplirait l'ombre d'étoiles.
+    if(!avale && y.x < uSeuilCapture) avale = true;
+    sortie = dirCart(y, ph, E, L, a);
   }
-
-  // Un rayon qui n'a pas fui après tous ces pas et se traîne encore au fond du
-  // puits est capturé : lui attribuer le ciel remplirait l'ombre d'étoiles.
-  if(!avale && y.x < uSeuilCapture) avale = true;
 
   // Le ciel d'étoiles reste comme repère, mais il s'efface hors du visible :
   // en radio ou en X, ce ne sont pas les mêmes sources qui brillent.
-  vec3 sortie = dirCart(y, ph, E, L, a);
   if(!avale && dot(sortie, sortie) > 1e-14)
     col += reste * ciel(normalize(sortie)) * (1.0 - uSpectre*0.72);
 
@@ -1765,6 +1864,30 @@ CONTENU.voix.forEach((v, i) => {
   };
   boitierVoix.appendChild(b);
 });
+// Rotation. À 0 c'est Schwarzschild en cartésien — aucune singularité de
+// coordonnées, image parfaite. Au-delà on passe en Boyer-Lindquist, où l'axe
+// polaire est singulier par construction : c'est le prix de la métrique
+// tournante, pas un défaut réparable.
+// Borné à 0,95 : au-delà, l'orbite photonique prograde se colle à l'horizon et
+// la mesure montre que l'intégrateur décroche.
+const boitierSpin = $("spin-choix");
+[["aucune", 0, "Schwarzschild. L'ombre est un cercle parfait."],
+ ["modérée", 0.6, "L'ombre s'aplatit du côté où la rotation vient vers toi."],
+ ["rapide", 0.9, "Asymétrie mesurée 2,30 contre 2,40 en théorie."],
+ ["extrême", 0.95, "Proche de la limite de Thorne. C'est la forme de Gargantua."],
+].forEach(([nom, v, note], i) => {
+  const b = document.createElement("button");
+  b.textContent = nom;
+  b.onclick = () => {
+    spin = v;
+    $("spin-note").textContent = note + (v > 0 ? " Une fine couture apparaît sur l'axe : c'est la singularité de coordonnées." : "");
+    [...boitierSpin.children].forEach((c, j) => c.classList.toggle("actif", j === i));
+    sauve();
+  };
+  boitierSpin.appendChild(b);
+});
+boitierSpin.children[0].classList.add("actif");
+
 const boitierVol = $("volume");
 [["très bas", 0.18], ["bas", 0.45], ["moyen", 0.7], ["fort", 1.0]].forEach(([nom, v], i) => {
   const b = document.createElement("button");
@@ -2004,7 +2127,7 @@ function sauve(){
   try {
     localStorage.setItem(CLE, JSON.stringify({
       niveau: iNiveau, acquis: [...acquis], voix: voixActive,
-      anecdotes: intervalleAnecdote, taille: zoomSonde, volume: volumeVoix, deja: true,
+      anecdotes: intervalleAnecdote, taille: zoomSonde, volume: volumeVoix, spin, deja: true,
     }));
   } catch(e){ /* navigation privée : on continue sans mémoire */ }
 }
@@ -2018,6 +2141,7 @@ function charge(){
     if(typeof d.anecdotes === "number") intervalleAnecdote = d.anecdotes;
     if(typeof d.taille === "number") zoomSonde = d.taille;
     if(typeof d.volume === "number") volumeVoix = d.volume;
+    if(typeof d.spin === "number") spin = d.spin;
     return d;
   } catch(e){ return null; }
 }
