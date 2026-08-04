@@ -582,6 +582,29 @@ body.tactile.au-salon #manette{ display:block; }
   #panneau button { padding:7px 8px; font-size:11px; }
   #panneau .bloc { margin-bottom:9px; }
 
+  /* Le spectre recouvrait tout l'écran et l'on ne pouvait plus atteindre la
+     réglette : même cause que les panneaux précédents, une boîte dimensionnée
+     pour un écran haut. On l'ancre à droite, on le borne, et il défile. La
+     réglette reste en bas de la boîte pour qu'elle tombe sous le pouce, et les
+     repères se rangent en une ligne qui glisse horizontalement — ce qui est
+     exactement le geste qu'Hugo demandait pour passer d'une bande à l'autre. */
+  #spectre {
+    top:8px; bottom:8px; right:8px; left:auto; transform:none;
+    width:min(340px, 54vw); padding:10px 12px 12px;
+    display:flex; flex-direction:column; gap:6px;
+    overflow:hidden;
+  }
+  #sp-bande { font-size:14px; }
+  #sp-note { font-size:10.5px; line-height:1.4; overflow-y:auto; flex:1 1 auto; min-height:0; }
+  #sp-graphe { flex:0 0 auto; max-height:22vh; }
+  #sp-regle { flex:0 0 auto; margin:2px 0; }
+  #sp-reperes {
+    flex:0 0 auto; display:flex; flex-wrap:nowrap; gap:5px;
+    overflow-x:auto; scrollbar-width:none; padding-bottom:2px;
+  }
+  #sp-reperes::-webkit-scrollbar { display:none; }
+  #sp-reperes button { white-space:nowrap; flex:0 0 auto; padding:6px 9px; font-size:10px; }
+
   #bulle { max-width:min(300px, 44vw); font-size:10.5px; }
   #stick { width:88px; height:88px; bottom:8px; left:8px; }
   #stick i { width:36px; height:36px; margin:-18px 0 0 -18px; }
