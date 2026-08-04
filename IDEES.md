@@ -469,3 +469,28 @@ mémoire locale, comme prévu — rien n'est cassé, mais rien n'est partagé.
    comprenant.
 8. **Une touche de rejeu** : « C » copie déjà un lien qui rouvre la scène au même
    endroit. À étendre au simulateur.
+
+## Pourquoi le vaisseau est là — *et l'idée d'Hugo à garder pour plus tard*
+
+Hugo a proposé d'inventer une raison : capturer l'énergie du trou noir. Il s'est
+retenu lui-même, à juste titre — une justification fausse abîmerait le seul
+argument du site.
+
+**La vraie raison est meilleure que la fiction**, et c'est elle qui est en jeu
+dans la quête d'accueil : Sagittarius A* est le seul endroit atteignable où la
+gravité est assez forte pour qu'on la voie plier la lumière. Sur Terre il faut
+des horloges atomiques pour la mesurer ; ici elle fait faire demi-tour aux
+rayons. On y va pour regarder, pas pour rapporter.
+
+**Mais l'intuition d'Hugo est fondée**, et il faudra y revenir : on sait
+extraire de l'énergie d'un trou noir en rotation. Le **processus de Penrose**
+prend de l'énergie à un corps qui se scinde dans l'ergosphère ; le mécanisme
+de **Blandford-Znajek** — dont la référence est déjà au registre — extrait
+l'énergie de rotation par les lignes de champ magnétique, et c'est ainsi qu'on
+explique les jets des noyaux actifs. Jusqu'à **29 %** de la masse d'un trou noir
+de Kerr extrême est en principe récupérable.
+
+La réserve, à dire si on l'emploie : **Sgr A* est calme**. Il n'alimente pas de
+jet visible, donc « on est venus pomper de l'énergie » serait vrai d'un noyau
+actif et faux d'ici — exactement l'espèce d'erreur que l'audit traque. Si on
+veut cette histoire, elle appartient à une autre destination.

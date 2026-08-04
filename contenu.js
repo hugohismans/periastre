@@ -625,9 +625,9 @@ accueilQuete: [
   titre: "Tu n'es pas seul à bord",
   consigne: "Un petit drone fait sa ronde. <b>Clique dessus</b> pour lui poser une question.",
   reussi: { id:"a-lumen-ok",
-    t:`Je suis le système de bord. Pas une intelligence : un guide, avec un nombre fini de réponses préparées. Quand je cite un chiffre, un bouton <i>d'où ça sort ?</i> donne le calcul puis la référence.`,
-    dire:`Je suis le système de bord. Pas une intelligence : un guide, avec un nombre fini de réponses préparées. Quand je cite un chiffre, un bouton « d'où ça sort » donne le calcul, puis la référence.`,
-    sources:[] },
+    t:`Je suis le système de bord du <b>Périastre</b>. Pas une intelligence : un guide, avec un nombre fini de réponses préparées.<br><br>Ce que nous faisons ici tient en une phrase. Sagittarius A* est le <b>seul endroit atteignable</b> où la gravité est assez forte pour qu'on la voie plier la lumière. Sur Terre elle courbe l'espace de façon si ténue qu'il faut des horloges atomiques pour la mesurer ; ici elle fait faire demi-tour aux rayons lumineux. Tout ce que nous croyons savoir de la relativité tient à cette distance, ou ne tient pas.<br><br>C'est pour ça que des gens ont accepté un aller sans retour. Pas pour en rapporter quelque chose — pour <i>regarder</i>.<br><br>Quand je cite un chiffre, le bouton <i>d'où ça sort ?</i> donne le calcul, puis la référence.`,
+    dire:`Je suis le système de bord du Périastre. Pas une intelligence : un guide, avec un nombre fini de réponses préparées. Ce que nous faisons ici tient en une phrase. Sagittarius A star est le seul endroit atteignable où la gravité est assez forte pour qu'on la voie plier la lumière. Sur Terre, elle courbe l'espace de façon si ténue qu'il faut des horloges atomiques pour la mesurer. Ici, elle fait faire demi-tour aux rayons lumineux. Tout ce que nous croyons savoir de la relativité tient à cette distance, ou ne tient pas. C'est pour ça que des gens ont accepté un aller sans retour. Pas pour en rapporter quelque chose : pour regarder. Quand je cite un chiffre, le bouton « d'où ça sort » donne le calcul, puis la référence.`,
+    sources:["gravity2021","eht2022"] },
 },
 {
   id: "a-temps",
