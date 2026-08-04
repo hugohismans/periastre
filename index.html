@@ -552,7 +552,11 @@ body.tactile.au-salon #manette{ display:block; }
     top:8px; bottom:auto; left:8px; right:auto; transform:none;
     width:min(310px, 44vw); padding:8px 30px 9px 10px;
     max-height:46vh; overflow-y:auto;
+    /* La consigne tient largement : l'ascenseur n'apparaîtrait que d'un ou deux
+       pixels, et deux flèches sur un panneau de trois lignes font désordre. */
+    scrollbar-width:none;
   }
+  #mission::-webkit-scrollbar, #quete::-webkit-scrollbar { display:none; }
   #m-num, #q-num { font-size:7.5px; }
   #m-titre, #q-titre { font-size:12.5px; margin:3px 0 3px; }
   #m-consigne, #q-consigne { font-size:10.5px; line-height:1.45; }
@@ -561,6 +565,22 @@ body.tactile.au-salon #manette{ display:block; }
 
   #dock { bottom:6px; left:8px; right:8px; padding:5px; gap:5px; }
   #dock button { padding:6px 9px; font-size:10px; }
+
+  /* Les réglages débordaient par le bas sans pouvoir défiler : sur un écran
+     haut de 400 px, la moitié des commandes — dont « Missions » et « Refaire
+     l'introduction » — était simplement hors d'atteinte. On borne la boîte
+     entre les deux bords et on la fait défiler à l'intérieur. Elle reprend
+     aussi une largeur raisonnable : étalée sur toute la page, chaque bouton
+     faisait la taille d'une carte de crédit. */
+  #panneau {
+    top:44px; bottom:8px; right:8px; left:auto;
+    width:min(300px, 62vw); padding:10px;
+    overflow-y:auto; -webkit-overflow-scrolling:touch;
+    overscroll-behavior:contain;
+  }
+  #panneau .etiq { font-size:8.5px; }
+  #panneau button { padding:7px 8px; font-size:11px; }
+  #panneau .bloc { margin-bottom:9px; }
 
   #bulle { max-width:min(300px, 44vw); font-size:10.5px; }
   #stick { width:88px; height:88px; bottom:8px; left:8px; }
