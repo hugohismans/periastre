@@ -1168,6 +1168,7 @@ const boitierT = $("taille-sondes");
   b.onclick = () => {
     zoomSonde = k;
     [...boitierT.children].forEach((c, j) => c.classList.toggle("actif", j === i));
+    sauve();
   };
   boitierT.appendChild(b);
 });
@@ -1678,6 +1679,7 @@ const boitierA = $("anecdotes");
   b.onclick = () => {
     intervalleAnecdote = ms; tDernier = performance.now();
     [...boitierA.children].forEach((c, j) => c.classList.toggle("actif", j === i));
+    sauve();
   };
   boitierA.appendChild(b);
 });
@@ -1740,6 +1742,38 @@ const VERIFS = {
 
 let iMission = 0, missionFinie = false, tMission = 0, missionsActives = true;
 
+// ---- mémoire locale ----
+// Tout reste dans le navigateur : pas de serveur, pas de compte, rien qui
+// sorte de la machine. En contrepartie, c'est par appareil, et vider
+// l'historique efface tout. On le dit plutôt que de faire semblant.
+const CLE = "periastre.v1";
+let acquis = new Set();
+
+function sauve(){
+  try {
+    localStorage.setItem(CLE, JSON.stringify({
+      niveau: iNiveau, acquis: [...acquis], voix: voixActive,
+      anecdotes: intervalleAnecdote, taille: zoomSonde, deja: true,
+    }));
+  } catch(e){ /* navigation privée : on continue sans mémoire */ }
+}
+function charge(){
+  try {
+    const d = JSON.parse(localStorage.getItem(CLE) || "null");
+    if(!d) return null;
+    acquis = new Set(d.acquis || []);
+    if(Number.isInteger(d.niveau)) iNiveau = d.niveau;
+    if(typeof d.voix === "boolean") voixActive = d.voix;
+    if(typeof d.anecdotes === "number") intervalleAnecdote = d.anecdotes;
+    if(typeof d.taille === "number") zoomSonde = d.taille;
+    return d;
+  } catch(e){ return null; }
+}
+function oublie(){
+  try { localStorage.removeItem(CLE); } catch(e){}
+  acquis = new Set(); iMission = 0;
+}
+
 function majMission(){
   const el = $("mission");
   if(!missionsActives || iMission >= MISSIONS.length){
@@ -1771,6 +1805,7 @@ function veilleMission(now){
   if(v && v()){
     missionFinie = true;
     tMission = now;
+    acquis.add(m.id); sauve();
     $("mission").classList.add("fini");
     $("m-num").textContent = "Réussi";
     $("m-consigne").innerHTML = "";
@@ -1868,7 +1903,11 @@ function intro(){
   elCartes.appendChild(rangee);
   elCartes.style.gridTemplateColumns = "1fr";
   elCartes.style.justifyItems = "center";
-  const entre = son => { voixActive = son; majBoutonVoix(); niveauDemande(); };
+  // Qui revient a déjà répondu sur son niveau : on ne le redemande pas.
+  const entre = son => {
+    voixActive = son; majBoutonVoix(); sauve();
+    dejaVenu ? menu() : niveauDemande();
+  };
   $("acc-go").onclick  = () => entre(true);
   $("acc-muet").onclick = () => entre(false);
 }
@@ -1887,7 +1926,7 @@ function niveauDemande(){
     c.className = "carte";
     c.innerHTML = `<h2>${n.titre}</h2><p>${n.detail}</p>`;
     c.onclick = () => {
-      iNiveau = i; majFiche();
+      iNiveau = i; majFiche(); sauve();
       [...boitierN.children].forEach((x, j) => x.classList.toggle("actif", j === i));
       menu();
     };
@@ -1899,7 +1938,10 @@ function menu(){
   poseAccueil(false);
   elCartes.style.justifyItems = "";
   elTitre.textContent = "Périastre";
-  elChapo.innerHTML = "Le point d'une orbite où l'on passe au plus près. Choisis par quoi commencer.";
+  const n = acquis.size;
+  elChapo.innerHTML = n
+    ? `Tu as déjà compris <b>${n}</b> chose${n>1?"s":""} sur ${MISSIONS.length}. On continue ?`
+    : "Le point d'une orbite où l'on passe au plus près. Choisis par quoi commencer.";
   EXPERIENCES.forEach(x => {
     const c = document.createElement("div");
     c.className = "carte";
@@ -1907,6 +1949,18 @@ function menu(){
     c.onclick = () => detail(x);
     elCartes.appendChild(c);
   });
+  if(n){
+    const p = document.createElement("div");
+    p.style.cssText = "grid-column:1/-1;text-align:center;margin-top:6px";
+    p.innerHTML = MISSIONS.map(m =>
+      `<span title="${m.titre}" style="display:inline-block;width:9px;height:9px;margin:0 3px;
+       border-radius:50%;background:${acquis.has(m.id) ? "#6effb4" : "rgba(255,255,255,.15)"}"></span>`
+    ).join("") +
+    `<div style="margin-top:11px"><button id="acc-oubli" style="font-size:10.5px;padding:5px 11px">
+       Tout recommencer</button></div>`;
+    elCartes.appendChild(p);
+    p.querySelector("#acc-oubli").onclick = () => { oublie(); majMission(); menu(); };
+  }
 }
 
 function detail(x){
@@ -1932,6 +1986,22 @@ function detail(x){
 }
 
 $("b-menu").onclick = () => { tais(); menu(); };
+
+// ---- restauration ----
+const memoire = charge();
+const dejaVenu = !!(memoire && memoire.deja);
+if(memoire){
+  majFiche();
+  [...boitierN.children].forEach((c, i) => c.classList.toggle("actif", i === iNiveau));
+  const iA = [30000, 60000, 180000, 0].indexOf(intervalleAnecdote);
+  [...boitierA.children].forEach((c, i) => c.classList.toggle("actif", i === iA));
+  const iT = [0.6, 1, 2.2, 4].indexOf(zoomSonde);
+  [...boitierT.children].forEach((c, i) => c.classList.toggle("actif", i === iT));
+  // reprendre là où on s'était arrêté
+  const suivante = MISSIONS.findIndex(m => !acquis.has(m.id));
+  iMission = suivante < 0 ? MISSIONS.length : suivante;
+  majMission();
+}
 intro();
 
 // ============ dossier « pourquoi c'est exact » ============
