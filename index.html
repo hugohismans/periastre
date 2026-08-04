@@ -118,6 +118,12 @@
   }
   #quete.fini { border-color:rgba(110,255,180,.5); background:rgba(14,26,20,.72); }
   #quete.parti { opacity:0; }
+  #quete { padding-right:34px; }
+  #q-fermer {
+    position:absolute; top:9px; right:9px; width:22px; height:22px; padding:0;
+    border-radius:3px; font-size:11px; display:grid; place-items:center;
+    pointer-events:auto;
+  }
   #q-num { font-size:8.5px; letter-spacing:.2em; text-transform:uppercase; color:var(--sourd); }
   #q-titre { font-family:var(--serif); font-size:15.5px; color:#fff; margin:6px 0 5px; line-height:1.3; }
   #q-consigne { font-size:11.5px; line-height:1.6; color:var(--pale); }
@@ -532,6 +538,30 @@ body.tactile.au-salon #manette{ display:block; }
   touch-action:none; -webkit-tap-highlight-color:transparent;
 }
 #t-saut:active{ background:rgba(255,154,60,.32); }
+/* Téléphone COUCHÉ. La règle en largeur ne l'attrape pas — un iPhone en
+   paysage fait 932 px de large, donc il recevait la mise en page de bureau
+   dans un écran haut de 430 px, où le panneau de consigne mangeait la moitié
+   de l'image. On compacte plutôt qu'on ne masque : la consigne reste
+   nécessaire, c'est sa taille qui était fausse. */
+@media (max-height: 560px) {
+  #mission, #quete {
+    top:8px; left:8px; transform:none;
+    width:min(310px, 44vw); padding:8px 30px 9px 10px;
+  }
+  #m-num, #q-num { font-size:7.5px; }
+  #m-titre, #q-titre { font-size:12.5px; margin:3px 0 3px; }
+  #m-consigne, #q-consigne { font-size:10.5px; line-height:1.45; }
+  #m-jauge, #q-jauge { margin-top:6px; }
+  #m-fermer, #q-fermer { top:6px; right:6px; width:19px; height:19px; }
+
+  #dock { bottom:6px; left:8px; right:8px; padding:5px; gap:5px; }
+  #dock button { padding:6px 9px; font-size:10px; }
+
+  #bulle { max-width:min(300px, 44vw); font-size:10.5px; }
+  #stick { width:88px; height:88px; bottom:8px; left:8px; }
+  #stick i { width:36px; height:36px; margin:-18px 0 0 -18px; }
+  #t-saut { width:58px; height:58px; bottom:12px; right:10px; font-size:.62rem; }
+}
 </style>
 </head>
 <body>
@@ -583,6 +613,7 @@ body.tactile.au-salon #manette{ display:block; }
 <!-- La quête d'accueil a son propre panneau : celui des missions est masqué
      par le CSS dès qu'on est au salon, et c'est justement là qu'elle se joue. -->
 <div id="quete">
+  <button id="q-fermer" title="Passer l'introduction">✕</button>
   <div id="q-num"></div>
   <div id="q-titre"></div>
   <div id="q-consigne"></div>
@@ -3364,6 +3395,18 @@ function veilleMission(now){
     dit(m.reussi, 12000);
   }
 }
+
+$("q-fermer").onclick = () => {
+  /* On peut passer l'introduction. Hugo l'a posé comme règle générale : proposé,
+     jamais imposé. Sans cette croix, quelqu'un de bloqué sur une étape n'avait
+     aucun moyen d'aller voir ailleurs. On rend la barre et les missions. */
+  queteActive = false;
+  document.body.classList.remove("en-quete");
+  missionsActives = true; iMission = 0;
+  majQuete(); majMission();
+  try{ localStorage.setItem("periastre.quete", "1"); }catch(_){}
+  if(!dejaNiveau) setTimeout(() => niveauDemande(), 500);
+};
 
 $("m-fermer").onclick = () => {
   missionsActives = false;

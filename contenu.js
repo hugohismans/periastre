@@ -608,9 +608,17 @@ accueilQuete: [
   titre: "Regarde par la baie",
   consigne: "Fais glisser la souris — ou ton doigt — pour tourner la tête vers la vitre.",
   reussi: { id:"a-baie-ok",
-    t:`Voilà Sagittarius A*. Il est à 27 000 années-lumière, il pèse quatre millions de Soleils, et ce que tu vois n'est pas une image : chaque point est un rayon lumineux qu'on suit dans l'espace-temps courbé.`,
-    dire:`Voilà Sagittarius A star. Il est à vingt-sept mille années-lumière, il pèse quatre millions de Soleils, et ce que tu vois n'est pas une image : chaque point est un rayon lumineux qu'on suit dans l'espace-temps courbé.`,
-    sources:["gravity2021","eht2022"] },
+    t:`Voilà <b>Sagittarius A*</b>, le trou noir au centre de la Voie lactée. Quatre millions de Soleils, et 27 000 années-lumière depuis la Terre.<br><br>Ce vaisseau a fait le trajet en poussant à <i>1 g</i> — la pesanteur terrestre — la moitié du temps en accélérant, l'autre en freinant. Vingt ans de vie à bord. Sur Terre, il s'est écoulé <b>vingt-sept mille ans</b>. Personne de ceux qui nous ont regardés partir n'était là pour nous voir arriver, et nous ne rentrerons pas.<br><br>Ce n'est pas une histoire que j'invente : c'est ce que donnent les équations. Le bouton ci-dessous te montre lesquelles.`,
+    dire:`Voilà Sagittarius A star, le trou noir au centre de la Voie lactée. Quatre millions de Soleils, et vingt-sept mille années-lumière depuis la Terre. Ce vaisseau a fait le trajet en poussant à un g, la pesanteur terrestre, la moitié du temps en accélérant et l'autre en freinant. Vingt ans de vie à bord. Sur Terre, il s'est écoulé vingt-sept mille ans. Personne de ceux qui nous ont regardés partir n'était là pour nous voir arriver, et nous ne rentrerons pas. Ce n'est pas une histoire que j'invente : c'est ce que donnent les équations.`,
+    pourquoi:`Fusée relativiste à accélération propre constante. Le temps vécu à bord d'un
+              trajet où l'on accélère puis freine vaut
+              $\tau = \tfrac{4c}{a}\,\operatorname{arccosh}\!\left(\tfrac{ad}{4c^{2}}+1\right)$.
+              Pour $a = g$ et $d = 8\,277$ pc, il vient une vingtaine d'années propres,
+              tandis que le temps mesuré depuis la Terre reste à peine supérieur à
+              $d/c$, soit environ 27 000 ans — car à ces vitesses le vaisseau suit la
+              lumière de très près. Le voyage est donc possible en une vie ; c'est le
+              retour qui ne l'est pas.`,
+    sources:["gravity2021","eht2022","misner1973"] },
 },
 {
   id: "a-lumen",
