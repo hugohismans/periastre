@@ -710,6 +710,10 @@ body.tactile.au-salon #manette{ display:block; }
   <div class="bloc">
     <div class="etiq">Guide</div>
     <div class="rangee"><button id="b-missions">Missions</button></div>
+    <!-- Qui est déjà venu ne repasse jamais par l'introduction : elle ne se
+         joue qu'au tout premier chargement. Sans ce bouton, la refaire
+         supposait de vider soi-même la mémoire du navigateur. -->
+    <div class="rangee"><button id="b-quete">Refaire l'introduction</button></div>
   </div>
   <div class="bloc"><button id="b-methode">Pourquoi c'est exact ?</button></div>
 </div>
@@ -2719,6 +2723,16 @@ cv.addEventListener("wheel", e => {
   cinema.actif = false;
   cam.dist = Math.max(6, Math.min(46, cam.dist * (1 + Math.sign(e.deltaY)*0.09)));
 }, { passive:false });
+
+$("b-quete").onclick = () => {
+  tais();
+  elAccueil.classList.add("parti");
+  document.body.classList.remove("au-menu");
+  document.body.classList.add("en-quete");
+  $("panneau").classList.remove("vu");
+  if(!salon.actif) $("b-salon").click();
+  lanceQuete();
+};
 
 $("b-missions").onclick = () => {
   missionsActives = !missionsActives;
