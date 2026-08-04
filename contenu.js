@@ -134,7 +134,7 @@ voix: [
 reactions: {
   accueil: { niv:[
     { id:"accueil-0", t:`Salut ! Moi c'est <b>Lumen</b>, je suis un photon. Je tourne autour de ce truc depuis un moment. Clique sur moi si tu as des questions.` },
-    { id:"accueil-1", t:`Salut, <b>Lumen</b>, photon en orbite. Pose-moi ce que tu veux, j'ai le temps : je boucle un tour toutes les six minutes et demie.`,
+    { id:"accueil-1", t:`Salut, <b>Lumen</b>, photon en orbite. Pose-moi ce que tu veux, j'ai le temps : je boucle un tour toutes les onze minutes et demie.`,
       sources:["gravity2021","chandrasekhar1983"] },
     { id:"accueil-2", t:`<b>Lumen</b>, photon piégé sur la sphère à 1,5 r<sub>s</sub>. Orbite instable, donc je ne suis pas là pour longtemps. Clique si tu veux parler métrique.`,
       dire:`Lumen, photon piégé sur la sphère à un virgule cinq rayon de Schwarzschild. Orbite instable, donc je ne suis pas là pour longtemps. Clique si tu veux parler métrique.`,
@@ -158,10 +158,12 @@ reactions: {
   photonFuite: { id:"photon-fuite", t:`Il s'en sort. Maintenant il file tout droit pendant 26 000 ans avant que quelqu'un le voie.`,
     sources:["gravity2021"] },
   traj: { id:"traj", t:`Voilà l'avenir de tout le monde, déjà tracé. Une orbite ne se décide pas en route : la vitesse de départ contient toute l'histoire.` },
-  vitesse0: { id:"vitesse-reel", t:`Là tu es en <b>temps réel</b>. Je me déplace de deux centièmes de rayon par seconde. Va faire un café : il me faut <i>6 min 39 s</i> pour un tour.`,
-    dire:`Là tu es en temps réel. Je me déplace de deux centièmes de rayon par seconde. Va faire un café : il me faut six minutes et trente-neuf secondes pour un tour.`,
+  vitesse0: { id:"vitesse-reel", t:`Là tu es en <b>temps réel</b>. Je me déplace de deux centièmes de rayon par seconde. Va faire un café : il me faut <i>11 min 31 s</i> pour un tour.`,
+    dire:`Là tu es en temps réel. Je me déplace de deux centièmes de rayon par seconde. Va faire un café : il me faut onze minutes et trente et une secondes pour un tour.`,
     sources:["gravity2021","chandrasekhar1983"] },
-  vitesse3: { id:"vitesse-heure", t:`Une heure par seconde. À ce rythme le bord externe du disque fait son tour pendant que tu clignes des yeux — et ça reste un mois de vrai temps.` },
+  vitesse3: { id:"vitesse-heure", t:`Une heure par seconde. À ce rythme le bord externe du disque boucle son orbite en quelques secondes — alors qu'en vrai il lui faut <i>près de quatre heures</i>.`,
+    dire:`Une heure par seconde. À ce rythme, le bord externe du disque boucle son orbite en quelques secondes, alors qu'en vrai il lui faut près de quatre heures.`,
+    sources:["gravity2021","bardeen1972"] },
   niveau: { niv:[
     { id:"niveau-0", t:`Je repars des bases, promis, et sans jargon.` },
     { id:"niveau-1", t:`On monte d'un cran.` },
@@ -170,9 +172,9 @@ reactions: {
   inactif: [
     { id:"inactif-0", t:`Un trou noir n'aspire pas. Si le Soleil en devenait un <i>à masse égale</i>, la Terre garderait exactement la même orbite. Il ferait juste très froid.`,
       sources:["birkhoff1923"] },
-    { id:"inactif-1", t:`Sagittarius A* est énorme, mais sa densité moyenne est ridicule : <i>moins dense que l'eau</i>. Plus un trou noir est massif, moins il est dense.`,
-      dire:`Sagittarius A étoile est énorme, mais sa densité moyenne est ridicule : moins dense que l'eau. Plus un trou noir est massif, moins il est dense.`,
-      sources:["gravity2021","schwarzschild1916"] },
+    { id:"inactif-1", t:`Plus un trou noir est massif, moins il est dense. Moi je pèse <i>mille fois l'eau</i> — mais M87*, mille fois plus lourd, est <b>moins dense que l'air</b>.`,
+      dire:`Plus un trou noir est massif, moins il est dense. Moi je pèse mille fois l'eau. Mais M 87 étoile, mille fois plus lourd, est moins dense que l'air.`,
+      sources:["gravity2021","schwarzschild1916","eht2019"] },
     { id:"inactif-2", t:`L'ombre que tu regardes fait 52 millionièmes de seconde d'arc dans le ciel. C'est une <i>orange posée sur la Lune</i>.`,
       sources:["eht2022"] },
     { id:"inactif-3", t:`Tu ne verrais jamais personne franchir l'horizon. De loin, il ralentit, rougit, et se fige. Lui, il passe sans rien remarquer.`,
@@ -196,8 +198,8 @@ questions: [
 { q:"Qu'est-ce qui se passe si je tombe dedans ?", niv:[
   { id:"q2-0", t:`Sur celui-ci, tu franchirais la limite <b>sans rien sentir</b>. Ensuite, plus aucune direction ne te ramène en arrière : tomber devient aussi inévitable que le passage du temps. Et plus bas, tu serais étiré comme un spaghetti.`,
     sources:["misner1973"] },
-  { id:"q2-1", t:`Sur Sgr A*, l'étirement à l'horizon est plus faible que celui que la Lune t'inflige : tu passes sans le remarquer. À l'intérieur, la distance au centre cesse d'être une direction d'espace pour devenir une <b>direction de temps</b> — le fond n'est plus un lieu, c'est un futur.`,
-    dire:`Sur Sagittarius A étoile, l'étirement à l'horizon est plus faible que celui que la Lune t'inflige : tu passes sans le remarquer. À l'intérieur, la distance au centre cesse d'être une direction d'espace pour devenir une direction de temps. Le fond n'est plus un lieu, c'est un futur.`,
+  { id:"q2-1", t:`Sur Sgr A*, l'étirement à l'horizon ne dépasse pas <i>un dix-millième de g</i> sur la taille d'un corps : tu passes sans le remarquer. À l'intérieur, la distance au centre cesse d'être une direction d'espace pour devenir une <b>direction de temps</b> — le fond n'est plus un lieu, c'est un futur.`,
+    dire:`Sur Sagittarius A étoile, l'étirement à l'horizon ne dépasse pas un dix-millième de g sur la taille d'un corps : tu passes sans le remarquer. À l'intérieur, la distance au centre cesse d'être une direction d'espace pour devenir une direction de temps. Le fond n'est plus un lieu, c'est un futur.`,
     sources:["misner1973","gravity2021"] },
   { id:"q2-2", t:`Traversée régulière en Eddington-Finkelstein. En intérieur de Schwarzschild r devient de type temps : atteindre r = 0 est inévitable et le temps propre restant est majoré par <i>πGM/c³ ≈ 60 s</i> ici. Les marées divergent en M/r³, donc négligeables à l'horizon d'un supermassif. La question ouverte est quantique : firewall, ou strictement rien.`,
     dire:`Traversée régulière en Eddington-Finkelstein. En intérieur de Schwarzschild, r devient de type temps : atteindre r égale zéro est inévitable, et le temps propre restant est majoré par pi G M sur c cube, environ soixante secondes ici. Les marées divergent en M sur r cube, donc négligeables à l'horizon d'un supermassif. La question ouverte est quantique : firewall, ou strictement rien.`,

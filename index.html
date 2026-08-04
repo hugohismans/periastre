@@ -358,7 +358,7 @@ uniform float uFocal;
 uniform vec3  uPhotons[4];
 uniform int   uNbPhotons;
 
-const float R_IN  = 2.6;
+const float R_IN  = 3.0;    // l'ISCO : sous cette orbite le disque ne peut pas tenir
 const float R_OUT = 11.0;
 const int   STEPS = 240;
 
@@ -757,12 +757,14 @@ const photons = [];
 function lancePhoton(){
   // juste au-dessus de la sphère des photons, tangentiellement : l'orbite est
   // instable, il fait quelques tours puis part. Placé face à la caméra.
+  // Les conditions initiales passent par rayonDepuis : poser naïvement |d| = 1
+  // donne h² = r² = 2,25 au lieu de b_c² = 6,75, et fait tourner le photon
+  // √3 fois trop vite.
   const a = cam.azim;
   const p = [ Math.cos(a)*R_PHOTON*1.008, 0, Math.sin(a)*R_PHOTON*1.008 ];
-  const d = norm(cross([0,1,0], p));
-  const L = cross(p, d);
+  const r = rayonDepuis(p, norm(cross([0,1,0], p)));
   if(photons.length >= 4) photons.shift();
-  photons.push({ p, d, h2:dot(L,L), parcours:0, angle:0, trace:[] });
+  photons.push({ p, d:r.d, h2:r.h2, temps:0, angle:0, trace:[] });
 }
 
 // ============ temps ============
@@ -822,7 +824,10 @@ function avance(dtSec){
       if(da >  Math.PI) da -= 6.2832;
       if(da < -Math.PI) da += 6.2832;
       f.angle += Math.abs(da);
-      f.parcours += pasP;
+      // λ est le paramètre affine, pas le temps. Ce qu'un observateur lointain
+      // chronomètre, c'est t, et dt/dλ = E/(1 − r_s/r) : au ras de la sphère
+      // des photons ce facteur vaut 3.
+      f.temps += pasP / Math.max(1 - R_HORIZON/len(f.p), 1e-3);
     }
     f.trace.push([f.p[0], f.p[1], f.p[2]]);
     if(f.trace.length > 200) f.trace.shift();
@@ -950,16 +955,16 @@ function majLecture(){
   const el = $("lecture");
   const f = photons[0];
   if(f){
-    const sec = f.parcours * SEC_PAR_UNITE;
-    const km  = f.parcours * KM_PAR_UNITE;
+    const sec = f.temps * SEC_PAR_UNITE;
+    const km  = f.temps * KM_PAR_UNITE;
     el.innerHTML =
       `<span class="gros">${tempsFr(sec)}</span> de vol · ${(f.angle/6.2832).toFixed(2)} tour` +
       `<span class="note">${(km/1e6).toFixed(1)} millions de km parcourus à la vitesse de la lumière.</span>`;
   } else {
     el.innerHTML =
-      `<span class="gros">6 min 39 s</span> par tour d'anneau` +
-      `<span class="note">C'est le temps que met un photon pour boucler la sphère des photons. ` +
-      `Il est déjà 15 min plus vieux quand il arrive jusqu'à toi.</span>`;
+      `<span class="gros">11 min 31 s</span> par tour d'anneau` +
+      `<span class="note">C'est le temps, chronométré d'ici, que met un photon pour boucler la ` +
+      `sphère des photons : 6√3·πGM/c³. Il est déjà 15 min plus vieux quand il t'arrive.</span>`;
   }
 }
 
@@ -1000,8 +1005,8 @@ const FICHES = [
 
    `Son rayon vaut r<sub>s</sub> = 2GM/c², soit <i>12,7 millions de km</i> ici. Ce n'est pas
     un endroit où la matière s'écrase : la courbure y est parfaitement finie. Sur un trou noir
-    aussi massif, les forces d'étirement à l'horizon sont <b>plus faibles que celles que la
-    Lune exerce sur toi</b>. Tu le franchirais sans t'en apercevoir. Après, c'est autre chose.`,
+    aussi massif, l'étirement à l'horizon ne dépasse pas <b>un dix-millième de g</b> sur la
+    taille d'un corps humain. Tu le franchirais sans t'en apercevoir. Après, c'est autre chose.`,
 
    `Surface nulle, pas singularité : l'invariant de Kretschmann K = 48G²M²/c⁴r⁶ reste fini
     en r<sub>s</sub>. La dégénérescence de la métrique de Schwarzschild y est un artefact de
@@ -1027,9 +1032,11 @@ const FICHES = [
 
    `Géodésiques nulles de Schwarzschild. L'équation orbitale se réduit à
     <i>d²u/dφ² + u = 3GMu²/c²</i> avec u = 1/r ; le membre de droite est le terme purement
-    relativiste, celui qui <b>double</b> la déflexion newtonienne — 1,75″ au limbe solaire,
-    mesuré par Eddington en 1919, aujourd'hui contraint à 10⁻⁵ près par VLBI.
-    C'est cette équation-là qui est intégrée à l'écran, pas une approximation.`,
+    relativiste, celui qui <b>double</b> la déflexion newtonienne. 1,75″ au limbe solaire est
+    la <i>prédiction</i> : les mesures de 1919 donnèrent 1,98″ ± 0,12 à Sobral et
+    1,61″ ± 0,30 à Príncipe — là où se trouvait Eddington, et c'est le résultat le moins précis
+    des deux. Aujourd'hui γ est contraint à 1,2 × 10⁻⁴ par VLBI, et à 2 × 10⁻⁵ par le retard
+    Shapiro de Cassini. C'est cette équation-là qui est intégrée à l'écran, pas une approximation.`,
   ]
 },
 {
@@ -1135,12 +1142,16 @@ const FICHES = [
    `<b>Exact</b> — géodésiques nulles intégrées sous forme cartésienne
     a = −(3/2)h²r/r⁵ avec h = |r × ṙ|, équivalente à la Binet d²u/dφ² + u = 3Mu² :
     d'où sphère des photons à 1,5 r<sub>s</sub>, ombre à √27/2, images d'ordre n,
-    redshift gravitationnel √(1−r<sub>s</sub>/r), Ω képlérien en r<sup>−3/2</sup>.<br><br>
-    <b>Approximé</b> — métrique statique (a = 0 : ni frame-dragging ni ergosphère),
-    disque géométriquement mince et optiquement fin sans transfert radiatif, Doppler sans
-    le facteur γ, émissivité ad hoc au lieu d'un GRMHD. Les sondes suivent la géodésique de
-    type temps (même équation plus le terme newtonien), intégrée en <i>temps coordonnée</i>
-    et non en temps propre.`,
+    Ω képlérien en r<sup>−3/2</sup>, et la période orbitale du photon 6√3·πGM/c³.<br><br>
+    <b>Approximé</b> — métrique statique (a = 0 : ni frame-dragging ni ergosphère).
+    Disque géométriquement mince et optiquement fin, émissivité ad hoc au lieu d'un GRMHD,
+    sans transfert radiatif. Le <i>redshift gravitationnel</i> n'est appliqué qu'en g¹ sur la
+    luminosité, avec un plancher, là où la loi est en g³ — et sans décalage de couleur :
+    c'est le même défaut que celui qu'on assume pour le Doppler. Ce dernier prend β en
+    coordonnées, le borne à 0,85 et omet γ, d'où une erreur de γ³−1 ≈ 32 % au bord interne,
+    et non 10 %. Le calque de trajectoires est projeté droit, sans lentille. Les sondes
+    suivent la géodésique de type temps (même équation plus le terme newtonien), intégrée en
+    <i>temps coordonnée</i> et non en temps propre.`,
   ]
 },
 ];
@@ -1363,14 +1374,17 @@ const METHODE = [
  c'est lui qui porte toute la relativité générale de l'image.</p>
 
  <h3>Schéma numérique</h3>
- <p>Intégrateur position-Verlet à pas adaptatif <code>dt = clamp(0,085 r ; 0,045 ; 1,4)</code>,
- direction renormalisée à chaque pas, 240 pas au maximum, terminaison sur
- <code>r &lt; 1</code> (capture) ou <code>r &gt; 70</code> en s'éloignant. <code>h²</code> est
- évalué une fois au départ : ce n'est pas une contrainte imposée mais une constante du
- mouvement, et sa conservation numérique est un diagnostic en soi.</p>
- <p>Le banc d'essai ci-dessous rejoue ces géodésiques en JavaScript avec la même équation
- et les mêmes constantes que le GLSL — la version shader en est la transcription littérale.
- Les quatre grandeurs mesurées sont des <b>sorties</b> du schéma, jamais des paramètres.</p>
+ <p>Intégrateur Verlet-vitesse à pas adaptatif <code>dt = clamp(0,085 r ; 0,045 ; 1,4)/|ṙ|</code>,
+ 240 pas au maximum, terminaison sur <code>r &lt; 1</code> (capture) ou <code>r &gt; 70</code>
+ en s'éloignant. La direction n'est <b>jamais</b> renormalisée : λ est un paramètre affine,
+ où <code>|dr/dλ|² = 1 + 2Mh²/r³</code> n'est pas constant. Forcer la norme à 1 est l'erreur
+ naturelle, et elle gonfle l'ombre de 55 % — c'est le banc d'essai ci-dessous qui l'a
+ débusquée. <code>h²</code> est évalué une fois au départ : ce n'est pas une contrainte
+ imposée mais une constante du mouvement.</p>
+ <p>Le banc rejoue ces géodésiques en JavaScript avec la même équation et les mêmes constantes
+ que le GLSL, mais un pas des milliers de fois plus fin et sans plafond de pas : il mesure
+ la justesse de la <i>formulation</i>, pas celle du budget temps réel du shader.
+ Les quatre grandeurs obtenues sont des <b>sorties</b> du schéma, jamais des paramètres.</p>
 
  <h3>Les sondes de matière</h3>
  <p>Elles suivent <code>a = −(M/r³)(1 + 3h²/r²) r</code>, forme cartésienne de la Binet de
