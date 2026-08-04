@@ -243,6 +243,46 @@ site de vulgarisation raconte ; ici on fait l'expérience, y compris celles que
 personne ne pourra jamais faire. La liberté porte sur le temps, l'échelle et le
 point de vue — jamais sur les équations.
 
+### Le leitmotiv
+
+Et le mot d'ordre, dans les termes d'Hugo : *« C'est avant tout un outil
+pédagogique. On peut aller jusqu'à expliquer l'équation du trou noir. C'est un
+peu notre effet : on est une simulation, on explique, on dit — ce n'est pas
+n'importe quoi que vous voyez, c'est un vrai trou noir, comme si vous y
+étiez. »*
+
+Ce n'est pas un slogan, c'est un critère de tri. Toute fonctionnalité doit
+passer ce test : **est-ce qu'elle aide à comprendre, et est-ce qu'on peut
+montrer d'où elle sort ?** Le jeu, les tenues, la monnaie, le vaisseau sont des
+moyens ; si l'un d'eux se met à concurrencer la compréhension, c'est lui qui
+cède.
+
+Et ça décide aussi de ce qu'on refuse. Une belle image qu'on ne peut pas
+justifier vaut moins qu'une image plus modeste qu'on peut démonter devant le
+visiteur. C'est déjà pour ça que le banc d'essai existe, que chaque affirmation
+porte ses sources, et qu'on avoue la seule chose qu'on triche — la pesanteur du
+salon.
+
+## De la musique — *pour plus tard*
+
+Demandée par Hugo. Deux façons de s'y prendre, et une seule tient debout ici.
+
+**Écartée : une piste importée.** Même sous licence libre, il faut vérifier
+chaque fichier, créditer précisément, et un seul manquement salit un site
+public. C'est le même raisonnement que pour les textures et les modèles, et il
+donne la même réponse.
+
+**Retenue : de la musique calculée**, par l'API Web Audio, comme tout le reste.
+Une nappe lente construite sur quelques oscillateurs, un filtre qui respire, et
+— l'idée qui la relie au sujet — **des paramètres pris dans la simulation** :
+la hauteur suit le décalage gravitationnel, la densité suit le rayon orbital,
+et l'ensemble se tend à l'approche du périastre. La musique devient alors une
+seconde lecture des mêmes équations, pas un habillage. Elle ne pèse rien, elle
+ne se répète jamais, et elle tient la promesse du site jusque dans le son.
+
+Une réserve de méthode : coupée par défaut, et un réglage séparé de celui de la
+voix. On a déjà appris qu'un son qu'on n'a pas demandé est désagréable.
+
 ## Un vrai cours sur les jumeaux, avec le diagramme de Minkowski — *pour plus tard*
 
 Demande d'Hugo, et son diagnostic est le bon : ce n'est pas si compliqué, et le
