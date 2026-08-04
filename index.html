@@ -4256,6 +4256,22 @@ function ecran(M, coins, dessineDedans){
   const aire = Math.abs((b[0]-a[0])*(d[1]-a[1]) - (d[0]-a[0])*(b[1]-a[1]));
   if(aire > 9 * ui.clientWidth * ui.clientHeight) return;
 
+  /* L'erreur de perspective, mesurée plutôt que devinée.
+
+     Le premier garde-fou regardait l'angle de vue, et il visait à côté : de
+     près, un écran occupe un grand angle, donc son bord proche et son bord
+     lointain diffèrent beaucoup — et une affine ne peut pas rendre ça, même
+     vu de face. Or l'affine envoie un rectangle sur un PARALLÉLOGRAMME, dont
+     les côtés opposés sont égaux par définition. Il suffit donc de comparer
+     les deux côtés opposés du quadrilatère réellement projeté : leur écart
+     EST l'erreur qu'on commettrait. On mesure le défaut au lieu d'en deviner
+     la cause, et cette fois le critère attrape les deux situations. */
+  const cote1 = [b[0]-a[0], b[1]-a[1]], cote2 = [c[0]-d[0], c[1]-d[1]];
+  const l1 = Math.hypot(cote1[0], cote1[1]) || 1;
+  const gauchi = Math.hypot(cote1[0]-cote2[0], cote1[1]-cote2[1]) / l1;
+  const droit = Math.min(1, Math.max(0, (0.26 - gauchi) / 0.14));   // 1 sous 12 %, 0 au-delà de 26 %
+  if(droit <= 0.01) return;
+
   const chemin = () => {
     ctx.beginPath();
     ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]);
@@ -4274,7 +4290,7 @@ function ecran(M, coins, dessineDedans){
   ctx.restore();
 
   ctx.save();
-  ctx.globalAlpha *= lisible;
+  ctx.globalAlpha *= Math.min(lisible, droit);
   // biseau : un liseré clair en haut, sombre en bas, comme un cadre encastré
   chemin();
   ctx.lineWidth = 3.5; ctx.strokeStyle = "rgba(28,25,42,0.95)"; ctx.stroke();
@@ -4703,13 +4719,17 @@ function boucle(now){
     // sourds ; celui qu'on vise s'éclaire. C'est tout ce qu'il faut pour qu'on
     // comprenne qu'un objet du décor se manipule, sans une ligne de didacticiel.
     gl.uniform1f(uForce, 1);
+    // L'étape en cours, s'il y en a une : elle désigne le poste à mettre en avant.
+    const attendu = (queteActive && QUETE[iQuete]) ? QUETE[iQuete].id : null;
     for(const p of VAISSEAU.POSTES){
       if(p.id === "telescope"){
         // Sa boîte de visée n'est pas dessinée — l'instrument est déjà là. On
         // ne montre qu'un halo quand on le vise, pour dire qu'il s'active.
-        if(salon.vise !== p) continue;
+        const appele = attendu === "a-telescope";
+        if(salon.vise !== p && !appele) continue;
         gl.uniform3fv(uTeinteF, VAISSEAU.AMBRE);
-        gl.uniform1f(uEmiF, 0.17);
+        gl.uniform1f(uEmiF, salon.vise === p ? 0.17
+                     : 0.05 + 0.06*Math.sin(salon.horloge*3.1));
         gl.uniformMatrix4fv(uModele, false, new Float32Array([
           p.d[0],0,0,0,  0,p.d[1],0,0,  0,0,p.d[2],0,  p.c[0],p.c[1],p.c[2],1 ]));
         VAISSEAU.dessineCube(gl);
@@ -4717,8 +4737,15 @@ function boucle(now){
       }
       const retenu = p.valeur === salon.facteur;
       const vise = salon.vise === p;
+      /* Ce qui respire s'active.
+
+         Sur un téléphone il n'y a pas de survol : rien n'indiquait qu'on
+         pouvait toucher ces lames, et l'étape restait bloquée. Elles pulsent
+         donc — mais seulement pendant l'étape qui les demande, et seulement
+         celles-là. Un décor où tout clignote ne désigne plus rien. */
+      const battement = attendu === "a-temps" ? 0.30 + 0.30*Math.sin(salon.horloge*3.1) : 0;
       gl.uniform3fv(uTeinteF, retenu ? VAISSEAU.AMBRE : VAISSEAU.CYAN);
-      gl.uniform1f(uEmiF, retenu ? 1.0 : (vise ? 0.72 : 0.20));
+      gl.uniform1f(uEmiF, retenu ? 1.0 : Math.max(vise ? 0.72 : 0.20, battement));
       gl.uniformMatrix4fv(uModele, false, new Float32Array([
         p.d[0],0,0,0,  0,p.d[1],0,0,  0,0,p.d[2],0,  p.c[0],p.c[1],p.c[2],1 ]));
       VAISSEAU.dessineCube(gl);
@@ -4746,7 +4773,8 @@ function boucle(now){
 
     // Lumen, qui fait sa ronde. Il s'éveille quand on le vise ou qu'il parle.
     ROBOT.dessine(gl, envoie, salon.horloge, oeilSalon(),
-      (salon.vise === POSTE_LUMEN || questionsOuvertes) ? 1 : 0);
+      (salon.vise === POSTE_LUMEN || questionsOuvertes) ? 1
+      : (attendu === "a-lumen" ? 0.55 : 0));
     gl.disable(gl.DEPTH_TEST);
   }
 
