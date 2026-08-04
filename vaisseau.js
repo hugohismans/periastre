@@ -1,4 +1,4 @@
-/* ============================================================================
+﻿/* ============================================================================
    Le salon du vaisseau, en trois dimensions.
 
    L'idée qui rend ça simple : le lancer de géodésiques est DÉJÀ une passe
@@ -23,7 +23,7 @@ const P = 6.5;    // profondeur (z) — la baie est en -z
 const OEIL = 1.62;
 
 // Ouverture de la baie, dans le mur du fond
-const BAIE = { x:7.4, bas:0.55, haut:2.55, montants:3 };
+const BAIE = { x:5.4, bas:0.55, haut:2.55, montants:2 };
 
 // ------------------------------------------------------------- géométrie
 // Un quadrilatère, deux triangles, normale calculée. Les sommets sont donnés

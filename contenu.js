@@ -283,6 +283,22 @@ spectre: {
   ],
 },
 
+// ----------------------------------------------------------- destination
+// Le salon voyage. Changer de système, c'est changer ces valeurs — pas le code.
+// `arrivee` remet le chronomètre à zéro : le vaisseau est en orbite ici depuis
+// cette date, et les écrans de bord l'affichent.
+destination: {
+  id: "sgr-a",
+  nom: "Sagittarius A*",
+  sous: "Trou noir supermassif · centre de la Voie lactée",
+  arrivee: "2026-08-04T06:00:00Z",
+  distance: "8 277 pc de la Terre",
+  masse: "4,297 × 10⁶ masses solaires",
+  // Ce qui suit s'affiche sur l'écran des paramètres de vol
+  orbite: "22 rayons de Schwarzschild",
+  sources: ["gravity2021"],
+},
+
 // --------------------------------------------------------------- accueil
 // Trois temps : l'image, la question du niveau, le menu. Court partout —
 // un débutant ne lit pas, il écoute et il clique.

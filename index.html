@@ -2966,6 +2966,104 @@ function dessine(){
 
   ctx.globalCompositeOperation = "source-over";
   if(sondeSuivie !== null) dessineCockpit();
+  if(salon.actif) dessineEcrans();
+}
+
+// ============ les écrans de bord ============
+// Ils sont dessinés sur le calque 2D mais projetés par la MÊME matrice que
+// l'habitacle : ils sont donc réellement posés sur les parois et suivent le
+// regard. Une transformation affine sur trois coins suffit à y écrire droit.
+
+// Point de la pièce -> pixel. Rend null derrière la caméra.
+function projetteSalon(p, M){
+  const w = M[3]*p[0] + M[7]*p[1] + M[11]*p[2] + M[15];
+  if(w <= 0.02) return null;
+  const x = (M[0]*p[0] + M[4]*p[1] + M[8]*p[2]  + M[12]) / w;
+  const y = (M[1]*p[0] + M[5]*p[1] + M[9]*p[2]  + M[13]) / w;
+  return [(x + 1)/2 * ui.clientWidth, (1 - y)/2 * ui.clientHeight];
+}
+
+function tempsDepuis(iso){
+  const s = Math.max(0, (Date.now() - Date.parse(iso))/1000);
+  const j = Math.floor(s/86400), h = Math.floor(s%86400/3600), mn = Math.floor(s%3600/60);
+  return j ? `${j} j ${h} h ${mn} min` : `${h} h ${mn} min`;
+}
+
+// Écran plaqué sur une paroi : on projette trois coins et on en déduit la
+// transformation affine qui permet d'y écrire.
+function ecran(M, coins, dessineDedans){
+  const a = projetteSalon(coins[0], M), b = projetteSalon(coins[1], M),
+        d = projetteSalon(coins[3], M);
+  if(!a || !b || !d) return;
+  const c = projetteSalon(coins[2], M);
+  if(!c) return;
+
+  ctx.save();
+  ctx.beginPath();
+  ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]);
+  ctx.lineTo(c[0], c[1]); ctx.lineTo(d[0], d[1]); ctx.closePath();
+  ctx.fillStyle = "rgba(8,7,16,0.90)"; ctx.fill();
+  ctx.strokeStyle = "rgba(255,157,77,0.28)"; ctx.lineWidth = 1.2; ctx.stroke();
+  ctx.clip();
+
+  // (0,0)->a, (1,0)->b, (0,1)->d : c'est l'affine qui redresse l'écriture
+  ctx.transform(b[0]-a[0], b[1]-a[1], d[0]-a[0], d[1]-a[1], a[0], a[1]);
+  dessineDedans();
+  ctx.restore();
+}
+
+function dessineEcrans(){
+  const M = mvpSalon();
+  const D = CONTENU.destination;
+  const z = -VAISSEAU.P/2 + 0.012, y0 = 0.95, y1 = 2.25;
+  const g0 = -4.35, g1 = -2.85, d0 = 2.85, d1 = 4.35;
+
+  // --- paroi gauche : où sommes-nous ---
+  ecran(M, [[g0,y1,z], [g1,y1,z], [g1,y0,z], [g0,y0,z]], () => {
+    ctx.scale(1/260, 1/120);          // repère local en « pixels d'écran »
+    ctx.textAlign = "left";
+    ctx.fillStyle = "#8f8aa6"; ctx.font = "9px ui-monospace, monospace";
+    ctx.fillText("POSITION DU VAISSEAU", 14, 20);
+    ctx.fillStyle = "#e9e5f3"; ctx.font = "15px KaTeX_Main, Georgia, serif";
+    ctx.fillText(D.nom, 14, 42);
+    ctx.fillStyle = "#6a6580"; ctx.font = "8.5px ui-monospace, monospace";
+    ctx.fillText(D.orbite, 14, 58);
+
+    // le schéma d'orbite, vu de dessus
+    const cx = 190, cy = 62, R = 38;
+    ctx.strokeStyle = "rgba(255,255,255,0.16)";
+    ctx.beginPath(); ctx.arc(cx, cy, R, 0, 6.2832); ctx.stroke();
+    ctx.fillStyle = "#000";
+    ctx.beginPath(); ctx.arc(cx, cy, 9, 0, 6.2832); ctx.fill();
+    ctx.strokeStyle = "rgba(255,157,77,0.65)"; ctx.lineWidth = 1.6;
+    ctx.beginPath(); ctx.arc(cx, cy, 12, 0, 6.2832); ctx.stroke();
+    ctx.fillStyle = "#7fd8ff";
+    ctx.beginPath();
+    ctx.arc(cx + Math.cos(salon.phase)*R, cy + Math.sin(salon.phase)*R, 3.4, 0, 6.2832);
+    ctx.fill();
+    ctx.fillStyle = "#8f8aa6"; ctx.font = "7.5px ui-monospace, monospace";
+    ctx.fillText("VOUS", cx + Math.cos(salon.phase)*R + 6, cy + Math.sin(salon.phase)*R + 3);
+  });
+
+  // --- paroi droite : le temps, et l'aveu ---
+  ecran(M, [[d0,y1,z], [d1,y1,z], [d1,y0,z], [d0,y0,z]], () => {
+    ctx.scale(1/260, 1/120);
+    ctx.textAlign = "left";
+    ctx.fillStyle = "#8f8aa6"; ctx.font = "9px ui-monospace, monospace";
+    ctx.fillText("EN ORBITE DEPUIS", 14, 20);
+    ctx.fillStyle = "#ff9d4d"; ctx.font = "20px ui-monospace, monospace";
+    ctx.fillText(tempsDepuis(D.arrivee), 14, 45);
+
+    ctx.fillStyle = "#8f8aa6"; ctx.font = "9px ui-monospace, monospace";
+    ctx.fillText("UN TOUR D'ORBITE", 14, 68);
+    ctx.fillStyle = "#e9e5f3"; ctx.font = "12px ui-monospace, monospace";
+    ctx.fillText(tempsFr(periodeSalon()), 14, 84);
+
+    // On le dit franchement : le mouvement est accéléré, et de combien.
+    ctx.fillStyle = "#6a6580"; ctx.font = "8px -apple-system, sans-serif";
+    ctx.fillText(`mouvement accéléré ×${salon.facteur} — sinon`, 14, 100);
+    ctx.fillText("rien ne bougerait à l'œil nu", 14, 110);
+  });
 }
 
 // ============ cockpit ============
