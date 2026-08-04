@@ -170,3 +170,62 @@ dense que l'eau (mille fois plus ; c'est M87* qui est moins dense que l'air), et
   pas sans régénérer la voix.
 - **Ne jamais affirmer sans pouvoir montrer.** Quand une grandeur est calculable,
   un test exécutable vaut mieux qu'une citation.
+
+## Mesurer soi-même l'expansion de l'univers — *pour plus tard*
+
+Idée d'Hugo. Elle mérite d'être notée en détail, parce que c'est la seule
+proposée jusqu'ici où **le geste du joueur est exactement celui de
+l'astronome** : on ne regarde pas une démonstration, on fait la mesure.
+
+### Ce qui la rend forte
+
+On ne reconnaît pas l'hydrogène à une raie, mais à un **motif** — un peigne de
+raies aux écarts fixes. C'est ce qui rend la mesure irréfutable et c'est aussi
+ce qui en fait une bonne mécanique de jeu : on fait glisser un peigne de
+référence sur le spectre d'une galaxie jusqu'à ce que tout s'emboîte d'un coup.
+Le déclic est immédiat, et il n'y a rien à croire sur parole. Un seul trait
+déplacé ne prouverait rien ; six traits qui tombent juste ensemble ne laissent
+aucune échappatoire.
+
+### Le déroulé
+
+1. On mesure le décalage : $z = (\lambda_\text{obs} - \lambda_\text{repos})/\lambda_\text{repos}$.
+2. On en tire une vitesse d'éloignement, $v \simeq cz$ tant que $z$ reste petit.
+3. On lit la distance sur une autre mesure — céphéides, supernovæ de type Ia.
+4. On répète sur une dizaine de galaxies, et **le nuage de points s'aligne**.
+   La pente est $H_0$. C'est la découverte de 1929, refaite à la main.
+
+Raies de repos utiles : Hα 656,28 nm, Hβ 486,13 nm, Hγ 434,05 nm, et le doublet
+K–H du calcium ionisé à 393,37 / 396,85 nm — en pratique le plus visible dans
+le spectre d'une galaxie.
+
+### Le point délicat, à ne pas rater
+
+La formulation courante « les galaxies s'éloignent » est un raccourci, et
+l'intuition d'Hugo — *c'est l'espace entre nous qui se dilate* — est la bonne.
+Ce n'est pas un effet Doppler : rien ne traverse l'espace, c'est l'espace qui
+s'étire pendant le trajet du photon. La distinction n'est pas un détail
+pédant : elle est ce qui rend possible le fait suivant.
+
+**Au-delà d'une certaine distance, la vitesse d'éloignement dépasse $c$ — et on
+voit ces galaxies quand même.** Rien ne l'interdit, puisque aucune ne se déplace
+plus vite que la lumière *dans* l'espace. C'est le genre de fait qui vaut à lui
+seul une mission, et il tombe naturellement à la fin de celle-ci.
+
+### Deux prolongements gratuits
+
+- **La tension de Hubble.** Les deux méthodes ne donnent pas le même $H_0$ —
+  environ 73 par l'échelle des distances, environ 67 par le fond diffus. L'écart
+  résiste depuis des années. C'est une occasion rare de montrer une science
+  **en cours**, plutôt qu'un savoir clos : le joueur qui vient de mesurer sa
+  propre pente comprend immédiatement de quoi on parle.
+- **Le lien avec le reste du site.** Le décalage gravitationnel est déjà simulé
+  autour de Sgr A*. Trois décalages vers le rouge de natures différentes —
+  gravitationnel, Doppler, cosmologique — et les distinguer est un excellent
+  exercice pour le niveau astrophysicien.
+
+### Ce qu'il faudra avant de construire
+
+Rien n'entre sans sources : longueurs d'onde de repos, valeurs de $H_0$ et leurs
+barres d'erreur, distances des galaxies retenues. Et les spectres affichés
+doivent être **calculés**, comme tout le reste — pas des images d'archive.
