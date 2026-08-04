@@ -460,6 +460,25 @@
     /* en haut il n'y a plus la place : la mission passe au-dessus de la barre */
     #mission { top:auto; bottom:64px; left:10px; right:10px; width:auto; transform:none; }
   }
+/* L'avis de son, sur iPhone. Discret, en bas, et il s'en va tout seul :
+   c'est un renseignement, pas une alerte. */
+.avis-son{
+  position:fixed; left:50%; transform:translateX(-50%);
+  bottom:calc(14px + env(safe-area-inset-bottom));
+  /* Une largeur, pas seulement un maximum : en position fixe, la boîte
+     s'ajuste sinon à son contenu et se réduit à une colonne étroite. */
+  z-index:80; width:min(30rem, calc(100vw - 28px));
+  display:flex; gap:.7rem; align-items:center;
+  padding:.62rem .8rem; border-radius:.7rem;
+  background:rgba(16,15,22,.94); border:1px solid rgba(255,180,90,.30);
+  color:#e9e4dc; font-size:.82rem; line-height:1.35;
+  box-shadow:0 10px 30px rgba(0,0,0,.5);
+}
+.avis-son button{
+  flex:0 0 auto; padding:.34rem .62rem; border-radius:.45rem;
+  border:1px solid rgba(255,255,255,.18); background:rgba(255,255,255,.07);
+  color:inherit; font:inherit; cursor:pointer;
+}
 </style>
 </head>
 <body>
@@ -1286,6 +1305,7 @@ void main(){
 <script src="vaisseau.js"></script>
 <script src="personnage.js"></script>
 <script src="pantheon.js"></script>
+<script src="robot.js"></script>
 <script>
 "use strict";
 
@@ -1432,6 +1452,7 @@ const uModele = gl.getUniformLocation(progSalon, "uModele");
 const IDENTITE = new Float32Array([1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1]);
 VAISSEAU.construit(gl);
 PERSONNAGE.construit(gl);
+ROBOT.construit(gl);
 
 // Repère du regard dans la pièce. Avant = −z, la baie est de ce côté.
 function regardSalon(){
@@ -1487,11 +1508,18 @@ function toucheBoite(o, d, c, e, marge){
   return t0 > 0 ? t0 : (t1 > 0 ? t1 : null);
 }
 
+// Lumen n'est pas à une place fixe : sa cible se recalcule à l'instant où on
+// vise. C'est ce qui permet de l'interpeller au passage plutôt que de le
+// chercher dans une marge.
+const POSTE_LUMEN = { id:"lumen", c:[0,0,0], d:[0,0,0] };
+
 // Le poste le plus proche sous le pointeur, s'il y en a un.
 function posteVise(ev){
   const d = rayonSalon(ev);
+  const b = ROBOT.boiteVisee(salon.horloge);
+  POSTE_LUMEN.c = b.c; POSTE_LUMEN.d = b.d;
   let meilleur = null, dmin = 1e9;
-  for(const p of VAISSEAU.POSTES){
+  for(const p of VAISSEAU.POSTES.concat(POSTE_LUMEN)){
     const t = toucheBoite(OEIL_SALON, d, p.c, p.d, 0.045);
     if(t !== null && t < dmin){ dmin = t; meilleur = p; }
   }
@@ -2197,6 +2225,7 @@ cv.addEventListener("pointerup", e => {
   if(!salon.actif || !d || !d.p) return;
   if(Math.hypot(e.clientX - d.x, e.clientY - d.y) > 6) return;   // c'était un glissé
   if(posteVise(e) !== d.p) return;                               // relâché ailleurs
+  if(d.p.id === "lumen"){ ouvreQuestions(); return; }
   salon.facteur = d.p.valeur;
   reagit("vitesse");
 });
@@ -2887,10 +2916,42 @@ function intro(){
   // Qui revient a déjà répondu sur son niveau : on ne le redemande pas.
   const entre = son => {
     voixActive = son; majBoutonVoix(); sauve();
+    if(son) avertitSonIOS();
     dejaVenu ? menu() : niveauDemande();
   };
   $("acc-go").onclick  = () => entre(true);
   $("acc-muet").onclick = () => entre(false);
+}
+
+/* L'interrupteur latéral de l'iPhone coupe le son des pages web.
+
+   Et il n'existe aucun moyen de le détecter : `play()` réussit, `currentTime`
+   avance normalement, seul le haut-parleur reste muet. Le contournement connu
+   passe par la catégorie de session audio du système, qui n'est accessible
+   qu'à une application native. Un site ne peut donc rien faire — sauf le dire.
+
+   Sans cet avertissement, quelqu'un qui a choisi la voix conclut que le son
+   est cassé, et il a de bonnes raisons de le croire. */
+const SOUS_IOS = /iP(hone|od|ad)/.test(navigator.userAgent) ||
+                 (/Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1);
+
+function avertitSonIOS(){
+  if(!SOUS_IOS) return;
+  try { if(localStorage.getItem("periastre.avisSon")) return; } catch(_){}
+  const n = document.createElement("div");
+  n.className = "avis-son";
+  // Le texte est enveloppé : sans cette balise, la disposition en boîte
+  // flexible fait de chaque nœud une colonne, et le gras part en escalier.
+  n.innerHTML = `<span>Si tu n'entends rien : le <b>petit interrupteur</b> sur la
+                 tranche de l'iPhone coupe aussi le son des pages web.</span>
+                 <button type="button">J'ai compris</button>`;
+  const ferme = () => {
+    n.remove();
+    try { localStorage.setItem("periastre.avisSon", "1"); } catch(_){}
+  };
+  n.querySelector("button").onclick = ferme;
+  document.body.appendChild(n);
+  setTimeout(ferme, 11000);
 }
 
 // Deuxième temps : on demande le niveau comme une question, pas comme un
@@ -3705,6 +3766,10 @@ function boucle(now){
     PERSONNAGE.dessine(gl, envoie,
       [1,0,0,0, 0,1,0,0, 0,0,1,0, 1.95,VAISSEAU.FOSSE,-2.70,1],
       salon.horloge + 11.3, versAstre);
+
+    // Lumen, qui fait sa ronde. Il s'éveille quand on le vise ou qu'il parle.
+    ROBOT.dessine(gl, envoie, salon.horloge, OEIL_SALON,
+      (salon.vise === POSTE_LUMEN || questionsOuvertes) ? 1 : 0);
     gl.disable(gl.DEPTH_TEST);
   }
 
