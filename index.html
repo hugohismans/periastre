@@ -2989,80 +2989,132 @@ function tempsDepuis(iso){
   return j ? `${j} j ${h} h ${mn} min` : `${h} h ${mn} min`;
 }
 
-// Écran plaqué sur une paroi : on projette trois coins et on en déduit la
-// transformation affine qui permet d'y écrire.
+// Écran plaqué sur une paroi. Un vrai écran dans une pièce sombre n'est pas un
+// rectangle noir : il a un biseau, il émet de la lumière autour de lui, et sa
+// dalle se trahit par un balayage. Sans ça on lit un panneau de débogage.
 function ecran(M, coins, dessineDedans){
   const a = projetteSalon(coins[0], M), b = projetteSalon(coins[1], M),
-        d = projetteSalon(coins[3], M);
-  if(!a || !b || !d) return;
-  const c = projetteSalon(coins[2], M);
-  if(!c) return;
+        c = projetteSalon(coins[2], M), d = projetteSalon(coins[3], M);
+  if(!a || !b || !c || !d) return;
+
+  const chemin = () => {
+    ctx.beginPath();
+    ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]);
+    ctx.lineTo(c[0], c[1]); ctx.lineTo(d[0], d[1]); ctx.closePath();
+  };
+  const cx = (a[0]+b[0]+c[0]+d[0])/4, cy = (a[1]+b[1]+c[1]+d[1])/4;
+  const rayon = Math.hypot(b[0]-a[0], b[1]-a[1]);
+
+  // La lueur que la dalle jette sur la cloison
+  ctx.save();
+  const halo = ctx.createRadialGradient(cx, cy, rayon*0.25, cx, cy, rayon*0.95);
+  halo.addColorStop(0, "rgba(120,180,255,0.11)");
+  halo.addColorStop(1, "rgba(120,180,255,0)");
+  ctx.fillStyle = halo;
+  ctx.fillRect(cx - rayon, cy - rayon*0.9, rayon*2, rayon*1.8);
+  ctx.restore();
 
   ctx.save();
-  ctx.beginPath();
-  ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]);
-  ctx.lineTo(c[0], c[1]); ctx.lineTo(d[0], d[1]); ctx.closePath();
-  ctx.fillStyle = "rgba(8,7,16,0.90)"; ctx.fill();
-  ctx.strokeStyle = "rgba(255,157,77,0.28)"; ctx.lineWidth = 1.2; ctx.stroke();
-  ctx.clip();
+  // biseau : un liseré clair en haut, sombre en bas, comme un cadre encastré
+  chemin();
+  ctx.lineWidth = 3.5; ctx.strokeStyle = "rgba(28,25,42,0.95)"; ctx.stroke();
+  ctx.lineWidth = 1.1; ctx.strokeStyle = "rgba(150,160,190,0.22)"; ctx.stroke();
 
-  // (0,0)->a, (1,0)->b, (0,1)->d : c'est l'affine qui redresse l'écriture
+  chemin(); ctx.clip();
+
+  // dalle : pas un noir plat, un dégradé bleuté
+  const g = ctx.createLinearGradient(a[0], a[1], d[0], d[1]);
+  g.addColorStop(0, "rgba(11,16,30,0.97)");
+  g.addColorStop(1, "rgba(6,9,19,0.97)");
+  ctx.fillStyle = g; ctx.fill();
+
+  // (0,0)->a, (1,0)->b, (0,1)->d : l'affine qui redresse l'écriture
   ctx.transform(b[0]-a[0], b[1]-a[1], d[0]-a[0], d[1]-a[1], a[0], a[1]);
   dessineDedans();
+
+  // balayage, dans le repère local pour qu'il suive la perspective
+  ctx.fillStyle = "rgba(0,0,0,0.16)";
+  for(let y = 0; y < 1; y += 0.012) ctx.fillRect(0, y, 1, 0.006);
   ctx.restore();
 }
 
 function dessineEcrans(){
   const M = mvpSalon();
   const D = CONTENU.destination;
-  const z = -VAISSEAU.P/2 + 0.012, y0 = 0.95, y1 = 2.25;
-  const g0 = -4.35, g1 = -2.85, d0 = 2.85, d1 = 4.35;
+  const z = -VAISSEAU.P/2 + 0.012, y0 = 0.86, y1 = 2.34;
+  const g0 = -4.42, g1 = -2.80, d0 = 2.80, d1 = 4.42;
 
-  // --- paroi gauche : où sommes-nous ---
-  ecran(M, [[g0,y1,z], [g1,y1,z], [g1,y0,z], [g0,y0,z]], () => {
-    ctx.scale(1/260, 1/120);          // repère local en « pixels d'écran »
+  // Repère local commun : 300 × 200 « pixels d'écran », marge de 22.
+  const LARG = 300, HAUT = 200, MG = 22;
+  const local = () => ctx.scale(1/LARG, 1/HAUT);
+  const titre = t => {
     ctx.textAlign = "left";
-    ctx.fillStyle = "#8f8aa6"; ctx.font = "9px ui-monospace, monospace";
-    ctx.fillText("POSITION DU VAISSEAU", 14, 20);
-    ctx.fillStyle = "#e9e5f3"; ctx.font = "15px KaTeX_Main, Georgia, serif";
-    ctx.fillText(D.nom, 14, 42);
-    ctx.fillStyle = "#6a6580"; ctx.font = "8.5px ui-monospace, monospace";
-    ctx.fillText(D.orbite, 14, 58);
+    ctx.fillStyle = "#5f7ba8"; ctx.font = "10px ui-monospace, monospace";
+    ctx.fillText(t, MG, 26);
+    ctx.strokeStyle = "rgba(120,160,220,0.18)"; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(MG, 36); ctx.lineTo(LARG-MG, 36); ctx.stroke();
+  };
 
-    // le schéma d'orbite, vu de dessus
-    const cx = 190, cy = 62, R = 38;
-    ctx.strokeStyle = "rgba(255,255,255,0.16)";
+  // --- écran de gauche : où sommes-nous ---
+  ecran(M, [[g0,y1,z], [g1,y1,z], [g1,y0,z], [g0,y0,z]], () => {
+    local();
+    titre("POSITION");
+
+    ctx.fillStyle = "#dce6f5"; ctx.font = "22px KaTeX_Main, Georgia, serif";
+    ctx.fillText(D.nom, MG, 68);
+    ctx.fillStyle = "#5f7ba8"; ctx.font = "9.5px ui-monospace, monospace";
+    ctx.fillText(D.orbite.toUpperCase(), MG, 86);
+
+    // Schéma d'orbite vu de dessus. L'ombre au centre, l'orbite en pointillé,
+    // le vaisseau qui avance pour de bon.
+    const cx = LARG/2, cy = 143, R = 42;
+    ctx.strokeStyle = "rgba(120,160,220,0.30)"; ctx.lineWidth = 1;
+    ctx.setLineDash([2, 4]);
     ctx.beginPath(); ctx.arc(cx, cy, R, 0, 6.2832); ctx.stroke();
-    ctx.fillStyle = "#000";
-    ctx.beginPath(); ctx.arc(cx, cy, 9, 0, 6.2832); ctx.fill();
-    ctx.strokeStyle = "rgba(255,157,77,0.65)"; ctx.lineWidth = 1.6;
-    ctx.beginPath(); ctx.arc(cx, cy, 12, 0, 6.2832); ctx.stroke();
-    ctx.fillStyle = "#7fd8ff";
-    ctx.beginPath();
-    ctx.arc(cx + Math.cos(salon.phase)*R, cy + Math.sin(salon.phase)*R, 3.4, 0, 6.2832);
-    ctx.fill();
-    ctx.fillStyle = "#8f8aa6"; ctx.font = "7.5px ui-monospace, monospace";
-    ctx.fillText("VOUS", cx + Math.cos(salon.phase)*R + 6, cy + Math.sin(salon.phase)*R + 3);
+    ctx.setLineDash([]);
+
+    const lueur = ctx.createRadialGradient(cx, cy, 6, cx, cy, 22);
+    lueur.addColorStop(0, "rgba(255,157,77,0.55)");
+    lueur.addColorStop(1, "rgba(255,157,77,0)");
+    ctx.fillStyle = lueur;
+    ctx.beginPath(); ctx.arc(cx, cy, 22, 0, 6.2832); ctx.fill();
+    ctx.fillStyle = "#04040a";
+    ctx.beginPath(); ctx.arc(cx, cy, 8.5, 0, 6.2832); ctx.fill();
+
+    const vx = cx + Math.cos(salon.phase)*R, vy = cy + Math.sin(salon.phase)*R;
+    ctx.strokeStyle = "rgba(160,210,255,0.30)"; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(vx, vy); ctx.stroke();
+    ctx.fillStyle = "#9fd4ff";
+    ctx.beginPath(); ctx.arc(vx, vy, 3.6, 0, 6.2832); ctx.fill();
+    ctx.fillStyle = "#5f7ba8"; ctx.font = "8px ui-monospace, monospace";
+    ctx.textAlign = "center";
+    ctx.fillText("NOUS", vx, vy - 9);
   });
 
-  // --- paroi droite : le temps, et l'aveu ---
+  // --- écran de droite : le temps, et l'aveu ---
   ecran(M, [[d0,y1,z], [d1,y1,z], [d1,y0,z], [d0,y0,z]], () => {
-    ctx.scale(1/260, 1/120);
+    local();
+    titre("TEMPS DE BORD");
+
     ctx.textAlign = "left";
-    ctx.fillStyle = "#8f8aa6"; ctx.font = "9px ui-monospace, monospace";
-    ctx.fillText("EN ORBITE DEPUIS", 14, 20);
-    ctx.fillStyle = "#ff9d4d"; ctx.font = "20px ui-monospace, monospace";
-    ctx.fillText(tempsDepuis(D.arrivee), 14, 45);
+    ctx.fillStyle = "#5f7ba8"; ctx.font = "9px ui-monospace, monospace";
+    ctx.fillText("EN ORBITE ICI DEPUIS", MG, 60);
+    ctx.fillStyle = "#ff9d4d"; ctx.font = "28px ui-monospace, monospace";
+    ctx.fillText(tempsDepuis(D.arrivee), MG, 90);
 
-    ctx.fillStyle = "#8f8aa6"; ctx.font = "9px ui-monospace, monospace";
-    ctx.fillText("UN TOUR D'ORBITE", 14, 68);
-    ctx.fillStyle = "#e9e5f3"; ctx.font = "12px ui-monospace, monospace";
-    ctx.fillText(tempsFr(periodeSalon()), 14, 84);
+    ctx.strokeStyle = "rgba(120,160,220,0.12)";
+    ctx.beginPath(); ctx.moveTo(MG, 106); ctx.lineTo(LARG-MG, 106); ctx.stroke();
 
-    // On le dit franchement : le mouvement est accéléré, et de combien.
-    ctx.fillStyle = "#6a6580"; ctx.font = "8px -apple-system, sans-serif";
-    ctx.fillText(`mouvement accéléré ×${salon.facteur} — sinon`, 14, 100);
-    ctx.fillText("rien ne bougerait à l'œil nu", 14, 110);
+    ctx.fillStyle = "#5f7ba8"; ctx.font = "9px ui-monospace, monospace";
+    ctx.fillText("DURÉE RÉELLE D'UN TOUR", MG, 126);
+    ctx.fillStyle = "#dce6f5"; ctx.font = "17px ui-monospace, monospace";
+    ctx.fillText(tempsFr(periodeSalon()), MG, 148);
+
+    // On le dit franchement, et c'est même l'intérêt : cette lenteur EST
+    // l'échelle de l'objet.
+    ctx.fillStyle = "#4d6389"; ctx.font = "9px -apple-system, sans-serif";
+    ctx.fillText(`Mouvement accéléré ×${salon.facteur} pour qu'il se voie.`, MG, 172);
+    ctx.fillText("En vrai, rien ne bougerait à l'œil nu.", MG, 184);
   });
 }
 
