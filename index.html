@@ -279,6 +279,10 @@
     <div class="etiq">Vitesse du temps</div>
     <div class="grille" id="vitesses"></div>
   </div>
+  <div class="bloc">
+    <div class="etiq">Voix de Lumen</div>
+    <div class="grille" id="voix-choix"></div>
+  </div>
   <div class="bloc"><button id="b-methode">Pourquoi c'est exact ?</button></div>
   <div id="lecture"></div>
 </div>
@@ -537,8 +541,11 @@ void main(){
 }
 </script>
 
+<script src="contenu.js"></script>
 <script>
 "use strict";
+
+const CONTENU = window.CONTENU;
 
 /* ===========================================================
    Unités : la longueur vaut 1 rayon de Schwarzschild (rs),
@@ -959,7 +966,7 @@ function majLecture(){
 // ============ fiches ============
 // Trois niveaux. Le premier ne suppose aucun acquis — pas même la notion de
 // référentiel. Le troisième suppose qu'on lit des papiers.
-const NIVEAUX = ["Découverte", "Curieux", "Astrophysicien"];
+const NIVEAUX = CONTENU.niveaux;
 
 const FICHES = [
 {
@@ -1172,188 +1179,37 @@ majFiche();
 
 // ============ Lumen ============
 // Un tableau = tirage au sort. { niv:[...] } = une version par niveau.
+// Chaque réplique est un objet { id, t, dire?, sources? } venu de contenu.js.
 const resous = x =>
-  Array.isArray(x)  ? resous(x[Math.floor(Math.random()*x.length)]) :
-  (x && x.niv)      ? x.niv[iNiveau] : x;
+  Array.isArray(x) ? resous(x[Math.floor(Math.random()*x.length)]) :
+  (x && x.niv)     ? resous(x.niv[iNiveau]) : x;
 
-const REACTIONS = {
-  accueil: { niv:[
-    `Salut ! Moi c'est <b>Lumen</b>, je suis un photon. Je tourne autour de ce truc depuis
-     un moment. Clique sur moi si tu as des questions.`,
-    `Salut, <b>Lumen</b>, photon en orbite. Pose-moi ce que tu veux, j'ai le temps :
-     je boucle un tour toutes les six minutes et demie.`,
-    `<b>Lumen</b>, photon piégé sur la sphère à 1,5 r<sub>s</sub>. Orbite instable,
-     donc je ne suis pas là pour longtemps. Clique si tu veux parler métrique.`,
-  ]},
-  pluie: [
-    `Quatre-vingts sondes d'un coup. Regarde les couleurs : <i>bleu</i> elles tiennent,
-     <i>rose</i> elles tombent, <i>vert</i> elles s'en vont. Tout se joue sur la vitesse de départ.`,
-    `Même endroit, même trou noir — et trois destins différents. La seule chose qui change,
-     c'est de combien elles vont trop vite ou pas assez.`,
-  ],
-  avalee: [
-    `Regarde-la bien : elle ne <b>traverse</b> pas. Vue d'ici, elle ralentit, rougit,
-     et s'éteint sans jamais atteindre le bord. Pour elle, la traversée a déjà eu lieu.`,
-    `Elle n'a pas été « aspirée » : elle est tombée, comme une pierre qui rate son virage.
-     Et de notre point de vue, elle <i>tombe encore</i>. Elle tombera toujours.`,
-    `Voilà pourquoi on disait autrefois « étoile gelée ». De loin, rien ne franchit
-     jamais l'horizon — l'image se fige sur le seuil et s'efface.`,
-  ],
-  photon: `Ah, un collègue ! Il est sur la crête : trop lent il tombe, trop vite il part.
-           Personne ne reste. <i>Passe en temps réel</i> pour voir à quel point c'est lent.`,
-  photonAvale: `Bon. Il a glissé du mauvais côté de la crête.`,
-  photonFuite: `Il s'en sort. Maintenant il file tout droit pendant 26 000 ans
-                avant que quelqu'un le voie.`,
-  traj: `Voilà l'avenir de tout le monde, déjà tracé. Une orbite ne se décide pas en route :
-         la vitesse de départ contient toute l'histoire.`,
-  vitesse0: `Là tu es en <b>temps réel</b>. Je me déplace de deux centièmes de rayon par seconde.
-             Va faire un café : il me faut <i>6 min 39 s</i> pour un tour.`,
-  vitesse3: `Une heure par seconde. À ce rythme le bord externe du disque fait son tour
-             pendant que tu clignes des yeux — et ça reste un mois de vrai temps.`,
-  niveau: { niv:[
-    `Je repars des bases, promis, et sans jargon.`,
-    `On monte d'un cran.`,
-    `Très bien. Je ne t'épargne plus rien.`,
-  ]},
-  inactif: [
-    `Un trou noir n'aspire pas. Si le Soleil en devenait un <i>à masse égale</i>,
-     la Terre garderait exactement la même orbite. Il ferait juste très froid.`,
-    `Sagittarius A* est énorme, mais sa densité moyenne est ridicule : <i>moins dense que l'eau</i>.
-     Plus un trou noir est massif, moins il est dense.`,
-    `L'ombre que tu regardes fait 52 millionièmes de seconde d'arc dans le ciel.
-     C'est une <i>orange posée sur la Lune</i>.`,
-    `Tu ne verrais jamais personne franchir l'horizon. De loin, il ralentit, rougit, et se fige.
-     Lui, il passe sans rien remarquer.`,
-    `Ce trou noir-là tourne sur lui-même et entraîne l'espace avec lui.
-     Ça, je ne le simule pas : ma version est immobile. <i>Fiche 8.</i>`,
-    `Le disque brille parce que le gaz frotte contre lui-même en tombant.
-     Rien ne brûle là-dedans — c'est la chute qui fait la lumière.`,
-  ],
-};
-
-const QUESTIONS = [
-{
-  q: "C'est quoi un trou noir, exactement ?",
-  r: { niv:[
-    `De la matière tellement tassée que plus rien ne peut s'en échapper, <b>même pas la lumière</b>.
-     Ce n'est ni un trou ni un aspirateur : juste un endroit d'où on ne revient pas.`,
-    `Une région où la vitesse nécessaire pour s'échapper dépasse celle de la lumière.
-     Comme rien ne va plus vite, rien ne sort. Ce n'est pas un objet solide :
-     c'est une <b>région de l'espace-temps</b> délimitée par un horizon.`,
-    `Une solution du vide des équations d'Einstein possédant un horizon des événements —
-     la frontière du passé causal de l'infini nul futur. Les théorèmes de singularité de
-     <b>Penrose-Hawking</b> garantissent qu'un effondrement suffisant en produit une ;
-     la censure cosmique, elle, reste conjecturale.`,
-  ]}
-},
-{
-  q: "Qu'est-ce qui se passe si je tombe dedans ?",
-  r: { niv:[
-    `Sur celui-ci, tu franchirais la limite <b>sans rien sentir</b>. Ensuite, plus aucune
-     direction ne te ramène en arrière : tomber devient aussi inévitable que le passage du temps.
-     Et plus bas, tu serais étiré comme un spaghetti.`,
-    `Sur Sgr A*, l'étirement à l'horizon est plus faible que celui que la Lune t'inflige :
-     tu passes sans le remarquer. À l'intérieur, la distance au centre cesse d'être une direction
-     d'espace pour devenir une <b>direction de temps</b> — le fond n'est plus un lieu, c'est un futur.`,
-    `Traversée régulière en Eddington-Finkelstein. En intérieur de Schwarzschild r devient de type
-     temps : atteindre r = 0 est inévitable et le temps propre restant est majoré par
-     <i>πGM/c³ ≈ 60 s</i> ici. Les marées divergent en M/r³, donc négligeables à l'horizon d'un
-     supermassif. La question ouverte est quantique : firewall, ou strictement rien.`,
-  ]}
-},
-{
-  q: "Pourquoi c'est noir au milieu ?",
-  r: { niv:[
-    `Parce qu'aucune lumière venant de là ne peut t'atteindre. Ce n'est pas un objet noir,
-     c'est une <b>absence</b>. Et ce rond est plus grand que le trou noir lui-même :
-     la lumière qui passe trop près est happée au passage.`,
-    `C'est l'ombre. Tout rayon dont la trajectoire, remontée à l'envers, finit sous l'horizon
-     te donne du noir. Le seuil tombe à <i>2,6 rayons d'horizon</i> — bien plus large que
-     l'horizon, parce que frôler suffit à être capturé.`,
-    `Section efficace de capture : paramètre d'impact critique b_c = √27 GM/c², d'où un rayon
-     apparent de <i>2,598 r<sub>s</sub></i>. Le bord est en fait un anneau empilant les images
-     d'ordre n, espacées d'un facteur e<sup>−π</sup> en flux. C'est cette structure que l'EHT vise.`,
-  ]}
-},
-{
-  q: "Comment on pèse un truc invisible ?",
-  r: { niv:[
-    `On regarde ce qui tourne autour. Une étoile appelée <b>S2</b> en fait le tour en 16 ans ;
-     sa vitesse et la taille de son orbite donnent la masse — exactement comme on pèse
-     le Soleil en regardant la Terre tourner.`,
-    `Troisième loi de Kepler. S2 boucle son orbite en <i>16,05 ans</i>, passe au plus près
-     à 120 unités astronomiques et y file à 7 650 km/s. Demi-grand axe et période suffisent :
-     4,3 millions de masses solaires, dans un volume trop petit pour un amas d'étoiles.`,
-    `Astrométrie et spectroscopie infrarouge de l'amas S sur trois décennies (Keck, VLT/GRAVITY).
-     Au-delà de Kepler, S2 fournit du post-newtonien testable : redshift gravitationnel détecté
-     au périastre 2018, <b>précession de Schwarzschild</b> de 12,1′/orbite confirmée en 2020.
-     Nobel de physique 2020 à Genzel et Ghez.`,
-  ]}
-},
-{
-  q: "Est-ce que ça peut aspirer la Terre ?",
-  r: { niv:[
-    `Non. Un trou noir n'attire pas plus qu'une étoile de la même masse. Si le Soleil en devenait
-     un tout de suite, la Terre garderait <b>exactement</b> la même orbite — il ferait juste nuit
-     et très froid. Et celui-ci est à 26 000 années-lumière.`,
-    `Non : la gravité ne dépend que de la masse et de la distance, pas de la compacité.
-     À 150 millions de km, le champ d'un trou noir d'une masse solaire est identique à celui
-     du Soleil. Il faut s'approcher à quelques rayons d'horizon pour que quoi que ce soit change.`,
-    `Le <b>théorème de Birkhoff</b> garantit qu'à l'extérieur d'une distribution sphérique la
-     métrique ne dépend que de M : un effondrement à symétrie sphérique ne touche pas aux orbites
-     externes. Les écarts relativistes n'émergent que pour r de l'ordre de quelques r<sub>s</sub>.
-     Sgr A* est à 8,3 kpc.`,
-  ]}
-},
-{
-  q: "Ce que je vois, c'est vraiment ça ?",
-  r: { niv:[
-    `La <b>forme</b>, oui : elle est calculée avec les vraies équations, personne ne l'a dessinée.
-     Les couleurs, non. Le vrai Sgr A* est très pâle et ne s'observe qu'en ondes radio.
-     Ce serait l'image qu'on aurait avec des yeux beaucoup plus sensibles.`,
-    `La géométrie est exacte : anneau, ombre, disque replié par-dessus, tout sort de l'intégration
-     des trajectoires de la lumière. En revanche le disque est une <b>invention plausible</b>,
-     pas une observation — Sgr A* accrète très peu, et son image EHT est un anneau flou
-     en ondes radio, pas ce spectacle.`,
-    `Optique gravitationnelle exacte, astrophysique décorative. Manquent : le spin (Kerr,
-     frame-dragging, ergosphère, ISCO déplacée), le transfert radiatif en plasma optiquement
-     mince, la géométrie épaisse d'un RIAF, la variabilité. Un vrai rendu part d'un post-traitement
-     GRMHD ; ici l'émissivité est posée à la main. <i>Fiche 8.</i>`,
-  ]}
-},
-];
+const REACTIONS = CONTENU.reactions;
+const QUESTIONS = CONTENU.questions;
 
 const elBulle = $("bulle"), elBulleTxt = $("bulle-texte");
-let voixActive = false, voixFr = null, tMasque = 0, tDernier = performance.now(), questionsOuvertes = false;
+let voixActive = false, iVoix = 0, audio = null;
+let tMasque = 0, tDernier = performance.now(), questionsOuvertes = false;
 
-function chargeVoix(){
-  if(!window.speechSynthesis) return;
-  const v = speechSynthesis.getVoices().filter(x => x.lang.toLowerCase().startsWith("fr"));
-  voixFr = v.find(x => /denise|hortense|julie|audrey|amelie|google/i.test(x.name)) || v[0] || null;
-}
-if(window.speechSynthesis){
-  chargeVoix();
-  speechSynthesis.addEventListener("voiceschanged", chargeVoix);
-}
-
-function parle(html){
-  if(!voixActive || !window.speechSynthesis) return;
-  speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(
-    html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim()
-  );
-  u.lang = "fr-FR"; u.rate = 1.02; u.pitch = 1.12;
-  if(voixFr) u.voice = voixFr;
-  speechSynthesis.speak(u);
+// Les répliques étant scriptées, la voix est pré-synthétisée hors ligne
+// (voir outils/voix.py) : aucune clé d'API, et la même voix neuronale pour
+// tout le monde au lieu des voix système, qui sont mauvaises et inégales.
+function tais(){ if(audio){ audio.pause(); audio = null; } }
+function parle(o){
+  tais();
+  if(!voixActive || !o || !o.id) return;
+  audio = new Audio(`voix/${CONTENU.voix[iVoix].id}/${o.id}.mp3`);
+  audio.play().catch(() => {});     // l'autoplay reste bloqué tant qu'on n'a pas cliqué
 }
 
-function dit(html, duree){
+function dit(o, duree, avant){
   questionsOuvertes = false;
-  elBulleTxt.innerHTML = html;
+  const html = typeof o === "string" ? o : o.t;
+  elBulleTxt.innerHTML = (avant || "") + html;
   elBulle.classList.add("vu");
-  parle(html);
+  parle(o);
   const n = html.replace(/<[^>]+>/g, "").length;
-  tMasque = performance.now() + (duree || Math.min(14000, Math.max(5200, 3000 + n*48)));
+  tMasque = performance.now() + (duree || Math.min(16000, Math.max(5200, 3000 + n*54)));
   tDernier = performance.now();
 }
 
@@ -1367,13 +1223,13 @@ function reagit(cle, doux){
 }
 
 function ouvreQuestions(){
-  if(window.speechSynthesis) speechSynthesis.cancel();
+  tais();
   elBulleTxt.innerHTML = "Vas-y, demande :";
-  QUESTIONS.forEach((q, i) => {
+  QUESTIONS.forEach(q => {
     const b = document.createElement("button");
     b.className = "q";
     b.textContent = q.q;
-    b.onclick = () => { dit(`<b>${q.q}</b><br>` + resous(q.r), 20000); };
+    b.onclick = () => dit(resous(q), 24000, `<b>${q.q}</b><br>`);
     elBulleTxt.appendChild(b);
   });
   elBulle.classList.add("vu");
@@ -1382,22 +1238,39 @@ function ouvreQuestions(){
   tDernier = performance.now();
 }
 
+// choix de la voix : sélectionner en active une, le bouton de la bulle coupe
+const boitierVoix = $("voix-choix");
+CONTENU.voix.forEach((v, i) => {
+  const b = document.createElement("button");
+  b.textContent = v.nom;
+  b.onclick = () => {
+    iVoix = i; voixActive = true;
+    majBoutonVoix();
+    dit(resous(REACTIONS.accueil));
+  };
+  boitierVoix.appendChild(b);
+});
+function majBoutonVoix(){
+  [...boitierVoix.children].forEach((c, i) => c.classList.toggle("actif", voixActive && i === iVoix));
+  $("b-voix").textContent = voixActive ? "🔊" : "🔇";
+  $("b-voix").title = voixActive ? "Couper la voix" : "Activer la voix";
+}
+
 $("lumen-corps").onclick = () => questionsOuvertes ? (tMasque = 0) : ouvreQuestions();
 
 $("b-voix").onclick = e => {
   e.stopPropagation();
   voixActive = !voixActive;
-  $("b-voix").textContent = voixActive ? "🔊" : "🔇";
-  $("b-voix").title = voixActive ? "Couper la voix" : "Lire à voix haute";
-  if(voixActive) parle(elBulleTxt.textContent);
-  else if(window.speechSynthesis) speechSynthesis.cancel();
+  majBoutonVoix();
+  if(!voixActive) tais();
 };
+majBoutonVoix();
 
 function veilleLumen(now){
   if(tMasque && now > tMasque){
     elBulle.classList.remove("vu");
     tMasque = 0; questionsOuvertes = false;
-    if(window.speechSynthesis) speechSynthesis.cancel();
+    tais();
   }
   if(!tMasque && now - tDernier > 34000) reagit("inactif");
 }

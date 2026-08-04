@@ -1,0 +1,47 @@
+/* Extrait les répliques de Lumen depuis contenu.js et les sort en JSON.
+   On évalue le fichier au lieu de le parser : la source de vérité reste
+   contenu.js, et un changement de mise en forme ne casse rien ici.
+
+   Usage :  node outils/lignes.mjs           */
+
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { dirname, join } from "node:path";
+
+const ici = dirname(fileURLToPath(import.meta.url));
+const source = readFileSync(join(ici, "..", "contenu.js"), "utf8");
+
+const fenetre = {};
+new Function("window", source)(fenetre);
+const C = fenetre.CONTENU;
+
+const lignes = [];
+const vus = new Set();
+
+function ajoute(o){
+  if(vus.has(o.id)) throw new Error(`id en double : ${o.id}`);
+  vus.add(o.id);
+  lignes.push({
+    id: o.id,
+    // les balises en ligne ne séparent pas les mots : les remplacer par une
+    // espace donnerait « Lumen , photon »
+    dire: (o.dire ?? o.t)
+      .replace(/<br\s*\/?>/gi, " ")
+      .replace(/<[^>]+>/g, "")
+      .replace(/\s+/g, " ")
+      .trim(),
+  });
+}
+
+function parcours(x){
+  if(Array.isArray(x)) x.forEach(parcours);
+  else if(x && typeof x === "object"){
+    if(typeof x.id === "string") ajoute(x);
+    else Object.values(x).forEach(parcours);
+  }
+}
+
+parcours(C.reactions);
+parcours(C.questions);
+
+console.log(JSON.stringify({ voix: C.voix, lignes }, null, 1));
