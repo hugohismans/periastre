@@ -486,6 +486,30 @@
   margin:-3px 0 0 -3px; border-radius:50%; pointer-events:none; z-index:70;
   background:rgba(255,255,255,.62); box-shadow:0 0 0 1.5px rgba(0,0,0,.55);
 }
+/* --------------------------------------------------------- commandes tactiles */
+#manette{ display:none; }
+body.tactile.au-salon #manette{ display:block; }
+#stick{
+  position:fixed; left:calc(18px + env(safe-area-inset-left));
+  bottom:calc(24px + env(safe-area-inset-bottom));
+  width:118px; height:118px; border-radius:50%; z-index:60;
+  background:rgba(12,12,16,.34); border:1px solid rgba(255,255,255,.16);
+  touch-action:none; backdrop-filter:blur(2px);
+}
+#stick i{
+  position:absolute; left:50%; top:50%; width:46px; height:46px; margin:-23px 0 0 -23px;
+  border-radius:50%; background:rgba(255,154,60,.5);
+  border:1px solid rgba(255,190,130,.65); pointer-events:none;
+}
+#t-saut{
+  position:fixed; right:calc(18px + env(safe-area-inset-right));
+  bottom:calc(34px + env(safe-area-inset-bottom));
+  width:76px; height:76px; border-radius:50%; z-index:60;
+  background:rgba(12,12,16,.34); border:1px solid rgba(255,255,255,.16);
+  color:#e9e4dc; font:inherit; font-size:.72rem; letter-spacing:.06em;
+  touch-action:none; -webkit-tap-highlight-color:transparent;
+}
+#t-saut:active{ background:rgba(255,154,60,.32); }
 </style>
 </head>
 <body>
@@ -668,6 +692,15 @@
       <div id="essais"></div>
     </div>
   </div>
+</div>
+
+<!-- Les commandes tactiles. Sans elles, le vaisseau est injouable au doigt :
+     le clavier n'existe pas sur un téléphone, et c'est là que la plupart des
+     gens ouvriront la page. Elles n'apparaissent qu'au salon, et seulement sur
+     un pointeur grossier — une souris n'en a pas besoin. -->
+<div id="manette" aria-hidden="true">
+  <div id="stick"><i></i></div>
+  <button id="t-saut" type="button">saut</button>
 </div>
 
 <script id="vs-salon" type="x-shader">#version 300 es
@@ -1523,21 +1556,80 @@ function hauteurSol(x, z){
   return h;
 }
 
+/* Les commandes tactiles.
+
+   Le stick ne se contente pas d'être un bouton : il rend une DIRECTION et une
+   INTENSITÉ, donc on peut marcher doucement en s'approchant du bord de la
+   fosse. Un couple de boutons gauche/droite obligerait à courir tout le temps,
+   et l'on tomberait sans arrêt.
+
+   Il n'apparaît que sur un pointeur grossier. Sur un ordinateur il gênerait la
+   vue sans rien apporter, puisque le clavier fait déjà le travail. */
+const TACTILE = matchMedia("(pointer: coarse)").matches || navigator.maxTouchPoints > 0;
+if(TACTILE) document.body.classList.add("tactile");
+
+const axe = { x:0, y:0 };
+
+function brancheManette(){
+  const base = document.getElementById("stick");
+  const pouce = base.querySelector("i");
+  let id = null;
+  const R = 42;                       // course utile du stick, en pixels
+
+  const bouge = e => {
+    const r = base.getBoundingClientRect();
+    let dx = e.clientX - (r.left + r.width/2);
+    let dy = e.clientY - (r.top + r.height/2);
+    const d = Math.hypot(dx, dy);
+    if(d > R){ dx = dx/d*R; dy = dy/d*R; }
+    pouce.style.transform = `translate(${dx}px, ${dy}px)`;
+    // Zone morte : sans elle, un doigt posé fait dériver le personnage.
+    const n = Math.hypot(dx, dy)/R;
+    const g = n < 0.16 ? 0 : (n - 0.16)/0.84;
+    axe.x = d ? dx/Math.max(d, 1e-3)*g : 0;
+    axe.y = d ? dy/Math.max(d, 1e-3)*g : 0;
+  };
+
+  base.addEventListener("pointerdown", e => {
+    id = e.pointerId; base.setPointerCapture(id); bouge(e); e.preventDefault();
+  });
+  base.addEventListener("pointermove", e => { if(e.pointerId === id) bouge(e); });
+  const lache = e => {
+    if(e.pointerId !== id) return;
+    id = null; axe.x = axe.y = 0; pouce.style.transform = "";
+  };
+  base.addEventListener("pointerup", lache);
+  base.addEventListener("pointercancel", lache);
+
+  const saut = document.getElementById("t-saut");
+  saut.addEventListener("pointerdown", e => {
+    e.preventDefault();
+    joueur.touches.add(" ");
+    setTimeout(() => joueur.touches.delete(" "), 120);
+  });
+}
+
 const TOUCHES_JEU = new Set(["z","q","s","d","w","a"," ","shift",
                              "arrowup","arrowdown","arrowleft","arrowright","v"]);
 
 function majJoueur(dt){
   const t = joueur.touches;
   const enf = (...l) => l.some(k => t.has(k));
-  const av = (enf("z","w","arrowup") ? 1 : 0) - (enf("s","arrowdown") ? 1 : 0);
-  const dr = (enf("d","arrowright") ? 1 : 0) - (enf("q","a","arrowleft") ? 1 : 0);
+  // Le clavier donne 0 ou 1, le stick donne une valeur continue : on les
+  // additionne, puis on borne. Les deux peuvent servir en même temps.
+  const av = Math.max(-1, Math.min(1,
+    (enf("z","w","arrowup") ? 1 : 0) - (enf("s","arrowdown") ? 1 : 0) - axe.y));
+  const dr = Math.max(-1, Math.min(1,
+    (enf("d","arrowright") ? 1 : 0) - (enf("q","a","arrowleft") ? 1 : 0) + axe.x));
 
   // On se déplace dans le plan : le tangage sert à regarder, pas à voler.
   const c = Math.cos(salon.lacet), si = Math.sin(salon.lacet);
   let dx = si*av + c*dr, dz = -c*av + si*dr;
   const n = Math.hypot(dx, dz);
   if(n > 0){
-    const vit = enf("shift") ? COURSE : VITESSE;
+    // On garde l'intensité du stick : marcher doucement au bord de la fosse
+    // doit rester possible. Le clavier sature à 1, donc rien ne change pour lui.
+    const vit = (enf("shift") ? COURSE : VITESSE) * Math.min(1, n);
     dx = dx/n*vit; dz = dz/n*vit;
   }
 
@@ -1615,6 +1707,9 @@ addEventListener("keydown", e => {
   joueur.touches.add(k);
 });
 addEventListener("keyup", e => joueur.touches.delete(e.key.toLowerCase()));
+// Après les déclarations, jamais avant : `axe` est un const, et l'appeler plus
+// haut lèverait une erreur de zone morte qui emporterait tout le script.
+brancheManette();
 // Passer à une autre fenêtre touche enfoncée laisserait le joueur courir seul.
 addEventListener("blur", () => joueur.touches.clear());
 

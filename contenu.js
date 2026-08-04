@@ -607,7 +607,7 @@ questions: [
   { id:"q2-1", t:`Sur Sgr A*, l'étirement à l'horizon ne dépasse pas <i>un dix-millième de g</i> sur la taille d'un corps : tu passes sans le remarquer. À l'intérieur, la distance au centre cesse d'être une direction d'espace pour devenir une <b>direction de temps</b> — le fond n'est plus un lieu, c'est un futur.`,
     dire:`Sur Sagittarius A étoile, l'étirement à l'horizon ne dépasse pas un dix-millième de g sur la taille d'un corps : tu passes sans le remarquer. À l'intérieur, la distance au centre cesse d'être une direction d'espace pour devenir une direction de temps. Le fond n'est plus un lieu, c'est un futur.`,
     sources:["misner1973","gravity2021"] },
-  { id:"q2-2", t:`Traversée régulière en Eddington-Finkelstein. En intérieur de Schwarzschild r devient de type temps : atteindre r = 0 est inévitable et le temps propre restant est majoré par <i>πGM/c³ ≈ 60 s</i> ici. Les marées divergent en M/r³, donc négligeables à l'horizon d'un supermassif. La question ouverte est quantique : firewall, ou strictement rien.`,
+  { id:"q2-2", t:`Traversée régulière en Eddington-Finkelstein. En intérieur de Schwarzschild r devient de type temps : atteindre r = 0 est inévitable et le temps propre restant est majoré par <i>πGM/c³ ≈ 66,5 s</i> ici. Les marées divergent en M/r³, donc négligeables à l'horizon d'un supermassif. La question ouverte est quantique : firewall, ou strictement rien.`,
     dire:`Traversée régulière en Eddington-Finkelstein. En intérieur de Schwarzschild, r devient de type temps : atteindre r égale zéro est inévitable, et le temps propre restant est majoré par pi G M sur c cube, environ soixante secondes ici. Les marées divergent en M sur r cube, donc négligeables à l'horizon d'un supermassif. La question ouverte est quantique : firewall, ou strictement rien.`,
     sources:["misner1973","amps2013"] },
 ]},
@@ -647,8 +647,8 @@ questions: [
   { id:"q6-1", t:`La géométrie est exacte : anneau, ombre, disque replié par-dessus, tout sort de l'intégration des trajectoires de la lumière. En revanche le disque est une <b>invention plausible</b>, pas une observation — Sgr A* accrète très peu, et son image EHT est un anneau flou en ondes radio, pas ce spectacle.`,
     dire:`La géométrie est exacte : anneau, ombre, disque replié par-dessus, tout sort de l'intégration des trajectoires de la lumière. En revanche le disque est une invention plausible, pas une observation. Sagittarius A étoile accrète très peu, et son image de l'E H T est un anneau flou en ondes radio, pas ce spectacle.`,
     sources:["eht2022","yuan2014","luminet1979"] },
-  { id:"q6-2", t:`Optique gravitationnelle exacte, astrophysique décorative. Manquent : le spin (Kerr, frame-dragging, ergosphère, ISCO déplacée), le transfert radiatif en plasma optiquement mince, la géométrie épaisse d'un RIAF, la variabilité. Un vrai rendu part d'un post-traitement GRMHD ; ici l'émissivité est posée à la main. <i>Fiche 8.</i>`,
-    dire:`Optique gravitationnelle exacte, astrophysique décorative. Manquent : le spin, donc pas de Kerr, pas de frame-dragging, pas d'ergosphère, et une ISCO non déplacée ; le transfert radiatif en plasma optiquement mince ; la géométrie épaisse d'un RIAF ; et la variabilité. Un vrai rendu part d'un post-traitement G R M H D. Ici, l'émissivité est posée à la main.`,
+  { id:"q6-2", t:`Optique gravitationnelle exacte, astrophysique décorative. Le spin est là : à a ≠ 0 on bascule sur Kerr, avec frame-dragging, ergosphère et ISCO déplacée — au prix d'une couture sur l'axe polaire, singulier en Boyer-Lindquist. Manquent en revanche le transfert radiatif en plasma optiquement mince, la géométrie épaisse d'un RIAF, et la variabilité. Un vrai rendu part d'un post-traitement GRMHD ; ici l'émissivité est posée à la main. <i>Fiche 8.</i>`,
+    dire:`Optique gravitationnelle exacte, astrophysique décorative. Le spin est là : à spin non nul, on bascule sur Kerr, avec frame-dragging, ergosphère et I S C O déplacée, au prix d'une couture sur l'axe polaire, singulier en Boyer-Lindquist. Manquent en revanche le transfert radiatif en plasma optiquement mince, la géométrie épaisse d'un R I A F, et la variabilité. Un vrai rendu part d'un post-traitement G R M H D. Ici, l'émissivité est posée à la main.`,
     sources:["bardeen1972","yuan2014","eht2022"] },
 ]},
 ],
@@ -950,7 +950,8 @@ fiches: [
     l'intégration de $\mathbf{a} = -\tfrac{3}{2}h^{2}\mathbf{r}/r^{5}$ avec $h = \lVert\mathbf{r}\times\dot{\mathbf{r}}\rVert$, équivalente à la Binet $d^{2}u/d\varphi^{2} + u = 3Mu^{2}$ :
     d'où sphère des photons à 1,5 r<sub>s</sub>, ombre à √27/2, images d'ordre n,
     Ω képlérien en r<sup>−3/2</sup>, et la période orbitale du photon 6√3·πGM/c³.<br><br>
-    <b>Approximé</b> — métrique statique (a = 0 : ni frame-dragging ni ergosphère).
+    <b>Approximé</b> — le disque, pas la géométrie : la rotation est disponible et
+    branchée sur Kerr, avec la réserve sur l'axe polaire décrite plus bas.
     Disque géométriquement mince et optiquement fin, émissivité ad hoc au lieu d'un GRMHD,
     sans transfert radiatif. Le <i>redshift gravitationnel</i> n'est appliqué qu'en g¹ sur la
     luminosité, avec un plancher, là où la loi est en g³ — et sans décalage de couleur :
@@ -1049,8 +1050,11 @@ methode: [
 
  <h3>La limite, dite franchement</h3>
  <p>L'optique est exacte ; l'astrophysique ne l'est pas. Le disque est une texture
- plausible, pas une simulation d'écoulement de plasma. Et la métrique employée est
- celle d'un trou noir <b>immobile</b>, alors que les vrais tournent.</p>`,
+ plausible, pas une simulation d'écoulement de plasma.</p>
+ <p>La rotation, elle, <b>est</b> simulée : le curseur de spin bascule sur la métrique de
+ Kerr, l'ombre se décentre et l'ISCO se déplace. Mais elle a son propre défaut, et autant
+ le dire : les coordonnées employées deviennent singulières sur l'axe polaire, où subsiste
+ une fine couture. L'image par défaut, sans rotation, en est exempte.</p>`,
 
 // ------------------------------------------------------------ Astrophysicien
 `<h3>Formulation</h3>
@@ -1096,9 +1100,16 @@ methode: [
 
  <h3>Ce qui n'est délibérément pas simulé</h3>
  <ul>
-   <li><b>Spin.</b> Métrique statique, a = 0. Ni frame-dragging, ni ergosphère, ni ISCO
-       déplacée, ni asymétrie prograde/rétrograde. Le spin réel de Sgr A* est non nul
-       mais mal contraint.</li>
+   <li><b>Spin — partiellement simulé.</b> Deux moteurs cohabitent et l'on branche sur
+       la valeur de <i>a</i>. À a = 0, l'intégration cartésienne de Schwarzschild, sans
+       aucune singularité de coordonnées. À a ≠ 0, un hamiltonien en Boyer-Lindquist avec
+       constante de Carter : frame-dragging, ergosphère, ISCO déplacée et asymétrie
+       prograde/rétrograde sont alors présents. La validation porte sur
+       l'<i>asymétrie</i> du paramètre d'impact critique — 2,30 mesuré contre 2,40 attendu
+       à a* = 0,9 — et non sur les valeurs absolues, le plancher de la mesure par pixels
+       étant de 5 à 7 %. Limite assumée : l'axe polaire est singulier par construction en
+       Boyer-Lindquist, d'où une couture fine quand la rotation est active ; la corriger
+       demanderait un passage en Kerr-Schild.</li>
    <li><b>Transfert radiatif.</b> Émissivité ad hoc en bruit fractal, absorption grossière.
        Pas d'opacité, pas de synchrotron, pas de comptonisation. Un rendu publiable part
        d'un GRMHD (KHARMA, BHAC) post-traité par un code de transfert (ipole, RAPTOR).</li>
