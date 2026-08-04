@@ -229,3 +229,92 @@ seul une mission, et il tombe naturellement à la fin de celle-ci.
 Rien n'entre sans sources : longueurs d'onde de repos, valeurs de $H_0$ et leurs
 barres d'erreur, distances des galaxies retenues. Et les spectres affichés
 doivent être **calculés**, comme tout le reste — pas des images d'archive.
+
+## Le parti pris, dit une bonne fois
+
+Hugo, en résumé : *« C'est un jeu pour jouer à l'astronome, et sans limite. On
+est des astronomes mais on fait l'expérience des jumeaux parce qu'on est des
+ouf. On n'a pas de règle, on est dans une simulation — mais la simulation
+tourne avec les vraies lois, et on peut l'accélérer, la ralentir, la vivre. »*
+
+C'est la ligne directrice du projet, et elle tranche une question qui revient
+sans cesse : **on ne simplifie jamais la physique, on donne la manette.** Un
+site de vulgarisation raconte ; ici on fait l'expérience, y compris celles que
+personne ne pourra jamais faire. La liberté porte sur le temps, l'échelle et le
+point de vue — jamais sur les équations.
+
+## Un vrai cours sur les jumeaux, avec le diagramme de Minkowski — *pour plus tard*
+
+Demande d'Hugo, et son diagnostic est le bon : ce n'est pas si compliqué, et le
+diagramme d'espace-temps est ce qui le rend évident.
+
+### La formulation à viser, et pourquoi elle bat « c'est le changement de référentiel »
+
+L'explication courante — la situation n'est pas symétrique parce que l'un des
+deux change de référentiel — est juste, et c'est par là qu'il faut entrer. Mais
+elle décrit le **mécanisme**, pas la cause, et elle laisse croire que
+l'accélération « use » les horloges. Elle ne les use pas.
+
+La formulation qui porte tout :
+
+> **Le temps propre est la longueur de votre ligne d'univers.** Deux jumeaux
+> qui se séparent et se retrouvent ont parcouru deux chemins différents entre
+> les deux mêmes événements. Ils n'ont pas vécu des durées différentes parce
+> que l'un a subi quelque chose — mais parce que leurs chemins n'avaient pas la
+> même longueur.
+
+Et la bizarrerie qui fait tout le sel, à énoncer franchement : dans
+l'espace-temps, **la ligne droite est la plus LONGUE**. L'inverse exact de la
+géométrie du plan. Le jumeau qui ne bouge pas suit la droite, donc vieillit le
+plus ; celui qui part fait un détour, et tout détour raccourcit.
+
+$$\tau = \int \sqrt{1 - v^2/c^2}\;\mathrm{d}t$$
+
+Le facteur sous la racine est toujours inférieur à 1 dès qu'on bouge. C'est
+tout le calcul. Il tient en une ligne, et le diagramme le montre à l'œil.
+
+### Ce que le diagramme doit montrer, dans cet ordre
+
+1. Les deux lignes d'univers, et leurs longueurs qu'on peut lire.
+2. Les **lignes de simultanéité** du voyageur — inclinées, et qui basculent
+   d'un coup au demi-tour. C'est là que se voit le fameux « saut » : pendant le
+   virage, l'instant que le voyageur appelle « maintenant, chez mon frère »
+   fait un bond de plusieurs années. Rien n'est arrivé au frère ; c'est la
+   découpe du temps qui a changé.
+3. Les signaux lumineux échangés, qui prouvent qu'aucun des deux ne triche.
+
+### La variante qui tue l'objection
+
+Il faut la donner, parce qu'elle balaie l'idée que l'accélération serait la
+cause. On remplace le voyageur par **deux voyageurs qui se croisent** : l'un
+s'éloigne, l'autre revient, et au croisement le second recopie l'heure du
+premier. Personne n'accélère, aucun référentiel n'est quitté — et l'écart final
+est **exactement le même**. Ce qui compte est le chemin, pas la secousse.
+
+### Le raccord avec la relativité générale, qui est la même phrase
+
+C'est là que le site prend l'avantage sur un cours classique : les deux moitiés
+sont déjà simulées, et la formulation les unifie sans effort.
+
+> Le temps propre reste la longueur de la ligne d'univers. La gravité courbe
+> l'espace-temps, donc elle courbe les chemins — et les longueurs changent.
+
+Autour de Sgr A*, pour qui se maintient à distance fixe :
+$\mathrm{d}\tau/\mathrm{d}t = \sqrt{1 - r_s/r}$. Le site mesure déjà **91,3 %**
+à $r = 9$ et **72,9 %** à $r = 3{,}2$ — ces chiffres sont vérifiés, ils peuvent
+servir de fin de cours.
+
+**Le piège à traiter, et qui vaut le niveau astrophysicien.** En espace plat,
+celui qui ne fait rien vieillit le plus. On aimerait conclure que la chute libre
+maximise toujours le temps propre — c'est faux en général. La géodésique ne le
+maximise que **localement**. Près d'un trou noir, celui qui se maintient sur
+place avec ses moteurs vieillit **plus** que celui qui orbite au même rayon :
+$\sqrt{1 - r_s/r} > \sqrt{1 - 3M/r}$. Le « paresseux gagne » de la relativité
+restreinte ne se transpose pas tel quel, et le dire est plus honnête que de
+laisser l'analogie filer.
+
+### Ce qu'il faudra
+
+Le diagramme calculé et manipulable — on tire le point de demi-tour, les
+longueurs et l'écart final se recalculent. Trois niveaux comme partout. Et
+aucune valeur numérique sans source, y compris celles qu'on croit connaître.
