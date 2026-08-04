@@ -199,6 +199,49 @@ reactions: {
   ],
 },
 
+// ---------------------------------------------------------- expériences
+// L'écran d'accueil. On choisit ce qu'on veut vivre, on lit d'abord ce qui va
+// se passer, et l'expérience règle elle-même la vitesse, la caméra et les
+// affichages. Personne ne devrait avoir à chercher un paramètre.
+experiences: [
+{
+  id: "libre",
+  titre: "Découvrir le trou noir",
+  duree: "à ton rythme",
+  resume: "Lance des sondes, vois lesquelles tiennent en orbite et lesquelles tombent.",
+  quoi: `Sept petites missions, chacune tient en un geste. Tu n'as rien à savoir
+         d'avance — c'est la façon la plus simple de commencer.`,
+},
+{
+  id: "jumeaux",
+  titre: "L'expérience des jumeaux",
+  duree: "environ 3 minutes",
+  resume: "Descends près du trou noir pendant qu'un vaisseau t'attend au loin. Vos deux horloges vont diverger.",
+  quoi: `Tu vas prendre place à bord d'une sonde en orbite serrée. Un vaisseau
+         reste au loin. Plus tu descends, plus ton temps ralentit par rapport au sien —
+         et l'écart ne se rattrape jamais. C'est le cœur d'<i>Interstellar</i>, sauf
+         qu'ici les chiffres sont les vrais.`,
+},
+{
+  id: "reelle",
+  titre: "Le voir en vraie lumière",
+  duree: "environ 1 minute",
+  resume: "Éteins les couleurs et cherche le trou noir comme le ferait un astronome.",
+  quoi: `Le beau disque orange, tu ne le verrais pas avec des yeux humains :
+         Sgr A* rayonne dans des ondes invisibles. On coupe la mise en scène,
+         et il ne reste que les étoiles déformées. À toi de le trouver.`,
+},
+{
+  id: "exact",
+  titre: "Comment on sait que c'est exact",
+  duree: "à lire",
+  resume: "Le site relance son propre calcul devant toi et compare aux valeurs théoriques.",
+  quoi: `Rien de ce que tu vois n'a été dessiné. Cette page explique la méthode
+         à ton niveau, dit franchement ce qui est approximé, et propose un banc
+         d'essai qui vérifie le moteur en direct.`,
+},
+],
+
 // ------------------------------------------------------------- missions
 // Une mission = un geste, et une seule chose comprise à la fin. Pas de points,
 // pas de badges : la récompense est que quelque chose se passe à l'écran et

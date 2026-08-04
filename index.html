@@ -261,6 +261,48 @@
     table.essais td { border:0; padding:2px 0; }
   }
 
+  /* ---- écran d'accueil ---- */
+  #accueil {
+    position:fixed; inset:0; z-index:7; display:grid; place-items:center;
+    background:rgba(4,3,10,.80); backdrop-filter:blur(9px);
+    padding:24px; overflow-y:auto; transition:opacity .35s;
+  }
+  #accueil.parti { opacity:0; pointer-events:none; }
+  #acc-boite { width:100%; max-width:660px; text-align:center; }
+  #acc-boite h1 {
+    font-size:15px; font-weight:600; letter-spacing:.44em; text-transform:uppercase;
+    color:#fff; margin-bottom:12px;
+  }
+  #acc-boite > p { font-size:13px; line-height:1.7; color:#9c97b4; max-width:46ch; margin:0 auto 30px; }
+  #acc-cartes { display:grid; grid-template-columns:1fr 1fr; gap:11px; text-align:left; }
+  .carte {
+    background:rgba(14,12,26,.72); border:1px solid rgba(255,255,255,.11);
+    border-radius:13px; padding:16px 17px; cursor:pointer;
+    transition:border-color .16s, background .16s, transform .16s;
+  }
+  .carte:hover { border-color:rgba(127,216,255,.48); background:rgba(20,26,42,.8); transform:translateY(-2px); }
+  .carte h2 { font-size:14.5px; font-weight:600; color:#fff; margin-bottom:4px; }
+  .carte .duree { font-size:9px; letter-spacing:.16em; text-transform:uppercase; color:#6d6885; }
+  .carte p { font-size:11.5px; line-height:1.6; color:#a9a4bd; margin-top:8px; }
+
+  /* second temps : ce qu'on va faire, avant de lancer */
+  #acc-detail { text-align:left; }
+  #acc-detail h2 { font-size:19px; font-weight:600; color:#fff; margin-bottom:6px; }
+  #acc-detail .duree { font-size:9.5px; letter-spacing:.16em; text-transform:uppercase; color:#6d6885; }
+  #acc-detail > p { font-size:13px; line-height:1.8; color:#b5b0c9; margin:16px 0 24px; }
+  #acc-detail i { color:#ffd9a0; font-style:normal; }
+  #acc-actions { display:flex; gap:9px; }
+  #acc-go { background:rgba(127,216,255,.18); border-color:rgba(127,216,255,.45); color:#d6f2ff; padding:10px 20px; }
+  #acc-go:hover { background:rgba(127,216,255,.28); }
+
+  #b-menu { position:fixed; z-index:2; top:26px; left:28px; pointer-events:auto; display:none; }
+  #b-menu.vu { display:block; }
+
+  @media (max-width:760px){
+    #acc-cartes { grid-template-columns:1fr; }
+    #acc-boite h1 { font-size:12px; letter-spacing:.32em; }
+  }
+
   #flash {
     position:fixed; inset:0; z-index:3; pointer-events:none;
     background:radial-gradient(circle at center, rgba(255,70,90,.42), transparent 60%);
@@ -414,6 +456,17 @@
   Glisse depuis le disque pour lancer une sonde.<br>
   <kbd>molette</kbd> zoom · <kbd>clic droit</kbd> pivoter · <kbd>V</kbd> à bord · <kbd>Échap</kbd> réglages
 </div>
+
+<div id="accueil">
+  <div id="acc-boite">
+    <h1>Trou noir</h1>
+    <p>Tout ce que tu vas voir est calculé à partir des équations d'Einstein,
+       pas dessiné. Choisis par quoi commencer.</p>
+    <div id="acc-cartes"></div>
+  </div>
+</div>
+
+<button id="b-menu" class="hud">← Menu</button>
 
 <div id="voile">
   <div id="dossier">
@@ -1667,6 +1720,97 @@ $("m-fermer").onclick = () => {
   $("b-missions").classList.remove("actif");
 };
 majMission();
+
+// ============ écran d'accueil ============
+// Deux temps : on choisit une expérience, on lit ce qui va se passer, puis on
+// entre. L'expérience règle elle-même vitesse, caméra et affichages — c'est
+// tout l'intérêt : personne ne devrait avoir à chercher un paramètre.
+const EXPERIENCES = CONTENU.experiences;
+
+const MISE_EN_PLACE = {
+  libre(){
+    missionsActives = true; iMission = 0; majMission();
+    reglerVitesse(2);
+    if(sondeSuivie !== null) embarque(null);
+    if(reelCible > 0.5) $("b-reel").click();
+    $("fiches").classList.remove("replie");
+  },
+  jumeaux(){
+    missionsActives = true;
+    iMission = MISSIONS.findIndex(m => m.id === "m-jumeaux");
+    majMission();
+    horloge.bord = horloge.mere = 0;
+    sondes.length = 0;
+    const r = 3.4, a = 0.6;
+    const p = [Math.cos(a)*r, 0, Math.sin(a)*r];
+    const t = norm(cross([0,1,0], p)), vc = vCirc(r);
+    lance(p, [t[0]*vc, 0, t[2]*vc]);
+    embarque(sondes.length - 1);
+    reglerVitesse(2);
+    $("fiches").classList.add("replie");
+    if(reelCible > 0.5) $("b-reel").click();
+  },
+  reelle(){
+    missionsActives = true;
+    iMission = MISSIONS.findIndex(m => m.id === "m-reel");
+    majMission();
+    if(sondeSuivie !== null) embarque(null);
+    if(reelCible < 0.5) $("b-reel").click();
+    reglerVitesse(2);
+    $("fiches").classList.add("replie");
+  },
+  exact(){
+    missionsActives = false; majMission();
+    $("fiches").classList.add("replie");
+    iDNiveau = iNiveau; majDossier();
+    $("voile").classList.add("vu");
+  },
+};
+
+function reglerVitesse(i){
+  iVitesse = i;
+  [...boitierV.children].forEach((c, j) => c.classList.toggle("actif", j === i));
+}
+
+const elAccueil = $("accueil"), elCartes = $("acc-cartes");
+
+function menu(){
+  elAccueil.classList.remove("parti");
+  $("b-menu").classList.remove("vu");
+  elCartes.innerHTML = "";
+  elCartes.style.gridTemplateColumns = "";     // le détail passe en une colonne
+  EXPERIENCES.forEach(x => {
+    const c = document.createElement("div");
+    c.className = "carte";
+    c.innerHTML = `<div class="duree">${x.duree}</div><h2>${x.titre}</h2><p>${x.resume}</p>`;
+    c.onclick = () => detail(x);
+    elCartes.appendChild(c);
+  });
+}
+
+function detail(x){
+  elCartes.innerHTML =
+    `<div id="acc-detail">
+       <div class="duree">${x.duree}</div>
+       <h2>${x.titre}</h2>
+       <p>${x.quoi}</p>
+       <div id="acc-actions">
+         <button id="acc-go">Commencer</button>
+         <button id="acc-retour">Retour</button>
+       </div>
+     </div>`;
+  elCartes.style.gridTemplateColumns = "1fr";
+  $("acc-go").onclick = () => {
+    tais();
+    MISE_EN_PLACE[x.id]?.();
+    elAccueil.classList.add("parti");
+    $("b-menu").classList.add("vu");
+  };
+  $("acc-retour").onclick = menu;
+}
+
+$("b-menu").onclick = () => { tais(); menu(); };
+menu();
 
 // ============ dossier « pourquoi c'est exact » ============
 const METHODE = [
