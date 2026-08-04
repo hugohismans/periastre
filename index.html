@@ -545,8 +545,13 @@ body.tactile.au-salon #manette{ display:block; }
    nécessaire, c'est sa taille qui était fausse. */
 @media (max-height: 560px) {
   #mission, #quete {
-    top:8px; left:8px; transform:none;
+    /* `bottom:auto` n'est pas décoratif : la règle en largeur pose bottom:64px
+       sur le panneau des missions. Un élément fixe dont le haut ET le bas sont
+       posés s'étire entre les deux — d'où une boîte de trois cents pixels pour
+       trois lignes de texte, sur un écran qui n'en a que quatre cents. */
+    top:8px; bottom:auto; left:8px; right:auto; transform:none;
     width:min(310px, 44vw); padding:8px 30px 9px 10px;
+    max-height:46vh; overflow-y:auto;
   }
   #m-num, #q-num { font-size:7.5px; }
   #m-titre, #q-titre { font-size:12.5px; margin:3px 0 3px; }
@@ -1536,6 +1541,10 @@ function poseSalon(){
   const c = Math.cos(inc), s = Math.sin(inc);
   salon.v = [t[0]*w*c, w*s, t[2]*w*c];
   salon.rmin = 1e9; salon.rmax = 0; salon.trace = [];
+  /* Les deux horloges partent de MAINTENANT, l'heure vraie de la machine. On
+     ne simule donc pas une date inventée : on prend celle de la Terre à
+     l'instant où l'on monte à bord, et on laisse les deux diverger. */
+  salon.t0 = Date.now(); salon.tTerre = 0; salon.tBord = 0;
   // On ne démarre pas à l'apoastre : c'est l'endroit où le rayon varie le
   // moins, et le mouvement paraîtrait nul pendant les premières secondes.
   for(let i = 0; i < 900; i++){
@@ -4152,49 +4161,56 @@ function dessineEcrans(){
     local();
     titre("TEMPS DE BORD");
 
-    ctx.textAlign = "left";
-    ctx.fillStyle = "#5f7ba8"; ctx.font = "9px ui-monospace, monospace";
-    ctx.fillText("EN ORBITE ICI DEPUIS", MG, 54);
-    ctx.fillStyle = "#ff9d4d"; ctx.font = "24px ui-monospace, monospace";
-    ctx.fillText(tempsDepuis(D.arrivee), MG, 80);
-
     const filet = y => {
       ctx.strokeStyle = "rgba(120,160,220,0.12)";
       ctx.beginPath(); ctx.moveTo(MG, y); ctx.lineTo(LARG-MG, y); ctx.stroke();
     };
-    filet(92);
-
-    ctx.fillStyle = "#5f7ba8"; ctx.font = "9px ui-monospace, monospace";
-    ctx.fillText("DURÉE RÉELLE D'UN TOUR", MG, 108);
-    ctx.fillStyle = "#dce6f5"; ctx.font = "15px ui-monospace, monospace";
-    ctx.fillText(tempsFr(periodeSalon()), MG, 126);
-    filet(138);
-
-    /* Les deux horloges. Elles ne sont pas décoratives : elles divergent sous
-       les yeux, et le paradoxe des jumeaux cesse d'être un chapitre à lire
-       pour devenir un cadran qu'on regarde.
-
-       Le facteur est celui d'un observateur à notre rayon, √(1 − r_s/r) : il
-       descend au périastre et remonte à l'apoastre, donc l'écart s'accumule
-       par à-coups. C'est le phénomène lui-même, pas une approximation. */
-    const tauxBord = cadence(len(salon.p));
-    const secLoin  = salon.horloge * salon.facteur;
-
-    ctx.fillStyle = "#5f7ba8"; ctx.font = "9px ui-monospace, monospace";
-    ctx.fillText("ÉCOULÉ DEPUIS TON ARRIVÉE", MG, 152);
-
-    ctx.font = "12px ui-monospace, monospace";
-    const ligne = (nom, val, teinte, y) => {
-      ctx.textAlign = "left";  ctx.fillStyle = teinte;   ctx.fillText(nom, MG, y);
-      ctx.textAlign = "right"; ctx.fillStyle = "#dce6f5"; ctx.fillText(val, LARG - MG, y);
-      ctx.textAlign = "left";
+    const etiq = (t, y) => {
+      ctx.textAlign = "left"; ctx.fillStyle = "#5f7ba8";
+      ctx.font = "8.5px ui-monospace, monospace"; ctx.fillText(t, MG, y);
     };
-    ligne("loin d'ici", tempsFr(secLoin), "#ffd08a", 170);
-    ligne("à bord",     tempsFr(secLoin * tauxBord), "#7fd8ff", 186);
 
-    ctx.fillStyle = "#4d6389"; ctx.font = "8.5px -apple-system, sans-serif";
-    ctx.fillText(`Ton horloge tourne à ${(tauxBord*100).toFixed(1)} % de la leur`
-                 + ` · mouvement ×${salon.facteur}`, MG, 199);
+    ctx.textAlign = "left";
+    etiq("EN ORBITE ICI DEPUIS", 50);
+    ctx.fillStyle = "#ff9d4d"; ctx.font = "20px ui-monospace, monospace";
+    ctx.fillText(tempsDepuis(D.arrivee), MG, 72);
+    filet(84);
+
+    /* Les deux dates. Elles ne partent pas d'une origine inventée : le zéro est
+       l'heure vraie de la machine à l'instant où l'on est monté à bord. On lit
+       donc une date réelle qui défile, et celle du bord qui prend du retard —
+       le paradoxe des jumeaux cesse d'être un chapitre pour devenir un cadran.
+
+       Le retard vient de √(1 − r_s/r), accumulé image par image : il grandit
+       vite au périastre et lentement à l'apoastre, ce qui est le phénomène
+       lui-même et non une moyenne commode. */
+    const t0 = salon.t0 || Date.now();
+    const dTerre = new Date(t0 + (salon.tTerre || 0)*1000);
+    const dBord  = new Date(t0 + (salon.tBord  || 0)*1000);
+    const jour = d => d.toLocaleDateString("fr-FR",
+                        { day:"numeric", month:"short", year:"numeric" });
+    const heure = d => d.toLocaleTimeString("fr-FR");
+
+    const pendule = (nom, d, teinte, y) => {
+      ctx.textAlign = "left"; ctx.fillStyle = teinte;
+      ctx.font = "9px ui-monospace, monospace"; ctx.fillText(nom, MG, y);
+      ctx.textAlign = "right"; ctx.fillStyle = "#8ea6c8";
+      ctx.font = "9px ui-monospace, monospace"; ctx.fillText(jour(d), LARG-MG, y);
+      ctx.textAlign = "left"; ctx.fillStyle = "#dce6f5";
+      ctx.font = "15px ui-monospace, monospace"; ctx.fillText(heure(d), MG, y + 18);
+    };
+
+    etiq("PENDANT CE TEMPS", 100);
+    pendule("SUR TERRE", dTerre, "#ffd08a", 116);
+    pendule("À BORD",    dBord,  "#7fd8ff", 152);
+    filet(166);
+
+    const retard = (salon.tTerre || 0) - (salon.tBord || 0);
+    ctx.textAlign = "left"; ctx.fillStyle = "#4d6389";
+    ctx.font = "8.5px -apple-system, sans-serif";
+    ctx.fillText(`Tu as pris ${tempsFr(retard)} de retard sur eux`
+                 + ` · ton horloge tourne à ${(cadence(len(salon.p))*100).toFixed(1)} %`, MG, 180);
+    ctx.fillText(`Mouvement accéléré ×${salon.facteur} pour qu'il se voie.`, MG, 193);
   });
 }
 
@@ -4402,6 +4418,10 @@ function boucle(now){
       salon.p = np; salon.v = nv;
     }
     const r = len(salon.p);
+    // Le temps loin d'ici avance au rythme choisi ; celui du bord au même
+    // rythme, ralenti par la gravité. L'écart s'accumule donc tout seul.
+    salon.tTerre += dt * salon.facteur;
+    salon.tBord  += dt * salon.facteur * cadence(r);
     salon.rmin = Math.min(salon.rmin, r);
     salon.rmax = Math.max(salon.rmax, r);
     // La musique suit l'orbite plutôt qu'une horloge : elle monte quand on
