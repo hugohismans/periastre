@@ -263,6 +263,20 @@
   }
   #bulle b { color:#eae6f5; font-weight:600; }
   #bulle i { color:#ffd9a0; font-style:normal; }
+  .justif {
+    display:block; margin-top:9px; padding:4px 9px; font-size:10px;
+    letter-spacing:.06em; color:var(--braise); background:var(--braise-f);
+    border-color:var(--braise-b);
+  }
+  .justif-ouvert {
+    margin-top:10px; padding-top:9px; border-top:1px solid var(--filet);
+    font-size:10.5px; line-height:1.6; color:var(--pale);
+  }
+  .justif-ouvert .ref {
+    margin-top:7px; font-size:9.5px; line-height:1.5; color:var(--sourd);
+  }
+  .justif-ouvert a { color:var(--braise); text-decoration:none; border-bottom:1px solid var(--braise-b); }
+
   #bulle .q {
     display:block; width:100%; text-align:left; margin:3px 0 0; padding:6px 9px;
     font-size:11px; line-height:1.45; border-radius:3px;
@@ -1926,6 +1940,22 @@ function dit(o, duree, avant, prioritaire){
   questionsOuvertes = false;
   const html = typeof o === "string" ? o : o.t;
   elBulleTxt.innerHTML = (avant || "") + html;
+  // Une affirmation extraordinaire doit pouvoir être justifiée sur place.
+  // Lumen ne lâche plus de chiffre renversant sans qu'on puisse demander d'où
+  // il sort — le calcul, puis la référence.
+  if(typeof o === "object" && (o.pourquoi || (o.sources && o.sources.length))){
+    const b = document.createElement("button");
+    b.className = "justif";
+    b.textContent = "d'où ça sort ?";
+    b.onclick = e => {
+      e.stopPropagation();
+      const j = justification(o);
+      b.replaceWith(j);
+      composeMaths(j);            // la justification n'existait pas au premier passage
+      tMasque = performance.now() + 30000;
+    };
+    elBulleTxt.appendChild(b);
+  }
   composeMaths(elBulleTxt);
   elBulle.classList.add("vu");
   parle(o, prioritaire);
@@ -1936,6 +1966,29 @@ function dit(o, duree, avant, prioritaire){
 
 // `doux` : réaction déclenchée par le monde et non par un clic — elle ne coupe
 // jamais une bulle déjà à l'écran.
+// Le détail d'une affirmation : le raisonnement d'abord, la référence ensuite.
+function justification(o){
+  const d = document.createElement("div");
+  d.className = "justif-ouvert";
+  if(o.pourquoi) d.innerHTML = o.pourquoi;
+  (o.sources || []).forEach(cle => {
+    const s = CONTENU.sources[cle];
+    if(!s) return;
+    const p = document.createElement("p");
+    p.className = "ref";
+    p.textContent = s.ref;
+    if(s.doi){
+      const a = document.createElement("a");
+      a.href = "https://doi.org/" + s.doi;
+      a.target = "_blank"; a.rel = "noopener";
+      a.textContent = "doi:" + s.doi;
+      p.append(" ", a);
+    }
+    d.appendChild(p);
+  });
+  return d;
+}
+
 function reagit(cle, doux){
   if(questionsOuvertes) return;
   if(doux && tMasque && performance.now() < tMasque) return;
@@ -2336,7 +2389,10 @@ const MISE_EN_PLACE = {
     const t = norm(cross([0,1,0], p)), vc = vCirc(r);
     lance(p, [t[0]*vc, 0, t[2]*vc]);
     embarque(sondes.length - 1);
-    reglerVitesse(2);
+    // À bord, dix minutes par seconde donnent le tournis. On se pose : une
+    // minute par seconde suffit à voir les horloges diverger, et l'orbite
+    // reste lisible.
+    reglerVitesse(1);
     $("fiches").classList.add("replie");
     if(reelCible > 0.5) $("b-reel").click();
   },

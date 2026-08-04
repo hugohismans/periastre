@@ -354,6 +354,12 @@ reactions: {
       sources:["birkhoff1923"] },
     { id:"inactif-1", t:`Plus un trou noir est massif, moins il est dense. Moi je pèse <i>mille fois l'eau</i> — mais M87*, mille fois plus lourd, est <b>moins dense que l'air</b>.`,
       dire:`Plus un trou noir est massif, moins il est dense. Moi je pèse mille fois l'eau. Mais M 87 étoile, mille fois plus lourd, est moins dense que l'air.`,
+      pourquoi:`Le rayon croît comme la masse, donc le volume comme son cube : la densité
+                moyenne chute comme $1/M^{2}$.
+                <br><br>Pour Sgr A*, $\\rho = M/\\tfrac{4}{3}\\pi r_s^{3} \\approx 1{,}0\\times10^{6}$ kg/m³,
+                soit <b>mille fois l'eau</b> — le lieu commun qui dit le contraire est faux
+                à cette masse-là. Le seuil de l'eau se situe vers $1{,}4\\times10^{8}\\,M_\\odot$.
+                M87*, à $6{,}5\\times10^{9}\\,M_\\odot$, tombe à 0,44 kg/m³, sous les 1,2 de l'air.`,
       sources:["gravity2021","schwarzschild1916","eht2019"] },
     { id:"inactif-2", t:`L'ombre que tu regardes fait 52 millionièmes de seconde d'arc dans le ciel. C'est une <i>orange posée sur la Lune</i>.`,
       sources:["eht2022"] },
@@ -366,12 +372,35 @@ reactions: {
       sources:["shakura1973","balbus1991"] },
     { id:"inactif-6", t:`Un vaisseau qui tiendrait <i>1 g</i> tout le trajet — la moitié en accélérant, la moitié en freinant — arriverait ici en <b>19,8 ans</b> de vie à bord. Sur Terre il se serait écoulé 26 675 ans. Personne ne t'attendrait.`,
       dire:`Un vaisseau qui tiendrait un g tout le trajet, la moitié en accélérant, la moitié en freinant, arriverait ici en dix-neuf ans et dix mois de vie à bord. Sur Terre, il se serait écoulé vingt-six mille six cent soixante-quinze ans. Personne ne t'attendrait.`,
+      pourquoi:`Fusée relativiste à accélération propre constante. Le temps vécu à bord vaut
+                $\\tau = \\tfrac{2c}{g}\\,\\operatorname{arccosh}\\!\\left(\\tfrac{gd}{2c^{2}}+1\\right)$ —
+                il croît comme le <b>logarithme</b> de la distance, alors que le temps
+                terrestre croît proportionnellement. C'est toute l'affaire.
+                <br><br>Pour d = 26 673 al : <b>19,8 ans</b> à bord contre 26 675 sur Terre,
+                avec γ = 13 768 au demi-tour. Rien d'exotique, c'est de la relativité
+                restreinte de 1905. En revanche le carburant, lui, est hors d'atteinte —
+                demande-moi.`,
       sources:["gravity2021","misner1973"] },
     { id:"inactif-7", t:`Avec la même poussée d'<i>1 g</i>, Andromède est à <b>28,6 ans</b> de vie. Deux millions et demi d'années-lumière. La distance ne compte presque plus, parce que ton temps se contracte avec elle — reste le carburant, et là c'est sans espoir.`,
       dire:`Avec la même poussée d'un g, Andromède est à vingt-huit ans et demi de vie. Deux millions et demi d'années-lumière. La distance ne compte presque plus, parce que ton temps se contracte avec elle. Reste le carburant, et là, c'est sans espoir.`,
+      pourquoi:`Même formule que pour le centre galactique. Cent fois plus loin ne coûte que
+                neuf années de vie de plus, parce que le temps à bord croît comme le
+                logarithme de la distance.
+                <br><br>Une limite qu'on oublie souvent : l'expansion de l'univers. Au-delà
+                d'environ <b>16 milliards d'années-lumière comobiles</b>, l'espace s'étire
+                plus vite qu'on ne le franchit — ces galaxies-là sont hors d'atteinte pour
+                toujours, quelle que soit l'accélération. Soit 4,5 % du volume observable.`,
       sources:["misner1973"] },
     { id:"inactif-8", t:`Le carburant, justement. Même une fusée <b>à photons parfaite</b> — toute sa masse changée en lumière — devrait en annihiler <i>758 000 tonnes</i> pour qu'un seul kilo arrive ici. Avec de la fusion, le rapport dépasse la masse de l'univers observable.`,
       dire:`Le carburant, justement. Même une fusée à photons parfaite, toute sa masse changée en lumière, devrait en annihiler sept cent cinquante-huit mille tonnes pour qu'un seul kilo arrive ici. Avec de la fusion, le rapport dépasse la masse de l'univers observable.`,
+      pourquoi:`Équation de la fusée relativiste : le rapport de masses vaut
+                $e^{\\Delta\\eta/(v_e/c)}$, où $\\eta = \\operatorname{arccosh}\\gamma$ est la
+                rapidité. Accélérer puis freiner jusqu'au centre galactique en accumule
+                <b>20,45</b>.
+                <br><br>Avec une fusée à photons — le meilleur concevable, 100 % de la masse
+                convertie — cela donne $e^{20{,}45} = 7{,}6\\times10^{8}$ : 758 000 tonnes
+                annihilées par kilo arrivé. Avec de la fusion deutérium-hélium 3
+                ($v_e \\approx 0{,}12c$), le rapport atteint $10^{75}$.`,
       sources:["misner1973","dyson1968"] },
     { id:"inactif-9", t:`D'où l'idée de <b>Bussard</b>, en 1960 : ne pas emporter son carburant, mais le ramasser en route avec un immense filet magnétique. Élégant. Sauf qu'on a montré depuis que ce filet <i>freine plus qu'il ne pousse</i>.`,
       dire:`D'où l'idée de Bussard, en 1960 : ne pas emporter son carburant, mais le ramasser en route avec un immense filet magnétique. Élégant. Sauf qu'on a montré depuis que ce filet freine plus qu'il ne pousse.`,
