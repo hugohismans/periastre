@@ -3555,7 +3555,16 @@ const VERIFS_QUETE = {
   // Un seuil sur le produit scalaire, tenu deux secondes — sinon un balayage
   // rapide validerait sans qu'on ait rien regardé.
   "a-baie": () => -regardSalon().av[2] > 0.80,
-  "a-lumen": () => queteVues.has("lumen"),
+  /* On attend que les questions soient refermées.
+
+     Sans ce `!questionsOuvertes`, l'étape se validait dans la foulée du
+     contact et sa récompense écrasait la bulle : les six questions
+     apparaissaient une fraction de seconde, puis disparaissaient. On demandait
+     donc d'interroger quelqu'un tout en empêchant de l'interroger.
+
+     Maintenant l'étape se termine quand on a effectivement consulté le drone
+     et refermé — ce qui est aussi ce que la consigne promet. */
+  "a-lumen": () => queteVues.has("lumen") && !questionsOuvertes,
   "a-temps": () => salon.facteur === 1,
   "a-telescope": () => queteVues.has("telescope"),
 };
