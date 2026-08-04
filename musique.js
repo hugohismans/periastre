@@ -30,10 +30,10 @@ let allume = false, volume = 0.16, tension = 0, cible = 0;
 // La mineur : fondamentale, quinte, octave, puis la tierce mineure très haut.
 // Les décalages en centièmes de ton créent les battements.
 const BOURDON = [
-  { f: 55.00, d:  0.0, g: 0.55 },   // la 1
-  { f: 55.00, d: +5.5, g: 0.42 },   // son jumeau désaccordé : le battement
-  { f: 82.41, d: -3.0, g: 0.30 },   // mi 2, la quinte
-  { f:110.00, d: +2.0, g: 0.22 },   // la 2
+  { f:110.00, d:  0.0, g: 0.42 },   // la 2 — une octave au-dessus du départ
+  { f:110.00, d: +5.5, g: 0.32 },   // son jumeau désaccordé : le battement
+  { f:164.81, d: -3.0, g: 0.24 },   // mi 3, la quinte
+  { f:220.00, d: +2.0, g: 0.16 },   // la 3
 ];
 
 function cree(){
@@ -95,8 +95,8 @@ function cree(){
   }
   n.buffer = buf; n.loop = true;
   const pb = ctx.createBiquadFilter();
-  pb.type = "lowpass"; pb.frequency.value = 95;   // plus sourd, donc moins present
-  souffle = ctx.createGain(); souffle.gain.value = 0.028;
+  pb.type = "lowpass"; pb.frequency.value = 160;  // au-dessus de ce qu'un petit haut-parleur rend
+  souffle = ctx.createGain(); souffle.gain.value = 0.012;
   n.connect(pb); pb.connect(souffle); souffle.connect(comp);
   n.start();
 
@@ -151,7 +151,7 @@ function avance(dt){
   voix[3].o.detune.setTargetAtTime(2.0 - tension * 14, n, 0.5);
 
   nappe.gain.setTargetAtTime(0.012 + tension * 0.052, n, 0.7);
-  souffle.gain.setTargetAtTime(0.028 + tension * 0.045, n, 0.5);
+  souffle.gain.setTargetAtTime(0.012 + tension * 0.022, n, 0.5);
 }
 
 /* Un coup, pour marquer un moment.
@@ -167,8 +167,8 @@ function frappe(force){
 
   const o = ctx.createOscillator(), g = ctx.createGain();
   o.type = "sine";
-  o.frequency.setValueAtTime(78, n);
-  o.frequency.exponentialRampToValueAtTime(26, n + 2.4);   // la descente
+  o.frequency.setValueAtTime(132, n);
+  o.frequency.exponentialRampToValueAtTime(58, n + 2.4);   // la descente
   g.gain.setValueAtTime(0.0001, n);
   g.gain.exponentialRampToValueAtTime(0.5 * f, n + 0.09);
   g.gain.exponentialRampToValueAtTime(0.0001, n + 3.2);

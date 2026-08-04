@@ -2943,7 +2943,13 @@ const elBulle = $("bulle"), elBulleTxt = $("bulle-texte");
 let voixActive = false, iVoix = 0, audio = null;
 let volumeVoix = 0.28;
 let modeBoutons = false;    // à bord, on interagit avec le lieu, pas avec une barre
-let volumeMusique = 0.09;   // bas par défaut : mieux vaut qu'on monte le son que le subir   // volontairement trop bas : mieux vaut qu'on monte le son que subir
+/* Coupée par défaut. Hugo, sur son téléphone : « le son grave est vraiment
+   trop fort de base, il est trop agressif ». Un fond sonore qu'on n'a pas
+   demandé est le premier motif de fermeture d'un onglet, et il ne peut pas se
+   régler avant d'avoir été entendu. On la propose donc dans les réglages, et
+   qui la veut l'y trouve — c'est déjà le sens du volume de la voix, réglé
+   volontairement trop bas. */
+let volumeMusique = 0;
 let tMasque = 0, tDernier = performance.now(), questionsOuvertes = false;
 
 // Les répliques étant scriptées, la voix est pré-synthétisée hors ligne
