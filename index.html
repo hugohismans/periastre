@@ -3347,6 +3347,9 @@ function veilleQuete(now){
   } else if(!v()) return;
 
   queteFinie = true; tQuete = now;
+  // Le premier regard mérite plus que les autres : c'est le seul moment du
+  // parcours où l'on découvre quelque chose au lieu d'apprendre un bouton.
+  MUSIQUE.frappe(q.id === "a-baie" ? 1 : 0.45);
   const el = $("quete");
   el.classList.add("fini");
   $("q-titre").textContent = "Bien";

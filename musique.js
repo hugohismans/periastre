@@ -154,7 +154,36 @@ function avance(dt){
   souffle.gain.setTargetAtTime(0.10 + tension * 0.14, n, 0.5);
 }
 
-global.MUSIQUE = { demarre, arrete, regle, regleVolume, avance,
+/* Un coup, pour marquer un moment.
+
+   Une seule fois par étape franchie, et surtout pas à chaque clic : ce qui
+   souligne tout ne souligne plus rien. Deux gestes seulement — une sous-basse
+   qui descend, et le filtre qu'on ouvre brièvement. C'est assez pour qu'on
+   sente que quelque chose vient de se passer, et assez discret pour ne pas
+   transformer une simulation en bande-annonce. */
+function frappe(force){
+  if(!ctx || !allume) return;
+  const n = ctx.currentTime, f = Math.max(0.2, Math.min(1, force || 1));
+
+  const o = ctx.createOscillator(), g = ctx.createGain();
+  o.type = "sine";
+  o.frequency.setValueAtTime(78, n);
+  o.frequency.exponentialRampToValueAtTime(26, n + 2.4);   // la descente
+  g.gain.setValueAtTime(0.0001, n);
+  g.gain.exponentialRampToValueAtTime(0.5 * f, n + 0.09);
+  g.gain.exponentialRampToValueAtTime(0.0001, n + 3.2);
+  o.connect(g); g.connect(maitre);
+  o.start(n); o.stop(n + 3.3);
+
+  // et le filtre s'ouvre, puis retombe là où la tension le veut
+  const haut = 400 + f * 2600;
+  filtre.frequency.cancelScheduledValues(n);
+  filtre.frequency.setValueAtTime(filtre.frequency.value, n);
+  filtre.frequency.linearRampToValueAtTime(haut, n + 0.35);
+  filtre.frequency.setTargetAtTime(210 + tension * 1250, n + 0.4, 1.4);
+}
+
+global.MUSIQUE = { demarre, arrete, regle, regleVolume, avance, frappe,
                    get active(){ return allume; } };
 
 })(window);

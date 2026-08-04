@@ -494,3 +494,22 @@ La réserve, à dire si on l'emploie : **Sgr A* est calme**. Il n'alimente pas d
 jet visible, donc « on est venus pomper de l'énergie » serait vrai d'un noyau
 actif et faux d'ici — exactement l'espèce d'erreur que l'audit traque. Si on
 veut cette histoire, elle appartient à une autre destination.
+
+## La forme de l'invitation — *tranché le 4 août*
+
+Hugo : *« Le message que j'envoie à mes potes, c'est genre : j'ai fait un truc
+cool, regarde ce lien. Et le lien envoie vers l'explication de ce que c'est,
+puis à la fin c'est en mode "je me lance dans l'aventure", un bouton un peu
+épique — et là tu arrives sur le trou noir, la quête, ça déchire. »*
+
+Trois conséquences, à ne pas défaire :
+
+- **Le message est court et ne vend rien.** Un texte qui explique déjà tout fait
+  double emploi avec la page, et un enthousiasme appuyé dans un message privé
+  sonne faux. « J'ai fait un truc, regarde » suffit.
+- **Un seul lien.** Le carnet est atteint depuis la page, jamais envoyé à part :
+  deux liens dans un message, c'est un formulaire, et personne ne clique.
+- **L'appel à l'action est à la FIN**, pas au milieu. On lit d'abord ce que
+  c'est, on comprend pourquoi c'est particulier, et on part au moment où l'on a
+  envie de partir. Un bouton posé avant l'explication attrape ceux qui n'ont
+  pas encore de raison d'y aller.
