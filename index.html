@@ -2851,7 +2851,18 @@ cv.addEventListener("pointerup", e => {
   if(pouceMarche && e.pointerId === pouceMarche.id) return;   // celui-là marchait
   const d = posteDepart; posteDepart = null;
   if(!salon.actif || !d) return;
-  const bref = Math.hypot(e.clientX - d.x, e.clientY - d.y) <= 6;
+  /* Le seuil qui sépare un contact d'un glissé dépend de ce qui touche.
+
+     Six pixels convient à une souris, qui ne bouge pas quand on clique. Un
+     pouce sur du verre dérive de dix à quinze pixels dans une tape ordinaire —
+     le contact était donc lu comme un glissé, et rien ne s'activait. C'est ce
+     qui empêchait Hugo d'interroger le drone sur son téléphone, alors que le
+     même geste fonctionnait à la souris.
+
+     Le risque inverse est faible : dix-huit pixels restent loin du geste qu'on
+     fait pour tourner la tête, lequel parcourt l'écran. */
+  const seuil = e.pointerType === "touch" ? 18 : 6;
+  const bref = Math.hypot(e.clientX - d.x, e.clientY - d.y) <= seuil;
   if(!bref) return;                                    // c'était un glissé du regard
 
   if(!d.p){
