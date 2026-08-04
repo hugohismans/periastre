@@ -231,7 +231,7 @@ spectre: {
       sources:["eht2022"] },
     { nom:"300 μm", lg:-3.52, sous:"Le pic d'émission",
       pourquoi:`Le maximum de la bosse submillimétrique : c'est là que Sgr A* rayonne
-                le plus. Un trou noir bien nourri brillerait surtout en X ;
+                le plus. Un trou noir bien nourri de cette masse brillerait surtout en ultraviolet ;
                 celui-ci, sous-alimenté, brille dans une bande que l'œil ignore.`,
       sources:["yuan2003"] },
     { nom:"2,2 μm", lg:-5.66, sous:"Bande K — les sursauts",
@@ -295,7 +295,7 @@ destination: {
   distance: "8 277 pc de la Terre",
   masse: "4,297 × 10⁶ masses solaires",
   // Ce qui suit s'affiche sur l'écran des paramètres de vol
-  orbite: "22 rayons de Schwarzschild",
+  orbite: "apoastre à 16 rayons de Schwarzschild",
   sources: ["gravity2021"],
 },
 
@@ -389,8 +389,8 @@ reactions: {
   reel: { id:"reel", t:`Voilà la vérité, et elle est austère : en lumière visible, le disque est <b>quasiment muet</b>. Sgr A* rayonne dans le submillimétrique. Ce qui le trahirait, ce sont les étoiles tordues derrière lui.`,
     dire:`Voilà la vérité, et elle est austère : en lumière visible, le disque est quasiment muet. Sagittarius A étoile rayonne dans le submillimétrique. Ce qui le trahirait, ce sont les étoiles tordues derrière lui.`,
     sources:["yuan2014","eht2022"] },
-  vitesse0: { id:"vitesse-reel", t:`Là tu es en <b>temps réel</b>. Je me déplace de deux centièmes de rayon par seconde. Va faire un café : il me faut <i>11 min 31 s</i> pour un tour.`,
-    dire:`Là tu es en temps réel. Je me déplace de deux centièmes de rayon par seconde. Va faire un café : il me faut onze minutes et trente et une secondes pour un tour.`,
+  vitesse0: { id:"vitesse-reel", t:`Là tu es en <b>temps réel</b>. Le photon avance de deux centièmes de rayon par seconde. Va faire un café : il lui faut <i>11 min 31 s</i> pour un tour.`,
+    dire:`Là tu es en temps réel. Le photon avance de deux centièmes de rayon par seconde. Va faire un café : il lui faut onze minutes et trente et une secondes pour un tour.`,
     sources:["gravity2021","chandrasekhar1983"] },
   vitesse3: { id:"vitesse-heure", t:`Une heure par seconde. À ce rythme le bord externe du disque boucle son orbite en quelques secondes — alors qu'en vrai il lui faut <i>près de quatre heures</i>.`,
     dire:`Une heure par seconde. À ce rythme, le bord externe du disque boucle son orbite en quelques secondes, alors qu'en vrai il lui faut près de quatre heures.`,
@@ -434,14 +434,14 @@ reactions: {
       sources:["misner1973"] },
     { id:"inactif-5", t:`Le disque brille parce que le gaz frotte contre lui-même en tombant. Rien ne brûle là-dedans — c'est la chute qui fait la lumière.`,
       sources:["shakura1973","balbus1991"] },
-    { id:"inactif-6", t:`Un vaisseau qui tiendrait <i>1 g</i> tout le trajet — la moitié en accélérant, la moitié en freinant — arriverait ici en <b>19,8 ans</b> de vie à bord. Sur Terre il se serait écoulé 26 675 ans. Personne ne t'attendrait.`,
-      dire:`Un vaisseau qui tiendrait un g tout le trajet, la moitié en accélérant, la moitié en freinant, arriverait ici en dix-neuf ans et dix mois de vie à bord. Sur Terre, il se serait écoulé vingt-six mille six cent soixante-quinze ans. Personne ne t'attendrait.`,
+    { id:"inactif-6", t:`Un vaisseau qui tiendrait <i>1 g</i> tout le trajet — la moitié en accélérant, la moitié en freinant — arriverait ici en <b>19,8 ans</b> de vie à bord. Sur Terre il se serait écoulé 27 000 ans. Personne ne t'attendrait.`,
+      dire:`Un vaisseau qui tiendrait un g tout le trajet, la moitié en accélérant, la moitié en freinant, arriverait ici en dix-neuf ans et dix mois de vie à bord. Sur Terre, il se serait écoulé vingt-sept mille ans. Personne ne t'attendrait.`,
       pourquoi:`Fusée relativiste à accélération propre constante. Le temps vécu à bord vaut
                 $\\tau = \\tfrac{2c}{g}\\,\\operatorname{arccosh}\\!\\left(\\tfrac{gd}{2c^{2}}+1\\right)$ —
                 il croît comme le <b>logarithme</b> de la distance, alors que le temps
                 terrestre croît proportionnellement. C'est toute l'affaire.
-                <br><br>Pour d = 26 673 al : <b>19,8 ans</b> à bord contre 26 675 sur Terre,
-                avec γ = 13 768 au demi-tour. Rien d'exotique, c'est de la relativité
+                <br><br>Pour d = 26 996 al : <b>19,8 ans</b> à bord contre ~27 000 sur Terre,
+                avec γ = 13 935 au demi-tour. Rien d'exotique, c'est de la relativité
                 restreinte de 1905. En revanche le carburant, lui, est hors d'atteinte —
                 demande-moi.`,
       sources:["gravity2021","misner1973"] },
@@ -745,7 +745,7 @@ fiches: [
     en 16 ans à 3 % de la vitesse de la lumière. Ce travail a valu le
     <b>prix Nobel de physique 2020</b>.`,
 
-   `M = 4,297 ± 0,013 × 10⁶ M☉ à R₀ = 8 277 ± 31 pc (GRAVITY, 2021), par astrométrie
+   `M = (4,297 ± 0,012 ± 0,040) × 10⁶ M☉ à R₀ = 8 277 ± 9 ± 33 pc (GRAVITY, 2022), par astrométrie
     infrarouge de S2 — dont la <b>précession de Schwarzschild</b> de 12′ par orbite est
     mesurée. Image EHT de mai 2022 : anneau de <i>51,8 ± 2,3 μas</i>, compatible avec une
     inclinaison faible, spin mal contraint. Accrétion en régime RIAF à ~10⁻⁹ L_Edd :
@@ -837,7 +837,7 @@ fiches: [
     <i>Lance un photon</i> pour le voir tenir sur la crête.`,
 
    `Sphère des photons à r = 3GM/c², ombre de rayon apparent √27 GM/c² ≈ 2,598 r<sub>s</sub>,
-    soit ~52 μas pour Sgr A* — d'où l'interférométrie à l'échelle du globe. Les sous-anneaux
+    — un diamètre de ~53 μas pour Sgr A* — d'où l'interférométrie à l'échelle du globe. Les sous-anneaux
     n ≥ 1, portant la lumière ayant bouclé un demi-tour de plus, sont espacés d'un facteur
     $e^{-\pi} \approx 0{,}043$ en flux et sont quasi insensibles à l'astrophysique du disque.
     C'est la cible de l'<b>EHT spatial</b> (BHEX) : l'anneau n = 1 deviendrait une mesure
@@ -956,11 +956,12 @@ fiches: [
     où l'effet est minuscule. Près d'un trou noir, il domine tout.
     <br><br>La dernière orbite stable cesse d'être symétrique :
     3 rayons dans les deux sens sans rotation, mais <b>1,16 rayon</b> dans le sens de la
-    rotation à a* = 0,9, contre 4,36 à contresens. Presque cinq fois plus près d'un côté
+    rotation à a* = 0,9, contre 4,36 à contresens. Presque quatre fois plus près d'un côté
     que de l'autre.
     <br><br>D'où le point qui change vraiment tout : si la matière tombe plus près avant
     de se stabiliser, elle libère bien plus d'énergie. Le rendement passe de <i>5,7 %</i>
-    de la masse convertie en lumière à <b>42 %</b> — quand la fusion nucléaire d'une étoile
+    de la masse convertie en lumière à 16 % à a* = 0,9, et jusqu'à <b>42 %</b> à la
+    limite extrême — quand la fusion nucléaire d'une étoile
     plafonne à 0,7 %. Un trou noir en rotation est soixante fois plus efficace que la fusion.
     <br><br>C'est ce qui fait des quasars les objets les plus lumineux de l'univers.`,
 
@@ -1145,7 +1146,8 @@ methode: [
  évalué une fois au départ : ce n'est pas une contrainte imposée mais une constante
  du mouvement.</p>
  <p>Le banc rejoue ces géodésiques en JavaScript avec la même équation et les mêmes constantes
- que le GLSL, mais un pas des milliers de fois plus fin et sans plafond de pas : il mesure
+ que le GLSL, mais un pas vingt à cent fois plus fin et un plafond porté à deux millions
+ de pas au lieu de 240 : il mesure
  la justesse de la <i>formulation</i>, pas celle du budget temps réel du shader.
  Les quatre grandeurs obtenues sont des <b>sorties</b> du schéma, jamais des paramètres.</p>
 
@@ -1180,7 +1182,8 @@ methode: [
    <li><b>Géométrie du disque.</b> Mince et plan, alors qu'un RIAF comme Sgr A* est
        géométriquement épais, H/R ~ 1.</li>
    <li><b>Doppler.</b> <code>D = 1/(1 − β·n̂)</code> sans le facteur γ. L'erreur sur
-       l'amplitude est d'ordre γ−1 ≈ 10 % au bord interne : l'asymétrie qualitative est
+       l'intensité allant en D³, l'erreur d'amplitude est d'ordre γ³−1 ≈ 32 % au bord
+       interne : l'asymétrie qualitative est
        bonne, le contraste absolu non.</li>
    <li><b>Simultanéité.</b> L'image est instantanée ; on ignore que la lumière venant de
        l'arrière du disque est plus vieille que celle du bord avant.</li>
