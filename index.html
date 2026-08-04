@@ -1723,6 +1723,66 @@ addEventListener("keydown", e => {
   joueur.touches.add(k);
 });
 addEventListener("keyup", e => joueur.touches.delete(e.key.toLowerCase()));
+
+/* « C » copie l'endroit exact où l'on se trouve.
+
+   Une capture d'écran montre un défaut ; elle ne permet pas de s'y remettre.
+   Avec ce lien, on rouvre la page pile au même endroit, même orientation, même
+   instant de l'orbite — et le défaut est là, manipulable, au lieu d'être à
+   reconstituer de mémoire. C'est ce qui sépare « j'ai vu un bug quelque part »
+   d'un rapport qu'on peut traiter. */
+function etatCourant(){
+  return {
+    p: joueur.p.map(x => +x.toFixed(3)),
+    l: +salon.lacet.toFixed(4), t: +salon.tangage.toFixed(4),
+    v: joueur.vue, f: salon.facteur,
+    o: salon.p.map(x => +x.toFixed(4)),
+    w: salon.v.map(x => +x.toFixed(5)),
+    h: +salon.horloge.toFixed(2),
+  };
+}
+
+function appliqueEtat(e){
+  try{
+    if(!salon.actif) $("b-salon").click();
+    if(e.p) joueur.p = e.p.slice();
+    if(typeof e.l === "number") salon.lacet = e.l;
+    if(typeof e.t === "number") salon.tangage = e.t;
+    if(e.v) joueur.vue = e.v;
+    if(e.f) salon.facteur = e.f;
+    if(e.o) salon.p = e.o.slice();
+    if(e.w) salon.v = e.w.slice();
+    if(typeof e.h === "number") salon.horloge = e.h;
+    joueur.v = [0,0,0];
+  }catch(_){ /* un lien abîmé ne doit pas empêcher d'entrer */ }
+}
+
+addEventListener("keydown", e => {
+  if(e.key.toLowerCase() !== "c" || !salon.actif) return;
+  if(e.ctrlKey || e.metaKey) return;                 // on ne vole pas le copier
+  if(/^(input|textarea)$/i.test(e.target.tagName || "")) return;
+  const lien = location.origin + location.pathname
+             + "#etat=" + encodeURIComponent(JSON.stringify(etatCourant()));
+  const dire = ok => {
+    const b = document.createElement("div");
+    b.className = "avis-son";
+    b.innerHTML = ok
+      ? "<span>Position copiée. Colle le lien dans ton rapport : elle se rouvrira ici même.</span>"
+      : "<span>Copie refusée par le navigateur. Le lien est dans la barre d'adresse.</span>";
+    document.body.appendChild(b);
+    setTimeout(() => b.remove(), 4000);
+  };
+  navigator.clipboard.writeText(lien).then(() => dire(true), () => {
+    location.hash = lien.split("#")[1];              // au moins il est visible
+    dire(false);
+  });
+});
+
+// Rouvrir un lien de position remet la scène exactement où elle était.
+if(location.hash.startsWith("#etat=")){
+  try{ appliqueEtat(JSON.parse(decodeURIComponent(location.hash.slice(6)))); }
+  catch(_){ /* rien : on entre normalement */ }
+}
 // Après les déclarations, jamais avant : `axe` est un const, et l'appeler plus
 // haut lèverait une erreur de zone morte qui emporterait tout le script.
 brancheManette();
@@ -3744,9 +3804,27 @@ function tempsDepuis(iso){
 // rectangle noir : il a un biseau, il émet de la lumière autour de lui, et sa
 // dalle se trahit par un balayage. Sans ça on lit un panneau de débogage.
 function ecran(M, coins, dessineDedans){
+  /* Un écran est plaqué sur une cloison : on ne doit pas le voir depuis
+     l'autre côté. Le tracé se fait sur un calque à deux dimensions, sans
+     tampon de profondeur, donc rien ne l'occulte tout seul — d'où ces deux
+     garde-fous, qui sont la géométrie que le calque n'a pas.
+
+     D'abord la face arrière : la normale du quadrilatère contre la direction
+     de l'œil. Ensuite l'aire projetée : quand un coin frôle le plan de
+     coupure, la projection explose et l'écran s'étale sur toute l'image. */
+  const u = [coins[1][0]-coins[0][0], coins[1][1]-coins[0][1], coins[1][2]-coins[0][2]];
+  const v = [coins[3][0]-coins[0][0], coins[3][1]-coins[0][1], coins[3][2]-coins[0][2]];
+  const nrm = [u[1]*v[2]-u[2]*v[1], u[2]*v[0]-u[0]*v[2], u[0]*v[1]-u[1]*v[0]];
+  const oe = oeilSalon();
+  const vers = [oe[0]-coins[0][0], oe[1]-coins[0][1], oe[2]-coins[0][2]];
+  if(nrm[0]*vers[0] + nrm[1]*vers[1] + nrm[2]*vers[2] <= 0) return;
+
   const a = projetteSalon(coins[0], M), b = projetteSalon(coins[1], M),
         c = projetteSalon(coins[2], M), d = projetteSalon(coins[3], M);
   if(!a || !b || !c || !d) return;
+
+  const aire = Math.abs((b[0]-a[0])*(d[1]-a[1]) - (d[0]-a[0])*(b[1]-a[1]));
+  if(aire > 9 * ui.clientWidth * ui.clientHeight) return;
 
   const chemin = () => {
     ctx.beginPath();

@@ -369,3 +369,103 @@ laisser l'analogie filer.
 Le diagramme calculé et manipulable — on tire le point de demi-tour, les
 longueurs et l'écart final se recalculent. Trois niveaux comme partout. Et
 aucune valeur numérique sans source, y compris celles qu'on croit connaître.
+
+---
+
+# État des lieux — fin de la session du 4 août 2026
+
+Écrit pour préparer une remise à plat. Tout ce qui suit est soit constaté, soit
+mesuré ; rien n'y est supposé.
+
+## Ce qui marche, et qui est en ligne
+
+Le salon est un lieu où l'on se déplace : marche, course, saut, chute, vue à la
+première et à la troisième personne, regard à la souris — au glissé ou par
+capture du pointeur — et commandes tactiles qui apparaissent au premier contact
+du doigt. On descend dans la fosse d'où l'on veut, on n'en remonte que par la
+rampe à bâbord.
+
+Deux postes sont des lieux plutôt que des boutons : la **commande du temps**
+(cinq lames sur le pupitre, du temps réel à ×850) et le **télescope**, qui
+donne la main sur le simulateur. **Lumen** est devenu un drone qui patrouille et
+qu'on interpelle en le visant.
+
+Trois portes à l'entrée — regarder, embarquer, apprendre — parce que les trois
+ne demandent ni le même effort ni la même machine.
+
+## Les quatre documents produits par les agents, non encore appliqués
+
+| fichier | ce qu'il contient | état |
+|---|---|---|
+| `CONCEPTION-VAISSEAU.md` | plan coté du salon, paroi cannelée, volets de baie | **non appliqué** |
+| `CONCEPTION-HUB.md` | hub à deux ponts, six postes, table d'affectation des fonctions | **non appliqué** |
+| `CHUTE.md` | physique sourcée du franchissement de l'horizon | **non intégré au site** |
+| `AUDIT-NIVEAUX.md` | neuf défauts dans le contenu | **partiellement corrigé** |
+
+## Le conflit à trancher avant de bâtir le hub
+
+Le concepteur du salon soutient : matériaux sombres, aucune lumière intérieure,
+l'astre reste la seule source — parce que dès qu'on éclaire la pièce, le trou
+noir cesse d'être une source et devient un décor derrière une vitre.
+
+L'implémentation fait l'inverse : corniches, bandeaux, écrans émissifs. Motif :
+sans eux la pièce est un diorama, et c'est le reproche qui avait été fait.
+
+Les deux se défendent, mais pas en même temps. **À trancher explicitement**, car
+cinq salles vont être bâties sur cette décision.
+
+## Ce que l'audit a trouvé et qui n'est PAS corrigé
+
+Corrigé : la contradiction sur la rotation (quatre textes), et πGM/c³ passé de
+60 s à 66,5 s.
+
+Restent :
+
+- **`inactif-6`** : les 26 675 ans reposent sur la distance GRAVITY 2019
+  (8 178 pc), pas sur les 8 277 pc adoptés ailleurs. Contradiction interne avec
+  le « 27 000 ans » de `photon-fuite`. Corollaire sur `inactif-8`.
+- **Méthode niveau 2 contre fiche 9** : erreur Doppler annoncée à 10 % ici,
+  32 % là ; et la description du banc d'essai ne correspond pas au code.
+- **Fiche 8 niveau 1** : « presque cinq fois plus près » vaut 3,8 ; et les 42 %
+  sont la limite extrême, pas la valeur à a* = 0,9 (15,6 %).
+- **Spectre** : « un trou noir bien nourri brillerait surtout en X » est vrai
+  d'un trou noir stellaire, faux d'un supermassif (pic UV).
+- **`vitesse-reel`** : Lumen, devenu système de bord, parle encore comme un photon.
+- **`destination.orbite`** annonce 22 r_s ; l'orbite codée a un apoastre de 16.
+- **Registre** : `dyson1920` contredit la fiche corrigée ; e^(−π) mal attribué ;
+  le repère 2,2 μm attribué au mauvais article GRAVITY ; `lewis2007` jamais ajouté.
+- **`REFERENCES.md` est périmé** : il cite des répliques qui n'existent plus.
+
+Une régénération des MP3 sera nécessaire partout où un champ `dire` change.
+
+## Firebase
+
+Projet `periastre` créé, configuration web dans `pantheon.js`. Authentification
+anonyme **activée puis retombée** en `configuration-not-found`. Règles Firestore
+**non publiées** : lecture et écriture refusées. Le panthéon fonctionne en
+mémoire locale, comme prévu — rien n'est cassé, mais rien n'est partagé.
+
+## Limites connues, assumées
+
+- Couture fine sur l'axe polaire quand la rotation est active : l'axe est
+  singulier par construction en Boyer-Lindquist. L'image par défaut en est exempte.
+- Les écrans du salon sont dessinés sur un calque à deux dimensions, sans tampon
+  de profondeur. Le pare-face et le contrôle d'aire évitent qu'ils traversent les
+  cloisons, mais rien ne les occulte encore quand un objet passe devant.
+- Le son sur iPhone reste coupé par l'interrupteur latéral, sans moyen de le
+  détecter. Un avis le signale.
+
+## Ce qui reste en attente, par ordre d'importance
+
+1. **Trancher le conflit de lumière** — bloque le hub.
+2. **Corriger les huit défauts d'audit restants**, régénérer les voix concernées.
+3. **Le hub à deux ponts**, une fois le contrat de lumière fixé.
+4. **La chute derrière l'horizon** : `CHUTE.md` est prêt, il reste à l'animer.
+   Cinq phases, l'intérieur en temps réel — 28,2 s —, et six mensonges visuels
+   proscrits avec leur remplacement.
+5. **Le panthéon** : la paroi gravée, une fois les règles publiées.
+6. **Le tutoriel guidé** par Lumen, qui suppose le déplacement — désormais acquis.
+7. **Avatars, tenues, monnaie, quêtes.** Règle déjà posée : on ne débloque qu'en
+   comprenant.
+8. **Une touche de rejeu** : « C » copie déjà un lien qui rouvre la scène au même
+   endroit. À étendre au simulateur.
