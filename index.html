@@ -1259,14 +1259,38 @@ const uRes = U("uRes"), uTemps = U("uTemps"), uCam = U("uCam"), uBasis = U("uBas
 // test de profondeur. La baie n'est pas un objet — c'est l'absence de
 // géométrie. Les deux passes partagent la caméra et le champ, donc la
 // perspective s'aligne d'elle-même.
-// Le salon orbite. En temps strictement réel on ne verrait rien : à 22 rayons
-// un tour dure près de onze heures. On accélère donc — mais on l'affiche, et
-// c'est justement ce qui donne l'échelle. La lenteur de l'objet dit sa taille.
-const salon = { actif:false, rayon:22, phase:0.4, lacet:0, tangage:-0.03, facteur:120 };
+// Le salon orbite — et pas en rond. Une orbite circulaire ne montre rien :
+// même distance, même vitesse, image figée. Sur une orbite EXCENTRIQUE, la
+// distance varie du simple au triple, donc la taille apparente de l'ombre,
+// la vitesse, et l'asymétrie Doppler. Et le périastre précesse, ce qui est un
+// effet purement relativiste qu'on voit tourner à l'écran.
+//
+// Le vaisseau est intégré avec `integre()`, la géodésique de type temps déjà
+// validée par le banc d'essai. Ce n'est pas une trajectoire décorative.
+const salon = {
+  actif:false, lacet:0, tangage:-0.03, facteur:400,
+  apo:26, k:0.72,            // vitesse à l'apoastre, en fraction de la circulaire
+  p:[26,0,0], v:[0,0,0], rmin:1e9, rmax:0,
+};
 
-// Période orbitale, en secondes réelles. Ω = √(M/r³) en unités géométriques.
-const periodeSalon = () =>
-  2*Math.PI*Math.pow(salon.rayon, 1.5)/Math.sqrt(M) * SEC_PAR_UNITE;
+function poseSalon(){
+  const r = salon.apo;
+  salon.p = [r, 0, 0];
+  const t = norm(cross([0,1,0], salon.p));
+  const w = vCirc(r) * salon.k;
+  salon.v = [t[0]*w, 0, t[2]*w];
+  salon.rmin = 1e9; salon.rmax = 0;
+}
+// Pas d'appel ici : vCirc n'est déclaré que plus bas. On pose l'orbite au
+// moment où le salon s'ouvre.
+
+// Période, estimée par le demi-grand axe déduit de l'énergie.
+function periodeSalon(){
+  const r = len(salon.p), v2 = dot(salon.v, salon.v);
+  const E = v2/2 - M/r;
+  const a = E < 0 ? -M/(2*E) : salon.apo;
+  return 2*Math.PI*Math.pow(a, 1.5)/Math.sqrt(M) * SEC_PAR_UNITE;
+}
 
 const progSalon = programme(
   document.getElementById("vs-salon").textContent,
@@ -1334,8 +1358,8 @@ let vitesseLocale = [0, 0, 0];
 // Depuis le salon, la caméra est celle d'une personne debout derrière la baie.
 // Le vaisseau orbite lentement, en temps réel — le salon ne triche pas.
 function majCameraSalon(){
-  const P = [Math.cos(salon.phase)*salon.rayon, 0, Math.sin(salon.phase)*salon.rayon];
-  camPos = P;
+  const P = salon.p;
+  camPos = [P[0], P[1], P[2]];
   // Repère de la pièce dans le monde : l'avant, donc la baie, regarde l'astre.
   const f  = norm([-P[0], -P[1], -P[2]]);
   const d0 = norm(cross(f, [0,1,0]));
@@ -3063,7 +3087,9 @@ function dessineEcrans(){
     ctx.fillStyle = "#dce6f5"; ctx.font = "22px KaTeX_Main, Georgia, serif";
     ctx.fillText(D.nom, MG, 68);
     ctx.fillStyle = "#5f7ba8"; ctx.font = "9.5px ui-monospace, monospace";
-    ctx.fillText(D.orbite.toUpperCase(), MG, 86);
+    ctx.fillText("ORBITE EXCENTRIQUE", MG, 86);
+    ctx.fillStyle = "#9fd4ff"; ctx.font = "13px ui-monospace, monospace";
+    ctx.fillText(len(salon.p).toFixed(1).replace(".", ",") + " r\u209B", MG, 106);
 
     // Schéma d'orbite vu de dessus. L'ombre au centre, l'orbite en pointillé,
     // le vaisseau qui avance pour de bon.
@@ -3081,7 +3107,8 @@ function dessineEcrans(){
     ctx.fillStyle = "#04040a";
     ctx.beginPath(); ctx.arc(cx, cy, 8.5, 0, 6.2832); ctx.fill();
 
-    const vx = cx + Math.cos(salon.phase)*R, vy = cy + Math.sin(salon.phase)*R;
+    const rr = len(salon.p), ech = R/salon.apo;
+    const vx = cx + salon.p[0]*ech, vy = cy + salon.p[2]*ech;
     ctx.strokeStyle = "rgba(160,210,255,0.30)"; ctx.lineWidth = 1;
     ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(vx, vy); ctx.stroke();
     ctx.fillStyle = "#9fd4ff";
@@ -3310,7 +3337,19 @@ function boucle(now){
     cam.dist += (voulu - cam.dist) * Math.min(1, dt*2.2);
   }
 
-  if(salon.actif) salon.phase += dt * salon.facteur * 2*Math.PI/periodeSalon();
+  if(salon.actif){
+    // Le vaisseau suit la même géodésique que les sondes, accélérée pour
+    // qu'on la voie. À l'échelle réelle, un tour dure des heures.
+    const dtGeo = dt * salon.facteur / SEC_PAR_UNITE;
+    const n = Math.max(1, Math.min(Math.ceil(dtGeo/0.02), 24));
+    for(let i = 0; i < n; i++){
+      const [np, nv] = integre(salon.p, salon.v, dtGeo/n);
+      salon.p = np; salon.v = nv;
+    }
+    const r = len(salon.p);
+    salon.rmin = Math.min(salon.rmin, r);
+    salon.rmax = Math.max(salon.rmax, r);
+  }
   else if(sondeSuivie === null) cam.azim += dt*0.012;   // dérive lente, pour que la lentille vive
   majCamera();
   reel += (reelCible - reel) * Math.min(1, dt*3);
