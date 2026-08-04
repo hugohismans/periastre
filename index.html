@@ -562,6 +562,21 @@ body.tactile.au-salon #manette{ display:block; }
   #stick i { width:36px; height:36px; margin:-18px 0 0 -18px; }
   #t-saut { width:58px; height:58px; bottom:12px; right:10px; font-size:.62rem; }
 }
+/* Le conseil de rotation. Un trou noir est large : en portrait on n'en voit
+   qu'une tranche, et l'interface prend le reste. On le dit sans rien bloquer,
+   et uniquement là où c'est vrai — un pointeur grossier, un écran étroit,
+   debout. Il s'efface de lui-même dès qu'on couche l'appareil. */
+#couche{ display:none; }
+@media (max-width: 620px) and (orientation: portrait){
+  body.tactile #couche{
+    display:block; position:fixed; z-index:65;
+    left:12px; right:12px; bottom:calc(78px + env(safe-area-inset-bottom));
+    padding:.6rem .8rem; border-radius:.55rem; text-align:center;
+    background:rgba(16,15,22,.9); border:1px solid rgba(255,180,90,.28);
+    color:#e9e4dc; font-size:.78rem; line-height:1.35;
+    pointer-events:none;
+  }
+}
 </style>
 </head>
 <body>
@@ -619,6 +634,10 @@ body.tactile.au-salon #manette{ display:block; }
   <div id="q-consigne"></div>
   <div id="q-jauge"></div>
 </div>
+
+<!-- Conseil de rotation. Aucun script : il apparaît et disparaît avec
+     l'orientation, donc il ne peut pas rester coincé à l'écran. -->
+<div id="couche">Tourne ton téléphone — le trou noir est large.</div>
 
 <div class="hud" id="dock">
   <button id="b-pluie">Lâcher 80 sondes</button>
