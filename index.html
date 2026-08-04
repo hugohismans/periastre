@@ -2557,7 +2557,7 @@ $("b-salon").onclick = () => {
     if(sondeSuivie !== null) embarque(null);
     cinema.actif = false;
     poseSalon();
-    reagit("salon");
+    if(!ouvreLaQuete) reagit("salon");
   }
   majCamera();
 };
@@ -2838,7 +2838,9 @@ $("b-quete").onclick = () => {
   document.body.classList.remove("au-menu");
   document.body.classList.add("en-quete");
   $("panneau").classList.remove("vu");
+  ouvreLaQuete = true;
   if(!salon.actif) $("b-salon").click();
+  ouvreLaQuete = false;
   lanceQuete();
 };
 
@@ -3276,7 +3278,9 @@ function veilleLumen(now){
   }
 }
 
-setTimeout(() => reagit("accueil"), 1400);
+// Pas par-dessus la quête : elle a sa propre narration, et deux voix pour le
+// même instant donnent une phrase commencée puis abandonnée.
+setTimeout(() => { if(!queteActive) reagit("accueil"); }, 1400);
 
 // ============ spectre électromagnétique ============
 // Le fait central : c'est la longueur d'onde qui décide si l'ombre est visible.
@@ -3509,6 +3513,7 @@ const VERIFS_QUETE = {
 
 const queteVues = new Set();     // les postes déjà activés, pour les étapes 2 et 4
 let iQuete = 0, queteActive = false, queteFinie = false, tQuete = 0, tRegard = 0;
+let ouvreLaQuete = false;   // vrai le temps d'entrer au salon, pour museler l'accueil
 
 function majQuete(){
   const el = $("quete");
@@ -3754,7 +3759,9 @@ function intro(){
     elAccueil.classList.add("parti");
     document.body.classList.remove("au-menu");
     document.body.classList.add("en-quete");
+    ouvreLaQuete = true;
     if(!salon.actif) $("b-salon").click();
+    ouvreLaQuete = false;
     lanceQuete();
   };
   $("acc-go").onclick  = () => entre(true);
