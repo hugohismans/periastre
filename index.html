@@ -667,9 +667,45 @@ uniform float uBaieX;       // demi-largeur de l'ouverture
 uniform float uBaieBas;
 uniform float uBaieHaut;
 uniform float uBaieZ;       // profondeur du plan de la baie
+uniform vec3  uOeil;        // position de l'observateur dans la pièce
+
+// Les postes interactifs partagent un seul cube et changent de couleur par
+// image. On impose donc teinte et émission depuis l'extérieur, plutôt que de
+// reconstruire de la géométrie à chaque changement d'état.
+uniform vec3  uTeinteF;
+uniform float uEmiF;
+uniform float uForce;       // 0 = attributs du sommet, 1 = valeurs imposées
+
+/* --------------------------------------------------------------- matière
+
+   On n'importera aucune texture : ni licence à vérifier, ni mégaoctets à
+   servir, et surtout la promesse du site est que tout est calculé. Mais un
+   aplat parfaitement uniforme est ce qui trahit le plus sûrement le décor
+   fabriqué — rien de réel n'est uniforme. On calcule donc la matière.
+
+   Le placage est triplanaire : on projette le point sur le plan que la normale
+   désigne, ce qui donne des coordonnées de surface sans avoir à en stocker.
+   C'est exact pour de la géométrie alignée sur les axes, et c'est tout ce
+   qu'on a ici. */
+float h21(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+
+float vbruit(vec2 p){
+  vec2 i = floor(p), f = fract(p);
+  f = f*f*(3.0 - 2.0*f);
+  return mix(mix(h21(i),            h21(i + vec2(1,0)), f.x),
+             mix(h21(i + vec2(0,1)), h21(i + vec2(1,1)), f.x), f.y);
+}
+
+float fbm(vec2 p){
+  float s = 0.0, a = 0.5;
+  for(int i = 0; i < 4; i++){ s += a*vbruit(p); p *= 2.07; a *= 0.5; }
+  return s;
+}
 
 void main(){
   vec3 n = normalize(vNor);
+  vec3 tei = mix(vTei, uTeinteF, uForce);
+  float emi = mix(vEmi, uEmiF, uForce);
 
   // L'astre est la source principale, et de loin — c'est de là que vient tout
   // le relief. Mais il ne peut pas être la seule : une pièce éclairée par une
@@ -705,7 +741,42 @@ void main(){
   // rouge avant le bleu, le compresseur ramène tout vers le blanc, et les
   // plaques qu'on vient de poser ressortent en crème uniforme : on a payé la
   // matière pour la laver au tirage.
-  vec3 c = vTei * (CHAUD * lum * 7.5 * ouvert + 0.050);
+  // ---- la matière, calculée ----
+  vec3 an = abs(n);
+  vec2 uv = an.y > max(an.x, an.z) ? vPos.xz
+          : (an.x > an.z ? vPos.zy : vPos.xy);
+
+  // Marbrure : la tôle n'est ni également peinte ni également vieillie.
+  float det = 0.84 + 0.32*fbm(uv*2.4);
+
+  // Coulures : elles descendent, donc leur bruit est étiré à la verticale.
+  // C'est ce détail-là qui donne l'âge, plus que n'importe quelle rayure.
+  float cou = fbm(vec2(uv.x*8.0, uv.y*0.55));
+  det *= 1.0 - 0.20*smoothstep(0.56, 0.94, cou)*(1.0 - an.y);
+
+  // Rainures de tôle tous les vingt-cinq centimètres, sous les plaques :
+  // elles subdivisent le panneau et lui donnent une seconde échelle.
+  vec2 gr = abs(fract(uv*4.0) - 0.5);
+  det *= 1.0 - 0.17*smoothstep(0.44, 0.50, max(gr.x, gr.y));
+
+  // Salissure au pied des parois. Un vaisseau se salit par le bas.
+  det *= mix(1.0, mix(0.66, 1.0, smoothstep(-0.62, 0.55, vPos.y)), 1.0 - an.y);
+
+  // Les surfaces émissives ne se salissent pas : elles s'imposeraient mal.
+  det = mix(det, 1.0, emi);
+
+  // L'exposition mérite d'être basse. Trop haute, la teinte chaude sature le
+  // rouge avant le bleu, le compresseur ramène tout vers le blanc, et les
+  // plaques qu'on vient de poser ressortent en crème uniforme : on a payé la
+  // matière pour la laver au tirage.
+  vec3 c = tei * det * (CHAUD * lum * 7.5 * ouvert + 0.050);
+
+  // Reflet spéculaire. Sans lui tout est mat comme du plâtre ; avec lui les
+  // membrures, la main courante et le cadre de la baie accrochent la lumière
+  // et se détachent — c'est ce qui dit « métal » en une ligne.
+  vec3 versOeil = normalize(uOeil - vPos);
+  float spec = pow(max(dot(n, normalize(versOeil + uVersAstre)), 0.0), 42.0);
+  c += CHAUD * spec * 0.55 * lum * 7.5 * ouvert * (1.0 - emi);
 
   // Reflet rasant sur le sol, qui prolonge la baie dans la pièce
   if(n.y > 0.9){
@@ -718,7 +789,7 @@ void main(){
   // Les surfaces qui brillent d'elles-mêmes : bandeaux, corniches, écrans,
   // rayures d'avertissement. Elles ne s'éteignent jamais, donc la pièce garde
   // sa structure lisible même quand l'astre est passé hors de la baie.
-  c += vTei * vEmi * 1.25;
+  c += tei * emi * 1.25;
 
   c = c / (c + 0.85);                       // compression douce des hautes lumières
   c = pow(clamp(c, 0.0, 1.0), vec3(1.0/2.2));
@@ -1296,7 +1367,10 @@ const uRes = U("uRes"), uTemps = U("uTemps"), uCam = U("uCam"), uBasis = U("uBas
 // Le vaisseau est intégré avec `integre()`, la géodésique de type temps déjà
 // validée par le banc d'essai. Ce n'est pas une trajectoire décorative.
 const salon = {
-  actif:false, lacet:0, tangage:-0.03, facteur:850,
+  // 850 était trop rapide pour qu'on regarde vraiment : un tour passait en
+  // vingt secondes. Le cran par défaut laisse deux minutes et demie, et la
+  // commande du mur permet de descendre jusqu'au temps réel.
+  actif:false, lacet:0, tangage:-0.03, facteur:120, vise:null,
   apo:16, k:0.82,            // vitesse à l'apoastre, en fraction de la circulaire
   p:[16,0,0], v:[0,0,0], rmin:1e9, rmax:0, trace:[], horloge:0,
   versAstre:[0,0,-1], eclat:1,   // direction et intensité de l'astre, en repère pièce
@@ -1348,6 +1422,10 @@ const uBaieX    = gl.getUniformLocation(progSalon, "uBaieX");
 const uBaieBas  = gl.getUniformLocation(progSalon, "uBaieBas");
 const uBaieHaut = gl.getUniformLocation(progSalon, "uBaieHaut");
 const uBaieZ    = gl.getUniformLocation(progSalon, "uBaieZ");
+const uOeil     = gl.getUniformLocation(progSalon, "uOeil");
+const uTeinteF  = gl.getUniformLocation(progSalon, "uTeinteF");
+const uEmiF     = gl.getUniformLocation(progSalon, "uEmiF");
+const uForce    = gl.getUniformLocation(progSalon, "uForce");
 const uEclatAstre = gl.getUniformLocation(progSalon, "uEclatAstre");
 const uModele = gl.getUniformLocation(progSalon, "uModele");
 const IDENTITE = new Float32Array([1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1]);
@@ -1366,9 +1444,62 @@ function regardSalon(){
 // Matrice caméra de l'habitacle, avec le MÊME champ que le lancer de rayons :
 // tan(demi-champ) = 1/uFocal. C'est ce qui garantit que l'astre vu par la baie
 // est exactement à sa place.
+// Où se tient l'observateur dans la pièce. Une seule définition : le rendu, le
+// spéculaire et le pointage doivent tous partir du même point, sans quoi on
+// vise à côté de ce qu'on voit.
+const OEIL_SALON = [0, VAISSEAU.OEIL, 2.55];
+
+/* Le rayon qui part de l'œil et traverse le pixel visé.
+
+   Pas besoin d'inverser la matrice : on la reconstruit dans l'autre sens. La
+   projection place un point à `x = X·f/aspect` et `y = Y·f` en profondeur
+   unité, donc viser le pixel (nx, ny) revient à prendre la direction
+   (nx·aspect/f, ny/f, 1) exprimée dans la base du regard. C'est exact, et ça
+   reste juste tant que le rendu et le pointage partagent `regardSalon()`. */
+function rayonSalon(ev){
+  const r = cv.getBoundingClientRect();
+  const nx = ((ev.clientX - r.left)/r.width)*2 - 1;
+  const ny = 1 - ((ev.clientY - r.top)/r.height)*2;
+  const { av, dr, ht } = regardSalon();
+  const x = nx*(cv.width/cv.height)/FOCAL, y = ny/FOCAL;
+  return norm([ dr[0]*x + ht[0]*y + av[0],
+                dr[1]*x + ht[1]*y + av[1],
+                dr[2]*x + ht[2]*y + av[2] ]);
+}
+
+// Intersection rayon / boîte alignée, par la méthode des tranches. La marge
+// élargit la cible : on vise avec une souris, pas avec un scalpel.
+function toucheBoite(o, d, c, e, marge){
+  let t0 = -1e9, t1 = 1e9;
+  for(let i = 0; i < 3; i++){
+    const demi = e[i] + marge;
+    if(Math.abs(d[i]) < 1e-9){
+      if(Math.abs(o[i] - c[i]) > demi) return null;
+      continue;
+    }
+    let a = (c[i] - demi - o[i])/d[i], b = (c[i] + demi - o[i])/d[i];
+    if(a > b){ const t = a; a = b; b = t; }
+    if(a > t0) t0 = a;
+    if(b < t1) t1 = b;
+    if(t0 > t1) return null;
+  }
+  return t0 > 0 ? t0 : (t1 > 0 ? t1 : null);
+}
+
+// Le poste le plus proche sous le pointeur, s'il y en a un.
+function posteVise(ev){
+  const d = rayonSalon(ev);
+  let meilleur = null, dmin = 1e9;
+  for(const p of VAISSEAU.POSTES){
+    const t = toucheBoite(OEIL_SALON, d, p.c, p.d, 0.045);
+    if(t !== null && t < dmin){ dmin = t; meilleur = p; }
+  }
+  return meilleur;
+}
+
 function mvpSalon(){
   const { av, dr, ht } = regardSalon();
-  const oeil = [0, VAISSEAU.OEIL, 2.55];
+  const oeil = OEIL_SALON;
   const f = FOCAL, aspect = cv.width/cv.height;
   const pres = 0.05, loin = 200;
   const nf = 1/(pres - loin);
@@ -2042,6 +2173,32 @@ function relache(e){
 }
 cv.addEventListener("pointerup", relache);
 cv.addEventListener("pointercancel", relache);
+
+/* ---- manipuler les objets du bord ----
+
+   On distingue un clic d'un glissé au déplacement parcouru : dans le salon, le
+   même bouton sert à tourner la tête et à actionner. Sans ce seuil, chaque
+   regard vers la droite déclencherait ce qui traîne sous le pointeur. */
+let posteDepart = null;
+cv.addEventListener("pointerdown", e => {
+  if(!salon.actif) return;
+  posteDepart = { x:e.clientX, y:e.clientY, p:posteVise(e) };
+});
+
+cv.addEventListener("pointermove", e => {
+  if(!salon.actif){ salon.vise = null; return; }
+  salon.vise = posteVise(e);
+  cv.style.cursor = salon.vise ? "pointer" : "";
+});
+
+cv.addEventListener("pointerup", e => {
+  const d = posteDepart; posteDepart = null;
+  if(!salon.actif || !d || !d.p) return;
+  if(Math.hypot(e.clientX - d.x, e.clientY - d.y) > 6) return;   // c'était un glissé
+  if(posteVise(e) !== d.p) return;                               // relâché ailleurs
+  salon.facteur = d.p.valeur;
+  reagit("vitesse");
+});
 
 cv.addEventListener("wheel", e => {
   e.preventDefault();
@@ -3518,8 +3675,25 @@ function boucle(now){
     gl.uniform1f(uBaieBas, VAISSEAU.BAIE.bas);
     gl.uniform1f(uBaieHaut, VAISSEAU.BAIE.haut);
     gl.uniform1f(uBaieZ, -VAISSEAU.P/2);
+    gl.uniform3fv(uOeil, OEIL_SALON);
+    gl.uniform1f(uForce, 0);
     gl.uniformMatrix4fv(uModele, false, IDENTITE);
     VAISSEAU.dessine(gl);
+
+    // Les postes. Le cran retenu est ambre et franc ; les autres sont cyan et
+    // sourds ; celui qu'on vise s'éclaire. C'est tout ce qu'il faut pour qu'on
+    // comprenne qu'un objet du décor se manipule, sans une ligne de didacticiel.
+    gl.uniform1f(uForce, 1);
+    for(const p of VAISSEAU.POSTES){
+      const retenu = p.valeur === salon.facteur;
+      const vise = salon.vise === p;
+      gl.uniform3fv(uTeinteF, retenu ? VAISSEAU.AMBRE : VAISSEAU.CYAN);
+      gl.uniform1f(uEmiF, retenu ? 1.0 : (vise ? 0.72 : 0.20));
+      gl.uniformMatrix4fv(uModele, false, new Float32Array([
+        p.d[0],0,0,0,  0,p.d[1],0,0,  0,0,p.d[2],0,  p.c[0],p.c[1],p.c[2],1 ]));
+      VAISSEAU.dessineCube(gl);
+    }
+    gl.uniform1f(uForce, 0);
     // Les occupants. Ils sont dans la fosse, accoudés à la main courante, et
     // regardent là où est l'astre. Deux suffisent à ce que le lieu soit habité.
     const versAstre = Math.atan2(salon.versAstre[0], -salon.versAstre[2]);

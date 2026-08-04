@@ -53,7 +53,10 @@ const CREME    = [0.300, 0.285, 0.245];   // panneaux crème, par plaques
 const SOL      = [0.115, 0.115, 0.125];
 const PLAFOND  = [0.075, 0.078, 0.086];
 const STRUCT   = [0.105, 0.108, 0.120];   // membrures et caissons, sombres
-const CADRE    = [0.155, 0.150, 0.145];
+// Le cadre était trop clair et trop chaud : éclairé de face par le disque, il
+// virait au beige et les montants de la baie ressemblaient à des planches. Un
+// gris franchement froid et sombre, et ils redeviennent du métal.
+const CADRE    = [0.098, 0.100, 0.108];
 const MOBILE   = [0.135, 0.088, 0.062];   // garniture cuir-fauve du mobilier
 const AMBRE    = [1.000, 0.560, 0.180];   // bandeaux et voyants
 const CYAN     = [0.360, 0.860, 0.900];   // écrans et instruments
@@ -193,11 +196,12 @@ function construitGeometrie(){
   quad(T, [g,BAIE.bas,z0+ep], [g,BAIE.bas,z0], [g,BAIE.haut,z0], [g,BAIE.haut,z0+ep], CADRE);
   quad(T, [d,BAIE.bas,z0], [d,BAIE.bas,z0+ep], [d,BAIE.haut,z0+ep], [d,BAIE.haut,z0], CADRE);
 
-  // Un liseré ambre court tout autour du tableau : il dessine l'ouverture même
-  // quand l'astre est passé hors champ et que la baie est noire.
-  const li = 0.030;
-  boite(T, [0, BAIE.bas + li, z0+ep], [BAIE.x/2, li, li], AMBRE, 1);
-  boite(T, [0, BAIE.haut - li, z0+ep], [BAIE.x/2, li, li], AMBRE, 1);
+  // Un liseré ambre au seuil de la baie : il dessine l'ouverture même quand
+  // l'astre est passé hors champ et que la vitre est noire. Uniquement en bas —
+  // le même bandeau au linteau barrait la vue d'une réglette crème, et un
+  // éclairage se pose sur une tablette, il ne pend pas du plafond.
+  const li = 0.021;
+  boite(T, [0, BAIE.bas + li*1.6, z0+ep], [BAIE.x/2, li, li], AMBRE, 1);
 
   // montants, avec leur retour dans le tableau
   const n = BAIE.montants;
@@ -251,11 +255,13 @@ function construitGeometrie(){
   // ---- poste d'observation à droite : on n'est pas symétrique ----
   boite(T, [2.85, FOSSE + 0.46, z0 + 1.05], [0.95, 0.46, 0.36], STRUCT);
   boite(T, [2.85, FOSSE + 0.94, z0 + 0.95], [0.92, 0.03, 0.26], CADRE);
-  // le pupitre incliné, ses écrans et sa rangée de voyants
-  boite(T, [2.85, FOSSE + 1.04, z0 + 0.82], [0.72, 0.09, 0.02], CYAN, 1);
-  for(let i = 0; i < 6; i++)
-    boite(T, [2.30 + i*0.22, FOSSE + 0.90, z0 + 0.68], [0.035, 0.018, 0.012],
-          i % 3 === 0 ? AMBRE : CYAN, 1);
+  // l'écran incliné du pupitre
+  boite(T, [3.30, FOSSE + 1.06, z0 + 0.82], [0.42, 0.09, 0.02], CYAN, 1);
+
+  // Le socle de la commande du temps, sous les cinq lames : sans lui, elles
+  // flotteraient. Un léger renfoncement pour qu'on lise un instrument encastré.
+  boite(T, [2.85, 0.375, -2.78], [0.83, 0.025, 0.11], STRUCT);
+  boite(T, [2.85, 0.355, -2.78], [0.87, 0.030, 0.14], CADRE);
 
   // ---- caissons techniques au plafond, décalés ----
   boite(T, [-2.9, H - 0.15, z0 + 3.9], [1.6, 0.15, 0.60], STRUCT);
@@ -273,13 +279,41 @@ function construitGeometrie(){
   };
 }
 
+/* ------------------------------------------------------- postes interactifs
+
+   Une commande n'est pas une entrée de menu : c'est un objet du bord, qu'on
+   vise et qu'on active. Chaque poste déclare simplement sa boîte englobante en
+   coordonnées de la pièce — c'est tout ce qu'il faut pour le pointer, et c'est
+   la brique sur laquelle le reste du vaisseau se branchera.
+
+   Ici : la commande du temps, cinq lames de hauteur croissante posées sur le
+   pupitre. La hauteur dit la vitesse, donc aucun mot n'est nécessaire — et le
+   premier cran est le temps réel, ce qui remet la vérité parmi les choix au
+   lieu de subir une accélération imposée. */
+const VITESSES = [
+  { f:1,   nom:"temps réel" },
+  { f:25,  nom:"×25" },
+  { f:120, nom:"×120" },
+  { f:400, nom:"×400" },
+  { f:850, nom:"×850" },
+];
+
+const POSTES = VITESSES.map((v, i) => {
+  const h = 0.030 + i*0.027;
+  return {
+    id:"vitesse", indice:i, valeur:v.f, nom:v.nom,
+    c:[2.25 + i*0.30, 0.40 + h, -2.78],
+    d:[0.072, h, 0.046],
+  };
+});
+
 // --------------------------------------------------------------- rendu
 let vao = null, nSommets = 0;
+let vaoCube = null, nCube = 0;
 
-function construit(gl){
-  const g = construitGeometrie();
-  vao = gl.createVertexArray();
-  gl.bindVertexArray(vao);
+function televerse(gl, g){
+  const v = gl.createVertexArray();
+  gl.bindVertexArray(v);
   const attache = (data, loc, taille) => {
     const b = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, b);
@@ -292,8 +326,31 @@ function construit(gl){
   attache(g.tei, 2, 3);
   attache(g.emi, 3, 1);
   gl.bindVertexArray(null);
+  return v;
+}
+
+function construit(gl){
+  const g = construitGeometrie();
+  vao = televerse(gl, g);
   nSommets = g.n;
+
+  // Un cube unité, redimensionné et placé par sa matrice. Tous les postes s'en
+  // servent : c'est ce qui permet de leur donner une couleur par image sans
+  // reconstruire de géométrie.
+  const C = { pos:[], nor:[], tei:[], emi:[] };
+  boite(C, [0,0,0], [1,1,1], [1,1,1], 0);
+  vaoCube = televerse(gl, {
+    pos:new Float32Array(C.pos), nor:new Float32Array(C.nor),
+    tei:new Float32Array(C.tei), emi:new Float32Array(C.emi),
+  });
+  nCube = C.pos.length/3;
   return nSommets;
+}
+
+function dessineCube(gl){
+  gl.bindVertexArray(vaoCube);
+  gl.drawArrays(gl.TRIANGLES, 0, nCube);
+  gl.bindVertexArray(null);
 }
 
 function dessine(gl){
@@ -303,7 +360,8 @@ function dessine(gl){
   gl.bindVertexArray(null);
 }
 
-global.VAISSEAU = { L, H, P, OEIL, FOSSE, BAIE, construit, dessine,
+global.VAISSEAU = { L, H, P, OEIL, FOSSE, BAIE, POSTES, AMBRE, CYAN,
+                    construit, dessine, dessineCube,
                     get sommets(){ return nSommets; } };
 
 })(window);
