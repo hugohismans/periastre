@@ -215,7 +215,36 @@ function ouverture(secondes){
   }, s*1000 + 300);
 }
 
-global.MUSIQUE = { demarre, arrete, regle, regleVolume, avance, frappe, ouverture,
+/* Le signal qui prévient qu'une voix arrive.
+
+   Hugo, téléphone au volume maximum : « j'ai sursauté ». Une parole qui
+   démarre sans prévenir est une agression, et le réglage de volume ne répare
+   rien — on ne le trouve qu'après avoir sursauté une fois.
+
+   Deux brèves notes montantes, très courtes et bien plus discrètes que la
+   voix : le temps de comprendre que quelque chose va être dit, et de baisser
+   le son si l'on veut. Il joue même quand la musique est éteinte, parce que
+   ce n'est pas de la musique — c'est un avertissement.
+
+   Il a besoin du contexte audio, lequel exige un geste préalable ; à ce stade
+   il y en a toujours eu un, puisqu'il a fallu accepter le son pour entrer. */
+function annonce(){
+  if(!ctx && !cree()) return 0;
+  if(ctx.state === "suspended") ctx.resume();
+  const n = ctx.currentTime;
+  [[587.33, 0.00], [880.00, 0.115]].forEach(([f, t]) => {
+    const o = ctx.createOscillator(), g = ctx.createGain();
+    o.type = "sine"; o.frequency.setValueAtTime(f, n + t);
+    g.gain.setValueAtTime(0.0001, n + t);
+    g.gain.exponentialRampToValueAtTime(0.055, n + t + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.0001, n + t + 0.16);
+    o.connect(g); g.connect(ctx.destination);     // hors du maître : indépendant de la musique
+    o.start(n + t); o.stop(n + t + 0.18);
+  });
+  return 330;                                     // le délai à respecter avant de parler
+}
+
+global.MUSIQUE = { demarre, arrete, regle, regleVolume, avance, frappe, ouverture, annonce,
                    get active(){ return allume; } };
 
 })(window);

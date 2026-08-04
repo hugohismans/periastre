@@ -3066,7 +3066,10 @@ let tMasque = 0, tDernier = performance.now(), questionsOuvertes = false;
 // Les répliques étant scriptées, la voix est pré-synthétisée hors ligne
 // (voir outils/voix.py) : aucune clé d'API, et la même voix neuronale pour
 // tout le monde au lieu des voix système, qui sont mauvaises et inégales.
+let attenteVoix = null;
+
 function tais(){
+  clearTimeout(attenteVoix); attenteVoix = null;
   if(audio){
     audio.pause();
     audio.removeAttribute("src");   // pause() seul ne suffit pas si play() n'a pas encore résolu
@@ -3078,15 +3081,26 @@ function tais(){
 // Une voix commencée va au bout. Rien ne lui coupe la parole, sauf une demande
 // explicite du visiteur — cliquer sur Lumen ou choisir une question. Sans cette
 // règle, enchaîner quelques boutons empile les voix les unes sur les autres.
-const parleEnCours = () => !!(audio && !audio.ended && !audio.paused);
+// L'attente compte comme une parole en cours : sinon deux répliques lancées
+// à trois cents millisecondes d'intervalle se retrouveraient à parler ensemble.
+const parleEnCours = () => !!attenteVoix || !!(audio && !audio.ended && !audio.paused);
 
 function parle(o, prioritaire){
   if(!voixActive || !o || !o.id) return;
   if(parleEnCours() && !prioritaire) return;
   tais();
-  audio = new Audio(`voix/${CONTENU.voix[iVoix].id}/${o.id}.mp3`);
-  audio.volume = volumeVoix;
-  audio.play().catch(() => {});     // l'autoplay reste bloqué tant qu'on n'a pas cliqué
+  /* On prévient avant de parler. Une voix qui démarre sans crier gare sur un
+     téléphone au volume maximum fait sursauter — et le réglage de volume ne
+     répare rien, puisqu'on ne le cherche qu'après avoir sursauté une fois.
+     Deux brèves notes montantes, puis la parole. */
+  const delai = MUSIQUE.annonce();
+  const chemin = `voix/${CONTENU.voix[iVoix].id}/${o.id}.mp3`;
+  attenteVoix = setTimeout(() => {
+    attenteVoix = null;
+    audio = new Audio(chemin);
+    audio.volume = volumeVoix;
+    audio.play().catch(() => {});   // l'autoplay reste bloqué tant qu'on n'a pas cliqué
+  }, delai);
 }
 
 function dit(o, duree, avant, prioritaire){
