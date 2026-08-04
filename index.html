@@ -2797,11 +2797,20 @@ cv.addEventListener("pointerdown", e => {
      surtout l'avantage de permettre les deux EN MÊME TEMPS — un manche posé
      dans un coin obligeait à choisir. La souris, elle, garde tout l'écran :
      elle n'a pas ce problème puisqu'elle a un clavier à côté. */
-  if(e.pointerType === "touch" && e.clientX < innerWidth*0.5 && !pouceMarche){
+  if(e.pointerType === "touch" && e.clientX < innerWidth*0.5 && !pouceMarche
+     && !posteVise(e)){
+    /* Viser passe avant marcher.
+
+       Sans ce test, la moitié gauche de l'écran devenait injouable au doigt :
+       le manche captait le contact avant qu'on ait regardé s'il y avait
+       quelque chose dessous. On touchait le drone, il naissait un manche, et
+       rien ne s'ouvrait. Le manche ne prend donc la main que si le doigt ne
+       désigne rien — ce qui est le cas presque partout, puisqu'un poste
+       occupe quelques dizaines de pixels. */
     pouceMarche = { id:e.pointerId, x:e.clientX, y:e.clientY };
     poseStick(e.clientX, e.clientY);
     e.preventDefault();
-    return;                       // ce doigt-là marche, il ne vise rien
+    return;
   }
 
   posteDepart = { x:e.clientX, y:e.clientY,
@@ -4447,6 +4456,39 @@ function dessineEcrans(){
     ctx.textAlign = "center";
     ctx.fillText("NOUS", vx, vy - 9);
   });
+
+  /* L'aura de ce qu'il faut toucher.
+
+     La pulsation de l'objet lui-même ne suffisait pas : sur un petit écran, un
+     drone qui brille un peu plus reste un drone qui brille. Il faut un signe
+     qui n'appartienne pas au décor — un anneau qui se resserre, comme on en
+     pose autour de ce qu'on désigne du doigt.
+
+     Il ne s'affiche que pendant l'étape qui demande cet objet-là, et il
+     disparaît dès qu'on le vise : une fois qu'on a compris, l'insistance
+     devient du bruit. */
+  if(queteActive && QUETE[iQuete] && !queteFinie){
+    const ou = {
+      "a-lumen":     () => ROBOT.boiteVisee(salon.horloge).c,
+      "a-temps":     () => [2.85, 0.56, -2.78],
+      "a-telescope": () => [VAISSEAU.TELESCOPE.x, VAISSEAU.FOSSE + 1.05, VAISSEAU.TELESCOPE.z],
+    }[QUETE[iQuete].id];
+    const deja = (QUETE[iQuete].id === "a-lumen"  && salon.vise === POSTE_LUMEN)
+              || (QUETE[iQuete].id === "a-temps"  && salon.vise && salon.vise.id === "vitesse")
+              || (QUETE[iQuete].id === "a-telescope" && salon.vise && salon.vise.id === "telescope");
+    const q = ou && !deja ? projetteSalon(ou(), M) : null;
+    if(q){
+      const ph = (salon.horloge * 0.9) % 1;          // un cycle par seconde environ
+      const r = 62 - 30*ph;                          // l'anneau se resserre
+      ctx.save();
+      ctx.globalAlpha = 0.55 * Math.min(1, ph*4) * (1 - ph);
+      ctx.strokeStyle = "#ffb163"; ctx.lineWidth = 2;
+      ctx.beginPath(); ctx.arc(q[0], q[1], r, 0, 6.2832); ctx.stroke();
+      ctx.globalAlpha = 0.30;
+      ctx.beginPath(); ctx.arc(q[0], q[1], 30, 0, 6.2832); ctx.stroke();
+      ctx.restore();
+    }
+  }
 
   // --- écran de droite : le temps, et l'aveu ---
   ecran(M, [[d0,y1,z], [d1,y1,z], [d1,y0,z], [d0,y0,z]], () => {
