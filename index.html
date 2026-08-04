@@ -472,6 +472,10 @@
     <div class="grille" id="voix-choix"></div>
   </div>
   <div class="bloc">
+    <div class="etiq">Volume de la voix</div>
+    <div class="grille" id="volume"></div>
+  </div>
+  <div class="bloc">
     <div class="etiq">Anecdotes spontanées</div>
     <div class="grille" id="anecdotes"></div>
   </div>
@@ -726,12 +730,15 @@ vec3 versCart(float r, float th, float ph, float a){
 vec4 deriveK(vec4 y, float E, float L, float a){
   float r = y.x, pr = y.z, pt = y.w;
   float s = sin(y.y), c = cos(y.y);
-  // Les étages intermédiaires de RK4 peuvent franchir le pôle et donner θ < 0.
-  // La métrique est paire en θ (P ne dépend que de sin²θ) et ∂P/∂θ est impaire,
-  // donc la formule signée reste juste — à condition de borner la VALEUR
-  // ABSOLUE du sinus, et de rendre son signe au cube. Borner s lui-même
-  // transformerait un sinus de −0,8 en +0,01.
-  float sa = max(abs(s), 1e-2);          // cône de 0,6° autour de l'axe
+  // Pas de borne physique ici : un rayon de moment cinétique L non nul ne peut
+  // PAS atteindre l'axe — la barrière centrifuge (Θ(θ) ≥ 0) lui impose un
+  // sin θ minimal. Brider sin θ sous-estimerait dφ/dλ d'un facteur cent et
+  // ferait sortir le rayon dans une direction fausse : c'était la cause de la
+  // colonne d'artefacts. Le seuil ci-dessous ne sert qu'à éviter une division
+  // par zéro exacte ; c'est au PAS de résoudre le pivot, pas à un plafond.
+  // Les étages de RK4 peuvent donner θ < 0 : la formule signée reste juste,
+  // P étant paire en θ et ∂P/∂θ impaire.
+  float sa = max(abs(s), 1e-7);
   float s2 = sa*sa;
   float s3 = (s < 0.0 ? -1.0 : 1.0) * sa*s2;
   float S = r*r + a*a*c*c;
@@ -755,7 +762,7 @@ vec4 deriveK(vec4 y, float E, float L, float a){
 
 float dPhiK(vec4 y, float E, float L, float a){
   float r = y.x, s = sin(y.y), c = cos(y.y);
-  float s2 = max(s*s, 1e-4);   // |sinθ| >= 0,01 : borne les termes singuliers sur l'axe
+  float s2 = max(s*s, 1e-14);   // |sinθ| >= 0,01 : borne les termes singuliers sur l'axe
   float S = r*r + a*a*c*c;
   float D = r*r - 2.0*M_TN*r + a*a;
   float Dp = abs(D) < 1e-7 ? 1e-7 : D;
@@ -842,6 +849,14 @@ void main(){
     float vit  = max(sqrt(k1.x*k1.x + r*r*k1.y*k1.y + r*r*sth*sth*dph0*dph0), 1e-5);
     float dl = clamp(0.05*(r - rh) + 0.022*r, 0.012, 1.4) / vit;
 
+    // L'axe polaire est une singularité de coordonnées : φ doit y basculer de π
+    // presque instantanément. Un pas qui saute par-dessus le pôle rate ce
+    // basculement, et le rayon ressort dans une direction fausse — c'était la
+    // colonne d'artefacts. On interdit donc d'y arriver en un seul pas.
+    float versPole = min(y.y, 3.14159265 - y.y);
+    if(versPole < 0.35 && abs(k1.y) > 1e-9)
+      dl = min(dl, max(0.25*versPole/abs(k1.y), 0.004));
+
     for(int k = 0; k < 4; k++){
       if(k >= uNbPhotons) break;
       dl = min(dl, max(0.04, length(uPhotons[k]-pc)*0.40/vit));
@@ -893,7 +908,7 @@ void main(){
 
   // Un rayon qui n'a pas fui après tous ces pas et se traîne encore au fond du
   // puits est capturé : lui attribuer le ciel remplirait l'ombre d'étoiles.
-  if(!avale && y.x < 6.0) avale = true;
+  if(!avale && y.x < 8.0) avale = true;   // r<8 : trop profond pour ressortir
 
   // Le ciel d'étoiles reste comme repère, mais il s'efface hors du visible :
   // en radio ou en X, ce ne sont pas les mêmes sources qui brillent.
@@ -1678,6 +1693,7 @@ const QUESTIONS = CONTENU.questions;
 
 const elBulle = $("bulle"), elBulleTxt = $("bulle-texte");
 let voixActive = false, iVoix = 0, audio = null;
+let volumeVoix = 0.45;   // les voix neuronales sortent fort : on part bas
 let tMasque = 0, tDernier = performance.now(), questionsOuvertes = false;
 
 // Les répliques étant scriptées, la voix est pré-synthétisée hors ligne
@@ -1688,6 +1704,7 @@ function parle(o){
   tais();
   if(!voixActive || !o || !o.id) return;
   audio = new Audio(`voix/${CONTENU.voix[iVoix].id}/${o.id}.mp3`);
+  audio.volume = volumeVoix;
   audio.play().catch(() => {});     // l'autoplay reste bloqué tant qu'on n'a pas cliqué
 }
 
@@ -1740,6 +1757,19 @@ CONTENU.voix.forEach((v, i) => {
   };
   boitierVoix.appendChild(b);
 });
+const boitierVol = $("volume");
+[["très bas", 0.18], ["bas", 0.45], ["moyen", 0.7], ["fort", 1.0]].forEach(([nom, v], i) => {
+  const b = document.createElement("button");
+  b.textContent = nom;
+  b.onclick = () => {
+    volumeVoix = v;
+    if(audio) audio.volume = v;
+    [...boitierVol.children].forEach((c, j) => c.classList.toggle("actif", j === i));
+    sauve();
+  };
+  boitierVol.appendChild(b);
+});
+
 const boitierA = $("anecdotes");
 [["30 s", 30000], ["1 min", 60000], ["3 min", 180000], ["jamais", 0]].forEach(([nom, ms], i) => {
   const b = document.createElement("button");
@@ -1966,7 +1996,7 @@ function sauve(){
   try {
     localStorage.setItem(CLE, JSON.stringify({
       niveau: iNiveau, acquis: [...acquis], voix: voixActive,
-      anecdotes: intervalleAnecdote, taille: zoomSonde, deja: true,
+      anecdotes: intervalleAnecdote, taille: zoomSonde, volume: volumeVoix, deja: true,
     }));
   } catch(e){ /* navigation privée : on continue sans mémoire */ }
 }
@@ -1979,6 +2009,7 @@ function charge(){
     if(typeof d.voix === "boolean") voixActive = d.voix;
     if(typeof d.anecdotes === "number") intervalleAnecdote = d.anecdotes;
     if(typeof d.taille === "number") zoomSonde = d.taille;
+    if(typeof d.volume === "number") volumeVoix = d.volume;
     return d;
   } catch(e){ return null; }
 }
@@ -2210,6 +2241,8 @@ if(memoire){
   [...boitierA.children].forEach((c, i) => c.classList.toggle("actif", i === iA));
   const iT = [0.6, 1, 2.2, 4].indexOf(zoomSonde);
   [...boitierT.children].forEach((c, i) => c.classList.toggle("actif", i === iT));
+  const iVol = [0.18, 0.45, 0.7, 1.0].indexOf(volumeVoix);
+  [...boitierVol.children].forEach((c, i) => c.classList.toggle("actif", i === iVol));
   // reprendre là où on s'était arrêté
   const suivante = MISSIONS.findIndex(m => !acquis.has(m.id));
   iMission = suivante < 0 ? MISSIONS.length : suivante;
