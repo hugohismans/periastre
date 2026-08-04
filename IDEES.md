@@ -35,6 +35,28 @@ Mis à jour le 4 août 2026.
 
 ## À faire
 
+### 0. Le vaisseau comme cadre de tout le reste
+L'idée qui unifie le reste : on n'est plus « devant » le trou noir, on est **à
+bord**, en orbite. La vue par le hublot est la vraie vue. Le cours se suit
+depuis le poste de pilotage, donné par Lumen. Le temps de l'orbite s'accélère
+sans que le temps à bord change.
+
+Déjà en place : caméra embarquée avec aberration relativiste, cockpit avec
+cadrans réels (vitesse locale, dilatation du temps, marée), filtre lumière
+réelle.
+
+Reste à faire :
+- **Le télescope à filtres.** L'objet le plus pédagogique de tout le projet.
+  Sgr A* change complètement de visage selon la longueur d'onde, et c'est un
+  fait, pas un effet : radio (c'est ainsi qu'on l'a découvert en 1974),
+  submillimétrique (le pic d'émission, la fenêtre de l'EHT, là où l'anneau
+  apparaît), infrarouge (calme, avec des sursauts plusieurs fois par jour),
+  visible (rien), X (sursauts et émission diffuse). Chaque filtre doit montrer
+  une image différente et sourcée.
+- **Le cours guidé** depuis le poste : Lumen déroule le programme au niveau
+  choisi, la caméra et les paramètres suivent.
+- **Se déplacer dans le vaisseau** : hublot, télescope, console.
+
 ### 1. Vérification des faits par un agent
 Faire relire chaque affirmation du site par un agent qui remonte aux sources
 primaires, et produire `SOURCES.md` consultable. Bon candidat pour une
