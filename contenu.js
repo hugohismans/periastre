@@ -328,7 +328,7 @@ missions: [
 {
   id: "m-reel",
   titre: "Éteins la lumière",
-  consigne: "Dans le rouage, appuie sur <b>Lumière réelle</b>. Et cherche le trou noir.",
+  consigne: "Appuie sur <b>Lumière réelle</b>, en bas. Et cherche le trou noir. Le même bouton rallumera les couleurs.",
   reussi: { id:"m-reel-ok",
     t:`Il est toujours là. Le beau disque orange, en vrai, tu ne le verrais <b>pas</b> : il brille dans des ondes que l'œil ne capte pas. Ce qui le trahit, ce sont les étoiles <i>tordues</i> autour de lui. C'est comme ça qu'on les cherche vraiment.`,
     dire:`Il est toujours là. Le beau disque orange, en vrai, tu ne le verrais pas : il brille dans des ondes que l'œil ne capte pas. Ce qui le trahit, ce sont les étoiles tordues autour de lui. C'est comme ça qu'on les cherche, vraiment.`,

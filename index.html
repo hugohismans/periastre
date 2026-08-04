@@ -404,6 +404,7 @@
   <button id="b-pluie">Lâcher 80 sondes</button>
   <button id="b-photon">Photon</button>
   <button id="b-sonde">Monter à bord</button>
+  <button id="b-reel">Lumière réelle</button>
   <button id="b-vide">Effacer</button>
 </div>
 
@@ -413,7 +414,6 @@
   <div class="bloc">
     <div class="etiq">Affichage</div>
     <div class="rangee">
-      <button id="b-reel">Lumière réelle</button>
       <button id="b-traj">Trajectoires</button>
     </div>
   </div>
@@ -1200,8 +1200,12 @@ $("b-sonde").onclick = () => {
 let reel = 0, reelCible = 0;
 $("b-reel").onclick = () => {
   reelCible = reelCible > 0.5 ? 0 : 1;
-  $("b-reel").classList.toggle("actif", reelCible > 0.5);
-  if(reelCible > 0.5) reagit("reel");
+  const actif = reelCible > 0.5;
+  $("b-reel").classList.toggle("actif", actif);
+  // le libellé dit ce que le bouton VA faire : sinon on se retrouve coincé
+  // en noir et blanc sans savoir comment revenir
+  $("b-reel").textContent = actif ? "Rallumer les couleurs" : "Lumière réelle";
+  if(actif) reagit("reel");
 };
 
 const boitierV = $("vitesses");
@@ -1388,10 +1392,13 @@ const FICHES = [
 {
   titre: "Sagittarius A*",
   t: [
-   `Au milieu de notre galaxie, il y a un trou noir. Il pèse <i>4 millions de fois le Soleil</i>,
-    et il est si loin que sa lumière met 27 000 ans à nous parvenir.
-    On ne l'a photographié qu'en 2022. Avant ça, on savait qu'il était là
-    <b>parce qu'on voyait des étoiles tourner autour de quelque chose d'invisible</b>.`,
+   `Au milieu de notre galaxie, il y a un trou noir. Il pèse <i>4 millions de fois le Soleil</i>.
+    <br><br>Personne ne l'a jamais vu à l'œil nu. On a su qu'il était là parce que des
+    astronomes ont regardé le même petit coin de ciel <b>pendant trente ans</b>, nuit après
+    nuit — et qu'ils ont fini par voir des étoiles tourner autour de <i>rien</i>.
+    Un vide qui les faisait tourner.
+    <br><br>Il a fallu attendre 2022 pour en obtenir une image. Prends une seconde :
+    on a photographié une chose dont aucune lumière ne sort.`,
 
    `Sagittarius A* fait 4,3 millions de masses solaires tassées dans une bille de
     <i>12,7 millions de km</i> — ça tiendrait à l'intérieur de l'orbite de Mercure.
@@ -1409,10 +1416,12 @@ const FICHES = [
 {
   titre: "L'horizon des événements",
   t: [
-   `L'horizon n'est ni un mur ni une surface : c'est une <b>ligne de non-retour</b>.
-    En dessous, il faudrait aller plus vite que la lumière pour remonter — et rien
-    ne va plus vite que la lumière. Le plus troublant, c'est qu'en le franchissant,
-    <b>on ne sentirait rien du tout</b>. Il n'y a rien à toucher.`,
+   `L'horizon n'est pas un mur. Il n'y a rien à toucher, rien à voir, aucune paroi.
+    C'est simplement l'endroit à partir duquel il faudrait aller plus vite que la lumière
+    pour revenir — et rien ni personne ne va plus vite que la lumière.
+    <br><br>Le plus troublant : en le franchissant, <b>tu ne sentirais rien du tout</b>.
+    Pas de choc, pas de bruit, pas de frontière. Tu passerais, c'est tout.
+    Et à cet instant précis, <i>tous</i> les chemins devant toi mèneraient au même endroit.`,
 
    `Son rayon vaut r<sub>s</sub> = 2GM/c², soit <i>12,7 millions de km</i> ici. Ce n'est pas
     un endroit où la matière s'écrase : la courbure y est parfaitement finie. Sur un trou noir
@@ -1431,10 +1440,13 @@ const FICHES = [
 {
   titre: "Pourquoi la lumière tourne",
   t: [
-   `La lumière va toujours tout droit. Ce qui change, c'est <b>le sens de « tout droit »</b>.
-    Une masse creuse l'espace autour d'elle, un peu comme une bille posée sur un drap tendu,
-    et la lumière suit ce creux. Elle ne tourne pas parce qu'on la tire :
-    elle file droit devant, dans un espace qui n'est plus plat.`,
+   `La lumière va toujours tout droit. Toujours. Ce qui change, c'est <b>le sens de
+    « tout droit »</b>.
+    <br><br>Pose une bille lourde sur un drap tendu : le drap se creuse. Une bille légère
+    qui passe à côté suit ce creux. Elle n'est pas tirée — elle va tout droit, dans quelque
+    chose qui n'est plus plat. L'espace fait pareil autour d'une masse.
+    <br><br>Einstein a compris ça en 1915, <i>avec un crayon</i>. Il a fallu attendre quatre
+    ans pour aller le vérifier dans le ciel.`,
 
    `C'est la <b>lentille gravitationnelle</b>. Regarde juste au-dessus du disque noir :
     tu vois la face <i>inférieure</i> du disque, celle qui est derrière et en dessous.
@@ -1453,10 +1465,13 @@ const FICHES = [
 {
   titre: "L'anneau de photons et l'ombre",
   t: [
-   `À une certaine distance, la lumière se met carrément <b>en orbite</b> : elle tourne
-    en rond autour du trou noir, parfois plusieurs fois, avant de repartir.
-    Et le rond noir que tu vois n'est pas le trou noir lui-même — c'est son ombre,
-    et elle est <i>deux fois et demie plus grande</i> que lui.`,
+   `Approche-toi assez près, et la lumière se met carrément <b>en orbite</b>. Elle tourne
+    en rond, parfois plusieurs fois, avant de repartir. Un rayon de lumière qui fait le tour
+    d'un objet : c'est déjà difficile à se représenter.
+    <br><br>Et le rond noir que tu vois n'est pas le trou noir — c'est son <b>ombre</b>,
+    et elle est <i>deux fois et demie plus grande</i> que lui. Toute la lumière qui frôle
+    de trop près est happée au passage.
+    <br><br>Ce que tu regardes, c'est un trou dans le ciel.`,
 
    `La sphère des photons est à 1,5 fois le rayon de l'horizon. L'orbite y est
     <b>instable</b> : le moindre écart, et le photon s'échappe ou tombe — comme une bille
@@ -1475,10 +1490,13 @@ const FICHES = [
 {
   titre: "Pourquoi ça brille",
   t: [
-   `Rien ne brûle là-dedans. Le gaz qui tourne autour frotte contre lui-même,
-    et ce frottement le chauffe — jusqu'à <i>des millions de degrés</i>.
-    C'est le principe de se frotter les mains, en infiniment plus violent.
-    <b>C'est la chute qui fabrique la lumière</b>, pas un feu.`,
+   `Rien ne brûle là-dedans. Pas de feu, pas de combustion, rien.
+    <br><br>Le gaz qui tourne autour frotte contre lui-même, et ce frottement le chauffe.
+    Frotte-toi les mains très fort : tu sens la chaleur. C'est exactement le même principe,
+    des millions de fois plus violent — jusqu'à <i>des millions de degrés</i>.
+    <br><br><b>C'est la chute qui fabrique la lumière.</b> Et pour transformer de la matière
+    en lumière, un trou noir est la machine la plus efficace de tout l'univers.
+    Bien meilleure qu'une étoile.`,
 
    `Les couches proches tournent plus vite que les couches éloignées, et ce cisaillement
     dissipe l'énergie de chute en chaleur. Le rendement est énorme : jusqu'à <i>6 %</i> de
@@ -1497,10 +1515,12 @@ const FICHES = [
 {
   titre: "Un côté plus brillant",
   t: [
-   `Regarde bien le disque : <b>un côté est beaucoup plus lumineux que l'autre</b>.
-    Ce n'est pas un défaut d'image. Le gaz tourne tellement vite que ce qui vient
-    vers toi paraît plus brillant, et ce qui s'éloigne s'assombrit.
-    À ces vitesses, la lumière n'arrive pas pareil de face et de dos.`,
+   `Regarde bien le disque : <b>un côté brille beaucoup plus fort que l'autre</b>.
+    Ce n'est pas un défaut d'image.
+    <br><br>Le gaz tourne à une bonne fraction de la vitesse de la lumière. Et à ces
+    vitesses-là, ce qui vient vers toi paraît plus lumineux, ce qui s'éloigne s'assombrit.
+    <br><br>C'est un peu comme la sirène d'une ambulance, plus aiguë quand elle approche.
+    Sauf qu'ici c'est la <i>lumière</i>, et que le contraste dépasse un facteur dix.`,
 
    `C'est le <b>beaming relativiste</b>. Dans la partie interne, le gaz file à 30-40 %
     de la vitesse de la lumière. Le côté qui approche voit son éclat multiplié par dix
@@ -1518,9 +1538,11 @@ const FICHES = [
   titre: "La dernière orbite stable",
   t: [
    `Autour de la Terre, on peut mettre un satellite aussi bas qu'on veut, tant qu'il évite
-    l'atmosphère. Autour d'un trou noir, non : il existe une distance en dessous de laquelle
-    <b>plus aucune orbite ne tient</b>. On tombe, quoi qu'on fasse, quelle que soit sa vitesse.
-    Le cercle en pointillés marque cette frontière.`,
+    l'atmosphère. Il suffit d'aller à la bonne vitesse.
+    <br><br>Autour d'un trou noir, non. Il existe une distance en dessous de laquelle
+    <b>plus aucune orbite ne tient</b>. On tombe, quoi qu'on fasse, quelle que soit sa
+    vitesse, quelle que soit sa puissance. Le cercle en pointillés marque cette frontière.
+    <br><br>Cette règle n'existe nulle part ailleurs. Elle n'apparaît qu'ici.`,
 
    `C'est l'<b>ISCO</b>, la dernière orbite circulaire stable, à 3 fois le rayon de l'horizon.
     En gravité newtonienne, il y a toujours un équilibre possible : trop vite on s'éloigne,
@@ -1538,11 +1560,16 @@ const FICHES = [
 {
   titre: "Est-ce que c'est vrai ?",
   t: [
-   `Oui, et c'est le plus étonnant. L'image n'est pas un dessin qu'on aurait tordu après coup.
-    Pour <b>chaque point de ton écran</b>, l'ordinateur envoie un rayon de lumière et le suit
-    à l'envers, en respectant les équations d'Einstein, jusqu'à trouver d'où il vient.
-    L'anneau, l'ombre, le disque replié par-dessus : <b>personne ne les a dessinés</b>.
-    Ils sortent du calcul tout seuls.`,
+   `Oui. Et c'est le plus beau de toute l'histoire.
+    <br><br>Personne n'a dessiné cette image. Pour chacun des deux millions de points de ton
+    écran, l'ordinateur lance un rayon de lumière et le suit <i>à l'envers</i>, en respectant
+    des équations écrites en 1915. L'anneau, l'ombre, le disque replié par-dessus :
+    <b>tout ça sort du calcul, tout seul</b>.
+    <br><br>Des gens ont écrit ces équations avec un crayon, il y a plus de cent ans, sans
+    ordinateur, sans avoir jamais vu de trou noir — certains doutaient même que ça existe.
+    Un siècle plus tard, une machine les applique et retrouve <b>exactement</b> ce que les
+    télescopes finissent par photographier.
+    <br><br>C'est ça, la physique. Et c'est fou.`,
 
    `C'est du lancer de géodésiques, pas un filtre de déformation. Chaque pixel intègre la
     trajectoire d'un photon dans la métrique de Schwarzschild. La preuve que ce n'est pas
