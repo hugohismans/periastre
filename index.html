@@ -4024,9 +4024,15 @@ function ecran(M, coins, dessineDedans){
   const u = [coins[1][0]-coins[0][0], coins[1][1]-coins[0][1], coins[1][2]-coins[0][2]];
   const v = [coins[3][0]-coins[0][0], coins[3][1]-coins[0][1], coins[3][2]-coins[0][2]];
   const nrm = [u[1]*v[2]-u[2]*v[1], u[2]*v[0]-u[0]*v[2], u[0]*v[1]-u[1]*v[0]];
+  /* On ne suppose RIEN de l'enroulement des sommets : selon l'ordre où ils
+     sont donnés, la normale sort de la pièce ou y entre, et un test de signe
+     en dur rejette alors précisément les écrans visibles — ce qu'il faisait.
+     On compare donc au centre de la pièce, qui est à l'intérieur par
+     construction : l'écran se voit si l'œil est du même côté que lui. */
   const oe = oeilSalon();
-  const vers = [oe[0]-coins[0][0], oe[1]-coins[0][1], oe[2]-coins[0][2]];
-  if(nrm[0]*vers[0] + nrm[1]*vers[1] + nrm[2]*vers[2] <= 0) return;
+  const cote = q => nrm[0]*(q[0]-coins[0][0]) + nrm[1]*(q[1]-coins[0][1])
+                  + nrm[2]*(q[2]-coins[0][2]);
+  if(cote(oe) * cote([0, VAISSEAU.H/2, 0]) <= 0) return;
 
   const a = projetteSalon(coins[0], M), b = projetteSalon(coins[1], M),
         c = projetteSalon(coins[2], M), d = projetteSalon(coins[3], M);
@@ -4148,23 +4154,47 @@ function dessineEcrans(){
 
     ctx.textAlign = "left";
     ctx.fillStyle = "#5f7ba8"; ctx.font = "9px ui-monospace, monospace";
-    ctx.fillText("EN ORBITE ICI DEPUIS", MG, 60);
-    ctx.fillStyle = "#ff9d4d"; ctx.font = "28px ui-monospace, monospace";
-    ctx.fillText(tempsDepuis(D.arrivee), MG, 90);
+    ctx.fillText("EN ORBITE ICI DEPUIS", MG, 54);
+    ctx.fillStyle = "#ff9d4d"; ctx.font = "24px ui-monospace, monospace";
+    ctx.fillText(tempsDepuis(D.arrivee), MG, 80);
 
-    ctx.strokeStyle = "rgba(120,160,220,0.12)";
-    ctx.beginPath(); ctx.moveTo(MG, 106); ctx.lineTo(LARG-MG, 106); ctx.stroke();
+    const filet = y => {
+      ctx.strokeStyle = "rgba(120,160,220,0.12)";
+      ctx.beginPath(); ctx.moveTo(MG, y); ctx.lineTo(LARG-MG, y); ctx.stroke();
+    };
+    filet(92);
 
     ctx.fillStyle = "#5f7ba8"; ctx.font = "9px ui-monospace, monospace";
-    ctx.fillText("DURÉE RÉELLE D'UN TOUR", MG, 126);
-    ctx.fillStyle = "#dce6f5"; ctx.font = "17px ui-monospace, monospace";
-    ctx.fillText(tempsFr(periodeSalon()), MG, 148);
+    ctx.fillText("DURÉE RÉELLE D'UN TOUR", MG, 108);
+    ctx.fillStyle = "#dce6f5"; ctx.font = "15px ui-monospace, monospace";
+    ctx.fillText(tempsFr(periodeSalon()), MG, 126);
+    filet(138);
 
-    // On le dit franchement, et c'est même l'intérêt : cette lenteur EST
-    // l'échelle de l'objet.
-    ctx.fillStyle = "#4d6389"; ctx.font = "9px -apple-system, sans-serif";
-    ctx.fillText(`Mouvement accéléré ×${salon.facteur} pour qu'il se voie.`, MG, 172);
-    ctx.fillText("En vrai, rien ne bougerait à l'œil nu.", MG, 184);
+    /* Les deux horloges. Elles ne sont pas décoratives : elles divergent sous
+       les yeux, et le paradoxe des jumeaux cesse d'être un chapitre à lire
+       pour devenir un cadran qu'on regarde.
+
+       Le facteur est celui d'un observateur à notre rayon, √(1 − r_s/r) : il
+       descend au périastre et remonte à l'apoastre, donc l'écart s'accumule
+       par à-coups. C'est le phénomène lui-même, pas une approximation. */
+    const tauxBord = cadence(len(salon.p));
+    const secLoin  = salon.horloge * salon.facteur;
+
+    ctx.fillStyle = "#5f7ba8"; ctx.font = "9px ui-monospace, monospace";
+    ctx.fillText("ÉCOULÉ DEPUIS TON ARRIVÉE", MG, 152);
+
+    ctx.font = "12px ui-monospace, monospace";
+    const ligne = (nom, val, teinte, y) => {
+      ctx.textAlign = "left";  ctx.fillStyle = teinte;   ctx.fillText(nom, MG, y);
+      ctx.textAlign = "right"; ctx.fillStyle = "#dce6f5"; ctx.fillText(val, LARG - MG, y);
+      ctx.textAlign = "left";
+    };
+    ligne("loin d'ici", tempsFr(secLoin), "#ffd08a", 170);
+    ligne("à bord",     tempsFr(secLoin * tauxBord), "#7fd8ff", 186);
+
+    ctx.fillStyle = "#4d6389"; ctx.font = "8.5px -apple-system, sans-serif";
+    ctx.fillText(`Ton horloge tourne à ${(tauxBord*100).toFixed(1)} % de la leur`
+                 + ` · mouvement ×${salon.facteur}`, MG, 199);
   });
 }
 
