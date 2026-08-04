@@ -3336,7 +3336,15 @@ $("b-spectre").onclick = () => {
 // ============ missions ============
 // La porte d'entrée pour qui ne connaît rien : un geste, une chose comprise.
 // Chaque condition lit l'état réel du jeu — rien n'est validé sans l'être.
-const MISSIONS = CONTENU.missions;
+/* Mis de côté pour la bêta, sans être supprimé.
+
+   Le contenu reste dans `contenu.js` et la mécanique dans `MISE_EN_PLACE` :
+   vider cet ensemble suffit à tout rendre. Le motif est écrit dans
+   `JUMEAUX.md` — l'expérience embarque sur une sonde sans expliquer ce qu'on
+   incarne ni pourquoi la vue change, et elle arrive en dernier, c'est-à-dire
+   là où l'on juge l'ensemble. */
+const MIS_DE_COTE = new Set(["m-jumeaux"]);
+const MISSIONS = CONTENU.missions.filter(m => !MIS_DE_COTE.has(m.id));
 
 const VERIFS = {
   "m-chute":  () => nChute > 0,
@@ -3550,7 +3558,7 @@ majMission();
 // Deux temps : on choisit une expérience, on lit ce qui va se passer, puis on
 // entre. L'expérience règle elle-même vitesse, caméra et affichages — c'est
 // tout l'intérêt : personne ne devrait avoir à chercher un paramètre.
-const EXPERIENCES = CONTENU.experiences;
+const EXPERIENCES = CONTENU.experiences.filter(x => x.id !== "jumeaux");
 
 const MISE_EN_PLACE = {
   libre(){
