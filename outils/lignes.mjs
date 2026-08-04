@@ -36,9 +36,12 @@ function ajoute(o){
 function parcours(x){
   if(Array.isArray(x)) x.forEach(parcours);
   else if(x && typeof x === "object"){
-    // une mission porte un `id` mais pas de texte : sa réplique est dans
-    // `reussi`, donc on continue à descendre au lieu de s'arrêter sur l'id
-    if(typeof x.id === "string" && (x.t || x.dire)) ajoute(x);
+    // Une réplique a un `t` (ou `dire`) qui est une CHAÎNE. Une mission porte
+    // un id sans texte — le sien est dans `reussi`. Une fiche porte un id et un
+    // `t` qui est un tableau de niveaux, et ne se dit pas à voix haute.
+    // Dans les deux derniers cas on continue à descendre.
+    const dit = typeof x.dire === "string" || typeof x.t === "string";
+    if(typeof x.id === "string" && dit) ajoute(x);
     else Object.values(x).forEach(parcours);
   }
 }
