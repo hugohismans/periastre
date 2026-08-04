@@ -2543,6 +2543,13 @@ cv.addEventListener("pointerup", e => {
   }
   if(posteVise(capture() ? centreCanevas() : e) !== d.p) return;
   if(d.p.id === "lumen"){ ouvreQuestions(); return; }
+  if(d.p.id === "telescope"){
+    // On ne quitte pas « le salon » : on se met à l'instrument, et l'instrument
+    // donne la main sur le temps, les sondes et la rotation. C'est le même
+    // écran qu'avant — mais on y arrive par un lieu, pas par un onglet.
+    $("b-salon").click();
+    return;
+  }
   salon.facteur = d.p.valeur;
   reagit("vitesse");
 });
@@ -4097,6 +4104,17 @@ function boucle(now){
     // comprenne qu'un objet du décor se manipule, sans une ligne de didacticiel.
     gl.uniform1f(uForce, 1);
     for(const p of VAISSEAU.POSTES){
+      if(p.id === "telescope"){
+        // Sa boîte de visée n'est pas dessinée — l'instrument est déjà là. On
+        // ne montre qu'un halo quand on le vise, pour dire qu'il s'active.
+        if(salon.vise !== p) continue;
+        gl.uniform3fv(uTeinteF, VAISSEAU.AMBRE);
+        gl.uniform1f(uEmiF, 0.17);
+        gl.uniformMatrix4fv(uModele, false, new Float32Array([
+          p.d[0],0,0,0,  0,p.d[1],0,0,  0,0,p.d[2],0,  p.c[0],p.c[1],p.c[2],1 ]));
+        VAISSEAU.dessineCube(gl);
+        continue;
+      }
       const retenu = p.valeur === salon.facteur;
       const vise = salon.vise === p;
       gl.uniform3fv(uTeinteF, retenu ? VAISSEAU.AMBRE : VAISSEAU.CYAN);

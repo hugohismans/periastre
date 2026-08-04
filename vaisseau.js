@@ -99,6 +99,22 @@ function boite(T, c, d, teinte, emi){
   quad(T, Q[4],Q[5],Q[1],Q[0], teinte, emi);
 }
 
+// Boîte pivotée autour de l'axe des x : ce qu'il faut pour un tube qu'on pointe.
+function boiteX(T, c, d, a, teinte, emi){
+  const ca = Math.cos(a), sa = Math.sin(a), Q = [];
+  for(const [sx,sy,sz] of [[-1,-1,-1],[1,-1,-1],[1,1,-1],[-1,1,-1],
+                           [-1,-1,1],[1,-1,1],[1,1,1],[-1,1,1]]){
+    const y = sy*d[1], z = sz*d[2];
+    Q.push([c[0] + sx*d[0], c[1] + y*ca - z*sa, c[2] + y*sa + z*ca]);
+  }
+  quad(T, Q[5],Q[4],Q[7],Q[6], teinte, emi);
+  quad(T, Q[0],Q[1],Q[2],Q[3], teinte, emi);
+  quad(T, Q[4],Q[0],Q[3],Q[7], teinte, emi);
+  quad(T, Q[1],Q[5],Q[6],Q[2], teinte, emi);
+  quad(T, Q[3],Q[2],Q[6],Q[7], teinte, emi);
+  quad(T, Q[4],Q[5],Q[1],Q[0], teinte, emi);
+}
+
 // Tube à section carrée entre deux points : mains courantes et tuyauterie.
 function barre(T, a, b, ep, teinte, emi){
   const d = [b[0]-a[0], b[1]-a[1], b[2]-a[2]];
@@ -270,6 +286,31 @@ function construitGeometrie(){
   boite(T, [2.85, 0.375, -2.78], [0.83, 0.025, 0.11], STRUCT);
   boite(T, [2.85, 0.355, -2.78], [0.87, 0.030, 0.14], CADRE);
 
+  /* ---- le télescope, à bâbord dans la fosse ----
+
+     Premier poste qui est un LIEU plutôt qu'une entrée de menu : on ne clique
+     pas sur « simulateur », on descend à l'instrument. Sa forme doit dire sa
+     fonction — c'est ce qui fait qu'on le retrouve en se rappelant où il est,
+     et non en relisant une étiquette. */
+  const TX = TELESCOPE.x, TZ = TELESCOPE.z, TY = FOSSE;
+  boite(T, [TX, TY + 0.05, TZ], [0.36, 0.05, 0.36], STRUCT);          // embase
+  boite(T, [TX, TY + 0.40, TZ], [0.085, 0.35, 0.085], CADRE);         // colonne
+  for(const c of [-1, 1])                                             // fourche
+    boite(T, [TX + c*0.21, TY + 0.86, TZ], [0.032, 0.16, 0.032], CADRE);
+
+  // Le tube, pointé vers la baie et relevé : il regarde là où est l'astre.
+  const A = -0.34;
+  boiteX(T, [TX, TY + 1.00, TZ], [0.115, 0.115, 0.52], A, CADRE);
+  boiteX(T, [TX, TY + 1.00, TZ], [0.135, 0.135, 0.10], A, STRUCT);    // collier
+  // l'objectif, à l'avant, et son reflet ambre
+  boiteX(T, [TX, TY + 1.00 + 0.52*Math.sin(-A), TZ - 0.52*Math.cos(A)],
+         [0.105, 0.105, 0.012], A, AMBRE, 0.55);
+  // l'oculaire, du côté de qui regarde
+  boiteX(T, [TX, TY + 1.00 - 0.50*Math.sin(-A), TZ + 0.50*Math.cos(A)],
+         [0.045, 0.045, 0.075], A, STRUCT);
+  // le petit écran de contrôle, sur la fourche
+  boite(T, [TX + 0.30, TY + 0.94, TZ + 0.10], [0.012, 0.075, 0.11], CYAN, 1);
+
   // ---- caissons techniques au plafond, décalés ----
   boite(T, [-2.9, H - 0.15, z0 + 3.9], [1.6, 0.15, 0.60], STRUCT);
   boite(T, [ 2.1, H - 0.11, z0 + 5.6], [1.2, 0.11, 0.44], STRUCT);
@@ -305,6 +346,10 @@ const VITESSES = [
   { f:850, nom:"×850" },
 ];
 
+// Le télescope : sa position sert à la fois à la géométrie et à la visée, donc
+// elle n'est déclarée qu'une fois.
+const TELESCOPE = { x:-3.0, z:-3.15 };
+
 const POSTES = VITESSES.map((v, i) => {
   const h = 0.030 + i*0.027;
   return {
@@ -312,6 +357,12 @@ const POSTES = VITESSES.map((v, i) => {
     c:[2.25 + i*0.30, 0.40 + h, -2.78],
     d:[0.072, h, 0.046],
   };
+});
+
+POSTES.push({
+  id:"telescope", nom:"le télescope",
+  c:[TELESCOPE.x, FOSSE + 1.02, TELESCOPE.z],
+  d:[0.24, 0.34, 0.55],
 });
 
 // --------------------------------------------------------------- rendu
@@ -367,7 +418,7 @@ function dessine(gl){
   gl.bindVertexArray(null);
 }
 
-global.VAISSEAU = { L, H, P, OEIL, FOSSE, ZF, RAMPE, BAIE, POSTES, AMBRE, CYAN,
+global.VAISSEAU = { L, H, P, OEIL, FOSSE, ZF, RAMPE, BAIE, POSTES, TELESCOPE, AMBRE, CYAN,
                     construit, dessine, dessineCube,
                     get sommets(){ return nSommets; } };
 
