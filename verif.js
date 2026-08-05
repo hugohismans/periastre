@@ -160,6 +160,46 @@ function vivant(){
   return enCours;
 }
 
+/* 1 bis. LE LIEU EST COHÉRENT.
+
+   Depuis la refonte, `lieu` est l'unique autorité sur l'endroit où l'on se
+   trouve, et les anciens drapeaux en sont des vues. L'invariant tient tant que
+   l'on passe par `vaAu()` — mais `sondeSuivie` reste une variable libre, et
+   quiconque l'écrit à la main peut désaccorder l'ensemble.
+
+   On ne peut pas l'interdire ; on peut le VOIR. C'est tout l'intérêt d'avoir un
+   invariant : il se contrôle. Ce test le fait aux quatre coins de l'espace des
+   états, en enchaînant les transitions comme un joueur les enchaînerait. */
+function coherence(){
+  ouvre("Le lieu est cohérent");
+  const LIEUX = ["libre", "salon", "sonde"];
+  const dit = () => ({ lieu, salonActif: salon.actif, surSonde: sondeSuivie !== null });
+  const juge = (nom, e) => {
+    const connu = LIEUX.indexOf(e.lieu) >= 0;
+    const accord = e.salonActif === (e.lieu === "salon") && e.surSonde === (e.lieu === "sonde");
+    point(nom, connu && accord, "lieu connu, vues accordées",
+          e.lieu + " · salon=" + e.salonActif + " · sonde=" + e.surSonde);
+  };
+
+  const av = lieu;
+  juge("au départ", dit());
+  if(!sondes.length){ pluie(12); avanceImages(30); }
+
+  const b = id => document.getElementById(id);
+  if(!salon.actif) b("b-salon").click();   juge("après être entré au salon", dit());
+  b("b-sonde").click();                    juge("après être monté sur une sonde", dit());
+  b("b-salon").click();                    juge("après être revenu au salon", dit());
+  b("b-salon").click();                    juge("après être ressorti", dit());
+
+  // On ne peut être qu'à un endroit : c'est vrai par construction, on le dit.
+  point("un seul lieu à la fois",
+        [lieu === "libre", lieu === "salon", lieu === "sonde"].filter(Boolean).length === 1,
+        1, [lieu === "libre", lieu === "salon", lieu === "sonde"].filter(Boolean).length);
+
+  if(av === "salon" && !salon.actif) b("b-salon").click();   // on rend l'état d'avant
+  return enCours;
+}
+
 /* 2. LE NUANCEUR EST LIÉ.
 
    Une erreur de compilation GLSL jette au chargement et emporte le bloc — même
@@ -485,7 +525,7 @@ function texte(){
    C'est celle qu'on lance après une modification, en boucle. */
 function sain(){
   resultats.length = 0;
-  vivant(); nuanceurs(); clesNues(); banc(); pixels(); mesurePage(); budget();
+  vivant(); coherence(); nuanceurs(); clesNues(); banc(); pixels(); mesurePage(); budget();
   return bilan();
 }
 
@@ -493,13 +533,13 @@ function sain(){
    on la lance sur une page fraîche. */
 function tout(){
   resultats.length = 0;
-  vivant(); nuanceurs(); clesNues(); banc(); pixels(); mesurePage(); budget();
+  vivant(); coherence(); nuanceurs(); clesNues(); banc(); pixels(); mesurePage(); budget();
   parcours(); voyage();
   return bilan();
 }
 
 global.VERIF = {
-  vivant, nuanceurs, clesNues, banc, pixels, mesurePage, parcours, voyage, budget,
+  vivant, coherence, nuanceurs, clesNues, banc, pixels, mesurePage, parcours, voyage, budget,
   sain, tout, bilan, texte, resultats, FORMATS, OR,
   // outillage exposé : d'autres contrôles pourront s'y adosser
   pose, fige, avanceImages,

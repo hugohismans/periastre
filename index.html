@@ -2226,15 +2226,64 @@ const uRes = U("uRes"), uTemps = U("uTemps"), uCam = U("uCam"), uBasis = U("uBas
 //
 // Le vaisseau est intégré avec `integre()`, la géodésique de type temps déjà
 // validée par le banc d'essai. Ce n'est pas une trajectoire décorative.
+/* ============ OÙ L'ON SE TROUVE ============
+
+   UN SEUL état, et c'est tout le propos.
+
+   Il y avait avant un drapeau par endroit — `salon.actif`, `sondeSuivie`,
+   `TELESCOPE.trajet` — qui s'excluaient DEUX À DEUX, à la main, dans des `if`
+   dispersés. Le même commentaire « on ne peut pas être aux deux endroits »
+   était écrit à deux endroits différents, faute d'avoir un lieu où le mettre.
+
+   Trois drapeaux font huit combinaisons, dont quatre seulement ont un sens. Les
+   quatre autres n'existent pas dans le jeu mais existent parfaitement dans le
+   code, et rien ne les empêche. Chaque endroit ajouté double le nombre
+   d'interdictions à écrire — et en oublier une ne provoque AUCUNE erreur :
+   `majCamera()` prend simplement le premier drapeau qui répond vrai, et l'on
+   cherche pendant une heure pourquoi la caméra est au mauvais endroit.
+
+   C'est ainsi qu'est né l'état mort trouvé la veille : quitter le salon pendant
+   un voyage le laissait armé pour toujours, sans jamais avancer.
+
+   Avec une seule variable, être à deux endroits devient IMPOSSIBLE À ÉCRIRE, et
+   non plus « interdit si l'on y pense ». Un dixième lieu coûtera un mot dans une
+   liste, au lieu de dix-huit garde-fous à retrouver.
+
+   ---------------------------------------------------------------------------
+   POURQUOI LES ANCIENS DRAPEAUX SURVIVENT
+
+   `salon.actif` est lu à quatre-vingt-dix endroits. Les réécrire tous d'un coup
+   dans un fichier qui est déjà mort deux fois d'une erreur d'ordre serait un
+   pari, pas un travail. Il devient donc une VUE sur `lieu` : les lectures
+   continuent de dire vrai, et les écritures — il n'y en a plus qu'une — passent
+   par `vaAu()`. Le jour où l'on découpera le bloc, elles disparaîtront d'elles-
+   mêmes. */
+/* Trois lieux aujourd'hui. Le télescope n'en est pas un : on s'y tient DANS le
+   salon, debout devant l'instrument, et son panneau est un état d'interface —
+   pas un endroit. Le distinguer aurait ajouté une subtilité sans rien acheter.
+
+   Le centre de contrôle et la salle de tir, eux, en seront. Ils coûteront un mot
+   ici et deux `case` plus bas. */
+let lieu = "libre";                       // "libre" | "salon" | "sonde"
+
 const salon = {
   // 850 était trop rapide pour qu'on regarde vraiment : un tour passait en
   // vingt secondes. Le cran par défaut laisse deux minutes et demie, et la
   // commande du mur permet de descendre jusqu'au temps réel.
-  actif:false, lacet:0, tangage:-0.03, facteur:120, vise:null,
+  lacet:0, tangage:-0.03, facteur:120, vise:null,
   apo:16, k:0.82,            // vitesse à l'apoastre, en fraction de la circulaire
   p:[16,0,0], v:[0,0,0], rmin:1e9, rmax:0, trace:[], horloge:0,
   versAstre:[0,0,-1], eclat:1,   // direction et intensité de l'astre, en repère pièce
 };
+
+/* `salon.actif` n'est plus une donnée : c'est une question posée à `lieu`.
+
+   Les quatre-vingt-dix lectures du fichier continuent donc de dire vrai sans
+   avoir changé d'une ligne, et il ne reste qu'un seul endroit où l'on écrit. */
+Object.defineProperty(salon, "actif", {
+  get(){ return lieu === "salon"; },
+  set(v){ vaAu(v ? "salon" : "libre"); },
+});
 
 function poseSalon(){
   const r = salon.apo;
@@ -2743,10 +2792,22 @@ function majCameraSalon(){
   salon.eclat = Math.min(3.2, Math.pow(16/Math.max(r, 4), 2));
 }
 
+/* La caméra suit le LIEU, elle ne le devine plus.
+
+   Elle interrogeait auparavant les drapeaux dans un ordre convenu — salon, puis
+   sonde, puis vue libre — et c'est précisément ce qui rendait un conflit muet :
+   deux drapeaux vrais, et elle prenait le premier sans rien dire. Ici, il n'y a
+   qu'une valeur, et le `switch` la couvre entièrement. */
 function majCamera(){
-  if(salon.actif){ majCameraSalon(); return; }
-  if(sondeSuivie !== null && sondes[sondeSuivie]){ majCameraSonde(); return; }
-  sondeSuivie = null;
+  if(lieu === "salon"){ majCameraSalon(); return; }
+  if(lieu === "sonde"){
+    // La sonde a pu tomber ou fuir entre-temps : on redescend proprement plutôt
+    // que de rester accroché à un objet qui n'existe plus.
+    if(sondeSuivie !== null && sondes[sondeSuivie]){ majCameraSonde(); return; }
+    sondeSuivie = null;
+    lieu = "libre";
+    majBoutonSonde();
+  }
   vitesseLocale = [0, 0, 0];
   const ce = Math.cos(cam.elev), se = Math.sin(cam.elev);
   camPos = [ cam.dist*ce*Math.cos(cam.azim), cam.dist*se, cam.dist*ce*Math.sin(cam.azim) ];
@@ -2797,14 +2858,33 @@ function majCameraSonde(){
   basis = { d, h: cross(d, a), a };
 }
 
+/* Monter sur une sonde, ou en redescendre.
+
+   Le changement de LIEU passe par `vaAu`, qui se charge de quitter le salon s'il
+   le faut. Cette fonction ne s'occupe plus que de la sonde elle-même et de son
+   bouton — et le fait qu'on ne puisse pas être aux deux endroits n'est plus une
+   règle à répéter, c'est une conséquence.
+
+   `sondeSuivie` reste la donnée : quelle sonde. `lieu` porte la question
+   distincte : est-on dessus. */
+/* Le bouton d'embarquement reflète l'état, il ne le décide pas.
+
+   Séparé d'`embarque` parce que la sortie de lieu doit pouvoir le rafraîchir
+   sans rappeler `embarque` — ce qui rentrerait dans `vaAu` en pleine
+   transition. Une seule clé pour « monter » : le bouton portait deux noms selon
+   qu'on en était déjà redescendu, et les consignes de mission en désignent un
+   seul. */
+function majBoutonSonde(){
+  const dessus = sondeSuivie !== null;
+  $("b-sonde").classList.toggle("actif", dessus);
+  document.body.classList.toggle("a-bord", dessus);
+  $("b-sonde").textContent = T(dessus ? "dock.sonde.redescendre" : "dock.sonde");
+}
+
 function embarque(i){
-  if(i === null || !sondes[i]){ sondeSuivie = null; }
-  else { sondeSuivie = i; regard.lacet = 0; regard.tangage = 0; }
-  $("b-sonde").classList.toggle("actif", sondeSuivie !== null);
-  document.body.classList.toggle("a-bord", sondeSuivie !== null);
-  // Une seule clé pour « monter » : le bouton portait deux noms selon qu'on en
-  // était déjà redescendu, et les consignes de mission en désignent un seul.
-  $("b-sonde").textContent = T(sondeSuivie !== null ? "dock.sonde.redescendre" : "dock.sonde");
+  if(i === null || !sondes[i]) vaAu("libre");         // `quitteLieu` vide `sondeSuivie`
+  else { sondeSuivie = i; regard.lacet = 0; regard.tangage = 0; vaAu("sonde"); }
+  majBoutonSonde();
   majCamera();
   if(sondeSuivie !== null) reagit("embarque");
 }
@@ -3254,45 +3334,78 @@ $("b-traj").onclick   = () => {
   if(montreTraj) reagit("traj");
 };
 
-// Le salon : on n'est plus devant le trou noir, on est quelque part.
-/* La capture du pointeur n'a de sens que dans le salon : la vue libre se pilote
-   à la souris, et la garder prisonnière oblige à deviner Échap pour récupérer
-   le curseur. On la relâche donc avec le salon, sans exception — d'où ce
-   passage obligé par la bascule, qu'appellent aussi le télescope et `b-sonde`. */
-$("b-salon").onclick = () => {
-  salon.actif = !salon.actif;
-  /* Quitter le salon annule le voyage en cours.
+/* ============ ALLER QUELQUE PART ============
 
-     `majVoyage` n'est appelée que depuis la branche du salon : en sortir
-     pendant un trajet le laissait armé pour toujours, sans jamais avancer, et
-     la carte des étoiles restait figée à l'opacité qu'elle avait — le fondu de
-     retrait ne s'exécutant que lorsqu'aucun trajet n'est en cours. On ne
-     pouvait plus ni arriver ni revenir.
+   Le seul chemin. Tout ce qui déplaçait le joueur passait auparavant par une
+   bascule de drapeau suivie d'une liste de conséquences recopiée à chaque
+   appelant — et il suffisait d'en oublier une pour laisser un état mort.
 
-     C'est le genre d'état mort que la soupe de drapeaux rend possible, et que
-     l'état de lieu unique du chantier F1 rendra impossible à écrire. */
-  if(!salon.actif && TELESCOPE.trajet){
-    TELESCOPE.trajet = null;
-    TELESCOPE.retour = false;
-    RECUL.etat.actif = false;
+   Ici, quitter un lieu et entrer dans un autre sont deux fonctions, écrites une
+   fois. Ajouter un lieu, c'est ajouter deux `case`. */
+function quitteLieu(ancien){
+  if(ancien === "salon"){
+    /* Un voyage en cours meurt avec le salon.
+
+       `majVoyage` n'est appelée que depuis la branche du salon : en sortir
+       pendant un trajet le laissait armé pour toujours, sans jamais avancer, et
+       la carte des étoiles restait figée à l'opacité qu'elle avait. On ne
+       pouvait plus ni arriver ni revenir. */
+    if(TELESCOPE.trajet){
+      TELESCOPE.trajet = null;
+      TELESCOPE.retour = false;
+      RECUL.etat.actif = false;
+      $("chrono").classList.remove("vu");
+    }
     fermeTelescope();
-    $("chrono").classList.remove("vu");
+    /* La capture du pointeur n'a de sens que dans le salon : la vue libre se
+       pilote à la souris, et la garder prisonnière oblige à deviner Échap pour
+       récupérer le curseur. */
+    if(document.exitPointerLock) document.exitPointerLock();
   }
-  if(!salon.actif && document.exitPointerLock) document.exitPointerLock();
-  $("b-salon").classList.toggle("actif", salon.actif);
-  $("b-salon").textContent = T(salon.actif ? "dock.salon.quitter" : "dock.salon");
-  document.body.classList.toggle("au-salon", salon.actif);
-  if(salon.actif){
-    if(sondeSuivie !== null) embarque(null);
-    cinema.actif = false;
+  /* On vide la sonde ICI, directement, sans repasser par `embarque` — qui
+     rappellerait `vaAu` en pleine transition. Le cycle serait silencieux et
+     sans fin : exactement le genre de piège que cette refonte doit supprimer,
+     pas déplacer. */
+  if(ancien === "sonde"){
+    sondeSuivie = null;
+    majBoutonSonde();
+  }
+}
+
+function entreLieu(nouveau){
+  // Toute prise de commande interrompt le plan d'ouverture : on n'impose pas
+  // d'attendre la fin d'une animation à quelqu'un qui a touché quelque chose.
+  if(nouveau !== "libre") cinema.actif = false;
+  if(nouveau === "salon"){
     poseSalon();
     if(!ouvreLaQuete) reagit("salon");
   }
+}
+
+/* La barre du bas reflète le lieu, elle ne le décide pas. */
+function majBarreLieu(){
+  const auSalon = salon.actif;
+  $("b-salon").classList.toggle("actif", auSalon);
+  $("b-salon").textContent = T(auSalon ? "dock.salon.quitter" : "dock.salon");
+  document.body.classList.toggle("au-salon", auSalon);
+}
+
+function vaAu(nouveau){
+  if(nouveau === lieu) return;
+  const ancien = lieu;
+  quitteLieu(ancien);
+  lieu = nouveau;                       // ← l'unique écriture de tout le fichier
+  entreLieu(nouveau);
+  majBarreLieu();
   majCamera();
-};
+}
+
+// Le salon : on n'est plus devant le trou noir, on est quelque part.
+$("b-salon").onclick = () => vaAu(salon.actif ? "libre" : "salon");
 
 $("b-sonde").onclick = () => {
-  if(salon.actif) $("b-salon").click();      // on ne peut pas être aux deux endroits
+  // Plus de garde-fou à écrire ici : `vaAu` quitte le salon tout seul, puisqu'on
+  // ne peut être qu'à un endroit. C'est exactement ce que la refonte achète.
   if(sondeSuivie !== null){ embarque(null); return; }
   let i = meilleureSonde();
   if(i === null){                       // aucune orbite disponible : on en pose une
