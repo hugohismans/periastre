@@ -107,15 +107,53 @@ const ETOILES = [
 // avec mes valeurs de mémoire allait jusqu'à soixante pour cent sur S55.
 ETOILES.forEach(s => { s.a = s.as * R0_UA; s.verif = "gillessen2017"; });
 
-/* Position sur l'orbite, en unités astronomiques.
+/* L'ÉQUATION DE KEPLER, ET LE PIÈGE OÙ ELLE M'A PRIS.
 
-   Kepler : on résout E − e·sin E = M par Newton. Cinq itérations suffisent
-   partout sauf tout près de e = 1, et l'excentricité maximale ici est 0,963. */
+   Il fallait résoudre E − e·sin E = M. L'ancienne version partait de E = M et
+   faisait six itérations de Newton, avec ce commentaire : « cinq suffisent
+   partout sauf tout près de e = 1, et l'excentricité maximale ici est 0,963 ».
+
+   Les deux moitiés de la phrase étaient fausses ensemble. L'excentricité
+   maximale n'est pas 0,963 mais **0,976** — celle de S14 — et à cette
+   excentricité-là, six itérations depuis E = M ne suffisent PAS. Mesuré :
+   l'anomalie sortait fausse de 3,1 radians, presque un demi-tour, ce qui posait
+   S14 à 3 285 unités astronomiques de sa vraie place. Cent trente-neuf pour cent
+   de son demi-grand axe. L'étoile sautait de l'autre côté de son orbite.
+
+   Hugo l'a vu et l'a dit deux fois : « certaines orbites sont buggées ». Je
+   l'avais cherché dans le rendu, il était dans l'arithmétique.
+
+   DEUX CHANGEMENTS, ET IL EN FALLAIT DEUX.
+
+   Le départ, d'abord : E = M est un mauvais point de départ pour une orbite très
+   allongée, parce qu'au périastre l'étoile parcourt en quelques semaines ce
+   qu'elle met des décennies à faire ailleurs. Le départ de Danby, M + 0,85·e
+   dans le sens du sinus, encadre la solution même à e = 0,99.
+
+   La méthode, ensuite : Halley plutôt que Newton. Elle utilise la dérivée
+   seconde — qu'on a gratuitement, c'est e·sin E — et converge en cube au lieu du
+   carré. Trois itérations y font mieux que trente de l'autre.
+
+   Et l'on ne compte plus sur un nombre d'itérations : on s'arrête quand le reste
+   est nul à 10⁻¹³. Un solveur qui fait « six tours et on verra » est un pari sur
+   des données qu'on ne connaît pas encore. */
+const TAU = 2*Math.PI;
+function anomalieExcentrique(e, M){
+  M = ((M % TAU) + TAU) % TAU;                       // ramenée dans [0, 2π)
+  let E = M + 0.85*e*(Math.sin(M) >= 0 ? 1 : -1);    // départ de Danby
+  for(let k = 0; k < 40; k++){
+    const f = E - e*Math.sin(E) - M;
+    if(Math.abs(f) < 1e-13) break;
+    const fp = 1 - e*Math.cos(E), fpp = e*Math.sin(E);
+    E -= 2*f*fp / (2*fp*fp - f*fpp);                 // Halley
+  }
+  return E;
+}
+
+// Position sur l'orbite, en unités astronomiques.
 function position(s, annee){
-  const M = 2*Math.PI * ((annee - s.t0)/s.P % 1);
-  let E = M;
-  for(let k = 0; k < 6; k++)
-    E -= (E - s.e*Math.sin(E) - M) / (1 - s.e*Math.cos(E));
+  const M = TAU * ((annee - s.t0)/s.P % 1);
+  const E = anomalieExcentrique(s.e, M);
 
   // dans le plan de l'orbite, périastre sur l'axe des x
   const x = s.a*(Math.cos(E) - s.e);

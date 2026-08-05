@@ -121,5 +121,82 @@ dit("");
 dit(`Moyenne : ${(moy/1e6).toFixed(2)} × 10⁶ M☉ (écart à 4,3e6 : ${((moy/MASSE_ATTENDUE-1)*100).toFixed(1)} %)`);
 dit("");
 
+/* --- 3. L'ÉQUATION DE KEPLER, CONTRE UN ARBITRE INDÉPENDANT ----------------
+
+   Ce contrôle existe parce qu'il manquait, et que son absence a coûté cher.
+
+   Le solveur partait de E = M et faisait six itérations de Newton. À
+   l'excentricité de S14 — 0,976 — il sortait une anomalie fausse de 3,1
+   radians, presque un demi-tour, et posait l'étoile à 3 285 unités
+   astronomiques de sa vraie place : cent trente-neuf pour cent de son
+   demi-grand axe. L'étoile sautait de l'autre côté de son orbite.
+
+   Rien ne le voyait. La troisième loi de Kepler passait — elle ne teste que les
+   ÉLÉMENTS, a et P, pas la résolution qui les emploie. Il a fallu qu'Hugo
+   regarde la carte tourner et dise « certaines orbites sont buggées ».
+
+   L'arbitre est une bissection : lente, bête, et incapable de diverger. Elle
+   n'a rien de commun avec Halley sinon la réponse. C'est ce qui en fait un
+   arbitre plutôt qu'un miroir. */
+dit("## 3. L'équation de Kepler, contre une bissection arbitre");
+dit("");
+
+const TAU_ = 2*Math.PI;
+function bissecte(e, M){
+  M = ((M % TAU_) + TAU_) % TAU_;
+  let lo = 0, hi = TAU_;
+  for(let k = 0; k < 300; k++){ const m = (lo+hi)/2; if(m - e*Math.sin(m) < M) lo = m; else hi = m; }
+  return (lo+hi)/2;
+}
+function posArbitre(s, annee){
+  const M = TAU_*((annee - s.t0)/s.P % 1), E = bissecte(s.e, M);
+  const x = s.a*(Math.cos(E) - s.e), y = s.a*Math.sqrt(1 - s.e*s.e)*Math.sin(E);
+  const D = DEG_();
+  const cw = Math.cos(s.w*D), sw = Math.sin(s.w*D);
+  const ci = Math.cos(s.i*D), si = Math.sin(s.i*D);
+  const cO = Math.cos(s.O*D), sO = Math.sin(s.O*D);
+  const xw = x*cw - y*sw, yw = x*sw + y*cw, yi = yw*ci, zi = yw*si;
+  return [xw*cO - yi*sO, xw*sO + yi*cO, zi];
+}
+
+dit("| étoile | e | écart max de position | en % du demi-grand axe |");
+dit("|---|---:|---:|---:|");
+let pireEcart = 0, pireNom = "";
+for(const s of ETOILES){
+  let p = 0;
+  for(let i = 0; i < 4000; i++){
+    const annee = s.t0 + s.P*i/4000;
+    const a = position(s, annee), b = posArbitre(s, annee);
+    p = Math.max(p, Math.hypot(a[0]-b[0], a[1]-b[1], a[2]-b[2]));
+  }
+  if(p > pireEcart){ pireEcart = p; pireNom = s.nom; }
+  dit(`| ${s.nom} | ${s.e.toFixed(3)} | ${p.toExponential(2)} ua | ${(100*p/s.a).toExponential(1)} % |`);
+}
+dit("");
+const tolerance = 1e-6;   // en unités astronomiques
+const kepplerOk = pireEcart < tolerance;
+dit(`Pire écart : **${pireEcart.toExponential(3)} ua** sur ${pireNom}. ` +
+    (kepplerOk ? "✅ sous la tolérance de 10⁻⁶ ua."
+               : `❌ AU-DELÀ de ${tolerance} ua — une étoile est ailleurs qu'où elle doit être.`));
+dit("");
+
+// La marge : jusqu'où le solveur tient si une orbite plus allongée arrive.
+let pireReste = 0;
+for(const e of [0.976, 0.99, 0.999, 0.9999])
+  for(let i = 0; i < 2000; i++){
+    const M = TAU_*i/2000, E = bissecte(e, M);
+    void E;
+    // on éprouve le solveur du module en lui redemandant la même chose
+    const s = { e, a:1, P:1, t0:0, w:0, i:0, O:0 };
+    const p = position(s, M/TAU_);
+    const q = posArbitre(s, M/TAU_);
+    pireReste = Math.max(pireReste, Math.hypot(p[0]-q[0], p[1]-q[1], p[2]-q[2]));
+  }
+dit(`Marge : jusqu'à e = 0,9999 l'écart reste sous **${pireReste.toExponential(2)}** ` +
+    `(demi-grand axe unité). L'excentricité la plus forte du catalogue est ${
+      Math.max(...ETOILES.map(s => s.e)).toFixed(3)}.`);
+dit("");
+
 // Le constat rédigé est dans VERIF-ETOILES.md ; ici on ne fait que l'imprimer.
 void lignes;
+process.exit(kepplerOk ? 0 : 1);
