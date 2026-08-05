@@ -412,6 +412,10 @@ function poseTir(gl, x){
     id:"tir", nom:"la console de tir",
     c:[TIR.x, FOSSE + 0.60, TIR.z - 0.10], d:[0.34, 0.52, 0.42],
   });
+  // Le corps doit buter dessus comme sur le télescope. Sans cette ligne, on
+  // marcherait au travers d'un instrument qu'on voit — le défaut exact que le
+  // balayage d'`outil-verif-arpente.js` a sorti pour le télescope.
+  if(global.ARPENTE) global.ARPENTE.majMobilier();
   construit(gl);
 }
 

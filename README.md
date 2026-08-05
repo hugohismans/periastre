@@ -40,6 +40,9 @@ au niveau « Astrophysicien ».
     index.html      rendu, simulation, interface
     physique.js     géodésiques, orbites, les quatre repères du banc
     vol.js          sondes et photons : leur avenir, leur avancée, leur fin
+    temps.js        l'horloge — un seul écrivain, garanti par la structure
+    arpente.js      marcher dans la pièce : sol, meubles, collisions
+    contrat.js      ce qu'une information doit porter pour entrer
     contenu.js      source de vérité : textes, sources, répliques de Lumen
     voix/           MP3 pré-synthétisés, un dossier par voix
     outils/         génération de la voix
@@ -60,6 +63,8 @@ WebGL, donc ils s'exécutent en ligne de commande. Chacun sort en code 0 ou 1.
 ```bash
 node outil-banc.js          # sphère des photons, ombre, déflexion, ISCO
 node outil-verif-vol.js     # invariants, précession du périastre, l'horizon
+node outil-verif-arpente.js # marcher dans la pièce : parois, meubles, rampe, saut
+node outil-verif-contenu.js # le contrat : sources, liens, parité des deux langues
 node outil-verif-ncorps.js  # énergie, moment cinétique, résonances, Roche
 node outil-verif-lune.js    # la Lune remplacée : tangentes, diamètres apparents
 node outil-verif-etoiles.js # les orbites des étoiles S
