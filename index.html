@@ -554,10 +554,31 @@
      On la place donc à sa hauteur, et la petite pointe désigne l'endroit d'où
      vient la voix. */
   body.au-salon #bulle {
-    position:fixed; z-index:6; max-width:min(320px, 76vw);
+    position:fixed; z-index:6;
+    /* Une largeur PROPRE, et non déduite de la position.
+
+       Avec `left` seul et `width:auto`, la boîte s'étendait de sa position
+       jusqu'au bord de l'écran : plus le drone était à droite, plus elle était
+       étroite — cent soixante-dix pixels mesurés — et plus le texte s'allongeait
+       vers le bas, jusqu'à sortir de l'écran de quatre cents pixels. La marge de
+       cent soixante-dix appliquée à `--bulle-x` garantit qu'à cette largeur elle
+       reste dans le cadre. */
+    width:min(320px, 76vw); max-width:none; right:auto;
+    max-height:42vh; overflow:hidden;
     left:var(--bulle-x, 50%); top:var(--bulle-y, 60%);
     transform:translate(-50%, 0);
+    /* ELLE NE PREND PAS LES TOUCHERS.
+
+       Elle est posée juste sous le drone et fait 76 % de la largeur sur
+       téléphone : elle recouvrait donc sa moitié basse, par-dessus le canevas.
+       Toucher le drone touchait la bulle, et rien ne s'ouvrait — c'est ce qui
+       empêchait Hugo de valider la deuxième étape au doigt.
+
+       Un texte n'a aucune raison d'être cliquable. Ses boutons, si. */
+    pointer-events:none;
   }
+  body.au-salon #bulle button,
+  body.au-salon #bulle a { pointer-events:auto; }
   body.au-salon #bulle.vu { transform:translate(-50%, 0); }
   body.au-salon #bulle::before {
     left:50%; bottom:auto; top:-5px; margin-left:-4px;
@@ -808,7 +829,18 @@
     #titre h1 { font-size:11px; letter-spacing:.3em; }
     #stats { display:none; }
     #aide  { display:none; }
-    #lumen { display:none; }
+    /* On retire l'AVATAR, pas le conteneur.
+
+       C'était `#lumen { display:none }`, écrit du temps où Lumen n'était qu'une
+       vignette dans le coin qu'on masquait pour gagner de la place. Mais la
+       bulle de dialogue vit DANS ce conteneur : la règle la supprimait avec lui,
+       et sur tout écran de moins de neuf cents pixels — donc sur absolument tous
+       les téléphones — Lumen ne parlait jamais visiblement. On lui posait une
+       question, il répondait dans le vide.
+
+       Le même piège avait déjà été corrigé ailleurs. Il faut se souvenir que
+       cacher le personnage n'est pas cacher sa voix. */
+    #lumen-corps { display:none; }
     #f-texte { max-height:24vh; }
 
     #haut-droite { top:12px; right:12px; }
@@ -3757,6 +3789,19 @@ let posteDepart = null, glisse = null;
 const SENS = 0.0032;
 const TANGAGE_MAX = 1.15;      // on ne se casse pas la nuque
 
+/* Ce qui sépare une tape d'un glissé, en pixels.
+
+   UNE SEULE définition, parce que deux endroits s'en servent — le blocage de la
+   rotation pendant la visée, et la validation au relâchement — et qu'ils
+   doivent s'accorder au pixel près. S'ils divergent, il existe une bande où la
+   vue est figée mais le contact refusé : la cible ne bouge pas, on tape dessus,
+   et rien ne se passe. Le pire des deux mondes.
+
+   Vingt-six au doigt, contre dix-huit auparavant : la vue ne tournant plus
+   pendant ces pixels-là, une dérive de pouce ne coûte plus rien, et la
+   tolérance peut être franchement généreuse. */
+const seuilTape = type => type === "touch" ? 26 : 6;
+
 function tourne(dx, dy){
   // Devant la carte des étoiles, le même geste tourne la carte. C'est elle
   // qu'on regarde, et une reconstruction en volume ne se lit que si l'on peut
@@ -3823,8 +3868,24 @@ cv.addEventListener("pointermove", e => {
     bougeStick(e.clientX, e.clientY);
     return;
   }
+  /* Une visée en cours BLOQUE la rotation, tant qu'on reste dans le seuil.
+
+     C'est ce qui empêchait de toucher le drone au doigt. Le geste servait à la
+     fois à viser et à tourner la tête : au premier pixel de dérive la vue
+     pivotait, la cible se déplaçait sous le doigt, on corrigeait, on dérivait
+     davantage — et passé dix-huit pixels le contact était classé « glissé du
+     regard », donc ignoré. On courait après sa cible, et rien ne s'ouvrait
+     jamais.
+
+     Tant que le doigt reste dans le seuil ET qu'il a désigné quelque chose au
+     départ, la vue ne bouge pas d'un degré : la cible attend. Au-delà, c'est un
+     vrai glissé, la visée est abandonnée et la rotation reprend normalement —
+     sans à-coup, puisqu'on repart de la position courante. */
   if(glisse && e.pointerId === glisse.id){
-    tourne(e.clientX - glisse.x, e.clientY - glisse.y);
+    const d = posteDepart;
+    const fige = d && d.p &&
+                 Math.hypot(e.clientX - d.x, e.clientY - d.y) <= seuilTape(e.pointerType);
+    if(!fige) tourne(e.clientX - glisse.x, e.clientY - glisse.y);
     glisse.x = e.clientX; glisse.y = e.clientY;
   }
   salon.vise = posteVise(capture() ? centreCanevas() : e);
@@ -3848,18 +3909,9 @@ cv.addEventListener("pointerup", e => {
   if(pouceMarche && e.pointerId === pouceMarche.id) return;   // celui-là marchait
   const d = posteDepart; posteDepart = null;
   if(!salon.actif || !d) return;
-  /* Le seuil qui sépare un contact d'un glissé dépend de ce qui touche.
-
-     Six pixels convient à une souris, qui ne bouge pas quand on clique. Un
-     pouce sur du verre dérive de dix à quinze pixels dans une tape ordinaire —
-     le contact était donc lu comme un glissé, et rien ne s'activait. C'est ce
-     qui empêchait Hugo d'interroger le drone sur son téléphone, alors que le
-     même geste fonctionnait à la souris.
-
-     Le risque inverse est faible : dix-huit pixels restent loin du geste qu'on
-     fait pour tourner la tête, lequel parcourt l'écran. */
-  const seuil = e.pointerType === "touch" ? 18 : 6;
-  const bref = Math.hypot(e.clientX - d.x, e.clientY - d.y) <= seuil;
+  /* Le seuil qui sépare un contact d'un glissé — la MÊME définition que celle
+     qui fige la rotation pendant la visée, voir `seuilTape`. */
+  const bref = Math.hypot(e.clientX - d.x, e.clientY - d.y) <= seuilTape(e.pointerType);
   if(!bref) return;                                    // c'était un glissé du regard
 
   if(!d.p){
@@ -6181,7 +6233,17 @@ function boucle(now){
       if(q){
         const marge = 170;
         const x = Math.max(marge, Math.min(vueW - marge, q[0]));
-        const y = Math.max(60, Math.min(vueH - 210, q[1] + 34));
+        /* On dégage la hauteur du drone, qui n'est pas une constante.
+
+           Trente-quatre pixels étaient toujours à l'intérieur de lui : à une
+           longueur de bras et demie, sa silhouette fait déjà soixante pixels de
+           rayon sur un téléphone. La bulle démarre donc sous son bord, et non
+           sous son centre. */
+        const rayonDrone = Math.max(46, vueH*0.085);
+        // On borne avec la hauteur RÉELLE de la bulle, pas avec une constante :
+        // elle varie du simple au quintuple selon la longueur de la réplique.
+        const h = elBulle.offsetHeight || 140;
+        const y = Math.max(60, Math.min(vueH - h - 18, q[1] + rayonDrone));
         elBulle.style.setProperty("--bulle-x", x + "px");
         elBulle.style.setProperty("--bulle-y", y + "px");
       }
