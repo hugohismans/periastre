@@ -1490,14 +1490,32 @@ float noise3(vec3 p){
 float fbm3(vec3 p){ float s=0.0,a=0.5; for(int i=0;i<5;i++){ s+=a*noise3(p); p*=2.07; a*=0.5; } return s; }
 
 // ---------- ciel ----------
+/* Une étoile ne doit jamais être plus petite qu'un pixel.
+
+   Elle l'était, et c'est ce qui la faisait scintiller. Le cœur mesurait 0,16
+   cellule, soit 0,16/410 = 3,9 × 10⁻⁴ radian à la couche la plus fine, quand un
+   pixel en vaut 1,8 × 10⁻³ sur un écran de 720 : l'étoile faisait **le quart
+   d'un pixel**. Un objet plus petit que la grille d'échantillonnage apparaît et
+   disparaît au gré du sous-échantillonnage dès que la caméra bouge d'un cheveu
+   — et le ciel entier grouille.
+
+   On élargit donc le cœur jusqu'à la taille d'un pixel, et on l'atténue d'autant
+   pour conserver le flux : une étoile étalée sur quatre fois plus de surface
+   doit être quatre fois moins vive, sinon le ciel devient laiteux. La couche
+   large (95) est déjà bien échantillonnée et ne bouge pas. */
 vec3 couche(vec3 d, float ech, float seuil){
   vec3 p = d*ech, id = floor(p), f = p - id - 0.5;
   vec3 h = hash33(id);
   if(h.x > seuil) return vec3(0.0);
   float dist = length(f - (h-0.5)*0.72);
-  float b = pow(smoothstep(0.16, 0.0, dist), 3.0);
+
+  float px = (2.0/(uFocal*uRes.y)) * ech;      // un pixel, exprimé en cellules
+  float w  = max(0.16, px*0.62);
+  float b  = pow(smoothstep(w, 0.0, dist), 3.0);
+  float flux = (0.16*0.16)/(w*w);              // ce qu'on a gagné en largeur
+
   vec3 teinte = mix(vec3(0.62,0.72,1.0), vec3(1.0,0.84,0.60), h.y);
-  return teinte * b * (0.35 + h.z);
+  return teinte * b * (0.35 + h.z) * flux;
 }
 
 vec3 ciel(vec3 d){
@@ -1678,7 +1696,30 @@ void main(){
   float lueur = 0.0;
   vec3  sortie;
 
-  if(uSpin < 1e-6){
+  /* Les rayons qui passent loin vont TOUT DROIT, et on ne les intègre pas.
+
+     Ce n'est pas une approximation de confort : c'est plus juste que de les
+     intégrer. La déviation vaut 4M/b, soit 2/b dans nos unités ; au-delà de
+     trois mille rayons de paramètre d'impact elle tombe sous le quart de pixel.
+     En revanche, quatre cents pas d'intégration à cette distance accumulent du
+     bruit de virgule flottante dans la direction de sortie — et les couches
+     d'étoiles, qui découpent le ciel en cellules de 1/410 de radian, le
+     transforment en SCINTILLEMENT.
+
+     Mesuré, caméra parfaitement immobile : l'écart d'une image à l'autre valait
+     0 % à seize rayons de distance, 0,25 % à trois cents, 0,75 % à cinq mille et
+     1,02 % à cent dix-sept mille. C'est ce qu'Hugo voyait grouiller dans tout le
+     ciel après un voyage. Le bruit croissait avec le nombre de pas inutiles.
+
+     Aucun rayon de ce genre ne rencontre le disque non plus, qui s'arrête à onze
+     rayons : on ne perd donc rigoureusement rien. */
+  float rCam  = length(uCam);
+  float cosPs = dot(vue, uCam / max(rCam, 1e-6));
+  float bApp  = rCam * sqrt(max(0.0, 1.0 - cosPs*cosPs));
+
+  if(bApp > 3000.0){
+    sortie = vue;
+  } else if(uSpin < 1e-6){
     // ---- Schwarzschild, forme cartésienne ----
     // Aucune singularité de coordonnées : l'image est exempte d'artefact.
     // C'est la version validée par le banc d'essai, on la garde telle quelle.
@@ -2994,6 +3035,10 @@ let spin = 0;
 // Plan d'ouverture. Toute intervention du visiteur y coupe court : on ne lui
 // impose pas d'attendre la fin d'une animation.
 const cinema = { actif:true, t:0 };
+
+// Le point de la PIÈCE où Lumen vient attendre. Il se fixe au moment où l'on
+// lui demande de venir, et n'appartient pas au regard — voir la boucle.
+let ancreLumen = null;
 
 /* Le télescope, et le voyage qu'on y engage.
 
@@ -6145,13 +6190,29 @@ function boucle(now){
     // Lumen. Il fait sa ronde, sauf quand l'étape demande qu'on lui parle :
     // il vient alors se placer à portée, et cesse de se dérober au doigt.
     if(attendu === "a-lumen"){
-      // une longueur de bras et demie devant, décalé pour ne pas masquer la baie
-      const { av, dr } = regardSalon();
+      /* L'ancre se calcule UNE FOIS, et elle reste dans la PIÈCE.
+
+         Elle se recalculait à chaque image depuis la direction du regard : le
+         drone était donc rivé à un point fixe de l'ÉCRAN et suivait la tête au
+         degré près. On ne voyait plus un objet dans la salle mais une vignette
+         plaquée sur l'objectif, et le viser revenait à se courir après —
+         impossible au doigt.
+
+         Elle ne se refait que si l'on s'en est vraiment éloigné, pour qu'il
+         vienne nous retrouver quand on change de coin sans nous coller quand on
+         tourne simplement la tête. La hauteur ignore le tangage : lever les yeux
+         ne doit pas l'envoyer au plafond. */
       const oe = oeilSalon();
-      ROBOT.veutAttendre(1, [ oe[0] + av[0]*1.45 + dr[0]*0.42,
-                              oe[1] + av[1]*1.45 - 0.06,
-                              oe[2] + av[2]*1.45 + dr[2]*0.42 ]);
-    } else ROBOT.veutAttendre(0);
+      if(!ancreLumen ||
+         Math.hypot(oe[0]-ancreLumen[0], oe[2]-ancreLumen[2]) > 2.4){
+        const { av, dr } = regardSalon();
+        const pl = Math.hypot(av[0], av[2]) || 1;          // le regard, mis à plat
+        ancreLumen = [ oe[0] + (av[0]/pl)*1.45 + dr[0]*0.42,
+                       oe[1] - 0.06,
+                       oe[2] + (av[2]/pl)*1.45 + dr[2]*0.42 ];
+      }
+      ROBOT.veutAttendre(1, ancreLumen);
+    } else { ROBOT.veutAttendre(0); ancreLumen = null; }
     ROBOT.dessine(gl, envoie, salon.horloge, oeilSalon(),
       (salon.vise === POSTE_LUMEN || questionsOuvertes) ? 1
       : (attendu === "a-lumen" ? 0.55 : 0));

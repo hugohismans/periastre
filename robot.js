@@ -176,9 +176,20 @@ function pose(t){
     -1.95 + Math.sin(t*0.42 + 1.1)*0.72,
   ];
   if(attente < 0.01) return libre;
-  const tenu = [ posteAttente[0],
+  /* Il TOURNE autour de sa place, il ne s'y plante pas.
+
+     Immobile, il ne se distinguait plus d'un élément d'interface collé devant
+     soi — et c'est précisément ce qu'Hugo a vu. Un petit cercle de vingt-deux
+     centimètres, parcouru en une douzaine de secondes, suffit à dire que c'est
+     un objet posé dans la pièce et non une vignette plaquée sur l'écran.
+
+     Le rayon reste sous celui de la boîte à viser, qui vaut trente centimètres
+     en attente : il bouge assez pour qu'on le voie vivre, pas assez pour qu'on
+     le manque. */
+  const a = t*0.52;
+  const tenu = [ posteAttente[0] + Math.cos(a)*0.22,
                  posteAttente[1] + Math.sin(t*0.9)*0.030,   // il respire encore
-                 posteAttente[2] ];
+                 posteAttente[2] + Math.sin(a)*0.22 ];
   const k = attente;
   return [ libre[0]*(1-k) + tenu[0]*k,
            libre[1]*(1-k) + tenu[1]*k,
