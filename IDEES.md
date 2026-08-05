@@ -228,6 +228,82 @@ vus :
 # Le voyage et les échelles
 
 
+## La forme que ça doit prendre au bout — *5 août 2026*
+
+Vision d'ensemble d'Hugo, et elle donne enfin un cadre à tout ce qui suit :
+
+> un univers, mais guidé. Tu es un humain dedans, tu te balades, tu as des
+> vaisseaux, et tu peux à tout moment revenir à un **centre de contrôle** d'où
+> l'on voit la galaxie — on clique sur le système solaire, sur Sagittarius A*,
+> sur ce qui vaut le détour. Et là où l'on va, on peut **agir** : poser une
+> planète et voir si ça tient, provoquer un cataclysme, regarder ce qu'il en
+> reste après des millions d'années. Le tout simulé. Jamais fantasmé.
+
+Deux choses la rendent crédible plutôt que rêveuse.
+
+D'abord, **la plupart des pièces existent déjà**. Le contrat de destination dit
+qu'une destination est une donnée, pas du code. Le voyage à 1 g donne le moyen
+d'aller quelque part en disant ce qu'il en coûte. Le recul logarithmique sait
+traverser quatre décades. Le télescope est déjà un lieu d'où l'on regarde
+ailleurs — c'est le centre de contrôle en germe. Ce n'est pas une réécriture,
+c'est une continuation.
+
+Ensuite, sa règle — *ne rien montrer qu'on ne sache calculer* — est **tenable**,
+à condition de savoir où passe la frontière. Elle passe à un endroit précis.
+
+### Ce qui se simule vraiment, et honnêtement
+
+**La gravitation, entièrement.** Un intégrateur symplectique tient quelques
+centaines de corps en temps réel dans un navigateur, et quelques dizaines avec
+une précision de recherche. Cela donne, sans rien inventer :
+
+- poser une planète et regarder le système se déstabiliser — ou pas ;
+- les **résonances** : le même corps au même endroit tient ou détruit tout selon
+  sa période, et c'est ça, la vraie leçon ;
+- la stabilité à long terme, qu'on intègre sur des millions d'années — c'est
+  exactement ce que fait la recherche sur le système solaire ;
+- la **limite de Roche** et la dislocation d'une lune, qui se calcule en forme
+  fermée pour le seuil et par gravitation mutuelle pour la suite ;
+- la **formation d'un anneau** à partir des débris, par précession
+  différentielle. C'est de la gravitation pure, donc c'est à notre portée — et
+  c'est le « qu'est-ce qu'il en reste après des millions d'années » d'Hugo.
+
+### Ce qui ne se simule pas, et qu'il faudra assumer
+
+**La physique des matériaux.** L'instant d'un impact — les ondes de choc, la
+fusion, la fragmentation d'un corps solide — demande de l'hydrodynamique à
+particules avec résistance des matériaux. Cela tourne des jours sur des grappes
+de calcul. Ce n'est pas une question d'optimisation : c'est hors d'atteinte.
+
+La conséquence pratique est nette et pas si grave : **on peut simuler l'avant et
+l'après d'une collision, pas son instant.** Deux corps s'approchent, se
+déforment par les marées, se disloquent, et le nuage de débris retombe en
+anneau — tout cela est de la gravitation. Le flash de l'impact, non. Soit on
+coupe, soit on le déclare, comme le reste.
+
+### La tension à ne pas se cacher
+
+Un bac à sable où l'on provoque des cataclysmes tire dans l'autre sens qu'un
+outil pédagogique. Ce n'est pas rédhibitoire, mais le cadrage décide de tout.
+
+La bonne version est celle où **la simulation refuse de mentir** : on pose une
+planète dans une résonance stable, il ne se passe rien ; on la pose dix pour
+cent plus loin, tout s'effondre en dix mille ans. Le bac à sable devient alors
+l'endroit où l'on vérifie ce qu'on a appris, et l'anticlimax fait partie du
+cours — comme pour la Lune remplacée par un trou noir.
+
+Le seul morceau vraiment étranger, c'est **acheter des choses**. Une économie ne
+sort d'aucune équation. À traiter comme du décor assumé, ou à laisser tomber.
+
+### Le point de vue, qui est le vrai apport
+
+Hugo insiste, et il a raison : voir le cataclysme **depuis son vaisseau en
+orbite**, pas depuis une caméra extérieure. C'est ce qui sépare ce projet d'un
+simulateur d'orbites. La machinerie est déjà là — le salon, la baie, la
+géodésique du vaisseau — et c'est elle qu'il faut réemployer, pas une vue
+d'ensemble de plus.
+
+
 ## Deux vaisseaux, et le voyage comme mécanique
 
 Idée d'Hugo, en trois morceaux qui n'ont pas du tout le même coût.

@@ -25,6 +25,70 @@ Mis à jour le 5 août 2026.
 | 6 | **Le bilingue** | Sélecteur fait, contenu traduit, unités et ponctuation des nombres suivent la langue. **Restent environ cent quarante chaînes en dur**, toutes inventoriées dans `CHAINES-UI.md` avec leur clé et leur traduction — c'est du travail mécanique, pas de la conception. |
 | 2 | **Chemin de progression** | Menu en index, base posée. Rien de plus. |
 
+## Les fondations — *ce qui décide si la suite est possible*
+
+Hugo, le 5 août 2026 : les grands chantiers ne sont pas à faire maintenant,
+mais à connaître, **pour que les fondations soient adaptées**. Voici donc ce
+qui, dans l'état actuel, ouvre la porte — et ce qui la ferme.
+
+### Ce qui tient déjà, et qu'il ne faut pas casser
+
+- **Une destination est une donnée, pas du code.** Jupiter est
+  architecturalement la même chose que Sagittarius A*.
+- **Les modules sont des fichiers séparés** posant un seul global, éprouvables
+  hors page. `voyage1g.js` a été vérifié contre quatre références sans qu'un
+  navigateur soit ouvert. C'est le bon patron : tout nouveau calcul doit
+  naître ainsi.
+- **Le vaisseau est un point de vue**, distinct de la scène qu'il regarde.
+  C'est ce qui permettra de voir un cataclysme depuis une orbite plutôt que
+  d'une caméra extérieure.
+- **Le contenu est source unique, à trois niveaux, sourcé, bilingue.**
+
+### F1 — La soupe de drapeaux doit devenir un lieu
+
+`salon.actif`, `sondeSuivie`, `TELESCOPE.trajet`, `spectreActif`,
+`cinema.actif` s'excluent deux à deux, à la main, dans des `if` dispersés. Le
+commentaire « on ne peut pas être aux deux endroits » est déjà écrit deux fois
+dans le fichier.
+
+**J'ai aggravé ce défaut aujourd'hui** en ajoutant le télescope comme troisième
+mode plutôt qu'en refondant le mécanisme. Ça marche à trois. À dix lieux —
+galaxie, système solaire, orbite de Jupiter, centre de contrôle — c'est
+ingérable, et les conflits y sont muets.
+
+Il faut **un seul état `lieu`**, avec ses transitions explicites, et que la
+caméra, la boucle et l'interface le lisent au lieu de deviner.
+
+### F2 — Le bloc de script unique est la vraie limite
+
+Trois mille cinq cents lignes dans un seul `<script>`, en portée globale, avec
+des `const` non hissés. **Il est mort deux fois cette session** parce qu'une
+variable était employée avant sa ligne — et le symptôme est muet : le bloc
+s'arrête, la moitié du site disparaît sans un message.
+
+Chaque fonction ajoutée rend la découpe plus chère. C'est le chantier qui
+décide si le projet survit à sa propre ambition, et il n'a aucun effet visible :
+il ne se fera donc jamais « quand on aura le temps ». Il faut le décider.
+
+### F3 — Il manque un intégrateur à N corps
+
+`integre()` déplace une particule d'épreuve autour d'une masse **fixe**. Poser
+une planète et voir le système tenir ou s'effondrer demande la gravitation
+mutuelle entre corps — un module distinct, symplectique, éprouvable seul.
+
+C'est aussi le plus agréable à écrire, et le plus vérifiable : la stabilité du
+système solaire sur un million d'années est un banc d'essai en soi.
+
+### F4 — La frontière du simulable, à écrire une fois pour toutes
+
+La gravitation se simule entièrement. La physique des matériaux — l'instant
+d'un impact, les ondes de choc, la fusion — ne se simule pas, ni ici ni
+ailleurs sans grappe de calcul. On sait donc faire **l'avant et l'après** d'une
+collision, pas son instant. Voir `IDEES.md`, « La forme que ça doit prendre au
+bout ».
+
+---
+
 ## Le prochain, et il est important
 
 ### 15 — Deux rendus au choix : simulation ou cinéma
