@@ -612,6 +612,43 @@ Nom, corps autour duquel elle tourne, éléments de son orbite, date du lancer.
 Un simple relevé, sur le modèle du carnet de bord temporel qui existe déjà :
 on enregistre ce qui s'est passé, on ne recalcule pas le passé.
 
+### Les états, et le mot juste pour l'horizon
+
+Hugo veut pouvoir chercher qui a mis quoi dans l'espace, et où ça en est. Le
+vocabulaire des états :
+
+| état | ce que ça veut dire |
+|---|---|
+| **en orbite** | autour de tel corps, elle y est encore |
+| **perdue** | sur une trajectoire de fuite, elle s'éloigne pour toujours |
+| **écrasée** | sur tel corps, à telle date |
+| **disparue** | passée l'horizon |
+
+Et c'est sur le dernier mot qu'Hugo a raison bien au-delà du tact :
+
+> ne pas mettre « mort » quand on a traversé l'horizon, mais « disparu » — on ne
+> peut pas dire qu'il soit vraiment mort dans notre espace-temps à nous.
+
+**C'est le mot exact, pas un euphémisme.** Vu d'ici, un objet qui tombe ne
+franchit jamais l'horizon : il ralentit sans fin à son approche, sa lumière
+rougit et s'éteint, et il faudrait un temps infini de NOTRE horloge pour le voir
+le traverser. Dans notre référentiel, l'événement n'a pas lieu. Il ne meurt pas :
+il devient inobservable.
+
+Dans son propre référentiel, en revanche, il traverse en un temps fini et
+parfaitement ordinaire — et rencontre ensuite ce qu'il rencontre.
+
+Écrire « mort » serait donc **faux**, et écrire « disparu » enseigne au passage
+la chose la plus étrange de tout le sujet : deux observateurs, deux récits, et
+aucun des deux n'a tort. Le mémorial devient ainsi le lieu où l'on comprend
+enfin ce qu'est un horizon. Il faudra que la fiche de l'objet le dise, en une
+phrase, à l'endroit exact où l'on lit son état.
+
+### Renommer
+
+Le propriétaire peut renommer sa sonde. Même contrainte que partout : par
+composition depuis les vocabulaires, jamais par saisie libre — voir ci-dessous.
+
 ### Le registre partagé — deux obstacles, et ils sont réels
 
 **Le premier est une contrainte qu'on s'est donnée et qu'il ne faut pas
