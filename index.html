@@ -210,13 +210,39 @@
   }
 
   /* ---- barre d'actions ---- */
+  /* La barre parle enfin la même langue que les écrans du vaisseau : filets
+     fins, capitales espacées, aucun aplat. Un bouton n'est plus une boîte mais
+     une case du rail, et l'état actif se marque d'un trait sous le mot plutôt
+     que d'un fond coloré. La retenue est ce qui fait la tenue — un fond plein
+     par bouton donnait huit taches à égalité. */
   #dock {
-    bottom:24px; left:50%; transform:translateX(-50%); pointer-events:auto;
-    display:flex; gap:7px; padding:8px;
-    background:color-mix(in srgb, var(--nuit) 82%, transparent); backdrop-filter:blur(14px);
-    border:1px solid var(--filet); border-radius:5px;
+    bottom:22px; left:50%; transform:translateX(-50%); pointer-events:auto;
+    display:flex; align-items:stretch; gap:0; padding:0;
+    background:color-mix(in srgb, var(--nuit) 88%, transparent);
+    backdrop-filter:blur(16px);
+    border:1px solid var(--filet); border-radius:2px; overflow:hidden;
   }
-  #dock button { padding:8px 14px; }
+  #dock .groupe { display:flex; }
+  #dock .groupe + .groupe { border-left:1px solid var(--filet); }
+  #dock button {
+    position:relative; background:none; border:0; border-radius:0;
+    padding:12px 16px 11px;
+    font-family:var(--chiffre); font-size:9.5px; letter-spacing:.14em;
+    /* `--sourd` était trop bas pour de la capitale de neuf points et demi :
+       la retenue ne doit pas devenir de l'illisible. */
+    text-transform:uppercase; color:var(--pale); white-space:nowrap;
+    transition:color .16s, background .16s;
+  }
+  #dock button::after {
+    content:""; position:absolute; left:16px; right:16px; bottom:6px;
+    height:1px; background:transparent; transition:background .16s;
+  }
+  #dock button:hover { color:#e6e1f2; background:rgba(255,255,255,.04); }
+  #dock button:hover::after { background:rgba(255,255,255,.22); }
+  /* L'accent plein, pas la couleur de bordure : `--braise-b` est à trente-huit
+     pour cent d'opacité, prévue pour un filet, et illisible en texte. */
+  #dock button.actif { color:var(--braise); background:none; }
+  #dock button.actif::after { background:var(--braise); }
 
   #lecture-flottant {
     bottom:82px; left:50%; transform:translateX(-50%); pointer-events:none;
@@ -717,15 +743,24 @@ body.au-salon:not(.mode-boutons) #dock { opacity:0; pointer-events:none; }
      l'orientation, donc il ne peut pas rester coincé à l'écran. -->
 <div id="couche">Tourne ton téléphone — le trou noir est large.</div>
 
+<!-- Trois groupes plutôt que huit boutons égaux : ce qu'on lance, ce avec
+     quoi on regarde, et où l'on va. La hiérarchie fait la moitié du travail
+     d'une interface — huit rectangles identiques n'en font aucun. -->
 <div class="hud" id="dock">
-  <button id="b-pluie">Lâcher 80 sondes</button>
-  <button id="b-photon">Photon</button>
-  <button id="b-salon">Le salon</button>
-  <button id="b-sonde">Monter à bord</button>
-  <button id="b-reel">Lumière réelle</button>
-  <button id="b-spectre">Spectre</button>
-  <button id="b-temps">Temps</button>
-  <button id="b-vide">Effacer</button>
+  <div class="groupe">
+    <button id="b-pluie">Lâcher 80 sondes</button>
+    <button id="b-photon">Photon</button>
+    <button id="b-vide">Effacer</button>
+  </div>
+  <div class="groupe">
+    <button id="b-reel">Lumière réelle</button>
+    <button id="b-spectre">Spectre</button>
+    <button id="b-temps">Temps</button>
+  </div>
+  <div class="groupe">
+    <button id="b-salon">Le salon</button>
+    <button id="b-sonde">Monter à bord</button>
+  </div>
 </div>
 
 <div id="temps">
