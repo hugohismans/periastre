@@ -1094,7 +1094,7 @@ body.au-salon:not(.mode-boutons) #dock { opacity:0; pointer-events:none; }
 
 <!-- Conseil de rotation. Aucun script : il apparaît et disparaît avec
      l'orientation, donc il ne peut pas rester coincé à l'écran. -->
-<div id="couche">Tourne ton téléphone — le trou noir est large.</div>
+<div id="couche">Tourne l'écran — le trou noir est large.</div>
 
 <!-- Trois groupes plutôt que huit boutons égaux : ce qu'on lance, ce avec
      quoi on regarde, et où l'on va. La hiérarchie fait la moitié du travail
@@ -2091,6 +2091,36 @@ void main(){
 
 const CONTENU = window.CONTENU;
 
+/* Une chaîne d'interface. Le repli français est déjà chargé, donc une clé
+   absente rend du texte lisible ; une clé INVENTÉE, elle, rend son propre nom,
+   ce qui se voit immédiatement à l'écran — et c'est voulu, une faute muette
+   étant pire qu'une faute visible.
+
+   Elle se déclare ICI, tout en haut, et non près du reste de l'interface : le
+   script est un seul bloc, `const` n'est pas hissé, et le repli WebGL2 quelques
+   lignes plus bas doit déjà pouvoir parler. Une déclaration plus basse la
+   mettrait en zone morte à cet instant précis, et la page mourrait sans un mot.
+
+   Le nom `T` est réservé : aucune variable locale ne doit le reprendre, sans
+   quoi elle masque la traduction dans toute sa portée. */
+const T = k => (window.UI && window.UI[k]) || k;
+
+/* Les trous d'un gabarit se remplissent par leur nom, pas par leur position :
+   une traduction déplace « {n} sur {total} » sans avoir à prévenir personne. */
+const remplit = (cle, vals) =>
+  T(cle).replace(/\{(\w+)\}/g, (m, k) => (k in vals ? vals[k] : m));
+
+/* Les formats des nombres et des dates suivent la langue, exactement comme
+   `voyage1g.js` le fait de son côté : virgule décimale et conventions
+   françaises en français, point et conventions britanniques en anglais. Un
+   « 1,5 s » dans une phrase anglaise se voit autant qu'un bouton oublié. */
+const enAnglais = () => T("u.langue") === "en";
+const LOCALE    = () => T("u.locale");
+// Une décimale déjà écrite avec un point : on ne la retourne qu'en français.
+const virgule = s => enAnglais() ? String(s) : String(s).replace(".", ",");
+const millier = (x, n) =>
+  x.toLocaleString(LOCALE(), { minimumFractionDigits:n, maximumFractionDigits:n });
+
 /* ===========================================================
    Unités : la longueur vaut 1 rayon de Schwarzschild (rs),
    la vitesse vaut c. Pour Sagittarius A* (4,3e6 M☉) :
@@ -2110,7 +2140,7 @@ const MAX_SONDES = 420;
 const cv = document.getElementById("gl");
 const gl = cv.getContext("webgl2", { antialias:false, alpha:false, powerPreference:"high-performance" });
 if(!gl){
-  document.body.innerHTML = "<p style='padding:40px;font:14px sans-serif;color:#ccc'>Ton navigateur ne supporte pas WebGL2.</p>";
+  document.body.innerHTML = "<p style='padding:40px;font:14px sans-serif;color:#ccc'>" + T("msg.webgl") + "</p>";
   throw new Error("WebGL2 indisponible");
 }
 
@@ -2514,8 +2544,8 @@ addEventListener("keydown", e => {
     const b = document.createElement("div");
     b.className = "avis-son";
     b.innerHTML = ok
-      ? "<span>Position copiée. Colle le lien dans ton rapport : elle se rouvrira ici même.</span>"
-      : "<span>Copie refusée par le navigateur. Le lien est dans la barre d'adresse.</span>";
+      ? "<span>" + T("msg.copie.ok")  + "</span>"
+      : "<span>" + T("msg.copie.non") + "</span>";
     document.body.appendChild(b);
     setTimeout(() => b.remove(), 4000);
   };
@@ -2940,10 +2970,10 @@ function lancePhoton(){
 
 // ============ temps ============
 const VITESSES = [
-  { mult:1,    nom:"temps réel" },
-  { mult:60,   nom:"1 min / s"  },
-  { mult:600,  nom:"10 min / s" },
-  { mult:3600, nom:"1 h / s"    },
+  { mult:1,    nom:"temps.v0" },
+  { mult:60,   nom:"temps.v1" },
+  { mult:600,  nom:"temps.v2" },
+  { mult:3600, nom:"temps.v3" },
 ];
 let iVitesse = 2;
 let tempsGeo = 0;           // temps simulé, en unités géométriques
@@ -3015,7 +3045,7 @@ function avanceCorps(dtGeo, dtSec){
     if(dilat < 0.06){
       s.gel = (s.gel || 0) + dtGeo;
       if(s.gel > 14){ sondes.splice(i,1); nChute++; continue; }
-      if(!s.vue){ s.vue = true; flash(); message("figée à l'horizon"); reagit("avalee", true); }
+      if(!s.vue){ s.vue = true; flash(); message(T("msg.figee")); reagit("avalee", true); }
     }
     if(r > 52){ sondes.splice(i,1); nFuite++; }
   }
@@ -3042,8 +3072,8 @@ function avanceCorps(dtGeo, dtSec){
     if(f.trace.length > 200) f.trace.shift();
 
     const r = len(f.p);
-    if(r < R_HORIZON*1.02){ photons.splice(i,1); message("photon absorbé"); reagit("photonAvale", true); }
-    else if(r > 45)       { photons.splice(i,1); message("photon échappé"); reagit("photonFuite", true); }
+    if(r < R_HORIZON*1.02){ photons.splice(i,1); message(T("msg.photonAvale")); reagit("photonAvale", true); }
+    else if(r > 45)       { photons.splice(i,1); message(T("msg.photonFuite")); reagit("photonFuite", true); }
   }
 }
 
@@ -3052,11 +3082,8 @@ const ui  = document.getElementById("ui");
 const ctx = ui.getContext("2d");
 const $ = id => document.getElementById(id);
 
-/* Une chaîne d'interface. Le repli français est déjà chargé, donc une clé
-   absente rend du texte lisible ; une clé INVENTÉE, elle, rend son propre nom,
-   ce qui se voit immédiatement à l'écran — et c'est voulu, une faute muette
-   étant pire qu'une faute visible. */
-const T = k => (window.UI && window.UI[k]) || k;
+// `T`, `remplit` et les formateurs sont déclarés tout en haut du bloc — le
+// repli WebGL2 s'en sert avant même que cette section existe.
 const elFlash = $("flash"), elMsg = $("msg");
 
 let tFlash = 0, tMsg = 0, dernierFlash = 0;
@@ -3108,9 +3135,10 @@ let nbPas = 400, finesse = 0.010, seuilCapture = 1.2;
 // le choix plutôt que d'imposer une taille arbitraire.
 let zoomSonde = 1;
 const boitierT = $("taille-sondes");
-[["à peine visible", 0.6], ["normale", 1], ["grosse", 2.2], ["énorme", 4]].forEach(([nom, k], i) => {
+[["panneau.taille.minuscule", 0.6], ["panneau.taille.normale", 1],
+ ["panneau.taille.grosse", 2.2], ["panneau.taille.enorme", 4]].forEach(([cle, k], i) => {
   const b = document.createElement("button");
-  b.textContent = nom;
+  b.textContent = T(cle);
   b.onclick = () => {
     zoomSonde = k;
     [...boitierT.children].forEach((c, j) => c.classList.toggle("actif", j === i));
@@ -3129,8 +3157,56 @@ boitierT.children[1].classList.add("actif");
 [["b-pluie","dock.pluie"], ["b-photon","dock.photon"], ["b-vide","dock.effacer"],
  ["b-reel","dock.reel"], ["b-spectre","dock.spectre"], ["b-temps","dock.temps"],
  ["b-salon","dock.salon"], ["b-sonde","dock.sonde"], ["b-traj","panneau.traj"],
+ ["b-cours","titre.cours"], ["b-menu","stats.menu"], ["tp-titre","temps.titre"],
+ ["b-missions","panneau.missions"], ["b-quete","panneau.quete"],
+ ["b-methode","panneau.methode"], ["spin-note","panneau.spin.note"],
+ ["couche","salon.tourne"], ["t-saut","salon.manette.saut"],
+ ["b-lancer","banc.lancer"],
 ].forEach(([id, cle]) => { const e = $(id); if(e) e.textContent = T(cle); });
-$("langue-choix").previousElementSibling.textContent = T("panneau.langue");
+
+// Les infobulles et les étiquettes d'accessibilité comptent autant : elles sont
+// le seul texte de la page pour qui l'écoute au lieu de la lire.
+[["rouage","title","stats.reglages"], ["b-cours","title","titre.cours.montrer"],
+ ["m-fermer","title","mission.masquer"], ["q-fermer","title","quete.passer"],
+ ["f-prec","aria-label","fiches.precedente"], ["f-suiv","aria-label","fiches.suivante"],
+ ["lumen-corps","aria-label","lumen.parler"], ["b-voix","title","lumen.voix.lire"],
+ ["b-bulle-fermer","title","lumen.fermer"], ["b-bulle-fermer","aria-label","lumen.fermer"],
+ ["d-fermer","aria-label","dossier.fermer"],
+].forEach(([id, attr, cle]) => { const e = $(id); if(e) e.setAttribute(attr, T(cle)); });
+
+document.title = T("doc.titre");
+
+/* Le nom du site partage son `h1` avec le bouton du cours : on ne remplace donc
+   que le premier nœud, sous peine d'emporter le bouton avec le texte. */
+{
+  const h1 = $("titre").querySelector("h1");
+  if(h1 && h1.firstChild) h1.firstChild.textContent = T("titre.site") + " ";
+  $("titre").querySelector("p").textContent = T("titre.sous");
+}
+// Les trois compteurs, dans l'ordre du balisage.
+["stats.orbite", "stats.figees", "stats.echappees"].forEach((cle, i) => {
+  const e = document.querySelectorAll("#stats .stat span")[i];
+  if(e) e.textContent = T(cle);
+});
+// Les étiquettes des blocs de réglages, désignées par la grille qu'elles coiffent.
+[[$("b-traj").parentElement, "panneau.etiq.affichage"],
+ [$("langue-choix"),         "panneau.langue"],
+ [$("voix-choix"),           "panneau.etiq.voix"],
+ [$("spin-choix"),           "panneau.etiq.spin"],
+ [$("volume"),               "panneau.etiq.volume"],
+ [$("volume-musique"),       "panneau.etiq.musique"],
+ [$("mode-acces"),           "panneau.etiq.acces"],
+ [$("anecdotes"),            "panneau.etiq.lumen"],
+ [$("taille-sondes"),        "panneau.etiq.taille"],
+ [$("b-missions").parentElement, "panneau.etiq.guide"],
+].forEach(([e, cle]) => {
+  const etiq = e && e.previousElementSibling;
+  if(etiq && etiq.classList.contains("etiq")) etiq.textContent = T(cle);
+});
+// Le dossier de méthode.
+$("dossier").querySelector("h2").textContent = T("dossier.titre");
+$("dossier").querySelector(".chapeau").textContent = T("dossier.chapeau");
+
 $("in-titre").textContent  = T("tele.titre");
 $("in-sous").textContent   = T("tele.sous");
 $("in-fermer").textContent = T("tele.fermer");
@@ -3156,6 +3232,23 @@ $("b-traj").onclick   = () => {
    passage obligé par la bascule, qu'appellent aussi le télescope et `b-sonde`. */
 $("b-salon").onclick = () => {
   salon.actif = !salon.actif;
+  /* Quitter le salon annule le voyage en cours.
+
+     `majVoyage` n'est appelée que depuis la branche du salon : en sortir
+     pendant un trajet le laissait armé pour toujours, sans jamais avancer, et
+     la carte des étoiles restait figée à l'opacité qu'elle avait — le fondu de
+     retrait ne s'exécutant que lorsqu'aucun trajet n'est en cours. On ne
+     pouvait plus ni arriver ni revenir.
+
+     C'est le genre d'état mort que la soupe de drapeaux rend possible, et que
+     l'état de lieu unique du chantier F1 rendra impossible à écrire. */
+  if(!salon.actif && TELESCOPE.trajet){
+    TELESCOPE.trajet = null;
+    TELESCOPE.retour = false;
+    RECUL.etat.actif = false;
+    fermeTelescope();
+    $("chrono").classList.remove("vu");
+  }
   if(!salon.actif && document.exitPointerLock) document.exitPointerLock();
   $("b-salon").classList.toggle("actif", salon.actif);
   $("b-salon").textContent = T(salon.actif ? "dock.salon.quitter" : "dock.salon");
@@ -3320,11 +3413,10 @@ function poseEtude(){
   const boitier = $("etude-spin");
   SPINS.forEach(([nom, v, note], i) => {
     const b = document.createElement("button");
-    b.textContent = nom;
+    b.textContent = T(nom);
     b.onclick = () => {
       spin = v;
-      $("etude-note").textContent = note
-        + (v > 0 ? " Une fine couture apparaît sur l'axe : c'est la singularité de coordonnées, pas un défaut de calcul." : "");
+      $("etude-note").textContent = noteSpin(note, v);
       [...boitier.children].forEach((c, j) => c.classList.toggle("actif", j === i));
       // les deux réglages commandent la même grandeur : ils doivent s'accorder
       [...boitierSpin.children].forEach((c, j) => c.classList.toggle("actif", j === i));
@@ -3545,12 +3637,16 @@ function arriveVoyage(){
     poseSalon();
     return;
   }
-  poseArrivee(T, v);
+  poseArrivee(v);
 }
 
 /* À l'arrivée, l'instrument reprend la main — puisque c'est lui qui montre.
-   Le panneau dit ce qu'on regarde, ce que ça a coûté, et propose de rentrer. */
-function poseArrivee(T, v){
+   Le panneau dit ce qu'on regarde, ce que ça a coûté, et propose de rentrer.
+
+   Le paramètre s'appelait `T`, et il masquait la fonction de traduction dans
+   tout ce corps. Il recevait la fonction elle-même, donc rien ne cassait — mais
+   c'était un piège armé pour la prochaine main. */
+function poseArrivee(v){
   $("in-titre").textContent = T("tele.titre");
   $("in-sous").textContent  = T("tele.arrive.sous");
   const liste = $("in-liste");
@@ -3643,22 +3739,17 @@ $("b-reel").onclick = () => {
 // Le réglage du temps était enterré dans les paramètres alors que c'est un des
 // gestes les plus parlants du site. Il passe dans la barre, avec sa conséquence
 // écrite noir sur blanc plutôt qu'un multiplicateur abstrait.
-const CONSEQUENCE = [
-  "Rien ne bouge, ou presque. C'est l'échelle réelle : la lumière met 11 min 31 s pour un tour d'anneau.",
-  "Une minute par seconde. Le disque commence à peine à tourner.",
-  "Dix minutes par seconde. Le gaz interne défile, le bord externe rampe encore.",
-  "Une heure par seconde. Le bord externe boucle son orbite en quelques secondes — quatre heures en vrai.",
-];
+const CONSEQUENCE = ["temps.note0", "temps.note1", "temps.note2", "temps.note3"];
 
 const boitierV = $("vitesses");
 VITESSES.forEach((v, i) => {
   const b = document.createElement("button");
-  b.textContent = v.nom;
+  b.textContent = T(v.nom);
   b.onclick = () => {
     iVitesse = i;
     [...boitierV.children].forEach((c, j) => c.classList.toggle("actif", j === i));
-    $("tp-val").textContent = v.nom;
-    $("tp-note").textContent = CONSEQUENCE[i];
+    $("tp-val").textContent = T(v.nom);
+    $("tp-note").textContent = T(CONSEQUENCE[i]);
     reagit("vitesse" + i);
   };
   boitierV.appendChild(b);
@@ -3671,8 +3762,8 @@ $("b-temps").onclick = () => {
     $("spectre").classList.remove("vu");
     $("b-spectre").classList.remove("actif");
     spectreActif = false;
-    $("tp-val").textContent = VITESSES[iVitesse].nom;
-    $("tp-note").textContent = CONSEQUENCE[iVitesse];
+    $("tp-val").textContent = T(VITESSES[iVitesse].nom);
+    $("tp-note").textContent = T(CONSEQUENCE[iVitesse]);
     [...boitierV.children].forEach((c, j) => c.classList.toggle("actif", j === iVitesse));
   }
 };
@@ -3993,7 +4084,7 @@ $("rouage").onclick = () => {
 $("b-cours").onclick = () => {
   const r = $("fiches").classList.toggle("replie");
   $("b-cours").textContent = r ? "▸" : "▾";
-  $("b-cours").title = r ? "Afficher le cours" : "Replier le cours";
+  $("b-cours").title = T(r ? "titre.cours.montrer" : "titre.cours.replier");
 };
 
 addEventListener("keydown", e => {
@@ -4003,21 +4094,27 @@ addEventListener("keydown", e => {
   else if(k === "p") lancePhoton();
   else if(k === "t") $("b-traj").click();
   else if(k === "r") $("b-vide").click();
-  // la touche « v » menait à la vue embarquée, retirée de la bêta
+  // la touche « v » bascule la première et la troisième personne, mais au
+  // salon seulement : elle est traitée avec les touches du jeu, plus haut
   else if(k === "escape" && !$("voile").classList.contains("vu")) $("rouage").click();
 });
 
 // ---- lecture chiffrée ----
+/* Une durée courte. Les suffixes « s », « min », « h » s'écrivent de la même
+   façon dans les deux langues — c'est la DÉCIMALE qui change, et elle passe
+   donc par `virgule()` plutôt que par un `replace` codé en dur. Le nom reste
+   `tempsFr` : il est appelé de six endroits et le renommer n'apprend rien. */
 function tempsFr(s){
-  if(s < 90) return s.toFixed(s < 10 ? 1 : 0).replace(".", ",") + " s";
+  if(s < 90) return virgule(s.toFixed(s < 10 ? 1 : 0)) + " s";
   const m = Math.floor(s/60);
   if(m < 90) return m + " min " + String(Math.round(s%60)).padStart(2,"0") + " s";
   const h = Math.floor(m/60);
   return h + " h " + String(m%60).padStart(2,"0") + " min";
 }
-// Le pluriel français part de deux : « 1,80 tour », mais « 2,00 tours ».
+// Le pluriel part de deux en français comme en anglais : « 1,80 tour », mais
+// « 2,00 tours ». Le mot vient des chaînes, le seuil reste ici.
 function tours(n){
-  return n.toFixed(2).replace(".", ",") + " tour" + (n >= 2 ? "s" : "");
+  return virgule(n.toFixed(2)) + " " + T(n >= 2 ? "lecture.tour.pl" : "lecture.tour.un");
 }
 
 function majLecture(){
@@ -4027,15 +4124,15 @@ function majLecture(){
     const sec = f.temps * SEC_PAR_UNITE;
     const km  = f.temps * KM_PAR_UNITE;
     el.innerHTML =
-      // Le pluriel s'accorde, et la décimale est une virgule : le bandeau
+      // Le pluriel s'accorde, et la décimale suit la langue : le bandeau
       // affichait « 2.31 tour », fautif deux fois.
-      `<span class="gros">${tempsFr(sec)}</span> de vol · ${tours(f.angle/6.2832)}` +
-      `<span class="note">${(km/1e6).toFixed(1)} millions de km parcourus à la vitesse de la lumière.</span>`;
+      `<span class="gros">${tempsFr(sec)}</span> ` +
+      remplit("lecture.vol", { n: tours(f.angle/6.2832) }) +
+      `<span class="note">${remplit("lecture.km", { x: virgule((km/1e6).toFixed(1)) })}</span>`;
   } else {
     el.innerHTML =
-      `<span class="gros">11 min 31 s</span> par tour d'anneau` +
-      `<span class="note">C'est le temps, chronométré d'ici, que met un photon pour boucler la ` +
-      `sphère des photons : 6√3·πGM/c³. Il est déjà 15 min plus vieux quand il t'arrive.</span>`;
+      `<span class="gros">11 min 31 s</span> ${T("lecture.tour")}` +
+      `<span class="note">${T("lecture.note")}</span>`;
   }
 }
 
@@ -4213,7 +4310,7 @@ function dit(o, duree, avant, prioritaire){
   if(typeof o === "object" && (o.pourquoi || (o.sources && o.sources.length))){
     const b = document.createElement("button");
     b.className = "justif";
-    b.textContent = "d'où ça sort ?";
+    b.textContent = T("lumen.justif");
     b.onclick = e => {
       e.stopPropagation();
       const j = justification(o);
@@ -4285,7 +4382,7 @@ function reagit(cle, doux){
 
 function ouvreQuestions(){
   tais();
-  elBulleTxt.innerHTML = "Vas-y, demande :";
+  elBulleTxt.innerHTML = T("lumen.questions");
   QUESTIONS.forEach(q => {
     const b = document.createElement("button");
     b.className = "q";
@@ -4346,21 +4443,25 @@ const boitierLangue = $("langue-choix");
   boitierLangue.appendChild(b);
 });
 
+/* Les quatre hypothèses de rotation. La grille porte des CLÉS, pas des mots :
+   les mêmes quatre lignes servent aux réglages et au trou noir d'étude, et
+   traduire deux fois le même libellé finit toujours par en oublier un. */
 const SPINS = [
-  ["aucune", 0, "Cas de référence, non une mesure : l'ombre est un cercle parfait et l'image est sans défaut."],
-  ["modérée", 0.6, "Hypothèse. L'ombre se décentre du côté où la rotation vient vers toi."],
-  ["rapide", 0.9, "Hypothèse. L'asymétrie de l'ombre, mesurée dans notre propre calcul, vaut 2,30 rayons d'un côté contre 2,40 de l'autre."],
-  ["extrême", 0.95, "Hypothèse haute, proche de la limite de Thorne. C'est la forme de Gargantua."],
+  ["panneau.spin.aucune",  0,    "panneau.spin.aucune.note"],
+  ["panneau.spin.moderee", 0.6,  "panneau.spin.moderee.note"],
+  ["panneau.spin.rapide",  0.9,  "panneau.spin.rapide.note"],
+  ["panneau.spin.extreme", 0.95, "panneau.spin.extreme.note"],
 ];
+// La couture n'apparaît que si le spin est non nul : elle s'ajoute à la note.
+const noteSpin = (cle, v) => T(cle) + (v > 0 ? T("panneau.spin.couture") : "");
 
 const boitierSpin = $("spin-choix");
 SPINS.forEach(([nom, v, note], i) => {
   const b = document.createElement("button");
-  b.textContent = nom;
+  b.textContent = T(nom);
   b.onclick = () => {
     spin = v;
-    $("spin-note").textContent = note
-      + (v > 0 ? " Une fine couture apparaît sur l'axe : c'est la singularité de coordonnées, pas un défaut de calcul." : "");
+    $("spin-note").textContent = noteSpin(note, v);
     [...boitierSpin.children].forEach((c, j) => c.classList.toggle("actif", j === i));
     sauve();
   };
@@ -4369,9 +4470,10 @@ SPINS.forEach(([nom, v, note], i) => {
 boitierSpin.children[0].classList.add("actif");
 
 const boitierVol = $("volume");
-[["discret", 0.28], ["normal", 0.5], ["fort", 0.75], ["très fort", 1.0]].forEach(([nom, v], i) => {
+[["panneau.volume.discret", 0.28], ["panneau.volume.normal", 0.5],
+ ["panneau.volume.fort", 0.75], ["panneau.volume.tresfort", 1.0]].forEach(([cle, v], i) => {
   const b = document.createElement("button");
-  b.textContent = nom;
+  b.textContent = T(cle);
   b.onclick = () => {
     volumeVoix = v;
     if(audio) audio.volume = v;
@@ -4387,10 +4489,11 @@ boitierVol.children[0].classList.add("actif");
    laissait le choix qu'entre le subir et s'en priver. Le premier cran coupe
    vraiment — c'est ce qui compte le plus. */
 const boitierMus = $("volume-musique");
-[["silence", 0], ["discret", 0.09], ["présent", 0.18], ["fort", 0.30]]
-.forEach(([nom, v], i) => {
+[["panneau.musique.silence", 0], ["panneau.musique.discret", 0.09],
+ ["panneau.musique.present", 0.18], ["panneau.musique.fort", 0.30]]
+.forEach(([cle, v], i) => {
   const b = document.createElement("button");
-  b.textContent = nom;
+  b.textContent = T(cle);
   b.onclick = () => {
     volumeMusique = v;
     if(v > 0){ MUSIQUE.demarre(); MUSIQUE.regleVolume(v); } else MUSIQUE.arrete();
@@ -4407,9 +4510,9 @@ boitierMus.children[iMus >= 0 ? iMus : 1].classList.add("actif");
    par défaut n'est pas neutre : proposer le raccourci d'emblée revient à dire
    que le lieu est un obstacle. */
 const boitierAcces = $("mode-acces");
-[["les objets", false], ["la barre", true]].forEach(([nom, v], i) => {
+[["panneau.acces.objets", false], ["panneau.acces.barre", true]].forEach(([cle, v], i) => {
   const b = document.createElement("button");
-  b.textContent = nom;
+  b.textContent = T(cle);
   b.onclick = () => {
     modeBoutons = v;
     document.body.classList.toggle("mode-boutons", v);
@@ -4427,10 +4530,11 @@ document.body.classList.toggle("mode-boutons", modeBoutons);
    avatar restait dans le coin, et l'on ne pouvait plus s'en défaire. Un
    compagnon dont on ne peut pas se débarrasser cesse d'être un compagnon. */
 const boitierA = $("anecdotes");
-[["bavard", 30000], ["mesuré", 60000], ["discret", 180000],
- ["silencieux", 0], ["absent", -1]].forEach(([nom, ms], i) => {
+[["panneau.lumen.bavard", 30000], ["panneau.lumen.mesure", 60000],
+ ["panneau.lumen.discret", 180000], ["panneau.lumen.silencieux", 0],
+ ["panneau.lumen.absent", -1]].forEach(([cle, ms], i) => {
   const b = document.createElement("button");
-  b.textContent = nom;
+  b.textContent = T(cle);
   b.onclick = () => {
     mascotte = ms >= 0;
     intervalleAnecdote = Math.max(0, ms);
@@ -4446,7 +4550,7 @@ const boitierA = $("anecdotes");
 function majBoutonVoix(){
   [...boitierVoix.children].forEach((c, i) => c.classList.toggle("actif", voixActive && i === iVoix));
   $("b-voix").textContent = voixActive ? "🔊" : "🔇";
-  $("b-voix").title = voixActive ? "Couper la voix" : "Activer la voix";
+  $("b-voix").title = T(voixActive ? "lumen.voix.couper" : "lumen.voix.activer");
 }
 
 $("lumen-corps").onclick = () => questionsOuvertes ? fermeBulle() : ouvreQuestions();
@@ -4581,7 +4685,7 @@ function dessineSED(){
   grc.font = "9px -apple-system, Segoe UI, sans-serif";
   grc.fillStyle = "#6d6885";
   grc.textAlign = "left";  grc.fillText("γ", 2, H - 1);
-  grc.textAlign = "right"; grc.fillText("radio", W - 2, H - 1);
+  grc.textAlign = "right"; grc.fillText(T("spectre.axe.radio"), W - 2, H - 1);
   grc.textAlign = "center"; grc.fillText("νLν", W/2, 9);
 }
 
@@ -4613,10 +4717,10 @@ $("sp-regle").oninput = e => { lgLambda = parseFloat(e.target.value); majSpectre
 let leconSpectreVue = false;
 
 function leconSpectre(){
-  $("sp-bande").textContent = "Le spectre électromagnétique";
+  $("sp-bande").textContent = T("spectre.lecon.titre");
   $("sp-lambda").textContent = "";
   $("sp-note").innerHTML = resous(SPECTRE.lecon) +
-    `<div style="margin-top:13px"><button id="sp-compris">J'ai compris, ouvre l'outil</button></div>`;
+    `<div style="margin-top:13px"><button id="sp-compris">${T("spectre.lecon.compris")}</button></div>`;
   gr.style.display = "none";
   $("sp-regle").style.display = "none";
   $("sp-reperes").style.display = "none";
@@ -4740,7 +4844,7 @@ function majQuete(){
   if(!queteActive || iQuete >= QUETE.length){ el.classList.add("parti"); return; }
   const q = QUETE[iQuete];
   el.classList.remove("parti");
-  $("q-num").textContent = `${iQuete+1} sur ${QUETE.length}`;
+  $("q-num").textContent = remplit("quete.num", { n:iQuete+1, total:QUETE.length });
   $("q-titre").textContent = q.titre;
   $("q-consigne").innerHTML = q.consigne;
   $("q-jauge").innerHTML = QUETE.map((_, i) =>
@@ -4776,7 +4880,7 @@ function veilleQuete(now){
   MUSIQUE.frappe(q.id === "a-baie" ? 1 : 0.45);
   const el = $("quete");
   el.classList.add("fini");
-  $("q-titre").textContent = "Bien";
+  $("q-titre").textContent = T("quete.bien");
   $("q-jauge").innerHTML = QUETE.map(() => `<i class="ok"></i>`).join("");
   dit(q.reussi, 13000, "", true);
 }
@@ -4823,7 +4927,7 @@ function majMission(){
   }
   const m = MISSIONS[iMission];
   el.classList.remove("parti");
-  $("m-num").textContent = `Mission ${iMission+1} sur ${MISSIONS.length}`;
+  $("m-num").textContent = remplit("mission.num", { n:iMission+1, total:MISSIONS.length });
   $("m-titre").textContent = m.titre;
   $("m-consigne").innerHTML = m.consigne;
   $("m-jauge").innerHTML = MISSIONS.map((_, i) =>
@@ -4848,7 +4952,7 @@ function veilleMission(now){
     tMission = now;
     acquis.add(m.id); sauve();
     $("mission").classList.add("fini");
-    $("m-num").textContent = "Réussi";
+    $("m-num").textContent = T("mission.reussi");
     $("m-consigne").innerHTML = "";
     $("m-jauge").innerHTML = MISSIONS.map((_, i) =>
       `<i class="${i <= iMission ? "ok" : ""}"></i>`).join("");
@@ -4890,7 +4994,7 @@ const MISE_EN_PLACE = {
     // Le cours reste replié : proposé, jamais imposé. Personne n'a envie
     // d'arriver devant un pavé de texte.
     $("fiches").classList.add("replie");
-    $("b-cours").textContent = "Cours ▸";
+    $("b-cours").textContent = T("titre.cours");
   },
   jumeaux(){
     missionsActives = true;
@@ -4955,7 +5059,7 @@ function poseAccueil(nu){
 // derrière, autant le laisser parler avant d'expliquer quoi que ce soit.
 function intro(){
   poseAccueil(true);
-  elTitre.textContent = "Périastre";
+  elTitre.textContent = T("accueil.titre");
   elChapo.innerHTML = CONTENU.accueil.bienvenue.t;
   // On demande avant de parler. Une voix qui démarre toute seule, c'est
   // désagréable, et ça se coupe toujours trop tard.
@@ -4963,8 +5067,8 @@ function intro(){
   rangee.id = "acc-actions";
   rangee.style.justifyContent = "center";
   rangee.innerHTML =
-    `<button id="acc-go">🔊 Entrer, avec la voix de Lumen</button>
-     <button id="acc-muet">Entrer en silence</button>`;
+    `<button id="acc-go">${T("accueil.entrer.voix")}</button>
+     <button id="acc-muet">${T("accueil.entrer.muet")}</button>`;
   elCartes.appendChild(rangee);
   elCartes.style.gridTemplateColumns = "1fr";
   elCartes.style.justifyItems = "center";
@@ -5077,9 +5181,8 @@ function avertitSonIOS(){
   n.className = "avis-son";
   // Le texte est enveloppé : sans cette balise, la disposition en boîte
   // flexible fait de chaque nœud une colonne, et le gras part en escalier.
-  n.innerHTML = `<span>Si tu n'entends rien : le <b>petit interrupteur</b> sur la
-                 tranche de l'iPhone coupe aussi le son des pages web.</span>
-                 <button type="button">J'ai compris</button>`;
+  n.innerHTML = `<span>${T("msg.ios.texte")}</span>
+                 <button type="button">${T("msg.ios.compris")}</button>`;
   const ferme = () => {
     n.remove();
     try { localStorage.setItem("periastre.avisSon", "1"); } catch(_){}
@@ -5094,7 +5197,7 @@ function avertitSonIOS(){
 function niveauDemande(){
   poseAccueil(false);
   elCartes.style.justifyItems = "";
-  elTitre.textContent = "Où en es-tu ?";
+  elTitre.textContent = T("accueil.niveau.titre");
   elChapo.innerHTML = CONTENU.accueil.niveau.t;
   parle(CONTENU.accueil.niveau);
   elCartes.style.gridTemplateColumns = "1fr";
@@ -5127,8 +5230,8 @@ function niveauDemande(){
 function departDemande(){
   poseAccueil(false);
   elCartes.style.justifyItems = "";
-  elTitre.textContent = "Par où veux-tu commencer ?";
-  elChapo.innerHTML = "Tu pourras changer à tout moment. Ce n'est qu'une porte d'entrée.";
+  elTitre.textContent = T("accueil.depart.titre");
+  elChapo.innerHTML = T("accueil.depart.chapo");
   elCartes.style.gridTemplateColumns = "1fr";
 
   const porte = (titre, detail, action) => {
@@ -5146,31 +5249,27 @@ function departDemande(){
     elCartes.appendChild(c);
   };
 
-  porte("Regarder le trou noir",
-        "La vue libre, autour de l'astre. On tourne, on zoome, on lance des sondes. "
-        + "Le plus léger, et ce qui marche le mieux sur téléphone.",
+  porte(T("accueil.porte.libre.titre"), T("accueil.porte.libre.detail"),
         () => {});
 
-  porte("Monter à bord",
-        "Le salon d'un vaisseau en orbite, avec une baie vitrée. On s'y déplace à pied, "
-        + "on parle au robot de bord, on règle la vitesse du temps au mur. "
-        + "Plus gourmand — mieux vaut un ordinateur.",
+  porte(T("accueil.porte.salon.titre"), T("accueil.porte.salon.detail"),
         () => { if(!salon.actif) $("b-salon").click(); });
 
-  porte("Apprendre, guidé",
-        "Huit missions, une chose à comprendre par mission. On n'a besoin de rien savoir "
-        + "d'avance, et la première dure trois minutes.",
+  porte(T("accueil.porte.missions.titre"), T("accueil.porte.missions.detail"),
         () => menu());
 }
 
 function menu(){
   poseAccueil(false);
   elCartes.style.justifyItems = "";
-  elTitre.textContent = "Périastre";
+  elTitre.textContent = T("accueil.titre");
   const n = acquis.size;
+  /* Le pluriel n'est plus recousu dans la phrase : chaque langue apporte ses
+     deux phrases entières, et la troisième apportera les siennes. */
   elChapo.innerHTML = n
-    ? `Tu as déjà compris <b>${n}</b> chose${n>1?"s":""} sur ${MISSIONS.length}. On continue ?`
-    : "Le point d'une orbite où l'on passe au plus près. Choisis par quoi commencer.";
+    ? remplit(n > 1 ? "accueil.reprise" : "accueil.reprise.un",
+              { n, total:MISSIONS.length })
+    : T("accueil.chapo");
   EXPERIENCES.forEach(x => {
     const c = document.createElement("div");
     c.className = "carte";
@@ -5186,7 +5285,7 @@ function menu(){
        border-radius:50%;background:${acquis.has(m.id) ? "#6effb4" : "rgba(255,255,255,.15)"}"></span>`
     ).join("") +
     `<div style="margin-top:11px"><button id="acc-oubli" style="font-size:10.5px;padding:5px 11px">
-       Tout recommencer</button></div>`;
+       ${T("accueil.oubli")}</button></div>`;
     elCartes.appendChild(p);
     p.querySelector("#acc-oubli").onclick = () => { oublie(); majMission(); menu(); };
   }
@@ -5199,8 +5298,8 @@ function detail(x){
        <h2>${x.titre}</h2>
        <p>${x.quoi}</p>
        <div id="acc-actions">
-         <button id="acc-go">Commencer</button>
-         <button id="acc-retour">Retour</button>
+         <button id="acc-go">${T("accueil.commencer")}</button>
+         <button id="acc-retour">${T("accueil.retour")}</button>
        </div>
      </div>`;
   elCartes.style.gridTemplateColumns = "1fr";
@@ -5334,39 +5433,42 @@ function orbiteTient(r){
   return true;
 }
 
+/* Les quatre essais. `nom`, `quoi` et `attendu` sont des CLÉS : la valeur
+   attendue porte une décimale écrite dans la chaîne (« 3M = 1,5 »), et c'est
+   bien une traduction qu'il lui faut, pas un formateur. */
 const ESSAIS = [
 {
-  nom: "Sphère des photons",
-  quoi: "Rayon de l'orbite circulaire de la lumière",
+  nom: "banc.essai.photon.nom",
+  quoi: "banc.essai.photon.quoi",
   theorie: 1.5, unite: " r<sub>s</sub>",
-  attendu: "3M = 1,5",
+  attendu: "banc.essai.photon.attendu",
   mesure(){
     // en frôlant le seuil de capture, le rayon s'enroule sur la sphère des photons
     return tirePhoton(bisecteCapture()*(1 + 1e-9)).rmin;
   }
 },
 {
-  nom: "Rayon de l'ombre",
-  quoi: "Paramètre d'impact critique de capture",
+  nom: "banc.essai.ombre.nom",
+  quoi: "banc.essai.ombre.quoi",
   theorie: Math.sqrt(27)*M, unite: " r<sub>s</sub>",
-  attendu: "√27·M ≈ 2,598",
+  attendu: "banc.essai.ombre.attendu",
   mesure: () => bisecteCapture(),
 },
 {
-  nom: "Déflexion de la lumière",
-  quoi: "Déviation d'un rayon rasant à b = 1000",
+  nom: "banc.essai.deflexion.nom",
+  quoi: "banc.essai.deflexion.quoi",
   theorie: 4*M/1000, unite: " rad", chiffres: 6,
-  attendu: "4M/b = 0,002",
+  attendu: "banc.essai.deflexion.attendu",
   mesure(){
     const t = tirePhoton(1000, 400000);
     return Math.acos(Math.min(1, dot(norm(t.d), [0,0,1])));
   }
 },
 {
-  nom: "Dernière orbite stable",
-  quoi: "En deçà, aucune orbite de matière ne tient",
+  nom: "banc.essai.isco.nom",
+  quoi: "banc.essai.isco.quoi",
   theorie: 6*M, unite: " r<sub>s</sub>",
-  attendu: "6M = 3",
+  attendu: "banc.essai.isco.attendu",
   mesure(){
     let bas = 2.2, haut = 5.0;
     for(let i = 0; i < 18; i++){
@@ -5387,17 +5489,20 @@ function bisecteCapture(){
   return (bas + haut)/2;
 }
 
-const nb = (x, n) => x.toLocaleString("fr-FR", { minimumFractionDigits:n, maximumFractionDigits:n });
+// Les chiffres du banc suivent la langue comme le reste : `millier` est déclaré
+// tout en haut, avec `T`.
+const nb = (x, n) => millier(x, n);
 
 $("b-lancer").onclick = () => {
   const zone = $("essais"), bouton = $("b-lancer");
   bouton.disabled = true;
-  bouton.textContent = "Calcul en cours…";
+  bouton.textContent = T("banc.calcul");
   zone.innerHTML = "";
 
   const t = document.createElement("table");
   t.className = "essais";
-  t.innerHTML = `<thead><tr><th>Grandeur</th><th>Théorie</th><th>Mesuré ici</th><th>Écart</th></tr></thead><tbody></tbody>`;
+  t.innerHTML = `<thead><tr><th>${T("banc.col.grandeur")}</th><th>${T("banc.col.theorie")}</th>` +
+                `<th>${T("banc.col.mesure")}</th><th>${T("banc.col.ecart")}</th></tr></thead><tbody></tbody>`;
   zone.appendChild(t);
   const corps = t.querySelector("tbody");
 
@@ -5407,32 +5512,27 @@ $("b-lancer").onclick = () => {
     if(i >= ESSAIS.length){
       const p = document.createElement("p");
       p.className = "apres";
-      p.innerHTML =
-        `Calculé en ${nb((performance.now()-t0)/1000, 1)} s dans ton navigateur, avec l'équation ` +
-        `qui dessine l'image ci-derrière. Aucune de ces quatre valeurs n'est écrite dans le code : ` +
-        `ce sont des <b>sorties</b>.` +
-        `<br><br>Sur la déflexion, l'écart résiduel n'est pas une erreur : ` +
-        `<code>4M/b</code> n'est que le premier ordre. Le terme suivant vaut ` +
-        `<code>15πM²/4b² = ${nb(15*Math.PI*M*M/(4*1e6), 8)}</code>, soit précisément le décalage mesuré — ` +
-        `l'intégration est plus juste que la formule de référence.` +
-        `<br><br>Et Newton, lui, prédisait <b>${nb(2*M/1000, 6)} rad</b> : exactement la moitié. ` +
-        `C'est ce facteur 2 qu'Eddington est allé mesurer en 1919.`;
+      p.innerHTML = remplit("banc.apres", {
+        t: nb((performance.now()-t0)/1000, 1),
+        x: nb(15*Math.PI*M*M/(4*1e6), 8),
+        y: nb(2*M/1000, 6),
+      });
       zone.appendChild(p);
       bouton.disabled = false;
-      bouton.textContent = "Relancer la vérification";
+      bouton.textContent = T("banc.relancer");
       return;
     }
     const e = ESSAIS[i++];
     const tr = document.createElement("tr");
-    tr.innerHTML = `<td><b>${e.nom}</b><br><span style="color:var(--sourd);font-size:11px">${e.quoi}</span></td>
-                    <td class="th">${e.attendu}</td><td class="num">…</td><td>…</td>`;
+    tr.innerHTML = `<td><b>${T(e.nom)}</b><br><span style="color:var(--sourd);font-size:11px">${T(e.quoi)}</span></td>
+                    <td class="th">${T(e.attendu)}</td><td class="num">…</td><td>…</td>`;
     corps.appendChild(tr);
 
     setTimeout(() => {
       const v = e.mesure();
       const ecart = Math.abs(v - e.theorie) / Math.abs(e.theorie);
       const c = ecart < 0.005 ? "ok" : ecart < 0.03 ? "bof" : "non";
-      const mot = c === "ok" ? "conforme" : c === "bof" ? "proche" : "écart";
+      const mot = T("banc.verdict." + c);
       tr.children[2].innerHTML = nb(v, e.chiffres || 4) + e.unite;
       tr.children[3].innerHTML = `<span class="verdict ${c}">${nb(ecart*100, 2)} % · ${mot}</span>`;
       suivant();
@@ -5553,7 +5653,7 @@ function projetteSalon(p, M){
 function tempsDepuis(iso){
   const s = Math.max(0, (Date.now() - Date.parse(iso))/1000);
   const j = Math.floor(s/86400), h = Math.floor(s%86400/3600), mn = Math.floor(s%3600/60);
-  return j ? `${j} j ${h} h ${mn} min` : `${h} h ${mn} min`;
+  return j ? `${j} ${T("u.jourCourt")} ${h} h ${mn} min` : `${h} h ${mn} min`;
 }
 
 // Écran plaqué sur une paroi. Un vrai écran dans une pièce sombre n'est pas un
@@ -5687,14 +5787,14 @@ function dessineEcrans(){
   // --- écran de gauche : où sommes-nous ---
   ecran(M, [[g0,y1,z], [g1,y1,z], [g1,y0,z], [g0,y0,z]], () => {
     local();
-    titre("POSITION");
+    titre(T("salon.ecran.position"));
 
     ctx.fillStyle = "#dce6f5"; ctx.font = "22px KaTeX_Main, Georgia, serif";
     ctx.fillText(D.nom, MG, 68);
     ctx.fillStyle = "#5f7ba8"; ctx.font = "9.5px ui-monospace, monospace";
-    ctx.fillText("ORBITE EXCENTRIQUE", MG, 86);
+    ctx.fillText(T("salon.ecran.orbite"), MG, 86);
     ctx.fillStyle = "#9fd4ff"; ctx.font = "13px ui-monospace, monospace";
-    ctx.fillText(len(salon.p).toFixed(1).replace(".", ",") + " r\u209B", MG, 106);
+    ctx.fillText(virgule(len(salon.p).toFixed(1)) + " r\u209B", MG, 106);
 
     // Schéma d'orbite vu de dessus. L'ombre au centre, l'orbite en pointillé,
     // le vaisseau qui avance pour de bon.
@@ -5729,7 +5829,7 @@ function dessineEcrans(){
     ctx.beginPath(); ctx.arc(vx, vy, 3.6, 0, 6.2832); ctx.fill();
     ctx.fillStyle = "#5f7ba8"; ctx.font = "8px ui-monospace, monospace";
     ctx.textAlign = "center";
-    ctx.fillText("NOUS", vx, vy - 9);
+    ctx.fillText(T("salon.ecran.nous"), vx, vy - 9);
   });
 
   /* L'aura de ce qu'il faut toucher.
@@ -5768,7 +5868,7 @@ function dessineEcrans(){
   // --- écran de droite : le temps, et l'aveu ---
   ecran(M, [[d0,y1,z], [d1,y1,z], [d1,y0,z], [d0,y0,z]], () => {
     local();
-    titre("TEMPS DE BORD");
+    titre(T("salon.ecran.temps"));
 
     const filet = y => {
       ctx.strokeStyle = "rgba(120,160,220,0.12)";
@@ -5780,7 +5880,7 @@ function dessineEcrans(){
     };
 
     ctx.textAlign = "left";
-    etiq("EN ORBITE ICI DEPUIS", 50);
+    etiq(T("salon.ecran.depuis"), 50);
     ctx.fillStyle = "#ff9d4d"; ctx.font = "20px ui-monospace, monospace";
     ctx.fillText(tempsDepuis(D.arrivee), MG, 72);
     filet(84);
@@ -5796,9 +5896,11 @@ function dessineEcrans(){
     const t0 = salon.t0 || Date.now();
     const dTerre = new Date(t0 + (salon.tTerre || 0)*1000);
     const dBord  = new Date(t0 + (salon.tBord  || 0)*1000);
-    const jour = d => d.toLocaleDateString("fr-FR",
+    /* Les deux horloges sont côte à côte et se comparent au caractère près :
+       elles prennent donc la MÊME convention, celle de la langue lue. */
+    const jour = d => d.toLocaleDateString(LOCALE(),
                         { day:"numeric", month:"short", year:"numeric" });
-    const heure = d => d.toLocaleTimeString("fr-FR");
+    const heure = d => d.toLocaleTimeString(LOCALE());
 
     const pendule = (nom, d, teinte, y) => {
       ctx.textAlign = "left"; ctx.fillStyle = teinte;
@@ -5809,17 +5911,19 @@ function dessineEcrans(){
       ctx.font = "15px ui-monospace, monospace"; ctx.fillText(heure(d), MG, y + 18);
     };
 
-    etiq("PENDANT CE TEMPS", 100);
-    pendule("SUR TERRE", dTerre, "#ffd08a", 116);
-    pendule("À BORD",    dBord,  "#7fd8ff", 152);
+    etiq(T("salon.ecran.pendant"), 100);
+    pendule(T("salon.ecran.terre"), dTerre, "#ffd08a", 116);
+    pendule(T("salon.ecran.bord"),  dBord,  "#7fd8ff", 152);
     filet(166);
 
     const retard = (salon.tTerre || 0) - (salon.tBord || 0);
     ctx.textAlign = "left"; ctx.fillStyle = "#4d6389";
     ctx.font = "8.5px -apple-system, sans-serif";
-    ctx.fillText(`Tu as pris ${tempsFr(retard)} de retard sur eux`
-                 + ` · ton horloge tourne à ${(cadence(len(salon.p))*100).toFixed(1)} %`, MG, 180);
-    ctx.fillText(`Mouvement accéléré ×${salon.facteur} pour qu'il se voie.`, MG, 193);
+    ctx.fillText(remplit("salon.ecran.retard", {
+      t: tempsFr(retard),
+      x: virgule((cadence(len(salon.p))*100).toFixed(1)),
+    }), MG, 180);
+    ctx.fillText(remplit("salon.ecran.accelere", { f: salon.facteur }), MG, 193);
   });
 }
 
@@ -5880,11 +5984,11 @@ function dessineCockpit(){
   // La marée disparaît quand elle est négligeable — un cadran qui affiche
   // toujours « négligeable » n'apprend rien et prend la place.
   const cadrans = [
-    ["ton temps s'écoule à", (tau*100).toFixed(1).replace(".", ",") + " %",  1 - tau],
-    ["ta vitesse",           v.toFixed(3).replace(".", ",") + " c",          v],
-    ["ton altitude",         r.toFixed(2).replace(".", ",") + " rₛ",    Math.min(1, 3/r)],
+    [T("cockpit.temps"),    virgule((tau*100).toFixed(1)) + " %",  1 - tau],
+    [T("cockpit.vitesse"),  virgule(v.toFixed(3)) + " c",          v],
+    [T("cockpit.altitude"), virgule(r.toFixed(2)) + " rₛ",    Math.min(1, 3/r)],
   ];
-  if(maree > 0.01) cadrans.push(["marée", maree.toFixed(3).replace(".", ","), Math.min(1, maree*20)]);
+  if(maree > 0.01) cadrans.push([T("cockpit.maree"), virgule(maree.toFixed(3)), Math.min(1, maree*20)]);
   const larg = Math.min(W/cadrans.length, m*0.34);
   const gauche = W/2 - larg*cadrans.length/2;
   cadrans.forEach(([nom, val, jauge], i) => {
@@ -5921,9 +6025,9 @@ function dessineCockpit(){
 
     ctx.font = `${(m*0.0135).toFixed(1)}px -apple-system, Segoe UI, sans-serif`;
     ctx.fillStyle = "#8f8aa6";
-    ctx.fillText("TOI, ICI", W/2 - dx, hy - m*0.028);
+    ctx.fillText(T("cockpit.toi"), W/2 - dx, hy - m*0.028);
     ctx.fillStyle = "#8f8aa6";
-    ctx.fillText("TON JUMEAU, RESTÉ LOIN", W/2 + dx, hy - m*0.028);
+    ctx.fillText(T("cockpit.jumeau"), W/2 + dx, hy - m*0.028);
 
     ctx.font = `500 ${(m*0.036).toFixed(1)}px ui-monospace, Consolas, monospace`;
     ctx.fillStyle = "#7fd8ff"; ctx.fillText(tempsFr(horloge.bord), W/2 - dx, hy + m*0.008);
@@ -5936,10 +6040,10 @@ function dessineCockpit(){
     ctx.font = `${(m*0.0155).toFixed(1)}px -apple-system, Segoe UI, sans-serif`;
     if(ecart > 20){
       ctx.fillStyle = "#ff9d4d";
-      ctx.fillText(`il a vieilli de ${tempsFr(ecart)} de plus que toi`, W/2, hy + m*0.048);
+      ctx.fillText(remplit("cockpit.ecart", { t: tempsFr(ecart) }), W/2, hy + m*0.048);
     } else {
       ctx.fillStyle = "#6a6580";
-      ctx.fillText("descends plus près, et regarde-les s'écarter", W/2, hy + m*0.048);
+      ctx.fillText(T("cockpit.invite"), W/2, hy + m*0.048);
     }
   }
   ctx.textAlign = "left";

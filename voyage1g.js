@@ -95,8 +95,14 @@ function nombre(x, d){
   const s = x.toFixed(d);
   return enAnglais() ? s : s.replace(".", ",");
 }
+/* La convention régionale vient des chaînes, elle n'est pas écrite ici.
+
+   Elle l'était — « en-US » en dur — alors que l'interface avait choisi
+   « en-GB ». Sans conséquence sur les nombres, où les deux s'accordent, mais
+   c'était deux sources d'autorité pour une seule décision : le jour où l'on
+   ajoute une date ou une troisième langue, elles divergent en silence. */
 function millier(x){
-  return Math.round(x).toLocaleString(enAnglais() ? "en-US" : "fr-FR");
+  return Math.round(x).toLocaleString(mot("locale", enAnglais() ? "en-GB" : "fr-FR"));
 }
 // Le pluriel part de deux en français comme en anglais pour ces unités-ci.
 const pluriel = (n, s) => n >= 2 ? s + mot("pluriel", "s") : s;

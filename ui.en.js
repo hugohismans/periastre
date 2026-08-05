@@ -15,9 +15,13 @@ Object.assign(window.UI, {
 
   // ---- units, read by voyage1g.js under the `u.` prefix ----
   "u.langue":              "en",
+  // British conventions: the rest of this file already spells "colours" and
+  // "centre", and a date must not read American in a British sentence.
+  "u.locale":              "en-GB",
   "u.pluriel":             "s",
   "u.an":                  "year",
   "u.jour":                "day",
+  "u.jourCourt":           "d",     // "1 d 3 h 8 min" on the narrow bridge dials
   "u.heure":               "h",
   "u.minute":              "min",
   "u.al":                  "light years",
@@ -109,4 +113,252 @@ Object.assign(window.UI, {
   "chrono.note":           "The ship holds one g. These are the durations it would really take.",
   "chrono.retour":         "Return",
   "chrono.retourRegistre": "Back to the black hole",
+
+  /* ==========================================================================
+     Everything below comes out of `index.html`, zone by zone, in the order a
+     visitor meets it. The braces `{…}` are holes the script fills: their names
+     do not translate, their ORDER may.
+
+     The site name stays "Périastre" on purpose — see CHAINES-UI.md, "À
+     trancher" #1. It is a proper noun until Hugo decides otherwise, and
+     deciding it here would have decided it everywhere.
+     ========================================================================== */
+
+  // ---- the document ----
+  "doc.titre":             "Périastre — an experience of spacetime",
+
+  // ---- the title and the left column ----
+  "titre.site":            "Périastre",
+  "titre.cours":           "Notes ▸",
+  "titre.cours.montrer":   "Show the notes",
+  "titre.cours.replier":   "Collapse the notes",
+  "titre.sous":            "Sagittarius A* — nothing you see behind this is really there.",
+
+  // ---- moving through the cards ----
+  "fiches.precedente":     "Previous card",
+  "fiches.suivante":       "Next card",
+
+  // ---- the counters, top right ----
+  "stats.orbite":          "in orbit",
+  "stats.figees":          "frozen",
+  "stats.echappees":       "escaped",
+  "stats.menu":            "← Menu",
+  "stats.reglages":        "Settings — Esc",
+
+  // ---- the time panel ----
+  "temps.titre":           "Speed of time",
+  "temps.v0":              "real time",
+  "temps.v1":              "1 min / s",
+  "temps.v2":              "10 min / s",
+  "temps.v3":              "1 h / s",
+  "temps.note0":
+    "Almost nothing moves. This is the real scale: light takes 11 min 31 s to " +
+    "go once round the ring.",
+  "temps.note1":           "One minute per second. The disk is barely starting to turn.",
+  "temps.note2":
+    "Ten minutes per second. The inner gas streams past; the outer edge still crawls.",
+  "temps.note3":
+    "One hour per second. The outer edge completes its orbit in a few seconds — " +
+    "four hours for real.",
+
+  // ---- the spectrum panel ----
+  "spectre.lecon.titre":   "The electromagnetic spectrum",
+  "spectre.lecon.compris": "Got it — open the tool",
+  "spectre.axe.radio":     "radio",
+
+  // ---- settings (the cog) ----
+  "panneau.etiq.affichage": "Display",
+  "panneau.etiq.voix":      "Lumen's voice",
+  "panneau.etiq.spin":      "Spin — not measured",
+  "panneau.etiq.volume":    "Voice volume",
+  "panneau.etiq.musique":   "Music and ambience",
+  "panneau.etiq.acces":     "Aboard the ship",
+  "panneau.etiq.lumen":     "Lumen, the guide",
+  "panneau.etiq.taille":    "Probe size",
+  "panneau.etiq.guide":     "Guide",
+
+  "panneau.missions":      "Missions",
+  "panneau.quete":         "Replay the introduction",
+  "panneau.methode":       "Why is this accurate?",
+
+  "panneau.spin.note":
+    "We don't know the spin of Sagittarius A*. These four values are " +
+    "hypotheses, not measurements.",
+  "panneau.spin.aucune":   "none",
+  "panneau.spin.aucune.note":
+    "Reference case, not a measurement: the shadow is a perfect circle and the " +
+    "image is free of artefacts.",
+  "panneau.spin.moderee":  "moderate",
+  "panneau.spin.moderee.note":
+    "Hypothesis. The shadow shifts off-centre, towards the side where the " +
+    "rotation is coming at you.",
+  "panneau.spin.rapide":   "fast",
+  "panneau.spin.rapide.note":
+    "Hypothesis. The asymmetry of the shadow, measured in our own calculation, " +
+    "comes to 2.30 radii on one side against 2.40 on the other.",
+  "panneau.spin.extreme":  "extreme",
+  "panneau.spin.extreme.note":
+    "High-end hypothesis, close to the Thorne limit. This is the shape of Gargantua.",
+  "panneau.spin.couture":
+    " A fine seam appears along the axis: that is the coordinate singularity, " +
+    "not a flaw in the calculation.",
+
+  "panneau.taille.minuscule": "barely visible",
+  "panneau.taille.normale":   "normal",
+  "panneau.taille.grosse":    "large",
+  "panneau.taille.enorme":    "huge",
+
+  "panneau.volume.discret":   "quiet",
+  "panneau.volume.normal":    "normal",
+  "panneau.volume.fort":      "loud",
+  "panneau.volume.tresfort":  "very loud",
+
+  "panneau.musique.silence":  "off",
+  "panneau.musique.discret":  "quiet",
+  "panneau.musique.present":  "present",
+  "panneau.musique.fort":     "loud",
+
+  "panneau.acces.objets":     "the objects",
+  "panneau.acces.barre":      "the bar",
+
+  "panneau.lumen.bavard":     "chatty",
+  "panneau.lumen.mesure":     "measured",
+  "panneau.lumen.discret":    "sparing",
+  "panneau.lumen.silencieux": "silent",
+  "panneau.lumen.absent":     "gone",
+
+  // ---- Lumen and the speech bubble ----
+  "lumen.parler":          "Talk to Lumen",
+  "lumen.voix.lire":       "Read aloud",
+  "lumen.fermer":          "Close",
+  "lumen.voix.couper":     "Mute the voice",
+  "lumen.voix.activer":    "Turn the voice on",
+  "lumen.justif":          "where's that from?",
+  "lumen.questions":       "Go ahead, ask:",
+
+  // ---- the opening quest ----
+  "quete.passer":          "Skip the introduction",
+  "quete.num":             "{n} of {total}",
+  "quete.bien":            "Good",
+
+  // ---- the missions panel ----
+  "mission.masquer":       "Hide the missions",
+  "mission.num":           "Mission {n} of {total}",
+  "mission.reussi":        "Done",
+
+  // ---- the opening screen and the menu ----
+  "accueil.titre":         "Périastre",
+  "accueil.entrer.voix":   "🔊 Enter, with Lumen's voice",
+  "accueil.entrer.muet":   "Enter in silence",
+  "accueil.niveau.titre":  "Where are you starting from?",
+  "accueil.depart.titre":  "Where do you want to start?",
+  "accueil.depart.chapo":  "You can change at any time. This is only a way in.",
+  "accueil.porte.libre.titre":  "Look at the black hole",
+  "accueil.porte.libre.detail":
+    "The free view, around the object. You turn, you zoom, you launch probes. " +
+    "The lightest option, and the one that works best on a phone.",
+  "accueil.porte.salon.titre":  "Come aboard",
+  "accueil.porte.salon.detail":
+    "The lounge of a ship in orbit, with a picture window. You move around on " +
+    "foot, you talk to the onboard robot, you set the speed of time on the " +
+    "wall. Heavier — better on a computer.",
+  "accueil.porte.missions.titre": "Learn, guided",
+  "accueil.porte.missions.detail":
+    "Eight missions, one thing to understand per mission. You need to know " +
+    "nothing in advance, and the first takes three minutes.",
+
+  "accueil.reprise.un":    "You've understood <b>{n}</b> thing out of {total}. Shall we go on?",
+  "accueil.reprise":       "You've understood <b>{n}</b> things out of {total}. Shall we go on?",
+  "accueil.chapo":         "The point of an orbit where you pass closest. Choose where to begin.",
+  "accueil.oubli":         "Start over",
+  "accueil.commencer":     "Begin",
+  "accueil.retour":        "Back",
+
+  // ---- the lounge: bridge screens and thumbstick ----
+  "salon.tourne":          "Turn your screen — the black hole is wide.",
+  "salon.manette.saut":    "jump",
+  "salon.ecran.position":  "POSITION",
+  "salon.ecran.orbite":    "ECCENTRIC ORBIT",
+  "salon.ecran.nous":      "US",
+  "salon.ecran.temps":     "SHIP TIME",
+  "salon.ecran.depuis":    "IN ORBIT HERE FOR",
+  "salon.ecran.pendant":   "MEANWHILE",
+  "salon.ecran.terre":     "ON EARTH",
+  "salon.ecran.bord":      "ABOARD",
+  "salon.ecran.retard":    "You have fallen {t} behind them · your clock runs at {x} %",
+  "salon.ecran.accelere":  "Motion sped up ×{f} so you can see it.",
+
+  // ---- messages and notices ----
+  "msg.figee":             "frozen at the horizon",
+  "msg.photonAvale":       "photon absorbed",
+  "msg.photonFuite":       "photon escaped",
+  "msg.copie.ok":          "Position copied. Paste the link into your report: it will reopen right here.",
+  "msg.copie.non":         "The browser refused the copy. The link is in the address bar.",
+  "msg.ios.texte":
+    "If you can't hear anything: the <b>little switch</b> on the side of the " +
+    "iPhone mutes web pages too.",
+  "msg.ios.compris":       "Got it",
+  "msg.webgl":             "Your browser does not support WebGL2.",
+
+  // ---- the figures banner ----
+  "lecture.vol":           "in flight · {n}",
+  "lecture.tour.un":       "turn",
+  "lecture.tour.pl":       "turns",
+  "lecture.km":            "{x} million km covered at the speed of light.",
+  "lecture.tour":          "per lap of the ring",
+  "lecture.note":
+    "That is the time, clocked from here, a photon takes to go once round the " +
+    "photon sphere: 6√3·πGM/c³. It is already 15 min older by the time it reaches you.",
+
+  // ---- the probe cockpit ----
+  "cockpit.temps":         "your time runs at",
+  "cockpit.vitesse":       "your speed",
+  "cockpit.altitude":      "your altitude",
+  "cockpit.maree":         "tidal",
+  "cockpit.toi":           "YOU, HERE",
+  "cockpit.jumeau":        "YOUR TWIN, LEFT BEHIND",
+  "cockpit.ecart":         "they have aged {t} more than you",
+  "cockpit.invite":        "go down closer, and watch them come apart",
+
+  // ---- the "why this is accurate" dossier ----
+  "dossier.titre":         "Why this image is accurate",
+  "dossier.chapeau":       "And what, inside it, is not.",
+  "dossier.fermer":        "Close",
+
+  // ---- the test bench ----
+  "banc.lancer":           "Check the engine now",
+  "banc.calcul":           "Calculating…",
+  "banc.relancer":         "Run the check again",
+  "banc.col.grandeur":     "Quantity",
+  "banc.col.theorie":      "Theory",
+  "banc.col.mesure":       "Measured here",
+  "banc.col.ecart":        "Difference",
+
+  "banc.essai.photon.nom":     "Photon sphere",
+  "banc.essai.photon.quoi":    "Radius of light's circular orbit",
+  "banc.essai.photon.attendu": "3M = 1.5",
+  "banc.essai.ombre.nom":      "Shadow radius",
+  "banc.essai.ombre.quoi":     "Critical capture impact parameter",
+  "banc.essai.ombre.attendu":  "√27·M ≈ 2.598",
+  "banc.essai.deflexion.nom":     "Light deflection",
+  "banc.essai.deflexion.quoi":    "Deflection of a grazing ray at b = 1000",
+  "banc.essai.deflexion.attendu": "4M/b = 0.002",
+  "banc.essai.isco.nom":       "Last stable orbit",
+  "banc.essai.isco.quoi":      "Below it, no orbit of matter holds",
+  "banc.essai.isco.attendu":   "6M = 3",
+
+  "banc.verdict.ok":       "matches",
+  "banc.verdict.bof":      "close",
+  "banc.verdict.non":      "off",
+
+  "banc.apres":
+    "Calculated in {t} s in your browser, with the equation that draws the image " +
+    "behind this. None of these four values is written into the code: they are " +
+    "<b>outputs</b>." +
+    "<br><br>On the deflection, the residual gap is not an error: " +
+    "<code>4M/b</code> is only the first order. The next term is " +
+    "<code>15πM²/4b² = {x}</code>, which is exactly the offset measured — the " +
+    "integration is more accurate than the reference formula." +
+    "<br><br>And Newton predicted <b>{y} rad</b>: exactly half. That factor of 2 " +
+    "is what Eddington went to measure in 1919.",
 });
