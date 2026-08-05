@@ -6092,8 +6092,15 @@ function dessineCockpit(){
 }
 
 // ============ boucle ============
+/* Les degrés de l'échelle de rendu, du piqué au fluide. Les aires vont de 1 à
+   0,13 : de quoi tenir sur un appareil huit fois moins puissant que celui pour
+   lequel le rendu a été écrit. Le dernier cran est laid, et il vaut toujours
+   mieux qu'une image qui saccade. */
+const PALIERS = [1.0, 0.78, 0.62, 0.48, 0.36];
+
 let echelle = 1.0, tPrec = performance.now(), images = 0, cumul = 0;
 let tCalme = 0;   // dernier moment où la résolution a bougé ou où ça a ramé
+let fenetreMesure = 24;   // la première réaction est rapide, les suivantes non
 
 /* Une seule mesure pour les deux toiles.
 
@@ -6144,28 +6151,37 @@ function boucle(now){
 
   // résolution adaptative : on préfère la fluidité au piqué
   images++; cumul += dt*1000;
-  if(images === 90){
+  if(images >= fenetreMesure){
     const moy = cumul/images;
-    /* La bascule de résolution est volontairement COLLANTE.
+    /* La résolution descend PAR PALIERS, et c'est un changement.
 
-       Elle change la taille du tampon, donc elle se voit : l'image devient
-       nette ou floue d'un coup. Or la charge varie avec l'orbite — au
-       périastre l'astre emplit le champ et le lancer de rayons coûte plus
-       cher qu'à l'apoastre. Sur une machine juste, la moyenne peut donc
-       traverser les deux seuils une fois par tour, et l'on voit sauter
-       l'image à chaque passage.
+       Il n'y en avait que deux — net ou flou — ce qui laissait un appareil trop
+       lent pour le second sans nulle part où aller. Le seul levier réel est
+       l'aire du tampon : mesuré, quatre cents pas d'intégration rendent au
+       pixel près comme cent vingt, tandis que le temps d'image suit l'aire.
+       Alors autant que l'échelle ait des degrés.
 
-       On descend vite, parce qu'une image molle vaut mieux qu'une image
-       saccadée. Mais on ne remonte qu'après une longue accalmie : mieux vaut
-       rester en basse résolution tout du long que clignoter deux fois par
-       orbite. */
-    if(moy > 26 && echelle > 0.55){
-      echelle = 0.62; reechelonne(); tCalme = now;
-    } else if(moy < 9 && echelle < 1.0 && now - tCalme > 30000){
-      echelle = 1.0; reechelonne(); tCalme = now;
+       Elle reste COLLANTE dans le sens de la remontée. Changer la taille du
+       tampon se voit — l'image devient nette ou floue d'un coup — et la charge
+       varie avec l'orbite : au périastre l'astre emplit le champ et le lancer
+       de rayons coûte plus cher qu'à l'apoastre. Sur une machine juste, la
+       moyenne traverserait le seuil une fois par tour et l'on verrait sauter
+       l'image à chaque passage. On descend donc vite et l'on remonte lentement,
+       d'un cran à la fois.
+
+       La PREMIÈRE mesure est courte, et c'est délibéré. L'ouverture — la
+       remontée qui traverse le plan du disque — est le moment le plus lourd de
+       la visite, et c'est aussi la première impression. Attendre quatre-vingt-
+       dix images pour réagir, c'est la rater tout entière. */
+    const i = PALIERS.indexOf(echelle);
+    if(moy > 26 && i < PALIERS.length - 1){
+      echelle = PALIERS[i + 1]; reechelonne(); tCalme = now;
+    } else if(moy < 9 && i > 0 && now - tCalme > 30000){
+      echelle = PALIERS[i - 1]; reechelonne(); tCalme = now;
     }
     if(moy > 14) tCalme = now;      // toute lenteur repousse le retour au piqué
     images = 0; cumul = 0;
+    fenetreMesure = 90;
   }
 
   // Ouverture : une remontée lente qui traverse le plan du disque. On le

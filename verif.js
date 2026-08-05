@@ -281,6 +281,84 @@ function tempsJuste(){
   return enCours;
 }
 
+/* 1 quater. LA RÉSOLUTION DESCEND QUAND ÇA RAME, ET REMONTE AVEC PRUDENCE.
+
+   Hugo a signalé des ralentissements sur son iPhone, et je n'ai pas son iPhone.
+   Je ne peux donc pas régler les seuils contre son appareil — mais je peux
+   prouver que le MÉCANISME fait ce qu'il annonce, et ça, aucun réglage ne le
+   remplace : jusqu'ici il n'avait que deux crans, si bien qu'un appareil trop
+   lent pour le second n'avait nulle part où descendre. Un défaut de ce genre ne
+   se voit pas en regardant — il se voit en comptant les crans.
+
+   On nourrit la boucle d'images lentes et l'on regarde l'échelle tomber. */
+function resolution(){
+  ouvre("La résolution s'adapte");
+  const degele = fige();
+  const av = { echelle, tCalme, fenetreMesure, tPrec };
+  try {
+    // Une horloge synthétique : chaque appel avance de `ms` millisecondes.
+    let t = performance.now();
+    const nourrit = (n, ms) => { for(let i = 0; i < n; i++){ t += ms; boucle(t); } };
+
+    /* La profondeur est exigée, pas seulement la mécanique. C'est le défaut
+       même qu'Hugo a touché : deux crans, et un appareil trop lent pour le
+       second n'a nulle part où aller. Un contrôle qui se contente de suivre le
+       tableau qu'on lui donne laisserait revenir l'interrupteur d'avant. */
+    point("l'échelle a au moins quatre degrés", PALIERS.length >= 4,
+          "≥ 4", PALIERS.length, PALIERS.join(" · "));
+    point("le dernier tombe sous le sixième de l'aire",
+          PALIERS[PALIERS.length-1]**2 <= 1/6,
+          "aire ≤ 17 %", (100*PALIERS[PALIERS.length-1]**2).toFixed(0) + " %",
+          "de quoi tenir sur un appareil six fois moins puissant");
+    point("ils descendent sans se répéter",
+          PALIERS.every((v,i) => i === 0 || v < PALIERS[i-1]), "strictement décroissants",
+          PALIERS.join(" · "));
+
+    echelle = PALIERS[0]; reechelonne(); tCalme = t; fenetreMesure = 24;
+    images = 0; cumul = 0;
+
+    // 40 ms par image, soit 25 par seconde : bien au-delà du seuil de 26 ms.
+    nourrit(24, 40);
+    point("elle réagit dès la première fenêtre", echelle === PALIERS[1],
+          PALIERS[1], echelle, "vingt-quatre images, pas quatre-vingt-dix : l'ouverture est le moment le plus lourd");
+
+    for(let cran = 2; cran < PALIERS.length; cran++){
+      nourrit(90, 40);
+      point("elle descend au cran " + cran, echelle === PALIERS[cran], PALIERS[cran], echelle);
+    }
+
+    nourrit(90, 40);
+    point("elle s'arrête au dernier cran", echelle === PALIERS[PALIERS.length-1],
+          PALIERS[PALIERS.length-1], echelle, "et ne sort pas du tableau");
+
+    // Maintenant tout va bien — mais elle ne doit PAS remonter tout de suite.
+    const bas = echelle;
+    nourrit(90*8, 5);        // 3,6 s de calme : trop peu
+    point("elle ne remonte pas après quelques secondes", echelle === bas,
+          bas, echelle, "changer de résolution se voit ; on ne le fait pas deux fois par orbite");
+
+    nourrit(90*90, 5);       // au-delà des trente secondes exigées
+    point("elle remonte après une longue accalmie", echelle > bas,
+          "> " + bas, echelle);
+    point("elle remonte d'un cran à la fois",
+          PALIERS.indexOf(echelle) < PALIERS.length - 1 && echelle < PALIERS[0],
+          "ni tout en bas ni tout en haut", echelle,
+          "cran " + PALIERS.indexOf(echelle) + " sur " + (PALIERS.length-1));
+
+    // Et une seule image lente repousse le retour au piqué.
+    const avant = echelle;
+    nourrit(90, 20);         // 20 ms : pas assez pour descendre, assez pour inquiéter
+    nourrit(90*40, 5);
+    point("une lenteur passagère repousse la remontée", echelle === avant,
+          avant, echelle, "le seuil d'inquiétude (14 ms) est plus bas que celui de repli (26 ms)");
+  } finally {
+    echelle = av.echelle; reechelonne();
+    tCalme = av.tCalme; fenetreMesure = av.fenetreMesure; tPrec = av.tPrec;
+    degele();
+  }
+  return enCours;
+}
+
 /* 2. LE NUANCEUR EST LIÉ.
 
    Une erreur de compilation GLSL jette au chargement et emporte le bloc — même
@@ -606,8 +684,8 @@ function texte(){
    C'est celle qu'on lance après une modification, en boucle. */
 function sain(){
   resultats.length = 0;
-  vivant(); coherence(); tempsJuste(); nuanceurs(); clesNues(); banc(); pixels();
-  mesurePage(); budget();
+  vivant(); coherence(); tempsJuste(); resolution(); nuanceurs(); clesNues();
+  banc(); pixels(); mesurePage(); budget();
   return bilan();
 }
 
@@ -615,15 +693,15 @@ function sain(){
    on la lance sur une page fraîche. */
 function tout(){
   resultats.length = 0;
-  vivant(); coherence(); tempsJuste(); nuanceurs(); clesNues(); banc(); pixels();
-  mesurePage(); budget();
+  vivant(); coherence(); tempsJuste(); resolution(); nuanceurs(); clesNues();
+  banc(); pixels(); mesurePage(); budget();
   parcours(); voyage();
   return bilan();
 }
 
 global.VERIF = {
-  vivant, coherence, tempsJuste, nuanceurs, clesNues, banc, pixels, mesurePage,
-  parcours, voyage, budget,
+  vivant, coherence, tempsJuste, resolution, nuanceurs, clesNues, banc, pixels,
+  mesurePage, parcours, voyage, budget,
   sain, tout, bilan, texte, resultats, FORMATS, OR,
   // outillage exposé : d'autres contrôles pourront s'y adosser
   pose, fige, avanceImages,
