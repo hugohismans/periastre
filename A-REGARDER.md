@@ -33,6 +33,38 @@ Mise à jour le 5 août 2026.
 
 ---
 
+## La salle de tir : où je me suis arrêté, et pourquoi
+
+**J'ai posé une console de tir dans le salon, puis je l'ai retirée.** Pas parce
+qu'elle était fausse — parce que je n'arrivais pas à établir de façon fiable ce
+que je voyais à l'écran, et que continuer à l'aveugle sur un objet en volume
+n'avait plus de sens.
+
+Ce qui est acquis, et ne sera pas à refaire :
+
+- **La mécanique est prête.** `vol.js` fait déjà tout : `destin()` calcule
+  l'avenir complet d'un tir avant qu'il parte, et rend le tracé. La salle n'est
+  que ça, avec une vitesse choisie au lieu d'une vitesse tirée au sort.
+- **La projection marche depuis la pièce.** `majCameraSalon()` alimente `basis`
+  et `camPos` comme la vue libre, donc `projette()` sait déjà dessiner une
+  trajectoire dans la baie. Rien à écrire pour ça.
+- **Le point pédagogique est identifié**, et c'est le tien : un tir à zéro
+  mètre par seconde depuis une station en orbite laisse la sonde **à côté du
+  vaisseau, toujours en orbite**. Le tir actuel ne fait pas ça — il pose une
+  vitesse absolue depuis un point du plan, sans hériter de rien.
+- **Un piège trouvé et documenté** : tout poste qui n'est pas le télescope est
+  DESSINÉ comme un cube cyan plein à la taille de sa boîte de visée. C'est
+  ainsi que les cinq lames du temps existent — le cube EST la lame. Un poste
+  qui a sa propre géométrie doit donc suivre la branche du télescope, sinon un
+  pavé bleu de soixante-dix centimètres se pose sur l'instrument.
+
+**Ce qu'il me faut de toi** : un coup d'œil, ou la permission de la poser
+franchement et de te laisser juger sur pièce. La place proposée était la fosse,
+à x = 1,2 — la seule portion vraiment vide, entre les deux occupants, avec le
+trou noir dégagé au centre de la baie.
+
+---
+
 ## Les décisions qui t'appartiennent
 
 Elles ne sont pas techniques. Personne d'autre ne peut les prendre.
