@@ -962,10 +962,10 @@ Le registre montre donc de lui-même que **le voyage écrase le séjour** — et
 qu'il faut descendre très près de l'horizon pour que rester devienne
 comparable. Personne n'a besoin de l'expliquer : les deux colonnes le disent.
 
-### Le point à trancher : que se passe-t-il hors connexion ?
+### Hors connexion, le temps se fige — *tranché*
 
-Hugo penche pour que le décalage continue de courir même déconnecté. Je
-recommande l'inverse, et pour une raison qui vient de ses propres règles.
+Hugo penchait pour que le décalage continue de courir même déconnecté, puis a
+retenu l'inverse. La raison vient de ses propres règles.
 
 Faire courir le compteur en l'absence du joueur reviendrait à **récompenser
 l'attente** : il suffirait de laisser son vaisseau en orbite basse pour
