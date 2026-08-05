@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>À la place de la Lune — page d'essai</title>
+<meta name="color-scheme" content="dark light">
+<meta name="description" content="Debout sur Terre, la nuit. On remplace la Lune par autre chose, et l'on regarde ce que ça change. Page d'essai autonome.">
+
+<!-- ============================================================================
+     PAGE D'ESSAI AUTONOME.
+
+     Elle ne charge que lune.js. Rien d'autre, aucune image, aucune police
+     distante, aucune dépendance au reste du site. Elle sert à éprouver le
+     module à l'œil pendant qu'`outil-verif-lune.js` l'éprouve au chiffre.
+
+     Les deux ne se recouvrent pas : l'outil dit que 0,109 mm est juste, cette
+     page dit à quoi ressemble 0,109 mm dans le ciel. C'est-à-dire à rien.
+     ============================================================================ -->
+
+<style>
+*,*::before,*::after{ box-sizing:border-box; }
+
+:root{
+  --fond:#0a0a0d; --trait:#22222c; --texte:#e8e5e0; --sourdine:#9a958e;
+  --ambre:#ff9a3c; --ambre-sourd:#c9762c;
+  --serif:"Iowan Old Style","Palatino Linotype",Palatino,"Book Antiqua",Georgia,serif;
+  --sans:"Inter var",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+  --mono:ui-monospace,"SF Mono","Cascadia Mono","Roboto Mono",Menlo,monospace;
+}
+@media (prefers-color-scheme: light){
+  :root{ --fond:#f5f2ec; --trait:#d6d0c4; --texte:#191713; --sourdine:#645e55;
+         --ambre:#a8560d; --ambre-sourd:#8a480c; }
+}
+
+html{ margin:0; }
+body{
+  margin:0; min-height:100%;
+  background:var(--fond); color:var(--texte);
+  font-family:var(--sans); font-size:16px; line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  display:flex; flex-direction:column; align-items:center;
+  padding:1.4rem 1.2rem 3rem;
+}
+header{ max-width:62rem; width:100%; margin:0 0 1.2rem; }
+.eyebrow{
+  font-family:var(--mono); font-size:.66rem; letter-spacing:.2em;
+  text-transform:uppercase; color:var(--ambre-sourd); margin:0 0 .5rem;
+}
+h1{ font-family:var(--serif); font-weight:400; font-size:clamp(1.7rem,4.4vw,2.5rem);
+    line-height:1.1; letter-spacing:-.02em; margin:0 0 .6rem; }
+header p{ margin:0; color:var(--sourdine); max-width:46rem; text-wrap:pretty; }
+
+/* Le cadre. Il est noir en permanence, y compris en thème clair : on regarde
+   le ciel de nuit, et un ciel de nuit sur fond crème ne veut rien dire. */
+#cadre{
+  width:100%; max-width:62rem; aspect-ratio:16/9; flex:0 0 auto;
+  background:#05050a; border:1px solid var(--trait); border-radius:3px;
+  overflow:hidden; position:relative;
+}
+#ciel{ display:block; width:100%; height:100%; }
+
+nav{
+  max-width:62rem; width:100%; display:flex; flex-wrap:wrap; gap:.4rem;
+  margin:.9rem 0 0;
+}
+button{
+  font-family:var(--sans); font-size:.86rem; color:var(--texte);
+  background:transparent; border:1px solid var(--trait); border-radius:3px;
+  padding:.42rem .85rem; cursor:pointer;
+}
+button:hover{ border-color:var(--ambre-sourd); }
+button[aria-pressed="true"]{
+  color:var(--fond); background:var(--ambre); border-color:var(--ambre);
+}
+button.a-part{ margin-left:auto; }
+
+/* Le grossissement n'apparaît que pour le trou noir : ailleurs il n'a rien à
+   dire, et un réglage inerte est un réglage qui ment. */
+#zoom{
+  max-width:62rem; width:100%; margin:.9rem 0 0;
+  display:none; gap:.8rem; align-items:center;
+  font-family:var(--mono); font-size:.78rem; color:var(--sourdine);
+}
+#zoom.visible{ display:flex; }
+#zoom input{ flex:1; accent-color:var(--ambre); }
+#zoom output{ color:var(--ambre); min-width:8.5rem; }
+
+section.notes{
+  max-width:62rem; width:100%; margin:2.2rem 0 0;
+  border-top:1px solid var(--trait); padding-top:1.4rem;
+}
+section.notes h2{
+  font-family:var(--mono); font-size:.68rem; letter-spacing:.18em;
+  text-transform:uppercase; color:var(--ambre-sourd); font-weight:400;
+  margin:0 0 .8rem;
+}
+section.notes p{ margin:0 0 .9rem; color:var(--sourdine); max-width:46rem;
+                 text-wrap:pretty; font-size:.95rem; }
+section.notes strong{ color:var(--texte); font-weight:600; }
+section.notes ul{ margin:0 0 .9rem; padding-left:1.1rem; color:var(--sourdine);
+                  font-size:.9rem; max-width:46rem; }
+section.notes li{ margin:0 0 .45rem; }
+section.notes a{ color:var(--ambre-sourd); }
+code{ font-family:var(--mono); font-size:.86em; color:var(--texte); }
+</style>
+</head>
+<body>
+
+<header>
+  <p class="eyebrow">Page d'essai · module <code>lune.js</code></p>
+  <h1>À la place de la Lune</h1>
+  <p>Vous êtes debout, la nuit, et vous regardez le ciel. On décroche la Lune
+     et l'on accroche autre chose à sa place, à la même distance —
+     384 400 kilomètres. Rien d'autre ne change.</p>
+</header>
+
+<div id="cadre"><canvas id="ciel"></canvas></div>
+
+<nav id="menu"></nav>
+
+<div id="zoom">
+  <label for="g">grossissement</label>
+  <input id="g" type="range" min="0" max="10.5" step="0.01" value="0">
+  <output id="gval">×1</output>
+</div>
+
+<section class="notes">
+  <h2>Ce que cette page montre, et ce qu'elle ne montre pas</h2>
+
+  <p><strong>Il n'y a pas de catastrophe ici.</strong> On ne verra pas un trou
+     noir avaler la Lune. Ce n'est pas de la pudeur : personne ne sait dire
+     honnêtement ce que donnerait cette rencontre sans une vraie simulation, et
+     surtout, la montrer enseignerait « aspirateur cosmique » — l'exact contraire
+     de ce qui se passe.</p>
+
+  <p>Ce qui se passe, c'est <strong>rien</strong>. On échange la Lune contre un
+     trou noir de la même masse, et l'attraction ne bouge pas d'un chiffre : à
+     384 400 km, un point de 0,109 mm tire comme une boule de 3 475 km si les
+     deux pèsent 7,35 × 10²² kg. Les marées tiennent, l'orbite tient. Ce qu'on
+     perd, c'est le clair de lune, le disque, et les éclipses — qui ne tenaient
+     déjà qu'à 3 % près. Le ciel est juste vide à cet endroit.</p>
+
+  <p>C'est décevant. C'est précisément pour ça que c'est instructif, et
+     <code>outil-verif-lune.js</code> ne se contente pas de citer Newton ou
+     Birkhoff pour l'affirmer : il découpe la boule en anneaux, somme
+     l'attraction par quadrature, et retrouve <code>GM/d²</code> à mieux que
+     10⁻¹² près, pour trois profils de densité différents.</p>
+
+  <h2>Le ciel est déroulé</h2>
+  <p>Un degré vaut le même nombre de pixels partout dans le cadre. Ce n'est pas
+     ce que voit l'œil — c'est un panorama, pas une perspective. Une projection
+     réaliste étirerait les bords et la comparaison de tailles, qui est tout le
+     sujet, deviendrait fausse selon l'endroit du cadre. La règle graduée en bas
+     du cadre et la Lune témoin en haut à droite sont là pour que l'échelle reste
+     lisible quand le champ change.</p>
+
+  <h2>Une correction au carnet</h2>
+  <p><code>IDEES.md</code> donne les sept tailles comme des tangentes,
+     2·arctan(R/d). La silhouette d'une <em>sphère</em> demande arcsin, pas
+     arctan : le demi-angle est celui de la tangente issue de l'œil, donc
+     sin α = R/d. Sous deux degrés les deux formules coïncident et le carnet
+     tombe juste ; à vingt degrés, non. Jupiter passe de 20,6° à
+     <strong>20,96°</strong> et Saturne de 17,2° à <strong>17,43°</strong>, soit
+     34 Lunes et non 33.</p>
+  <p>Et le Soleil n'a pas de réponse : son rayon vaut 1,81 fois la distance
+     Terre–Lune. Mis à la place de la Lune, il ne remplirait pas les deux tiers
+     du ciel — <strong>on serait dedans</strong>, à 55 % de son rayon depuis son
+     centre. Les 122° du carnet sont une tangente employée hors de son domaine.</p>
+
+  <h2>Les sources</h2>
+  <ul id="sources"></ul>
+
+  <p style="font-size:.82rem">Toutes les valeurs affichées sont recalculées au
+     chargement à partir des rayons et des GM ci-dessus. Aucun diamètre apparent
+     n'est écrit à la main, pas même celui du trou noir : son rayon lui-même est
+     déduit de <code>2GM/c²</code>.</p>
+</section>
+
+<script src="lune.js"></script>
+<script>
+(function(){
+"use strict";
+
+const cadre = document.getElementById("cadre");
+const cnv   = document.getElementById("ciel");
+const ctx   = cnv.getContext("2d");
+const menu  = document.getElementById("menu");
+const zoom  = document.getElementById("zoom");
+const curseur = document.getElementById("g");
+const gval  = document.getElementById("gval");
+
+// --- le menu, construit depuis le module -----------------------------------
+const boutons = LUNE.ASTRES.map(a => {
+  const b = document.createElement("button");
+  b.textContent = a.court;
+  b.type = "button";
+  b.setAttribute("aria-pressed", "false");
+  b.addEventListener("click", () => { LUNE.choisis(a.cle); rafraichit(); });
+  menu.appendChild(b);
+  return b;
+});
+
+const bFige = document.createElement("button");
+bFige.type = "button";
+bFige.className = "a-part";
+bFige.textContent = "champ figé à 60°";
+bFige.setAttribute("aria-pressed", "false");
+bFige.addEventListener("click", () => { LUNE.basculeChampFige(); rafraichit(); });
+menu.appendChild(bFige);
+
+function rafraichit(){
+  const a = LUNE.astre();
+  boutons.forEach((b, i) => b.setAttribute("aria-pressed", String(LUNE.ASTRES[i] === a)));
+  bFige.setAttribute("aria-pressed", String(LUNE.etat.champFige));
+  zoom.classList.toggle("visible", a.dessin === "trou");
+}
+
+curseur.addEventListener("input", () => {
+  const g = parseFloat(curseur.value);
+  LUNE.grossis(g);
+  gval.textContent = g < 0.02 ? "×1" : "×10^" + g.toFixed(2).replace(".", ",");
+});
+
+// --- les sources, listées depuis le module ---------------------------------
+const ul = document.getElementById("sources");
+for(const [cle, s] of Object.entries(LUNE.SOURCES)){
+  const li = document.createElement("li");
+  li.textContent = s.ref + " — " + s.sert;
+  if(s.doi || s.url){
+    li.appendChild(document.createTextNode(" "));
+    const a = document.createElement("a");
+    a.href = s.doi ? "https://doi.org/" + s.doi : s.url;
+    a.textContent = s.doi ? "doi:" + s.doi : "→";
+    a.rel = "noreferrer";
+    li.appendChild(a);
+  }
+  ul.appendChild(li);
+}
+
+// --- clavier ----------------------------------------------------------------
+addEventListener("keydown", e => {
+  if(e.key === "ArrowRight"){ LUNE.suivant(1);  rafraichit(); e.preventDefault(); }
+  else if(e.key === "ArrowLeft"){ LUNE.suivant(-1); rafraichit(); e.preventDefault(); }
+  else if(e.key === "f" || e.key === "F"){ LUNE.basculeChampFige(); rafraichit(); }
+  else if(e.key === "ArrowUp" || e.key === "ArrowDown"){
+    if(LUNE.astre().dessin !== "trou") return;
+    const g = Math.max(0, Math.min(LUNE.GROSSISSEMENT_MAX,
+              parseFloat(curseur.value) + (e.key === "ArrowUp" ? 0.25 : -0.25)));
+    curseur.value = g;
+    curseur.dispatchEvent(new Event("input"));
+    e.preventDefault();
+  }
+});
+
+// --- la boucle ---------------------------------------------------------------
+let W = 0, H = 0;
+function dimensionne(){
+  const r = cadre.getBoundingClientRect();
+  const dpr = Math.min(2, devicePixelRatio || 1);
+  W = Math.round(r.width); H = Math.round(r.height);
+  cnv.width = Math.round(W*dpr); cnv.height = Math.round(H*dpr);
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+addEventListener("resize", dimensionne);
+dimensionne();
+
+let t0 = performance.now();
+function boucle(t){
+  const dt = Math.min(0.05, (t - t0)/1000); t0 = t;
+  LUNE.avance(dt);
+  LUNE.dessine(ctx, W, H);
+  requestAnimationFrame(boucle);
+}
+rafraichit();
+requestAnimationFrame(boucle);
+
+})();
+</script>
+</body>
+</html>

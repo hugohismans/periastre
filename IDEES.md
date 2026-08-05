@@ -912,23 +912,49 @@ quelque chose que tout le monde a déjà vu de ses yeux. Tout le reste s'exprime
 en rayons de Schwarzschild ou en unités astronomiques, qui ne veulent rien dire
 tant qu'on n'a pas de point d'appui.
 
-### Les chiffres, calculés
+### Les chiffres, calculés — *corrigés le 5 août 2026*
+
+> **La première version de ce tableau employait `2·arctan(R/d)`. C'est faux.**
+>
+> La silhouette d'une sphère est bornée par les **tangentes** issues de l'œil,
+> et le point de tangence n'est pas au niveau du centre : `sin α = R/d`, donc
+> **`2·arcsin(R/d)`**. L'arctangente donnerait la bonne réponse pour un disque
+> plat tourné vers nous, pas pour une boule.
+>
+> Sous deux degrés les deux coïncident, et les trois premières lignes tombaient
+> juste par chance. Au-delà, non.
 
 Taille apparente à la distance de la Lune (384 400 km) :
 
-| à la place de la Lune | diamètre apparent | en Lunes |
-|---|---:|---:|
-| la Lune | 0,52° | 1 |
-| Mars | 1,01° | 2 |
-| la Terre | 1,90° | 3,7 |
-| Neptune | 7,33° | 14 |
-| Saturne | 17,2° | 33 |
-| Jupiter | 20,6° | 40 |
-| le Soleil | 122° | 236 |
+| à la place de la Lune | diamètre apparent | en Lunes | l'ancien chiffre |
+|---|---:|---:|---:|
+| la Lune | 0,52° | 1 | — |
+| Mars | 1,01° | 2,0 | — |
+| la Terre | 1,90° | 3,7 | — |
+| Neptune | **7,345°** | 14,2 | 7,33° |
+| Saturne | **17,43°** | 33,6 | 17,2° |
+| Jupiter | **20,96°** | 40,5 | 20,6° |
+| le Soleil | **n'existe pas** | — | 122° |
 
-Jupiter couvrirait quarante fois la Lune, et le Soleil emplirait les deux tiers
-du ciel visible d'un bord à l'autre. Ce sont des tangentes, rien de plus : le
-calcul se refait à la main et se vérifie.
+### Le Soleil n'a pas de diamètre apparent à cette distance
+
+Et c'est un bien meilleur fait que celui qu'on croyait avoir.
+
+Le rayon du Soleil vaut **1,81 fois la distance Terre–Lune** — 696 000 km
+contre 384 400. `arcsin(1,81)` n'est pas défini, et ce n'est pas une subtilité
+de calcul : mettre le Soleil à la place de la Lune ne remplit pas les deux tiers
+du ciel, **ça met la Terre à l'intérieur du Soleil**, à 55 % du rayon depuis son
+centre.
+
+Les « 122° » et les « deux tiers du ciel » étaient une tangente appliquée hors
+de son domaine. La scène doit montrer ce cas tel quel : le cadre entièrement
+plein, et la phrase qui dit pourquoi.
+
+Tout cela se refait à la main, et `outil-verif-lune.js` le refait : cinquante-
+huit affirmations, dont le point central vérifié par intégration numérique d'une
+boule en anneaux — trois profils de densité différents retombent sur `GM/d²` à
+4 × 10⁻¹⁶ près, et un barreau de même masse s'en écarte, ce qui prouve que le
+contrôle a des dents.
 
 ### Le trou noir de la masse de la Lune
 

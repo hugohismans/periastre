@@ -147,6 +147,22 @@
    Les deux sont dans un rapport 2,455 / 2^(1/3) = 1,949. Un satellite fluide se
    disloque presque deux fois plus loin qu'un satellite rigide de même densité.
 
+   ET UN TROISIÈME COEFFICIENT, que la simulation impose. La dérivation rigide
+   ci-dessus oublie que le satellite TOURNE : présentant toujours la même face à
+   sa planète, il tourne sur lui-même à la vitesse de son orbite, et un grain
+   posé sur sa surface subit la force centrifuge en plus de la marée. La somme
+   vaut 3n²x et non 2n²x, d'où
+
+       d_synchrone = 3^(1/3) · r · (M/m)^(1/3) = 1,442 · r · (M/m)^(1/3)
+
+   C'est le contrôle 4 qui a tranché, et il n'a pas dit ce qu'on attendait : le
+   seuil mesuré converge vers 1,4433 quand le rapport de masses tend vers zéro,
+   à 0,07 % de 3^(1/3), et pas du tout vers 1,26. On a d'abord cru à un défaut
+   de la simulation avant de comprendre que c'était la formule des manuels qui
+   répondait à une autre question — celle d'un satellite qui ne tournerait pas,
+   et il n'en existe pas. Les trois coefficients sont donc fournis, et l'on dit
+   lequel la simulation retrouve.
+
    LE PIÈGE, et il a failli passer : dans la forme en RAPPORT DE DENSITÉS, R est
    le rayon de la PLANÈTE ; dans la forme en RAPPORT DE MASSES, r est le rayon du
    SATELLITE. Les deux formules se ressemblent à s'y méprendre, le coefficient
@@ -209,7 +225,11 @@
    UI et LANGUE ; et si quelqu'un le prend un jour, ce module refusera d'écraser
    plutôt que de gagner en silence. */
 if(global.NCORPS){
-  if(global.console && console.error){
+  /* On crie sur la VRAIE console, pas sur `global.console`. Le module est
+     chargé par l'outil de contrôle avec un faux `window` qui, lui, n'a pas de
+     console : tester `global.console` faisait échouer l'avertissement
+     exactement dans le seul cas où on avait besoin de l'entendre. */
+  if(typeof console !== "undefined" && console.error){
     console.error("ncorps.js : un global nommé NCORPS existe déjà. " +
                   "Chargement abandonné pour ne pas l'écraser en silence.");
   }
@@ -522,7 +542,21 @@ function elementsDepuisEtat(r, v, mu){
   const a = -mu / (2*energieSpec);        // négatif si hyperbolique : c'est voulu
   const lie = energieSpec < 0;
 
-  const i = Math.acos(Math.max(-1, Math.min(1, h[2]/H)));
+  /* Inclinaison par atan2 et non par acos(h_z/H).
+
+     Les deux sont mathématiquement identiques et numériquement très
+     différentes. Pour une orbite presque équatoriale, h_z/H vaut 1 − i²/2 :
+     pour i = 10⁻⁹ cela fait 1 − 5 × 10⁻¹⁹, qui s'arrondit à 1 exactement en
+     double précision, et acos rend zéro. L'inclinaison disparaît purement et
+     simplement. La faute est classique — acos perd la moitié de ses chiffres
+     près de ses bornes — et le contrôle 0 l'a attrapée : l'aller-retour
+     éléments → état → éléments rendait i = 0 au lieu de 10⁻⁹.
+
+     atan2 du couple (composante dans le plan, composante hors du plan) n'a pas
+     ce défaut : les deux arguments restent du même ordre que leur propre
+     précision, et la petite inclinaison survit. */
+  const hxy = Math.sqrt(h[0]*h[0] + h[1]*h[1]);
+  const i = Math.atan2(hxy, h[2]);
 
   // ligne des nœuds
   const nx = -h[1], ny = h[0];
@@ -635,6 +669,30 @@ function rocheFluide(rSatellite, M, m){
   return ROCHE_FLUIDE * rSatellite * Math.cbrt(M/m);
 }
 
+/* Limite RIGIDE d'un satellite EN ROTATION SYNCHRONE — le troisième coefficient,
+   celui qu'on ne trouve pas dans les vulgarisations et que la simulation rend.
+
+   La dérivation classique du cas rigide oublie que le satellite tourne. Un
+   satellite réel présente toujours la même face à sa planète : il tourne sur
+   lui-même à la vitesse de son orbite. Un grain posé sur sa surface subit donc,
+   en plus de la marée, la force centrifuge de cette rotation. Les deux
+   s'ajoutent, la somme vaut 3n²x au lieu de 2n²x, et le coefficient passe de
+   2^(1/3) à 3^(1/3) :
+
+       d_synchrone = 3^(1/3) · r · (M/m)^(1/3) ≈ 1,442 · r · (M/m)^(1/3)
+
+   C'est exactement la condition « le rayon du satellite dépasse son rayon de
+   Hill », et c'est ce que mesure le contrôle 4 : la simulation converge vers
+   1,4433 quand le rapport de masses tend vers zéro, contre 1,442 25 prédit,
+   soit 0,07 % d'écart. Elle ne converge PAS vers 1,26.
+
+   Le coefficient 1,26 des manuels n'est donc pas faux, il répond à une autre
+   question : celle d'un satellite qui ne tournerait pas. Il n'en existe pas.
+   On garde les deux, et l'on dit lequel la simulation retrouve. */
+function rocheRigideSynchrone(rSatellite, M, m){
+  return Math.cbrt(3) * rSatellite * Math.cbrt(M/m);
+}
+
 /* Les deux limites en rapport de DENSITÉS.
    @param rPrimaire  rayon de la PRIMAIRE — et c'est bien celui-là. Voir le
                      piège raconté dans l'en-tête : c'est l'erreur qu'on a
@@ -703,7 +761,19 @@ function diagnosticRoche(d, rSatellite, M, m){
        rayons — c'est le seul honnête moyen de dire « je n'ai peut-être rien vu ».
      · DÉRIVE DU DEMI-GRAND AXE — |a(t) − a(0)|/a(0) au-delà d'un seuil. C'est
        le signe d'un système qui se réorganise sans que rien de spectaculaire
-       n'arrive, et c'est celui qui se voit le moins à l'œil. */
+       n'arrive, et c'est celui qui se voit le moins à l'œil.
+
+   ATTENTION au réglage de `deriveA`, et c'est un piège qu'on s'est tendu. Le
+   demi-grand axe employé ici est OSCULATEUR : il oscille naturellement, à la
+   période synodique, d'une amplitude qui croît avec la masse des perturbateurs.
+   Pour des planètes de 10⁻⁵ masse solaire, cette oscillation vaut quelques
+   pour mille et un seuil de 2 % convient ; pour des planètes de 10⁻³, elle
+   dépasse 50 % dès les premières révolutions et TOUT seuil raisonnable se
+   déclenche au deuxième tour, sur un système parfaitement sain. Le seuil doit
+   donc être choisi au-dessus de l'oscillation propre du système, ce que le
+   module ne peut pas deviner : c'est pourquoi il est un paramètre et non une
+   constante. En cas de doute, faire tourner quelques dizaines de révolutions,
+   regarder de combien `a` bat, et prendre le triple. */
 function veille(s, options){
   options = options || {};
   const iCentre = options.centre === undefined ? 0 : options.centre;
@@ -941,8 +1011,8 @@ global.NCORPS = {
   // orbites
   elements, elementsDepuisEtat, etatDepuisElements, periodeKepler,
   // Roche
-  rocheRigide, rocheFluide, rocheParDensites, rayonDeHill, diagnosticRoche,
-  ROCHE_FLUIDE, ROCHE_RIGIDE,
+  rocheRigide, rocheFluide, rocheRigideSynchrone, rocheParDensites,
+  rayonDeHill, diagnosticRoche, ROCHE_FLUIDE, ROCHE_RIGIDE,
   // stabilité
   veille, mesureDerive,
   // approximations

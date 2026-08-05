@@ -216,9 +216,10 @@ const ASTRES = [
     rayon_km: 695700, GM: 1.32712440041279419e20,
     source:"iau2015b3", masseSource:"iau2015b3",
     dessin:"soleil", teinte:[255,236,190], clarte:1.0,
-    note:"Il ne rentre pas. Son rayon vaut 1,81 fois la distance Terre–Lune : " +
-         "on ne serait pas devant, on serait dedans, à 55 % du rayon depuis " +
-         "son centre. Il n'y a pas de diamètre apparent à donner." },
+    note:"Il ne rentre pas. On ne serait pas devant : on serait dedans, à 55 % " +
+         "du rayon solaire depuis son centre. Il n'y a pas de diamètre apparent " +
+         "à donner, et les « 122° » du carnet sont une tangente employée hors " +
+         "de son domaine." },
 
   /* Le rayon n'est pas saisi : il est DÉDUIT de GM par 2GM/c². Écrire 0,109 mm
      à la main aurait été un chiffre de plus à croire ; là, il n'y a rien à
@@ -406,19 +407,39 @@ function nombre(x, dec){
   return s;
 }
 
+/** Les zéros de fin sont du bruit sur une graduation : « 4° » se lit, « 4,00° »
+ *  se déchiffre. On ne les taille que s'il y a une virgule, sinon « 100 »
+ *  deviendrait « 1 ». */
+function compact(x, dec){
+  let s = nombre(x, dec);
+  if(s.indexOf(",") >= 0) s = s.replace(/0+$/, "").replace(/,$/, "");
+  return s;
+}
+
+/* Le seuil de bascule est à 0,05° et non à 1°, pour que la Lune s'écrive
+   « 0,52° » comme dans le carnet et non « 31,1′ » : toute la page compte en
+   degrés, et changer d'unité pour la seule valeur que le lecteur connaît
+   déjà serait une coquetterie. Sous trois minutes d'arc, en revanche, les
+   degrés ne disent plus rien et il faut bien descendre. */
 function etiquetteAngle(deg){
   const a = Math.abs(deg);
-  if(a >= 1)        return nombre(deg, a >= 100 ? 0 : a >= 10 ? 1 : 2) + "°";
-  if(a >= 1/60)     return nombre(deg*60, 1) + "′";
-  if(a >= 1/3600)   return nombre(deg*3600, 1) + "″";
-  if(a >= 1/3.6e6)  return nombre(deg*3.6e6, 1) + " mas";
-  if(a >= 1/3.6e9)  return nombre(deg*3.6e9, 2) + " μas";
+  if(a === 0)       return "0";
+  if(a >= 0.05)     return compact(deg, a >= 100 ? 0 : 2) + "°";
+  if(a >= 1/60)     return compact(deg*60, 2) + "′";
+  if(a >= 1/3600)   return compact(deg*3600, 2) + "″";
+  if(a >= 1/3.6e6)  return compact(deg*3.6e6, 2) + " mas";
+  // On descend jusqu'au millième de microseconde d'arc : c'est la dernière
+  // unité qui ait un nom, et le trou noir de masse lunaire tient dedans —
+  // 0,117 μas. Au-delà il n'y a plus de mot, seulement un exposant.
+  if(a >= 1/3.6e12) return compact(deg*3.6e9, 3) + " μas";
   return deg.toExponential(2).replace(".", ",") + "°";
 }
 
-/** Un pas de graduation « rond » : 1, 2 ou 5 fois une puissance de dix. */
+/** Un pas de graduation « rond » : 1, 2 ou 5 fois une puissance de dix.
+ *  Visé sur une dizaine de divisions — moins, et la règle ne porte plus assez
+ *  de nombres pour qu'on y lise une distance. */
 function pasJoli(champ){
-  const brut = champ / 9;
+  const brut = champ / 11;
   const p = Math.pow(10, Math.floor(Math.log10(brut)));
   for(const m of [1, 2, 5]) if(brut <= m*p) return m*p;
   return 10*p;
@@ -445,7 +466,10 @@ function melange(graine){
 const ETOILES = (function(){
   const r = melange(20260805);
   const t = [];
-  for(let i = 0; i < 900; i++){
+  // Environ le compte de l'œil nu sous un ciel noir. À quatorze degrés de
+  // champ il en reste une trentaine dans le cadre ; à un millionième de degré,
+  // aucune. C'est cette disparition qui rend le grossissement palpable.
+  for(let i = 0; i < 4000; i++){
     t.push({
       az:  (r()*2 - 1) * 95,
       alt: Math.pow(r(), 0.72) * 88,
@@ -592,9 +616,23 @@ function anneau(ctx, x, y, r, an, eclair, a0, a1){
 
 /* =============================================================== 6. LE RENDU */
 
+/* L'unité de l'interface.
+ *
+ *  Tout le bandeau — polices, marges, hauteur de la règle — se mesure en `u`
+ *  plutôt qu'en pixels. Un canevas de téléphone fait trois cent quarante
+ *  pixels de large ; les tailles taillées pour six cents s'y chevauchaient
+ *  jusqu'à rendre la légende illisible, ce qui est la seule faute qu'une page
+ *  dont le sujet est la lisibilité ne puisse pas se permettre.
+ *
+ *  Le DESSIN, lui, ne suit pas `u` : un degré vaut W/champ pixels et rien
+ *  d'autre. Mettre l'échelle du ciel à l'échelle de l'interface reviendrait à
+ *  mentir sur les tailles pour faire tenir du texte. */
+function unite(W){ return Math.max(0.60, Math.min(1.08, W/620)); }
+
 function dessine(ctx, W, H, opts){
   const o = opts || {};
   const a = astre();
+  const u = unite(W);
   const champ = champEffectif();
   const pxdeg = W / champ;
   const yH = Math.round(H * 0.80);          // l'horizon géométrique, 0°
@@ -631,7 +669,7 @@ function dessine(ctx, W, H, opts){
       const x = W/2 + e.az * pxdeg;
       const y = yH - e.alt * pxdeg;
       if(x < -2 || x > W + 2 || y < -2 || y > yH) continue;
-      const b = e.m * voile;
+      const b = Math.pow(e.m, 0.7) * voile;
       if(b < 0.03) continue;
       const t = 205 + Math.round(e.teinte*50);
       ctx.globalAlpha = Math.min(1, b*1.15);
@@ -666,11 +704,16 @@ function dessine(ctx, W, H, opts){
   if(!zoome) dessineSol(ctx, W, H, yH, pxdeg, clarte);
 
   /* --- les repères -------------------------------------------------------- */
-  regle(ctx, W, H, yH, champ, pxdeg);
+  // Un voile en bas pour la règle. En haut, pas de voile : il assombrirait
+  // justement l'objet qu'on est venu regarder. La légende porte son propre
+  // fond, taillé à sa taille.
+  voile(ctx, W, H, H - 112*u, "rgba(4,4,9,0.88)");
+
+  regle(ctx, W, H, champ, pxdeg, u);
   if(!dedans && a.dessin !== "trou" && rPx >= 0.5)
-    crochet(ctx, W, yObj, rPx, theta);
-  if(!zoome) luneTemoin(ctx, W, pxdeg, a);
-  legende(ctx, W, H, a, theta, dedans, champ, altObj, pxdeg, o);
+    crochet(ctx, W, yObj, rPx, theta, u);
+  if(!zoome) luneTemoin(ctx, W, H, pxdeg, a, u);
+  legende(ctx, W, H, a, theta, dedans, altObj, pxdeg, u, o);
 
   ctx.restore();
 }
@@ -745,10 +788,10 @@ function dessineTrou(ctx, W, yH, x, y, theta, pxdeg){
   }
 
   ctx.save();
-  ctx.strokeStyle = "rgba(255,154,60,0.40)";
+  ctx.strokeStyle = "rgba(255,154,60,0.60)";
   ctx.lineWidth = 1;
   ctx.setLineDash([3, 5]);
-  const e = Math.max(16, dPx*0.8 + 16), t = 7;
+  const e = Math.max(22, dPx*0.8 + 22), t = 10;
   ctx.beginPath();
   ctx.moveTo(x - e, y); ctx.lineTo(x - e + t, y);
   ctx.moveTo(x + e, y); ctx.lineTo(x + e - t, y);
@@ -759,163 +802,242 @@ function dessineTrou(ctx, W, yH, x, y, theta, pxdeg){
   ctx.restore();
 }
 
+/** Un fondu du bord `y0` vers `y1`, opaque au bord. */
+function voile(ctx, W, y0, y1, couleur){
+  const g = ctx.createLinearGradient(0, y0, 0, y1);
+  g.addColorStop(0, couleur);
+  g.addColorStop(1, couleur.replace(/[\d.]+\)$/, "0)"));
+  ctx.fillStyle = g;
+  ctx.fillRect(0, Math.min(y0, y1), W, Math.abs(y1 - y0));
+}
+
 /* La règle. Elle ne disparaît jamais, et elle se renumérote en changeant
    d'unité — c'est elle qui fait sentir la chute des degrés aux microsecondes
    d'arc quand on grossit le trou noir. */
-function regle(ctx, W, H, yH, champ, pxdeg){
-  const y = H - 34;
+function regle(ctx, W, H, champ, pxdeg, u){
+  const y = H - 34*u;
   const pas = pasJoli(champ);
   ctx.save();
   ctx.strokeStyle = "rgba(169,198,255,0.55)";
   ctx.fillStyle   = "rgba(169,198,255,0.80)";
   ctx.lineWidth = 1;
-  ctx.font = "11px ui-monospace, monospace";
+  ctx.font = (11*u).toFixed(1) + "px ui-monospace, monospace";
   ctx.textAlign = "center";
 
   ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
 
   const n = Math.ceil(champ/2/pas);
+  const ecart = pas*pxdeg;
+  // Une étiquette d'angle fait jusqu'à sept caractères — « 1,44 μas ». On ne
+  // numérote donc qu'une graduation sur deux dès qu'elles se rapprochent, sinon
+  // les chiffres se chevauchent et la règle ne se lit plus.
+  const saute = ecart < 60*u ? 2 : 1;
   for(let i = -n; i <= n; i++){
-    const x = W/2 + i*pas*pxdeg;
-    if(x < 12 || x > W - 12) continue;
-    const grand = (i % 2 === 0);
-    ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x, y - (grand ? 8 : 4)); ctx.stroke();
-    if(grand) ctx.fillText(etiquetteAngle(Math.abs(i*pas)), x, y + 14);
+    const x = W/2 + i*ecart;
+    if(x >= 12 && x <= W - 12){
+      const grand = (i % saute === 0);
+      ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x, y - (grand ? 8 : 4)*u); ctx.stroke();
+      if(grand) ctx.fillText(etiquetteAngle(Math.abs(i*pas)), x, y + 13*u);
+    }
+    const xm = x + ecart/2;              // la demi-graduation, muette
+    if(xm >= 6 && xm <= W - 6){
+      ctx.beginPath(); ctx.moveTo(xm, y); ctx.lineTo(xm, y - 3*u); ctx.stroke();
+    }
   }
   ctx.textAlign = "left";
   ctx.globalAlpha = 0.55;
-  ctx.fillText("champ " + etiquetteAngle(champ) + " — ciel déroulé, un degré = "
-               + nombre(pxdeg, pxdeg < 10 ? 1 : 0) + " px partout", 14, H - 8);
+  const px = pxdeg >= 1e5 ? pxdeg.toExponential(1).replace(".", ",")
+                          : nombre(pxdeg, pxdeg < 10 ? 1 : 0);
+  ctx.fillText((W < 460 ? "" : "ciel déroulé — ") + "champ " + etiquetteAngle(champ)
+               + ", un degré = " + px + " px partout", 14*u, H - 8*u);
   ctx.restore();
 }
 
 /* Le crochet sous l'astre : sa taille, écrite au-dessous de sa largeur. */
-function crochet(ctx, W, yObj, rPx, theta){
-  const y = yObj + rPx + 16;
+function crochet(ctx, W, yObj, rPx, theta, u){
+  const y = yObj + rPx + 16*u;
   ctx.save();
   ctx.strokeStyle = "rgba(255,154,60,0.75)";
   ctx.fillStyle   = "rgba(255,154,60,0.95)";
   ctx.lineWidth = 1;
   ctx.beginPath();
-  ctx.moveTo(W/2 - rPx, y - 5); ctx.lineTo(W/2 - rPx, y);
-  ctx.lineTo(W/2 + rPx, y);     ctx.lineTo(W/2 + rPx, y - 5);
+  ctx.moveTo(W/2 - rPx, y - 5*u); ctx.lineTo(W/2 - rPx, y);
+  ctx.lineTo(W/2 + rPx, y);       ctx.lineTo(W/2 + rPx, y - 5*u);
   ctx.stroke();
-  ctx.font = "12px ui-monospace, monospace";
+  ctx.font = (12*u).toFixed(1) + "px ui-monospace, monospace";
   ctx.textAlign = "center";
   ctx.fillText(etiquetteAngle(theta) + "  ·  " + nombre(enLunes(theta), 1) + " Lunes",
-               W/2, y + 14);
+               W/2, y + 13*u);
   ctx.restore();
 }
 
 /* La Lune témoin. Toujours là, toujours à l'échelle courante — y compris quand
    elle ne fait plus que trois pixels. Surtout quand elle ne fait plus que trois
    pixels : c'est à ce moment-là qu'elle dit quelque chose. */
-function luneTemoin(ctx, W, pxdeg, a){
+function luneTemoin(ctx, W, H, pxdeg, a, u){
+  if(a.cle === "lune") return;            // on la regarde déjà, en plus grand
+
   const r = THETA_LUNE/2 * pxdeg;
-  const cx = W - 74, cy = 52;
+  // Sur un canevas étroit, le coin haut-droit appartient à la légende. Le
+  // témoin descend alors juste au-dessus de la règle, où il reste toujours de
+  // la place — le ciel y est vide par construction, c'est le bas de l'horizon.
+  const etroit = W < 460;
+  const cx = etroit ? W - 52*u : W - 74*u;
+  const cy = etroit ? H - 150*u : 52*u;
+
   ctx.save();
-  ctx.font = "10px ui-monospace, monospace";
+  panneau(ctx, cx - 62*u, cy - 30*u, 124*u, 82*u);
+  ctx.font = (10*u).toFixed(1) + "px ui-monospace, monospace";
   ctx.textAlign = "center";
-  ctx.fillStyle = "rgba(169,198,255,0.62)";
-  if(a.cle === "lune"){
-    ctx.fillText("c'est elle", cx, cy + 34);
+
+  if(r >= 0.5){
+    limbe(ctx, cx, cy, r, [214,208,196], 1);
+    if(r > 6) taches(ctx, cx, cy, r, MERS, "#6d6a63", 0.42);
   } else {
-    if(r >= 0.5){
-      limbe(ctx, cx, cy, r, [214,208,196], 1);
-      if(r > 6) taches(ctx, cx, cy, r, MERS, "#6d6a63", 0.42);
-    } else {
-      ctx.fillStyle = "rgba(214,208,196,0.9)";
-      ctx.fillRect(cx - 0.5, cy - 0.5, 1, 1);
-      ctx.fillStyle = "rgba(169,198,255,0.62)";
-    }
-    ctx.fillText("la Lune, même échelle", cx, cy + 34);
-    ctx.fillText(nombre(2*r, 1) + " px", cx, cy + 46);
+    // Sous le demi-pixel, la Lune non plus n'a pas droit à un dessin flatté :
+    // un pixel, pas davantage. C'est la même règle que pour le trou noir.
+    ctx.fillStyle = "rgba(214,208,196,0.9)";
+    ctx.fillRect(cx - 0.5, cy - 0.5, 1, 1);
   }
+  ctx.fillStyle = "rgba(169,198,255,0.62)";
+  ctx.fillText("la Lune, même échelle", cx, cy + 32*u);
+  ctx.fillText(nombre(2*r, 1) + " px", cx, cy + 44*u);
   ctx.restore();
 }
 
-/* La légende. Sobre, et elle déclare ce qui est dessiné plutôt que mesuré. */
-function legende(ctx, W, H, a, theta, dedans, champ, altObj, pxdeg, o){
-  const marge = 16;
-  let y = 26;
+/* La légende. Sobre, et elle déclare ce qui est dessiné plutôt que mesuré.
+ *
+ *  Elle porte son propre fond, taillé à la hauteur du texte : par-dessus le
+ *  Soleil, un texte clair sur du blanc ne se lit pas, et voiler tout le haut du
+ *  cadre reviendrait à assombrir l'objet qu'on est venu voir. */
+function legende(ctx, W, H, a, theta, dedans, altObj, pxdeg, u, o){
+  const marge = 16*u;
+  // La colonne de texte laisse la place au témoin lunaire — sauf sur un canevas
+  // étroit, où le témoin est allé se mettre en bas et rend la largeur entière.
+  const etroit = W < 460;
+  const largeur = Math.min(560, W - 2*marge - (etroit ? 0 : 150*u));
+
+  const fTitre = (17*u).toFixed(1) + "px ui-serif, Georgia, serif";
+  const fMono  = (12.5*u).toFixed(1) + "px ui-monospace, monospace";
+  const fNote  = (13*u).toFixed(1) + "px ui-sans-serif, system-ui, sans-serif";
+  const AMBRE  = "rgba(255,154,60,0.92)", GRIS = "rgba(154,149,142,0.95)";
+
+  /* On COMPOSE d'abord, on dessine ensuite. Deux raisons : le fond doit
+     connaître la hauteur du bloc avant d'être posé, et les lignes de chiffres
+     doivent pouvoir se replier comme la prose — sur un téléphone, « l'anneau de
+     Sgr A* fait 51,8 μas… » ne tient pas sur une ligne, et une phrase coupée
+     par le bord du cadre ne vaut pas mieux qu'une phrase absente. */
+  const donnees = [];
+  if(a.dessin === "trou"){
+    const dPx = theta * pxdeg;
+    // Les deux seuils sont CALCULÉS : celui de l'apparition dépend de la
+    // largeur du cadre, et l'écrire en dur serait un chiffre faux dès qu'on
+    // redimensionne la fenêtre.
+    const gApparait = Math.log10(0.5 / (theta * W/etat.champ));
+    const gLune = Math.log10(THETA_LUNE / theta);
+    donnees.push([AMBRE, etiquetteAngle(theta) + "  ·  rayon "
+      + nombre(rayonSchwarzschild(gmDe(a))*1000, 3) + " mm"]);
+    // Le texte suit ce que le dessin fait vraiment : dire « rien n'est dessiné »
+    // alors qu'un disque est à l'écran serait le genre de légende qui ment.
+    donnees.push([GRIS, dPx >= 0.5
+      ? "son disque mesure ici " + nombre(dPx, dPx < 10 ? 2 : 0) + " pixels — le voilà"
+      : "son disque mesure ici " + dPx.toExponential(1).replace(".", ",")
+        + " pixel — rien n'est dessiné"]);
+    donnees.push([GRIS, "grossissement " + (etat.grossissement < 0.02
+      ? "×1 — il apparaîtra à ×10^" + nombre(gApparait, 1)
+        + ", il aura la taille de la Lune à ×10^" + nombre(gLune, 1)
+      : "×10^" + nombre(etat.grossissement, 2))]);
+    donnees.push([GRIS, "l'anneau de Sgr A* fait " + nombre(SGRA_ANNEAU_UAS, 1)
+      + " μas, soit " + nombre(SGRA_ANNEAU_UAS/(theta*3.6e9), 0)
+      + " fois plus large. C'est le plus fin détail jamais photographié."]);
+  } else if(dedans){
+    donnees.push([AMBRE, "pas de diamètre apparent : on est à l'intérieur"]);
+    donnees.push([GRIS, "rayon " + nombre(a.rayon_km, 0) + " km = "
+      + nombre(a.rayon_km/D_LUNE_KM, 2) + " fois la distance Terre–Lune"]);
+  } else {
+    donnees.push([AMBRE, etiquetteAngle(theta) + "  ·  " + nombre(enLunes(theta), 2)
+      + " Lunes de large  ·  " + nombre(enLunes(theta)*enLunes(theta), 0)
+      + " Lunes de surface"]);
+    donnees.push([GRIS, "rayon moyen " + nombre(a.rayon_km, a.rayon_km < 10000 ? 1 : 0)
+      + " km, à " + nombre(D_LUNE_KM, 0) + " km  ·  hauteur "
+      + etiquetteAngle(altObj) + " sur l'horizon"]);
+  }
+
   ctx.save();
   ctx.textAlign = "left";
 
+  ctx.font = fMono;
+  const lignesD = [];
+  for(const [c, t] of donnees) for(const l of decoupe(ctx, t, largeur)) lignesD.push([c, l]);
+  ctx.font = fNote;
+  const lignesN = decoupe(ctx, a.note, largeur);
+
+  const hTitre = 26*u, hD = 17*u, hN = 17*u;
+  panneau(ctx, 0, 0, Math.min(W, marge + largeur + 24*u),
+          hTitre + 4*u + lignesD.length*hD + 14*u + lignesN.length*hN + 12*u);
+
+  let y = hTitre;
   ctx.fillStyle = "rgba(232,229,224,0.95)";
-  ctx.font = "17px ui-serif, Georgia, serif";
+  ctx.font = fTitre;
   ctx.fillText("À la place de la Lune : " + a.nom, marge, y);
-  y += 22;
+  y += 4*u;
 
-  ctx.font = "13px ui-monospace, monospace";
-  ctx.fillStyle = "rgba(255,154,60,0.92)";
-  if(a.dessin === "trou"){
-    const dPx = theta * pxdeg;
-    ctx.fillText(etiquetteAngle(theta) + "  ·  rayon " + nombre(rayonSchwarzschild(gmDe(a))*1000, 3) + " mm",
-                 marge, y);
-    y += 18;
-    ctx.fillStyle = "rgba(154,149,142,0.95)";
-    ctx.fillText("son disque mesure ici " + dPx.toExponential(1).replace(".", ",")
-                 + " pixel — rien n'est dessiné", marge, y);
-    y += 16;
-    ctx.fillText("grossissement ×10^" + nombre(etat.grossissement, 2)
-                 + "   premier pixel à ×10^8,35   taille de la Lune à ×10^10,2", marge, y);
-    y += 16;
-    ctx.fillText("l'anneau de Sgr A* fait " + nombre(SGRA_ANNEAU_UAS, 1) + " μas, soit "
-                 + nombre(SGRA_ANNEAU_UAS/(theta*3.6e9), 0)
-                 + " fois plus large. C'est le plus fin détail jamais photographié.",
-                 marge, y);
-  } else if(dedans){
-    ctx.fillText("pas de diamètre apparent : on est à l'intérieur", marge, y);
-    y += 18;
-    ctx.fillStyle = "rgba(154,149,142,0.95)";
-    ctx.fillText("rayon " + nombre(a.rayon_km, 0) + " km = "
-                 + nombre(a.rayon_km/D_LUNE_KM, 2) + " fois la distance Terre–Lune", marge, y);
-  } else {
-    ctx.fillText(etiquetteAngle(theta) + "  ·  " + nombre(enLunes(theta), 2)
-                 + " Lunes de large  ·  " + nombre(enLunes(theta)*enLunes(theta), 0)
-                 + " Lunes de surface", marge, y);
-    y += 18;
-    ctx.fillStyle = "rgba(154,149,142,0.95)";
-    ctx.fillText("rayon moyen " + nombre(a.rayon_km, a.rayon_km < 10000 ? 1 : 0)
-                 + " km, à " + nombre(D_LUNE_KM, 0) + " km  ·  hauteur "
-                 + etiquetteAngle(altObj) + " sur l'horizon", marge, y);
-  }
+  ctx.font = fMono;
+  for(const [c, t] of lignesD){ y += hD; ctx.fillStyle = c; ctx.fillText(t, marge, y); }
 
-  y += 22;
-  ctx.fillStyle = "rgba(154,149,142,0.88)";
-  ctx.font = "13px ui-sans-serif, system-ui, sans-serif";
-  enveloppe(ctx, a.note, marge, y, Math.min(560, W - 2*marge), 17);
+  y += 14*u;
+  ctx.fillStyle = "rgba(154,149,142,0.92)";
+  ctx.font = fNote;
+  for(const t of lignesN){ y += hN; ctx.fillText(t, marge, y); }
 
-  // Les déclarations, en bas et en petit. Ce qui est dessiné et ne mesure rien.
-  ctx.font = "10px ui-monospace, monospace";
+  /* Les déclarations : ce qui est dessiné et ne mesure rien. Elles restent même
+     quand la place manque — c'est la règle de la maison, la surcouche se
+     déclare — mais elles se replient au-dessus de la règle plutôt que de
+     s'écrire par-dessus. */
+  ctx.font = (10*u).toFixed(1) + "px ui-monospace, monospace";
   ctx.fillStyle = "rgba(154,149,142,0.55)";
-  const decl = [];
-  decl.push("dessin : reliefs, taches et bandes sont évoqués, pas relevés");
-  decl.push("l'éclairage du sol est indicatif, il n'est pas calculé");
+  const decl = ["dessin : reliefs, taches et bandes sont évoqués, pas relevés",
+                "l'éclairage du sol est indicatif, il n'est pas calculé"];
   if(a.anneaux) decl.push("l'étendue des anneaux est un dessin, pas une mesure");
   if(a.dessin === "trou") decl.push("le réticule est une aide de lecture, il n'a pas de taille");
-  decl.forEach((t, i) => ctx.fillText(t, marge, H - 52 - (decl.length - 1 - i)*13));
+  decl.forEach((t, i) => ctx.fillText(t, marge, H - 50*u - (decl.length - 1 - i)*12*u));
 
-  if(o.aide !== false){
+  // Le rappel des touches ne s'affiche que si l'appelant le demande : une page
+  // qui offre déjà des boutons n'en a pas besoin, et il viendrait buter contre
+  // la légende du champ, à gauche sur la même ligne.
+  if(o.aide){
     ctx.textAlign = "right";
     ctx.fillStyle = "rgba(154,149,142,0.5)";
     ctx.fillText("← →  changer d'astre   ·   F  champ figé à 60°"
-                 + (a.dessin === "trou" ? "   ·   ↑ ↓  grossir" : ""), W - marge, H - 8);
+                 + (a.dessin === "trou" ? "   ·   ↑ ↓  grossir" : ""), W - marge, H - 22*u);
   }
   ctx.restore();
 }
 
-function enveloppe(ctx, texte, x, y, largeur, interligne){
-  const mots = texte.split(" ");
+/** Découpe un texte en lignes tenant dans `largeur`, sans rien dessiner : il
+ *  faut connaître la hauteur du bloc avant de poser le fond qui va dessous. */
+function decoupe(ctx, texte, largeur){
+  const lignes = [];
   let ligne = "";
-  for(const m of mots){
+  for(const m of texte.split(" ")){
     const essai = ligne ? ligne + " " + m : m;
-    if(ctx.measureText(essai).width > largeur && ligne){
-      ctx.fillText(ligne, x, y); y += interligne; ligne = m;
-    } else ligne = essai;
+    if(ctx.measureText(essai).width > largeur && ligne){ lignes.push(ligne); ligne = m; }
+    else ligne = essai;
   }
-  if(ligne) ctx.fillText(ligne, x, y);
-  return y;
+  if(ligne) lignes.push(ligne);
+  return lignes;
+}
+
+/** Un fond sombre à coins adoucis, sous un bloc de texte. */
+function panneau(ctx, x, y, w, h){
+  ctx.save();
+  const g = ctx.createLinearGradient(x, y, x, y + h);
+  g.addColorStop(0,    "rgba(4,4,9,0.84)");
+  g.addColorStop(0.88, "rgba(4,4,9,0.80)");
+  g.addColorStop(1,    "rgba(4,4,9,0)");
+  ctx.fillStyle = g;
+  ctx.fillRect(x, y, w, h);
+  ctx.restore();
 }
 
 /* ============================================================== 7. L'ANTICLIMAX
