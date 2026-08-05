@@ -52,6 +52,7 @@ sources: {
   },
   schwarzschild1916: {
     ref: "K. Schwarzschild, « Über das Gravitationsfeld eines Massenpunktes nach der Einsteinschen Theorie », Sitzungsberichte der Königlich Preussischen Akademie der Wissenschaften (1916), 189-196",
+    url: "https://arxiv.org/abs/physics/9905030",
     sert: "Métrique de Schwarzschild, rayon r_s = 2GM/c²",
   },
   dyson1920: {
@@ -66,10 +67,12 @@ sources: {
   },
   bardeen1973: {
     ref: "J. M. Bardeen, « Timelike and null geodesics in the Kerr metric », dans Black Holes (Les Houches 1972), DeWitt & DeWitt (éds.), Gordon & Breach (1973)",
+    url: "https://inspirehep.net/literature/1361769",
     sert: "Rayon apparent de l'ombre, paramètre d'impact critique b_c = √27 GM/c²",
   },
   luminet1979: {
     ref: "J.-P. Luminet, « Image of a spherical black hole with thin accretion disk », Astronomy & Astrophysics 75, 228-235 (1979)",
+    url: "https://inspirehep.net/literature/1730378",
     sert: "Premier calcul d'image d'un trou noir à disque mince : image secondaire, asymétrie Doppler",
   },
   gralla2019: {
@@ -79,6 +82,7 @@ sources: {
   },
   shakura1973: {
     ref: "N. I. Shakura, R. A. Sunyaev, « Black holes in binary systems. Observational appearance », Astronomy & Astrophysics 24, 337-355 (1973)",
+    url: "https://inspirehep.net/literature/73651",
     sert: "Modèle de disque mince, viscosité α",
   },
   balbus1991: {
@@ -108,10 +112,12 @@ sources: {
   },
   birkhoff1923: {
     ref: "G. D. Birkhoff, Relativity and Modern Physics, Harvard University Press (1923), p. 253",
+    url: "https://openlibrary.org/works/OL22104343W",
     sert: "Théorème de Birkhoff : à l'extérieur d'une distribution sphérique, la métrique ne dépend que de M",
   },
   chandrasekhar1983: {
     ref: "S. Chandrasekhar, The Mathematical Theory of Black Holes, Oxford University Press (1983), chap. 3",
+    url: "https://openlibrary.org/works/OL3267036W",
     sert: "Équation des géodésiques (forme de Binet) pour Schwarzschild, sphère des photons à 3GM/c²",
   },
   kerr1963: {
@@ -126,6 +132,7 @@ sources: {
   },
   penrose1969: {
     ref: "R. Penrose, « Gravitational Collapse: The Role of General Relativity », Rivista del Nuovo Cimento 1, 252 (1969)",
+    doi: "10.1023/A:1016578408204",
     sert: "Extraction d'énergie de rotation depuis l'ergosphère (processus de Penrose)",
   },
   blandford1977: {
@@ -163,6 +170,7 @@ sources: {
   },
   misner1973: {
     ref: "C. W. Misner, K. S. Thorne, J. A. Wheeler, Gravitation, W. H. Freeman (1973), §25 et §31",
+    url: "https://openlibrary.org/works/OL4461077W",
     sert: "Marées en M/r³, chute libre régulière à travers l'horizon, temps propre maximal πGM/c³",
   },
   gillessen2017: {
