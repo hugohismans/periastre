@@ -995,3 +995,49 @@ mémoire locale, et passera au partagé quand Firestore le sera.
 C'est donc une mécanique à fort rendement — beaucoup de sens pédagogique pour
 peu de code. Elle mérite de venir juste après le voyage, dont elle est la
 conséquence naturelle.
+
+## Le vaisseau magique — la deuxième fiction, et la seule
+
+Hugo pose le présupposé des voyages : **le vaisseau tient 1 g indéfiniment.** On
+n'explique pas comment. On l'accorde, on le dit, et on n'en parle plus.
+
+C'est le même contrat que pour la pesanteur du salon, et c'est ce qui rend
+l'aveu solide : **une fiction déclarée, et tout ce qui en découle rigoureux.**
+Le moteur est accordé ; les durées de trajet, elles, ne sont pas négociables —
+elles sortent de la formule.
+
+### Ce que le voyage doit montrer
+
+Trois temps, et le deuxième est le plus beau :
+
+1. On accélère à 1 g pendant la moitié du trajet. À bord, on a un poids normal.
+2. **On retourne le vaisseau.** Le bas devient le haut, et l'on freine. C'est un
+   moment réel, physiquement obligatoire, et personne ne le raconte jamais —
+   il mérite sa seconde d'animation.
+3. On décélère jusqu'à l'arrêt.
+
+Avec le chronomètre qui donne les deux durées côte à côte : celle vécue à bord
+et celle écoulée au loin. Elles ne se ressemblent pas, et c'est tout le propos.
+
+L'explication du calcul est **proposée, jamais imposée** — la règle vaut ici
+comme partout : un bouton, pas un passage obligé.
+
+### L'honnêteté qui rend la fiction acceptable
+
+Accorder le moteur sans dire ce qu'il coûterait serait de la magie molle. Or le
+site a déjà le chiffre, et il est vertigineux : à 1 g jusqu'au centre
+galactique, le rapport de masses d'une fusée idéale atteint **e^20,47**, soit
+de l'ordre de **780 000 tonnes de carburant par kilogramme arrivé** — et cela
+en supposant une conversion parfaite en énergie, ce qu'aucune technologie
+connue n'approche.
+
+Le bon ton est donc : *on t'accorde le moteur, et voici pourquoi personne ne le
+construira jamais.* La fiction assumée devient alors elle-même une leçon, au
+lieu d'un trou dans le raisonnement.
+
+### La carte
+
+Voir où l'on se situe dans la Voie lactée pendant le trajet. Elle sert deux
+choses à la fois : donner un repère au voyage, et préparer le dézoom vers la
+galaxie déjà prévu. C'est le même moteur d'échelle logarithmique, et le même
+quadrillage.
