@@ -1479,7 +1479,16 @@ void main(){
 
 <script id="vs" type="x-shader">#version 300 es
 in vec2 aPos;
-void main(){ gl_Position = vec4(aPos, 0.0, 1.0); }
+/* z = 1, c'est-à-dire le plan LOINTAIN, et non zéro.
+
+   Le triangle plein écran est désormais dessiné APRÈS l'habitacle, avec un test
+   de profondeur en « inférieur ou égal ». Posé au fond, il ne passe donc que là
+   où rien n'a été écrit — c'est-à-dire par la baie. Partout ailleurs la coque a
+   déjà rempli le tampon, et le nuanceur de fragments n'est même pas appelé.
+
+   C'est ce qui évite de lancer des géodésiques sur les deux tiers de l'écran
+   pour les jeter aussitôt. */
+void main(){ gl_Position = vec4(aPos, 1.0, 1.0); }
 </script>
 
 <script id="fs" type="x-shader">#version 300 es
@@ -6264,6 +6273,25 @@ function boucle(now){
     tampon[i*3] = photons[i].p[0]; tampon[i*3+1] = photons[i].p[1]; tampon[i*3+2] = photons[i].p[2];
   }
 
+  /* L'HABITACLE D'ABORD, LE CIEL ENSUITE.
+
+     L'ordre était l'inverse, et il gaspillait l'essentiel du travail : on
+     lançait des géodésiques sur la totalité de l'écran, puis la coque du
+     vaisseau venait en recouvrir les deux tiers. Deux fragments sur trois
+     étaient calculés pour être jetés.
+
+     Désormais l'habitacle remplit d'abord le tampon de profondeur, et le
+     triangle plein écran est posé au plan LOINTAIN avec un test « inférieur ou
+     égal » : il ne passe que là où rien n'a été écrit, c'est-à-dire par la
+     baie. Ailleurs, le nuanceur de fragments n'est même pas appelé.
+
+     Il faut nettoyer la couleur explicitement, ce dont on se passait avant :
+     le triangle couvrait tout, il n'y avait jamais de trou. */
+  gl.clearColor(0, 0, 0, 1);
+  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+  if(salon.actif) dessineHabitacle();
+
   // Le programme doit être activé AVANT d'envoyer ses uniformes : un
   // gl.uniform* s'applique au programme courant, pas à celui dont vient
   // l'emplacement. Depuis que la passe du salon en active un second, ces
@@ -6271,7 +6299,8 @@ function boucle(now){
   // figée sur la toute première image.
   gl.useProgram(prog);
   gl.bindVertexArray(vaoPlein);
-  gl.disable(gl.DEPTH_TEST);
+  gl.enable(gl.DEPTH_TEST);
+  gl.depthFunc(gl.LEQUAL);        // le fond passe là où la profondeur est restée au maximum
 
   gl.uniform2f(uRes, cv.width, cv.height);
   gl.uniform1f(uTemps, tempsGeo);
@@ -6310,12 +6339,21 @@ function boucle(now){
      coup. Le trou noir, lui, se réduit tout seul jusqu'à disparaître — ce qui
      est précisément ce qu'on est venu montrer. */
   gl.drawArrays(gl.TRIANGLES, 0, 3);
+  gl.depthFunc(gl.LESS);          // on rend l'état par défaut à la suite
+  gl.disable(gl.DEPTH_TEST);
 
-  // Seconde passe : l'habitacle par-dessus. Le tampon de profondeur part
-  // vierge, donc tout ce qui a de la géométrie recouvre le fond — et la baie,
-  // qui n'en a pas, laisse passer l'astre.
-  if(salon.actif){
-    gl.clear(gl.DEPTH_BUFFER_BIT);
+  dessine();
+  dessineVoyage(dt);
+  finBoucle(now, dt);
+}
+
+/* L'habitacle, extrait de la boucle pour pouvoir passer AVANT le ciel.
+
+   Il remplit le tampon de profondeur ; la baie, qui n'est pas un objet mais
+   l'absence d'objet, y laisse la profondeur au maximum — et c'est par ce trou
+   que le lancer de géodésiques passera juste après. */
+function dessineHabitacle(){
+  {
     gl.enable(gl.DEPTH_TEST);
     gl.useProgram(progSalon);
     gl.uniformMatrix4fv(uMVP, false, mvpSalon());
@@ -6439,12 +6477,12 @@ function boucle(now){
     ROBOT.dessine(gl, envoie, salon.horloge, oeilSalon(),
       (salon.vise === POSTE_LUMEN || questionsOuvertes) ? 1
       : (attendu === "a-lumen" ? 0.55 : 0));
-    gl.disable(gl.DEPTH_TEST);
   }
+}
 
-  dessine();
-  dessineVoyage(dt);
-
+// La fin de la boucle, séparée elle aussi : l'interface, les veilles et le
+// rappel. Rien n'y a changé, sinon qu'elle a désormais un nom.
+function finBoucle(now, dt){
   // La porte de sortie ne paraît que quand la carte cache tout le reste, et
   // seulement si le panneau est fermé — sinon elle ferait doublon.
   $("b-instrument").classList.toggle("vu", TELESCOPE.carte > 0.5 && !TELESCOPE.ouvert);
