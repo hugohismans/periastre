@@ -772,3 +772,28 @@ Trois détails qui font toute la différence, et qu'il ne faut pas rater :
 Et l'arrivée dit le reste toute seule : le trou noir a disparu sous le pixel,
 les orbites emplissent l'écran, et il ne reste que des étoiles tournant autour
 de rien. C'est exactement ce qu'ont vu les astronomes pendant trente ans.
+
+### Aucune étoile inventée
+
+Hugo, sans détour : *« je n'aimerais pas trop que tu mettes des fausses
+étoiles. »* C'est la règle du site et elle ne souffre pas d'exception ici.
+
+**On ne montre que les étoiles dont l'orbite est publiée**, avec leur
+référence. S'il n'y en a que six ou huit bien contraintes, on en montre six ou
+huit. Le champ paraîtra clairsemé, et ce sera juste : ce sont exactement celles
+qu'on sait suivre. La rareté fait partie du propos — elle dit le prix qu'a
+coûté cette mesure.
+
+Ce qui serait tentant et qu'il faut refuser : peupler l'arrière-plan de points
+« plausibles » pour faire riche. Ils ne prouveraient rien, ils ne seraient
+sourçables nulle part, et un seul lecteur averti qui les compte aurait raison
+de douter du reste.
+
+Le champ d'étoiles du fond, dans le rendu actuel, est déjà une texture
+procédurale — c'est admis dans la fiche « ce qui n'est pas vrai ». Il ne doit
+pas servir d'alibi : décorer un fond lointain n'est pas prétendre suivre un
+astre nommé sur une orbite mesurée.
+
+C'est d'ailleurs pourquoi le quadrillage est la bonne réponse à l'échelle. Il
+ne fait semblant de rien : il se déclare comme un instrument, alors qu'une
+étoile ajoutée se ferait passer pour une observation.
