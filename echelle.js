@@ -1,6 +1,23 @@
 /* ============================================================================
    Moteur de voyage d'échelle.
 
+   ---------------------------------------------------------------------------
+   IL S'APPELAIT `voyage.js`, ET IL POSAIT `window.VOYAGE`
+
+   Or `voyage1g.js` pose ce nom-là aussi. Les deux modules n'ont rien en commun,
+   et le second est en production : il porte les durées du trajet, le prix en
+   carburant et le temps propre en cours de route.
+
+   Le jour où l'on aurait ajouté la balise de celui-ci, le dernier chargé aurait
+   écrasé l'autre en silence — `VOYAGE.enChemin`, `VOYAGE.joli`, `VOYAGE.trajet`
+   auraient disparu sans un message, et le voyage à 1 g serait mort. C'est
+   exactement le symptôme muet qui a déjà tué le bloc de script deux fois.
+
+   D'où le renommage, fait AVANT tout branchement et non après : une mine qu'on
+   désamorce quand on la voit coûte cinq minutes, et deux heures quand elle a
+   sauté.
+   ---------------------------------------------------------------------------
+
    Une seule variable pilote tout : `decade`, le logarithme décimal de la
    largeur du champ en mètres. On va de 10,1 (rayon de Schwarzschild de
    Sgr A*) à 26,6 (univers observable), soit dix-sept décades.
@@ -13,7 +30,7 @@
 
    Une scène s'enregistre ainsi :
 
-     VOYAGE.enregistre({
+     ECHELLE.enregistre({
        id: "systeme-solaire",
        nom: "Le système solaire",
        echelle: [10.6, 13.4],       // décades où elle est visible
@@ -313,7 +330,7 @@ function legende(d){
   return `${(m/(1e6*AL)).toPrecision(3)} millions d'années-lumière`;
 }
 
-global.VOYAGE = {
+global.ECHELLE = {
   UA, AL, PC,
   enregistre, demarre, dessine, legende, scenes,
   vue,

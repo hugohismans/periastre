@@ -6,6 +6,15 @@ voir `CHANTIERS.md` — liste courte et ordonnée. Ici, c'est le pourquoi.
 Réorganisé le 5 août 2026 : le fichier avait grossi par ajouts successifs
 jusqu'à n'être qu'une pile chronologique. Rien n'a été supprimé.
 
+**Remis à plat contre le code le 5 août 2026 au soir.** Le carnet avait dérivé :
+il décrivait des états disparus, portait une formule fausse d'un facteur √2, et
+donnait deux chiffres pour le même calcul. Un carnet auquel on ne peut plus se
+fier fabrique du code faux — la formule fausse était déjà partie en production
+une fois. Chaque affirmation ci-dessous a été relue contre le fichier qui
+l'implémente ; les entrées dépassées portent désormais **FAIT —**, **À MOITIÉ
+FAIT —** ou **CADUC —** en tête, et rien n'a été effacé. Le carnet reste aussi
+un journal.
+
 
 
 ---
@@ -112,6 +121,24 @@ galactique, le rapport de masses d'une fusée idéale atteint **e^20,47**, soit
 de l'ordre de **780 000 tonnes de carburant par kilogramme arrivé** — et cela
 en supposant une conversion parfaite en énergie, ce qu'aucune technologie
 connue n'approche.
+
+> **Deux chiffres traînaient pour ce même calcul, et voici lequel est le bon.**
+> Le carnet disait 780 000, la réplique `inactif-8` de `contenu.js` dit encore
+> 758 000. Refait ici depuis la formule juste, pour la distance que le site
+> adopte partout ailleurs (**8 277 pc**, GRAVITY) :
+>
+> - `k = a·d / 2c² = 9,80665 × 2,5540 × 10²⁰ / 1,7975 × 10¹⁷ = 13 934` ;
+> - rapidité au demi-tour `η = arcosh(k + 1) = 10,2353`, donc `Δη = 2η = 20,471` ;
+> - rapport de masses `e^(2η) = 7,767 × 10⁸`, soit **777 000 tonnes par
+>   kilogramme arrivé** — que le site arrondit en 780 000.
+>
+> **Le 758 000 n'est pas une autre méthode, c'est une autre distance** : il vaut
+> `e^20,447 = 7,584 × 10⁸` pour d = 26 675 al, c'est-à-dire les 8 178 pc de
+> GRAVITY 2019 que le site n'emploie plus. C'est exactement le « corollaire sur
+> `inactif-8` » que l'audit annonçait : `inactif-6` a été corrigé (il dit
+> aujourd'hui 26 996 al et γ = 13 935), son corollaire ne l'a pas été.
+> **Chiffre retenu : 780 000 tonnes.** `inactif-8` reste à corriger dans
+> `contenu.js` — texte, champ `dire`, MP3 à régénérer.
 
 Le bon ton est donc : *on t'accorde le moteur, et voici pourquoi personne ne le
 construira jamais.* La fiction assumée devient alors elle-même une leçon, au
@@ -295,6 +322,16 @@ cours — comme pour la Lune remplacée par un trou noir.
 Le seul morceau vraiment étranger, c'est **acheter des choses**. Une économie ne
 sort d'aucune équation. À traiter comme du décor assumé, ou à laisser tomber.
 
+> **CONTRADICTION NON TRANCHÉE — elle appartient à Hugo.** Ce paragraphe dit
+> « à laisser tomber » ; la liste d'attente, plus bas, porte « Avatars, tenues,
+> **monnaie**, quêtes » avec la règle « on ne débloque qu'en comprenant ». Les
+> deux ne peuvent pas être vrais en même temps : soit il y a une monnaie, soit
+> il n'y en a pas. Ce n'est pas une erreur de fait, c'est un choix éditorial —
+> je le signale et je n'y touche pas. À noter quand même que la troisième voie
+> existe déjà dans le carnet, à « La personnalisation du vaisseau » : *un objet
+> rapporté d'une destination visitée est un souvenir de voyage, pas un achat*.
+> Elle donne la garde-robe sans l'économie.
+
 ### Le point de vue, qui est le vrai apport
 
 Hugo insiste, et il a raison : voir le cataclysme **depuis son vaisseau en
@@ -319,20 +356,35 @@ déplacement en leçon**, sans rien ajouter de pédagogique : la formule de la
 fusée relativiste est déjà dans le site, et elle s'applique à n'importe quelle
 distance.
 
-Le fait qui rend la mécanique jouable, et que j'ai calculé ici — **à vérifier** :
+Le fait qui rend la mécanique jouable — **vérifié, et corrigé le 5 août** :
 
-$$\tau = \tfrac{4c}{g}\,\operatorname{arccosh}\!\left(\tfrac{gd}{4c^{2}}+1\right)$$
+$$\tau = \tfrac{2c}{a}\,\operatorname{arcosh}\!\left(\tfrac{a\,d}{2c^{2}}+1\right)$$
 
-- du salon jusqu'à la distance d'observation des étoiles S (mille unités
-  astronomiques, soit 0,016 année-lumière) : **environ trois mois** de temps
-  propre ;
-- jusqu'au système solaire (27 000 années-lumière) : **une vingtaine d'années**.
+> **Ce carnet a porté `4c/g` et `gd/4c²` pendant des semaines, et c'est faux
+> d'un facteur √2** : chaque moitié du trajet couvre `d/2`, et une phase
+> d'accélération seule vaut `(c/a)·arcosh(a·s/c² + 1)` — la doubler donne
+> `2c/a`, pas `4c/a`. L'erreur est invisible à l'œil et saute immédiatement au
+> contrôle newtonien, où τ doit tendre vers `2·√(d/a)`. Elle est partie en
+> production une fois. La forme juste est celle qu'implémente `voyage1g.js`
+> (voir son en-tête, qui raconte l'incident) ; ne pas la réintroduire.
 
-Le rapport est énorme alors que les distances vont de un à un million : c'est
-la signature logarithmique de l'accélération constante, et c'est exactement ce
-qu'il faut faire sentir. Les déplacements locaux coûtent des mois, les
-interstellaires des décennies. La mécanique enseigne donc toute seule pourquoi
-la galaxie est hors de portée.
+Avec la bonne formule, et depuis notre orbite :
+
+- jusqu'à la distance d'observation des étoiles S — **dix mille** unités
+  astronomiques, voir plus bas : **environ neuf mois** de temps propre
+  (284 jours) ;
+- jusqu'au système solaire (8 277 pc, soit 27 000 années-lumière) :
+  **19,8 ans** vécus contre 27 000 écoulés au loin.
+
+Le rapport des durées n'est que de vingt-cinq alors que les distances vont de
+un à cent soixante-dix mille : c'est la signature logarithmique de
+l'accélération constante, et c'est exactement ce qu'il faut faire sentir. Les
+déplacements locaux coûtent des mois, les interstellaires des décennies. La
+mécanique enseigne donc toute seule pourquoi la galaxie est hors de portée.
+
+À titre de comparaison, l'ancienne formule donnait 37 ans au lieu de 19,8 pour
+le centre galactique — un écart assez petit pour passer une relecture, assez
+gros pour faire mentir le site.
 
 ### Le morceau structurant : deux vaisseaux
 
@@ -361,9 +413,16 @@ Rien d'insurmontable, mais c'est la troisième étape, pas la première.
 
 ### L'ordre que je propose
 
-1. **Le voyage** sur le vaisseau actuel : animation, chronomètre, distance
+1. **FAIT — Le voyage** sur le vaisseau actuel : animation, chronomètre, distance
    choisie. Aucun partage requis, et ça donne immédiatement le dézoom vers les
    étoiles S que réclame la scène des orbites.
+   *Il se déroule depuis le salon, sans changer de décor : `lanceVoyage()`,
+   `RECUL` pour le recul logarithmique en vingt-deux secondes d'écran, le
+   quadrillage qui ne paraît que pendant le mouvement et seulement quand l'astre
+   est dans le champ, le chronomètre qui calcule le temps propre pour la
+   distance déjà parcourue au lieu d'étaler le total, et la seconde destination
+   qu'on **refuse** en donnant le prix en carburant. La carte des étoiles prend
+   la main à l'arrivée.*
 2. **Les règles Firestore**, qui débloquent tout le reste.
 3. **La séparation des deux vaisseaux**, une fois qu'il y a vraiment quelque
    chose à partager.
@@ -389,16 +448,36 @@ juxtaposées auraient demandé de l'expliquer.
 ### Ce que ça implique
 
 - **Le recul est continu**, pas une coupure. On garde la baie, on garde le
-  lieu, et la seule chose qui change est la distance. Il faut donc que le
-  lanceur de géodésiques et la scène des orbites cohabitent dans la même image
-  pendant la transition — le premier s'éteint quand l'astre passe sous le
-  pixel, la seconde s'allume.
-- **Le temps s'adapte à l'échelle.** À dix rayons on compte en minutes, à mille
-  unités astronomiques en années. L'accélération doit suivre le recul, sinon
-  l'un des deux est illisible.
-- **Le module `etoiles.js` sur `dev` reste valable** pour le calcul des orbites
+  lieu, et la seule chose qui change est la distance.
+
+  **CADUC sur le point de bascule.** Ce carnet demandait que la carte des
+  étoiles s'allume « quand l'astre passe sous le pixel », donc en plein trajet.
+  Le code a tranché l'inverse, et son motif est écrit dans `index.html` : elle
+  ne paraît qu'**à l'arrivée**. Levée à mi-parcours, elle se substituait au ciel,
+  coupait le recul en deux et effaçait le fond étoilé au moment le plus
+  intéressant. L'ordre juste est celui du récit — on s'éloigne, le trou noir
+  disparaît, ET ALORS le télescope montre ce qui tourne autour de ce vide.
+  D'abord le constat, ensuite l'explication. C'est le code qui a raison.
+- **Le temps s'adapte à l'échelle.** À dix rayons on compte en minutes, à dix
+  mille unités astronomiques en années. L'accélération doit suivre le recul,
+  sinon l'un des deux est illisible.
+
+- **La distance d'arrivée est de dix mille unités astronomiques, et non mille.**
+  Corrigé le 5 août, contre `index.html`, qui porte le motif : à mille on serait
+  encore AU MILIEU de l'essaim, puisque l'apoastre de S2 seul est à 1 957 UA. À
+  dix mille on est dehors, et tout l'essaim tient dans le champ sauf la partie
+  externe de S24. Partout où ce carnet disait « mille unités astronomiques »
+  comme distance d'observation, lire dix mille.
+
+  Note pour Hugo, à traiter dans le code et pas ici : `voyage1g.js` garde une
+  table `DESTINATIONS` où « etoiles » vaut encore `1000 * UA`. **Cette table est
+  morte** — la page ne la lit jamais, `index.html` déclare sa propre liste avec
+  les 10 000 UA. Deux tables pour une seule décision, dont une fausse : à
+  supprimer.
+- **FAIT — Le module `etoiles.js` reste valable** pour le calcul des orbites
   — Kepler, les trois rotations, les tracés. C'est son mode d'affichage séparé
-  qui tombe.
+  qui tombe. *Il n'est plus « sur `dev` » : il est chargé par `index.html` et
+  c'est lui qui rend la carte, rejouant la campagne d'observation depuis 1992.*
 
 ### Le rapport d'échelle, qui est le vrai obstacle
 
@@ -546,13 +625,16 @@ alors ce qu'on sait faire sans lui, et l'aveu prend tout son poids.
 
 ### La comparaison qui porte
 
-À vérifier — calcul de ma part : les sondes qui quittent le système solaire
-filent autour de **17 kilomètres par seconde**. À cette vitesse, les
-27 000 années-lumière jusqu'au centre galactique demanderaient de l'ordre de
-**cinq cents millions d'années**.
+Les sondes qui quittent le système solaire filent autour de **17 kilomètres par
+seconde**. À cette vitesse, les 27 000 années-lumière jusqu'au centre galactique
+demanderaient de l'ordre de **cinq cents millions d'années**.
 
 Le vaisseau magique met dix-neuf ans et dix mois. Le rapport est de vingt-cinq
 millions. Aucune phrase ne dit mieux ce que « hors d'atteinte » signifie.
+
+*Recalculé le 5 août : 2,554 × 10²⁰ m à 17 km/s font 4,76 × 10⁸ ans, et
+4,76 × 10⁸ / 19,83 = 2,4 × 10⁷. Les deux chiffres tiennent. La vitesse des
+sondes, elle, reste à sourcer — c'est un ordre de grandeur, pas une mesure.*
 
 ### L'assistance gravitationnelle, et le contresens qu'elle permet de lever
 
@@ -1005,6 +1087,18 @@ de combien.
 
 ## Le carnet de bord temporel — la meilleure mécanique proposée
 
+> **À MOITIÉ FAIT — et la moitié qui manque coûte presque rien.** Le registre
+> existe : `inscritRegistre()` dans `index.html`, persisté en mémoire locale
+> sous `periastre.registre`, quarante entrées, chacune portant les deux durées
+> et la distance ; `ecartRegistre()` somme le décalage. **Mais il n'enregistre
+> que les trajets.** Le séjour en orbite, lui, n'y entre jamais — alors que le
+> code calcule déjà les deux horloges en continu, à chaque image :
+> `salon.tTerre += dt·facteur` et `salon.tBord += dt·facteur·cadence(r)`, et
+> l'écart s'affiche même sur un écran de bord. Il est donc calculé, montré, et
+> jeté à la sortie. Ce qui reste à faire n'est pas de le calculer : c'est
+> d'inscrire une ligne au registre quand on quitte le salon. Ne pas le
+> reconstruire.
+
 Idée d'Hugo : chaque joueur accumule son **décalage propre** avec la Terre.
 Tout ce qu'il fait y contribue — le temps passé en orbite, les voyages à 1 g,
 les allers-retours. Le décalage persiste, et il peut en consulter le détail :
@@ -1034,10 +1128,18 @@ C'est plus simple, c'est vérifiable, et ça se relit.
 
 Deux régimes s'y côtoient, et leur écart est en soi une leçon :
 
-- **Rester en orbite.** À seize rayons, l'horloge tourne à √(1 − 1/16) = 0,968
-  de celle du loin, soit 3,2 % de moins. Une heure de jeu coûte deux minutes.
-- **Voyager à 1 g.** L'aller au système solaire coûte une vingtaine d'années
-  vécues contre vingt-sept mille écoulées.
+- **Rester en orbite.** À seize rayons — l'apoastre de notre orbite —, l'horloge
+  tourne à √(1 − 1,5/16) = 0,952 de celle du loin, soit 4,8 % de moins. Une
+  heure de jeu coûte trois minutes.
+
+  *Corrigé le 5 août.* Le carnet donnait √(1 − 1/16) = 0,968, qui est la formule
+  de l'observateur **immobile**. Nous ne sommes pas immobiles, nous orbitons :
+  le site emploie partout dτ/dt = √(1 − 3M/r), qui combine la dilatation
+  gravitationnelle et celle de la vitesse — c'est `cadence()` dans `index.html`,
+  et c'est d'elle que sortent les 71 % à trois rayons et les 91,3 % à neuf
+  rayons cités ailleurs dans ce carnet. Une seule ligne employait l'autre.
+- **Voyager à 1 g.** L'aller au système solaire coûte 19,8 ans vécus contre
+  27 000 écoulés.
 
 Le registre montre donc de lui-même que **le voyage écrase le séjour** — et
 qu'il faut descendre très près de l'horizon pour que rester devienne
@@ -1235,6 +1337,17 @@ tous identiques, un panneau de réglages en grilles, des cartes de menu — c'es
 fonctionnel et ça n'a aucun point de vue. Le contraste avec l'image est ce qui
 le rend visible.
 
+> **CADUC sur la description, pas sur le diagnostic.** La barre décrite
+> ci-dessus n'existe plus. Le `#dock` d'`index.html` porte toujours ses huit
+> boutons, mais rangés en **trois groupes séparés par un filet** — agir sur la
+> scène (sondes, photon, effacer), régler l'image (lumière réelle, spectre,
+> temps), changer de lieu (le salon, monter à bord) — en capitales espacées de
+> neuf points et demi, en chasse fixe, sur un fond flouté d'une seule pièce.
+> C'est le point 1 de « Ce que je ferais, dans l'ordre » ci-dessous, et il est
+> **fait**. Au salon la barre s'efface entièrement, sauf si l'on demande le mode
+> boutons dans les réglages. Restent les points 2 et 3 : le tracé de progression
+> et les panneaux.
+
 Trois contraintes qu'il a posées, dans ses mots :
 
 - **Peu de mouvement.** *« Je ne pense pas à des trucs qui flottent. »* La
@@ -1271,9 +1384,11 @@ le leitmotiv : on ressort grandi, donc on doit pouvoir mesurer de combien.
 
 ### Ce que je ferais, dans l'ordre
 
-1. **La barre du bas.** Huit boutons égaux, dont trois seulement servent au
-   premier passage. Hiérarchiser : ce qui agit sur la scène, ce qui change de
-   lieu, ce qui règle. Le reste passe derrière un repli.
+1. **FAIT — La barre du bas.** Huit boutons égaux, dont trois seulement servent
+   au premier passage. Hiérarchiser : ce qui agit sur la scène, ce qui change de
+   lieu, ce qui règle. Le reste passe derrière un repli. *Les trois groupes sont
+   en place ; le repli, non — les huit boutons sont tous encore visibles hors du
+   salon.*
 2. **Le tracé de progression**, en remplacement du menu de cartes.
 3. **Les panneaux** (réglages, spectre, temps) : même vocabulaire que les écrans
    du vaisseau, qui eux ont déjà la bonne tenue — filets fins, capitales
@@ -1309,6 +1424,15 @@ précisément la position d'où le défaut se voyait.
    l'astuce classique, et l'œil ne distingue plus la perspective vraie au-delà
    d'une vingtaine de bandes. Demande de pouvoir rediriger le contexte de
    dessin, donc une petite restructuration de `ecran()`.
+
+   > **À MOITIÉ FAIT — et c'est la moitié chère qui est faite.** La
+   > restructuration annoncée ici comme le prix à payer **existe déjà**, pour un
+   > autre motif : `toileEcran()` dessine chaque écran dans une toile hors champ
+   > de 600 × 400, rafraîchie toutes les 250 ms, que `ecran()` se contente de
+   > poser d'un `drawImage` déformé. Le contenu est donc **déjà** rastérisé
+   > séparément de sa pose. Ajouter les bandes ne demande plus de rediriger quoi
+   > que ce soit : c'est remplacer un `drawImage` par vingt, sur une toile qui
+   > est là. L'option est bien moins chère que ce paragraphe ne le dit.
 2. **Passer les écrans en géométrie.** Le contenu devient une texture appliquée
    sur un quadrilatère dessiné dans la même passe que le vaisseau. La
    perspective devient exacte et gratuite, les écrans sont enfin occultés par
@@ -1319,7 +1443,17 @@ précisément la position d'où le défaut se voyait.
 La seconde est la bonne. Elle attend que le vaisseau cesse de bouger.
 
 
-## De la musique — *pour plus tard*
+## De la musique — ~~*pour plus tard*~~ **FAIT**
+
+> **FAIT — entièrement, réserves comprises.** Ce n'est plus une idée, c'est
+> `musique.js` : bourdon de quatre oscillateurs désaccordés en la mineur,
+> passe-bas qui respire, compresseur doux, et les paramètres pris dans
+> l'orbite — `MUSIQUE.regle()` reçoit à chaque image la position du vaisseau
+> entre son apoastre et son périastre, `MUSIQUE.frappe()` ponctue les départs et
+> les arrivées de voyage. Comme l'orbite ne se referme jamais tout à fait, elle
+> ne se répète jamais : la promesse de ce paragraphe est tenue à la lettre. Les
+> deux réserves de méthode aussi — `volumeMusique` vaut **0 au démarrage**, et
+> c'est un réglage **distinct** de `volumeVoix`. Rien à refaire ici.
 
 Demandée par Hugo. Deux façons de s'y prendre, et une seule tient debout ici.
 
@@ -1417,15 +1551,39 @@ qu'on interpelle en le visant.
 Trois portes à l'entrée — regarder, embarquer, apprendre — parce que les trois
 ne demandent ni le même effort ni la même machine.
 
+> **CADUC sur la porte du milieu.** Les trois portes existent toujours, mais ce
+> ne sont pas celles-là. `index.html` propose **« Regarder le trou noir » /
+> « Monter à bord » / « Apprendre, guidé »** : la seconde mène au **salon**,
+> c'est-à-dire au vaisseau où l'on marche, pas à une sonde.
+>
+> **Embarquer sur une sonde est retiré de la bêta**, et retiré deux fois plutôt
+> qu'une : les missions `m-bord` et `m-jumeaux` sont dans `MIS_DE_COTE`, et le
+> bouton « Monter à bord » du dock est masqué en CSS (`#b-sonde{display:none}`)
+> — retirer la mission ne suffisait pas, le bouton y menait encore et le
+> comparateur d'horloges s'affichait dès qu'on y était. Le motif est dans
+> `JUMEAUX.md` : l'expérience embarque sans expliquer ce qu'on incarne ni
+> pourquoi la vue change. **Rien n'est supprimé** — `embarque()`, le cockpit et
+> l'aberration relativiste sont intacts, et vider `MIS_DE_COTE` plus retirer une
+> ligne de CSS suffit à tout rendre.
+
 
 ## Les quatre documents produits par les agents, non encore appliqués
 
 | fichier | ce qu'il contient | état |
 |---|---|---|
-| `CONCEPTION-VAISSEAU.md` | plan coté du salon, paroi cannelée, volets de baie | **non appliqué** |
+| `CONCEPTION-VAISSEAU.md` | plan coté du salon, paroi cannelée, volets de baie | ~~non appliqué~~ **APPLIQUÉ** |
 | `CONCEPTION-HUB.md` | hub à deux ponts, six postes, table d'affectation des fonctions | **non appliqué** |
 | `CHUTE.md` | physique sourcée du franchissement de l'horizon | **non intégré au site** |
-| `AUDIT-NIVEAUX.md` | neuf défauts dans le contenu | **partiellement corrigé** |
+| `AUDIT-NIVEAUX.md` | neuf défauts dans le contenu | **partiellement corrigé** — voir le détail plus bas, révisé le 5 août |
+
+> **`CONCEPTION-VAISSEAU.md` n'est plus « non appliqué ».** `vaisseau.js` est là,
+> chargé par `index.html`, et il pose la pièce large et basse, la baie en −z avec
+> son épaisseur et son liseré ambre au seuil, la fosse d'observation, la rampe à
+> bâbord, la main courante, les plaques au sol, la banquette, le poste
+> d'observation à tribord et le télescope à bâbord — et le mécanisme de postes
+> interactifs qui les rend visables. Le seul point du document qui reste ouvert
+> est le **conflit de lumière** ci-dessous, qui n'est pas un défaut
+> d'application mais une décision non prise.
 
 
 ## Le conflit à trancher avant de bâtir le hub
@@ -1446,22 +1604,47 @@ cinq salles vont être bâties sur cette décision.
 Corrigé : la contradiction sur la rotation (quatre textes), et πGM/c³ passé de
 60 s à 66,5 s.
 
-Restent :
+**Relu ligne à ligne contre `contenu.js` le 5 août : six des huit points
+ci-dessous sont désormais corrigés.** La liste est laissée entière, chaque
+entrée portant son état, parce qu'un audit dont on efface les lignes réglées ne
+prouve plus rien.
 
-- **`inactif-6`** : les 26 675 ans reposent sur la distance GRAVITY 2019
+- **FAIT — `inactif-6`** : les 26 675 ans reposent sur la distance GRAVITY 2019
   (8 178 pc), pas sur les 8 277 pc adoptés ailleurs. Contradiction interne avec
-  le « 27 000 ans » de `photon-fuite`. Corollaire sur `inactif-8`.
-- **Méthode niveau 2 contre fiche 9** : erreur Doppler annoncée à 10 % ici,
-  32 % là ; et la description du banc d'essai ne correspond pas au code.
-- **Fiche 8 niveau 1** : « presque cinq fois plus près » vaut 3,8 ; et les 42 %
-  sont la limite extrême, pas la valeur à a* = 0,9 (15,6 %).
-- **Spectre** : « un trou noir bien nourri brillerait surtout en X » est vrai
-  d'un trou noir stellaire, faux d'un supermassif (pic UV).
-- **`vitesse-reel`** : Lumen, devenu système de bord, parle encore comme un photon.
-- **`destination.orbite`** annonce 22 r_s ; l'orbite codée a un apoastre de 16.
-- **Registre** : `dyson1920` contredit la fiche corrigée ; e^(−π) mal attribué ;
+  le « 27 000 ans » de `photon-fuite`. *La réplique dit aujourd'hui d = 26 996 al,
+  19,8 ans à bord, γ = 13 935, et cite la formule juste en `2c/g`.*
+  **RESTE le corollaire sur `inactif-8`** : il porte encore 20,45 et
+  **758 000 tonnes**, calculés sur l'ancienne distance. Le bon chiffre est
+  780 000 — le calcul est plus haut, dans « L'honnêteté qui rend la fiction
+  acceptable ». Texte, champ `dire` et MP3 à reprendre.
+- **FAIT — Méthode niveau 2 contre fiche 9** : erreur Doppler annoncée à 10 % ici,
+  32 % là ; et la description du banc d'essai ne correspond pas au code. *Les deux
+  endroits disent 32 % ; le banc est décrit « un pas vingt à cent fois plus fin
+  et un plafond porté à deux millions de pas », ce qui colle au code.*
+- **FAIT — Fiche 8 niveau 1** : « presque cinq fois plus près » vaut 3,8 ; et les 42 %
+  sont la limite extrême, pas la valeur à a* = 0,9 (15,6 %). *Lit désormais
+  « presque quatre fois », et « 16 % à a* = 0,9, jusqu'à 42 % à la limite
+  extrême ».*
+- **FAIT — Spectre** : « un trou noir bien nourri brillerait surtout en X » est vrai
+  d'un trou noir stellaire, faux d'un supermassif (pic UV). *Dit « surtout en
+  ultraviolet ».*
+- **FAIT — `vitesse-reel`** : Lumen, devenu système de bord, parle encore comme un
+  photon. *Le « je » a laissé place à « le photon avance » ; les chiffres étaient
+  déjà exacts.*
+- **FAIT — `destination.orbite`** annonce 22 r_s ; l'orbite codée a un apoastre de 16.
+  *Le champ dit « apoastre à 16 rayons de Schwarzschild ».*
+- **RESTE — Registre** : `dyson1920` contredit la fiche corrigée ; e^(−π) mal attribué ;
   le repère 2,2 μm attribué au mauvais article GRAVITY ; `lewis2007` jamais ajouté.
-- **`REFERENCES.md` est périmé** : il cite des répliques qui n'existent plus.
+  *Vérifié : aucun de ces quatre points n'a bougé. Le `sert` de `dyson1920` dit
+  toujours « Mesure de la déflexion de 1,75″ » alors que 1,75″ est la prédiction ;
+  `gralla2019` cautionne toujours seul le facteur e^(−π), et `johnson2020` n'est
+  pas au registre ; le repère 2,2 μm est toujours sourcé `gravity2018` (le
+  redshift de S2) au lieu de l'article des mouvements orbitaux, et son « cent
+  fois plus brillants » est toujours sur `genzel2010` ; `lewis2007`,
+  `davis2004` et `do2019` sont absents. Le registre compte 25 entrées.*
+- **RESTE — `REFERENCES.md` est périmé** : il cite des répliques qui n'existent plus.
+  *Vérifié : quatre occurrences de répliques disparues y subsistent, dont
+  « photon en orbite ». À régénérer.*
 
 Une régénération des MP3 sera nécessaire partout où un champ `dire` change.
 
@@ -1489,16 +1672,28 @@ mémoire locale, comme prévu — rien n'est cassé, mais rien n'est partagé.
 
 1. **Trancher le conflit de lumière** — bloque le hub.
 2. **Corriger les huit défauts d'audit restants**, régénérer les voix concernées.
+   *Révisé le 5 août : il en reste **trois**, pas huit — le corollaire
+   `inactif-8`, le registre de sources, et `REFERENCES.md`. Voir le détail
+   ci-dessus.*
 3. **Le hub à deux ponts**, une fois le contrat de lumière fixé.
 4. **La chute derrière l'horizon** : `CHUTE.md` est prêt, il reste à l'animer.
    Cinq phases, l'intérieur en temps réel — 28,2 s —, et six mensonges visuels
    proscrits avec leur remplacement.
 5. **Le panthéon** : la paroi gravée, une fois les règles publiées.
-6. **Le tutoriel guidé** par Lumen, qui suppose le déplacement — désormais acquis.
+6. **À MOITIÉ FAIT — Le tutoriel guidé** par Lumen, qui suppose le déplacement —
+   désormais acquis. *Il existe déjà, court et fonctionnel : `accueilQuete` dans
+   `contenu.js`, quatre étapes vérifiées sur l'état réel du jeu — regarder par la
+   baie, interpeller le drone, mettre le temps réel, descendre au télescope —
+   avec jauge, réponse de Lumen à chaque réussite et bouton « d'où ça sort ? ».
+   `b-quete` le rejoue. Ce qui manque n'est donc pas un tutoriel, c'est **la
+   suite** : un cours qui déroule au-delà des quatre premiers gestes.*
 7. **Avatars, tenues, monnaie, quêtes.** Règle déjà posée : on ne débloque qu'en
-   comprenant.
-8. **Une touche de rejeu** : « C » copie déjà un lien qui rouvre la scène au même
-   endroit. À étendre au simulateur.
+   comprenant. *Le mot « monnaie » contredit « acheter des choses : à laisser
+   tomber », plus haut. Contradiction signalée, non tranchée — c'est un choix
+   d'Hugo.*
+8. **FAIT — Une touche de rejeu** : « C » copie déjà un lien qui rouvre la scène
+   au même endroit. *En place dans `index.html`, avec l'état du salon dans le
+   lien et le garde-fou qui ne vole pas Ctrl+C. Reste à l'étendre au simulateur.*
 
 
 ## Anecdotes proposées par Hugo
@@ -1510,13 +1705,13 @@ où elle en est.
 |---|---|---|
 | Combien de temps met la lumière pour faire le tour | **11 min 31 s** = 6√3·πGM/c³. La version affichée disait 6 min 39 s — bug corrigé, mesuré à 0,004 % | intégrée |
 | Rien ne franchit l'horizon vu de loin | Exact. La simulation montrait l'inverse | corrigée, intégrée |
-| Le trou noir d'*Interstellar* n'est pas rond | Vrai, à cause du spin. Notre ombre est ronde parce que notre trou noir ne tourne pas | expliquée, mode Kerr à faire |
+| Le trou noir d'*Interstellar* n'est pas rond | Vrai, à cause du spin. Notre ombre est ronde parce que notre trou noir ne tourne pas | expliquée, ~~mode Kerr à faire~~ **mode Kerr FAIT** (`kerr.js`, fusionné dans `main`) |
 | Voir en vraie lumière | Le disque est quasi muet en visible : Sgr A* rayonne dans le submillimétrique | intégrée |
 | Le paradoxe des jumeaux façon *Interstellar* | Attention au sens : **ceux qui descendent vieillissent moins**. Et sans rotation le plafond est √2 — d'où le spin de Gargantua | intégrée, avec la correction |
-| Aller au centre galactique à 1 g | **19,8 ans à bord, 26 675 ans sur Terre.** γ = 13 768 au demi-tour | intégrée |
+| Aller au centre galactique à 1 g | **19,8 ans à bord, 27 000 ans sur Terre.** γ = 13 935 au demi-tour | intégrée — *chiffres refaits le 5 août sur les 8 277 pc adoptés par le site ; les « 26 675 ans » et « γ = 13 768 » qui figuraient ici sortaient des 8 178 pc de GRAVITY 2019* |
 | Traverser l'univers observable en ~40 ans | **47,7 ans** en espace plat — mais l'expansion plafonne à ~16 milliards d'al comobiles, soit **4,5 % du volume observable**. Le reste est hors d'atteinte pour toujours | à intégrer |
 | Andromède à 1 g | **28,6 ans** de vie. La distance cesse presque de compter | intégrée |
-| Télescope à filtres (radio, submm, IR, visible, X) | Sgr A* change réellement de visage selon la longueur d'onde | à construire |
+| Télescope à filtres (radio, submm, IR, visible, X) | Sgr A* change réellement de visage selon la longueur d'onde | ~~à construire~~ **à moitié fait** — le panneau de spectre existe et **change réellement l'image** (voir plus bas) |
 
 Au passage, deux corrections trouvées en vérifiant : Sgr A* n'est **pas** moins
 dense que l'eau (mille fois plus ; c'est M87* qui est moins dense que l'air), et
@@ -1576,32 +1771,57 @@ cadrans réels (vitesse locale, dilatation du temps, marée), filtre lumière
 réelle.
 
 Reste à faire :
-- **Le télescope à filtres.** L'objet le plus pédagogique de tout le projet.
+- **À MOITIÉ FAIT — Le télescope à filtres.** L'objet le plus pédagogique de tout
+  le projet.
   Sgr A* change complètement de visage selon la longueur d'onde, et c'est un
   fait, pas un effet : radio (c'est ainsi qu'on l'a découvert en 1974),
   submillimétrique (le pic d'émission, la fenêtre de l'EHT, là où l'anneau
   apparaît), infrarouge (calme, avec des sursauts plusieurs fois par jour),
   visible (rien), X (sursauts et émission diffuse). Chaque filtre doit montrer
   une image différente et sourcée.
-- **Le cours guidé** depuis le poste : Lumen déroule le programme au niveau
-  choisi, la caméra et les paramètres suivent.
-- **Se déplacer dans le vaisseau** : hublot, télescope, console.
 
-### 1. Vérification des faits par un agent
+  > **Le panneau existe, et il change réellement l'image.** `#spectre` dans
+  > `index.html` : une réglette sur treize décades et demie, la courbe de la SED
+  > mesurée tracée en direct, six repères cliquables qui portent chacun leur
+  > « pourquoi » et leurs sources, et une leçon d'ouverture pour le niveau
+  > débutant. Et ce n'est pas qu'un affichage : la bande courante alimente les
+  > uniformes `uSpectre` et `uTeinte` du nuanceur, plus un rayon de photosphère
+  > synchrotron calé sur deux faits observés — en centimétrique le gaz est
+  > opaque et masque des dizaines de rayons, à 1,3 mm il devient transparent et
+  > l'ombre apparaît. **Le fait central est donc déjà simulé, pas illustré.**
+  > Ce qui manque : les sursauts en bande K et en X, qui sont des événements
+  > dans le temps et non un changement de teinte, et l'installation du panneau
+  > **au poste du télescope** plutôt que dans la barre du bas.
+- **À MOITIÉ FAIT — Le cours guidé** depuis le poste : Lumen déroule le programme
+  au niveau choisi, la caméra et les paramètres suivent. *La quête d'accueil en
+  est un, en quatre étapes vérifiées sur l'état réel du jeu — voir le point 6 de
+  « Ce qui reste en attente ». Ce qui manque est la suite du programme, pas le
+  mécanisme.*
+- **FAIT — Se déplacer dans le vaisseau** : hublot, télescope, console. *Marche,
+  course, saut, chute, fosse et rampe ; le télescope et la commande du temps
+  sont des postes qu'on vise et qu'on active, pas des entrées de menu.*
+
+### 1. FAIT — Vérification des faits par un agent
 Faire relire chaque affirmation du site par un agent qui remonte aux sources
 primaires, et produire `SOURCES.md` consultable. Bon candidat pour une
 sous-tâche : c'est indépendant du reste et demande de la recherche.
 **Bloquant avant publication.**
+*`SOURCES.md` existe, et `AUDIT-NIVEAUX.md` en est la seconde passe, niveau par
+niveau. Trois de ses défauts restent ouverts — voir « Ce que l'audit a trouvé ».*
 
-### 2. Finir l'extraction du contenu
+### 2. FAIT — Finir l'extraction du contenu
 Les fiches et le dossier « méthode » sont encore en dur dans `index.html`.
 Les déplacer dans `contenu.js` avec leurs `id` et leurs sources, pour que la
 règle « aucun fait hors du fichier de contenu » soit vraie partout.
 *Prérequis de 1.*
+*Fait : les treize fiches `f-*`, le dossier `methode` et ses `methodeSources`
+sont dans `contenu.js`, doublé de `contenu.en.js`.*
 
-### 3. Mise en ligne
+### 3. FAIT — Mise en ligne
 `gh` s'installe. Ensuite : dépôt, push, activation de Pages.
 Rapide, et ça donne un site réel à montrer.
+*Le dépôt est `github.com/hugohismans/periastre`, et le site est en ligne — c'est
+ce qui a fait naître la discipline de branches plus haut.*
 
 ### 4. Mode cours guidé
 Un bouton « lecture » où Lumen déroule un vrai cours, adapté au niveau, avec
@@ -1613,20 +1833,30 @@ réplique) et un moteur qui la joue.
 ### 5. Dézoom vers la Voie lactée
 Voyage à la molette, en échelle logarithmique, de l'horizon jusqu'à la galaxie
 entière, avec des repères qui apparaissent au fil du trajet : orbite de S2,
-système solaire, bras spiraux, les 26 000 années-lumière qui nous séparent du
+système solaire, bras spiraux, les **27 000** années-lumière qui nous séparent du
 centre. À fusionner avec le mode cours — c'est la même mécanique de caméra.
 
-### 6. Mode Kerr (trou noir en rotation)
+*Corrigé le 5 août : ce point disait 26 000 années-lumière, alors que le carnet
+lui-même relève plus haut que 8 277 pc font 27 000 al et non 26 000.*
+
+### 6. FAIT — Mode Kerr (trou noir en rotation)
 La vraie réponse à « pourquoi Gargantua n'est pas ronde » : avec du spin,
 l'ombre s'aplatit d'un côté. Exige de passer en Boyer-Lindquist et d'intégrer
 avec la constante de Carter — la forme cartésienne compacte disparaît, donc
 réécriture complète du shader. Le morceau le plus lourd, et le plus payant
 pour l'exactitude.
+*Fait, mesuré (asymétrie 2,30 contre 2,40 attendus à a\* = 0,9) et fusionné dans
+`main`. Le réglage s'intitule « Rotation — non mesurée ». Reste la couture sur
+l'axe polaire, qui demanderait Kerr-Schild.*
 
-### 7. Mode « vue réelle »
+### 7. FAIT — Mode « vue réelle »
 Ce qu'un humain verrait vraiment : Sgr A* est pâle et ne s'observe qu'en radio,
 donc quasiment rien à l'œil nu. Et en chute libre, l'aberration comprime tout
 le ciel vers l'avant. Léger comparé à Kerr, et frappant.
+*Le filtre est en place — bouton « Lumière réelle » du dock, avec sa réplique et
+sa fiche. **La moitié « en chute libre » n'est plus atteignable** : elle demande
+la vue embarquée, retirée de la bêta. Voir la réserve sous « Trois portes à
+l'entrée ».*
 
 ### 8. Objets du voisinage
 Pendant le dézoom, pouvoir s'arrêter sur une planète, sur S2, sur l'amas S.
@@ -1637,17 +1867,37 @@ Dépend de 5.
 
 ## Chantiers ouverts, par ordre de valeur
 
-1. **Fusionner `kerr` dans `main`.** L'ombre en D est mesurée conforme (2,30
+1. **FAIT — Fusionner `kerr` dans `main`.** L'ombre en D est mesurée conforme (2,30
    contre 2,40 à a* = 0,9), le disque suit l'ISCO, la fiche est écrite. Ce qui
    reste : la couture sur l'axe polaire en mode rotation — singularité de
    Boyer-Lindquist, réparable seulement en passant en coordonnées de
    Kerr-Schild, ce qui est une réécriture.
+   *Fusionné. La branche `kerr` subsiste comme témoin, sans usage courant, et la
+   couture reste la limite connue et assumée.*
 2. **La fusion de deux trous noirs.** L'idée la plus spectaculaire du carnet, et
    la plus lourde : la métrique d'un binaire n'a pas de forme analytique, il
    faut une relativité numérique. Piste réaliste : rejouer une forme d'onde
    déjà calculée (les catalogues SXS sont publics) plutôt que résoudre les
    équations, et lenser sur la géométrie approchée. À cadrer honnêtement — ce
    serait une reconstitution, pas un calcul, et il faudra le dire.
-3. **Le télescope à filtres dans le vaisseau**, et le salon partagé.
-4. **Le dézoom vers la Voie lactée**, moteur écrit (`voyage.js`) mais pas branché.
+3. **Le télescope à filtres dans le vaisseau**, et le salon partagé. *Le panneau
+   de spectre existe et change l'image ; ce qui manque est de l'installer au
+   poste. Le salon partagé attend toujours les règles Firestore.*
+4. **Le dézoom vers la Voie lactée**, moteur écrit (**`echelle.js`**, ex-`voyage.js`)
+   mais pas branché.
+
+   > **Le nom du fichier a changé, et c'était une mine.** `voyage.js` posait
+   > `window.VOYAGE` — le nom que pose aussi `voyage1g.js`, qui est en
+   > production et porte les durées de trajet, le prix en carburant et le temps
+   > propre en cours de route. Le jour où l'on aurait ajouté la balise du
+   > premier, le dernier chargé aurait écrasé l'autre **en silence** :
+   > `VOYAGE.enChemin`, `VOYAGE.joli` et `VOYAGE.trajet` auraient disparu sans un
+   > message, et le voyage à 1 g serait mort — exactement le symptôme muet qui a
+   > déjà tué le bloc de script deux fois. Le module a donc été renommé
+   > `echelle.js` et pose désormais `global.ECHELLE`, **avant** tout
+   > branchement. La collision est désarmée ; ne pas la rouvrir en réutilisant
+   > le nom `VOYAGE` ailleurs.
 5. **Mode « vue réelle » depuis une chute libre** : aberration à l'approche.
+   *CADUC en l'état : la vue embarquée est retirée de la bêta — missions dans
+   `MIS_DE_COTE` et bouton masqué en CSS. Le code est intact, mais tant que la
+   porte est fermée ce chantier n'a pas d'entrée. À rouvrir avec elle.*
