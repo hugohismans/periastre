@@ -119,3 +119,19 @@ python -m http.server 8765
 ```
 
 WebGL2 requis.
+
+### Avant chaque publication
+
+```bash
+node outils/version.mjs
+```
+
+GitHub Pages sert ses fichiers avec « garde ça dix minutes ». Le navigateur
+obéit, et une correction déployée reste **invisible** : on recharge, on ne voit
+rien, on conclut que rien n'a été poussé. C'est arrivé six fois en une journée,
+et une fois le cache a même rendu un « tout va bien » sur une page qui ne
+contenait pas le module qu'on venait d'écrire — une vérification faussement
+rassurante, ce qui est pire qu'une vérification en échec.
+
+Ce script réécrit le `?v=` de chaque script local avec le commit courant. Une
+adresse qui change est une adresse que le cache ne connaît pas.
