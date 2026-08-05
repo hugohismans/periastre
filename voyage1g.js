@@ -78,12 +78,14 @@ const exposant = n => String(n).split("")
 
 const joli = {
   duree(s){
+    // Virgule décimale : c'est un site français, et « 7.7 jours » se voit.
+    const nb = (x, d) => x.toFixed(d).replace(".", ",");
     const an = s/AN;
-    if(an >= 1)      return an.toFixed(an < 10 ? 1 : 0) + " an" + (an >= 2 ? "s" : "");
+    if(an >= 1)      return nb(an, an < 10 ? 1 : 0) + " an" + (an >= 2 ? "s" : "");
     const j = s/86400;
-    if(j >= 1)       return j.toFixed(j < 10 ? 1 : 0) + " jour" + (j >= 2 ? "s" : "");
+    if(j >= 1)       return nb(j, j < 10 ? 1 : 0) + " jour" + (j >= 2 ? "s" : "");
     const h = s/3600;
-    if(h >= 1)       return h.toFixed(1) + " h";
+    if(h >= 1)       return nb(h, 1) + " h";
     return Math.round(s/60) + " min";
   },
   distance(m){

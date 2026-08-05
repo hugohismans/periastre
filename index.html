@@ -308,6 +308,30 @@
     margin-top:15px; padding-top:12px; border-top:1px solid var(--filet);
     font-size:10.5px; line-height:1.65; color:var(--sourd);
   }
+  #in-liste .bloc { border-top:1px solid var(--filet); padding:15px 0 4px 16px; }
+  #in-liste .etiq {
+    font-family:var(--chiffre); font-size:8.5px; letter-spacing:.16em;
+    text-transform:uppercase; color:var(--sourd); margin-bottom:8px;
+  }
+  #etude-note { font-size:11px; line-height:1.6; color:var(--pale); margin-top:9px; }
+
+  /* Le carnet de bord. Un relevé, pas un score : les chiffres alignés à droite,
+     en chiffres tabulaires, et le total détaché par un filet. */
+  .registre { border-top:1px solid var(--filet); padding:14px 0 2px 16px; }
+  .reg-titre {
+    font-family:var(--chiffre); font-size:8.5px; letter-spacing:.16em;
+    text-transform:uppercase; color:var(--sourd); margin-bottom:9px;
+  }
+  .reg-ligne {
+    display:flex; justify-content:space-between; gap:14px; align-items:baseline;
+    font-size:11.5px; color:var(--pale); padding:3px 0;
+  }
+  .reg-val { font-family:var(--chiffre); font-size:11px; color:var(--braise); font-variant-numeric:tabular-nums; white-space:nowrap; }
+  .reg-total {
+    margin-top:9px; padding-top:9px; border-top:1px solid var(--filet);
+    font-family:var(--chiffre); font-size:11.5px; color:#8fb6ff;
+    font-variant-numeric:tabular-nums;
+  }
 
   /* Le chronomètre du trajet. Il double la grille du recul : la grille dit la
      distance, lui dit le prix en temps. Coin bas-droit, hors du champ du
@@ -1004,6 +1028,10 @@ body.au-salon:not(.mode-boutons) #dock { opacity:0; pointer-events:none; }
     <div class="rangee">
       <button id="b-traj">Trajectoires</button>
     </div>
+  </div>
+  <div class="bloc">
+    <div class="etiq">Langue — Language</div>
+    <div class="grille" id="langue-choix"></div>
   </div>
   <div class="bloc">
     <div class="etiq">Voix de Lumen</div>
@@ -1809,7 +1837,28 @@ void main(){
 <script defer src="vendor/katex/katex.min.js"></script>
 <script defer src="vendor/katex/auto-render.min.js"></script>
 
-<script src="contenu.js"></script>
+<!-- La langue se choisit AVANT le contenu, puisque c'est elle qui décide du
+     fichier à charger — les deux posent `window.CONTENU`, et le second gagnerait.
+
+     D'où le `document.write` : sur un site sans étape de compilation, c'est le
+     seul moyen d'insérer une balise de façon SYNCHRONE, donc avant que le script
+     principal ne lise `CONTENU` à sa première ligne. Un chargement différé
+     arriverait trop tard.
+
+     Le choix se propose d'après la langue du navigateur, se modifie, et se
+     retient. Jamais il ne s'impose : quelqu'un dont le navigateur est en anglais
+     peut très bien vouloir lire en français. -->
+<script>
+(function(){
+  var l = null;
+  try { l = localStorage.getItem("periastre.langue"); } catch(e){}
+  if(l !== "fr" && l !== "en")
+    l = /^fr/i.test(navigator.language || "fr") ? "fr" : "en";
+  window.LANGUE = l;
+  document.documentElement.lang = l;
+  document.write('<script src="' + (l === "en" ? "contenu.en.js" : "contenu.js") + '"><\/script>');
+})();
+</script>
 <script src="kerr.js"></script>
 <script src="vaisseau.js"></script>
 <script src="personnage.js"></script>
@@ -2944,7 +2993,107 @@ function poseDestinations(){
     liste.appendChild(b);
   });
 
+  /* Et l'autre chose que fait un télescope : regarder ce qui n'est pas là.
+     La ligne se détache des destinations — on n'y va pas, on l'observe. */
+  const e = document.createElement("button");
+  e.className = "carte";
+  e.innerHTML = '<span class="duree">hypothèse</span><h2></h2><p></p>';
+  e.querySelector("h2").textContent = "Le trou noir d'étude";
+  e.querySelector("p").textContent =
+    "Un autre objet, aux paramètres libres. Ce n'est pas Sagittarius A* — c'est " +
+    "là qu'on essaie ce que la physique autorise.";
+  e.onclick = poseEtude;
+  liste.appendChild(e);
+
+  if(registre.length) liste.appendChild(blocRegistre());
+
   $("in-pied").textContent = PIED_TELESCOPE;
+}
+
+/* Le registre, tel qu'il se lit.
+
+   Une ligne par trajet, et surtout le total : le temps qu'on a pris d'avance
+   sur ceux qui sont restés. C'est le seul chiffre qui compte vraiment, et il ne
+   s'obtient pas autrement qu'en partant. */
+function blocRegistre(){
+  const d = document.createElement("div");
+  d.className = "registre";
+  const lignes = registre.slice(-4).reverse().map(e =>
+    '<div class="reg-ligne"><span class="reg-quoi"></span>' +
+    '<span class="reg-val">+' + VOYAGE.joli.duree(e.t - e.tau) + '</span></div>').join("");
+  d.innerHTML = '<div class="reg-titre">Votre carnet de bord</div>' + lignes +
+    '<div class="reg-total"></div>';
+  // le nom du trajet passe par textContent : il ne doit jamais être interprété
+  [...d.querySelectorAll(".reg-quoi")].forEach((s, i) => {
+    s.textContent = registre.slice(-4).reverse()[i].q;
+  });
+  d.querySelector(".reg-total").textContent =
+    VOYAGE.joli.duree(ecartRegistre()) + " d'avance sur ceux qui sont restés";
+  return d;
+}
+
+/* ---- le trou noir d'étude ----
+
+   Sagittarius A* garde ce qu'on mesure et déclare ce qu'on ignore. Le trou noir
+   d'étude, lui, accueille les hypothèses — et parce qu'il porte un autre nom,
+   la frontière entre ce qu'on SAIT et ce que la physique AUTORISE cesse d'être
+   floue. C'était la gêne d'Hugo sur la rotation : elle se règle en séparant les
+   deux objets, pas en choisissant une valeur.
+
+   Le panneau n'expose que ce qui change l'image. La masse n'y figure pas, et
+   c'est le point le plus instructif : elle ne change RIEN. Tout se mesure en
+   rayons de Schwarzschild, doubler la masse double le rayon, et la figure est
+   rigoureusement identique — seule l'échelle bouge. C'est exactement pourquoi
+   le site travaille dans ces unités. */
+function poseEtude(){
+  $("in-titre").textContent = "Le trou noir d'étude";
+  $("in-sous").textContent  = "Ce n'est pas Sagittarius A*.";
+  const liste = $("in-liste");
+  liste.innerHTML = "";
+
+  const bloc = document.createElement("div");
+  bloc.className = "bloc";
+  bloc.innerHTML = '<div class="etiq">Rotation</div><div class="grille" id="etude-spin"></div>' +
+                   '<div id="etude-note"></div>';
+  liste.appendChild(bloc);
+
+  const boitier = $("etude-spin");
+  SPINS.forEach(([nom, v, note], i) => {
+    const b = document.createElement("button");
+    b.textContent = nom;
+    b.onclick = () => {
+      spin = v;
+      $("etude-note").textContent = note
+        + (v > 0 ? " Une fine couture apparaît sur l'axe : c'est la singularité de coordonnées, pas un défaut de calcul." : "");
+      [...boitier.children].forEach((c, j) => c.classList.toggle("actif", j === i));
+      // les deux réglages commandent la même grandeur : ils doivent s'accorder
+      [...boitierSpin.children].forEach((c, j) => c.classList.toggle("actif", j === i));
+      sauve();
+    };
+    boitier.appendChild(b);
+  });
+  const courant = Math.max(0, SPINS.findIndex(s => s[1] === spin));
+  boitier.children[courant].classList.add("actif");
+  $("etude-note").textContent = SPINS[courant][2];
+
+  const retour = document.createElement("button");
+  retour.className = "carte";
+  retour.innerHTML = '<span class="duree">retour</span><h2></h2>';
+  retour.querySelector("h2").textContent = "Revenir aux destinations";
+  retour.onclick = () => { poseDestinations(); $("in-titre").textContent = "Le télescope";
+                           $("in-sous").textContent = "Où allons-nous ?";
+                           $("instrument").classList.remove("arrivee"); };
+  liste.appendChild(retour);
+
+  $("in-pied").textContent =
+    "La masse n'est pas réglable, et c'est ce qu'il y a de plus instructif ici : " +
+    "elle ne changerait rien à l'image. Tout se mesure en rayons de Schwarzschild, " +
+    "et doubler la masse double le rayon — la figure resterait identique au trait " +
+    "près, seule l'échelle bougerait. Un trou noir de dix masses solaires et " +
+    "Sagittarius A* se ressemblent exactement, à ceci près que l'un est quatre " +
+    "cent mille fois plus petit.";
+  // Il descend, pour qu'on voie l'astre changer par la baie en réglant.
+  $("instrument").classList.add("arrivee");
 }
 
 const PIED_TELESCOPE =
@@ -3821,12 +3970,32 @@ CONTENU.voix.forEach((v, i) => {
    connaît pas : c'est de montrer l'éventail et de dire qu'on l'ignore. Zéro
    reste le point de départ parce que c'est le cas de RÉFÉRENCE — le seul où
    l'image n'a aucun artefact de coordonnées — et non parce qu'il serait vrai. */
+/* La langue. Changer de langue change le fichier de contenu, donc il faut
+   recharger : tout le texte du site en vient, y compris ce qui a déjà été
+   écrit à l'écran. Un rechargement est honnête et instantané ; reconstruire
+   l'interface en place ferait la même chose en plus fragile. */
+const boitierLangue = $("langue-choix");
+[["Français", "fr"], ["English", "en"]].forEach(([nom, code]) => {
+  const b = document.createElement("button");
+  b.textContent = nom;
+  b.classList.toggle("actif", window.LANGUE === code);
+  b.onclick = () => {
+    if(window.LANGUE === code) return;
+    try { localStorage.setItem("periastre.langue", code); } catch(e){}
+    location.reload();
+  };
+  boitierLangue.appendChild(b);
+});
+
+const SPINS = [
+  ["aucune", 0, "Cas de référence, non une mesure : l'ombre est un cercle parfait et l'image est sans défaut."],
+  ["modérée", 0.6, "Hypothèse. L'ombre se décentre du côté où la rotation vient vers toi."],
+  ["rapide", 0.9, "Hypothèse. L'asymétrie de l'ombre, mesurée dans notre propre calcul, vaut 2,30 rayons d'un côté contre 2,40 de l'autre."],
+  ["extrême", 0.95, "Hypothèse haute, proche de la limite de Thorne. C'est la forme de Gargantua."],
+];
+
 const boitierSpin = $("spin-choix");
-[["aucune", 0, "Cas de référence, non une mesure : l'ombre est un cercle parfait et l'image est sans défaut."],
- ["modérée", 0.6, "Hypothèse. L'ombre se décentre du côté où la rotation vient vers toi."],
- ["rapide", 0.9, "Hypothèse. Asymétrie mesurée dans notre calcul : 2,30 contre 2,40 en théorie."],
- ["extrême", 0.95, "Hypothèse haute, proche de la limite de Thorne. C'est la forme de Gargantua."],
-].forEach(([nom, v, note], i) => {
+SPINS.forEach(([nom, v, note], i) => {
   const b = document.createElement("button");
   b.textContent = nom;
   b.onclick = () => {
