@@ -102,6 +102,70 @@
   }
   #panneau.vu { opacity:1; transform:none; visibility:visible; }
 
+  /* Les commandes des panneaux, dans la langue du bord.
+
+     Les étiquettes en capitales espacées y étaient déjà justes ; c'étaient les
+     boutons qui restaient des boîtes bordées, chacune avec son fond et son
+     coin arrondi. Une rangée de choix n'est pas une collection d'objets : c'est
+     un seul objet à plusieurs positions, et le dessin doit le dire.
+
+     Donc un cadre unique, des cloisons d'un pixel, et l'accent qui souligne
+     la position retenue au lieu de la remplir. */
+  #panneau .grille, #panneau .rangee, #temps .grille, #niveaux {
+    gap:0; border:1px solid var(--filet); border-radius:2px; overflow:hidden;
+  }
+  #panneau .grille > button, #panneau .rangee > button,
+  #temps .grille > button, #niveaux > button {
+    position:relative; background:none; border:0; border-radius:0;
+    padding:9px 6px 8px;
+    font-family:var(--chiffre); font-size:9px; letter-spacing:.1em;
+    text-transform:uppercase; color:var(--pale);
+    transition:color .16s, background .16s;
+  }
+  /* Les cloisons : un trait à gauche de chaque cellule sauf en début de rangée,
+     et un trait au-dessus dès la seconde ligne d'une grille à deux colonnes. */
+  #panneau .grille > button:not(:nth-child(2n+1)),
+  #temps .grille > button:not(:nth-child(2n+1)),
+  #panneau .rangee > button + button,
+  #niveaux > button + button { border-left:1px solid var(--filet); }
+  #panneau .grille > button:nth-child(n+3),
+  #temps .grille > button:nth-child(n+3) { border-top:1px solid var(--filet); }
+
+  #panneau .grille > button::after, #temps .grille > button::after,
+  #niveaux > button::after {
+    content:""; position:absolute; left:8px; right:8px; bottom:4px; height:1px;
+    background:transparent; transition:background .16s;
+  }
+  #panneau button:hover, #temps .grille button:hover, #niveaux button:hover {
+    color:var(--ecrit); background:rgba(255,255,255,.04);
+  }
+  #panneau button.actif, #temps .grille button.actif, #niveaux button.actif {
+    color:var(--braise); background:none;
+  }
+  #panneau button.actif::after, #temps .grille button.actif::after,
+  #niveaux button.actif::after { background:var(--braise); }
+
+  /* Les repères du spectre gardent leur défilement mais perdent leurs boîtes. */
+  #sp-reperes button {
+    background:none; border:0; border-bottom:1px solid transparent; border-radius:0;
+    font-family:var(--chiffre); font-size:9px; letter-spacing:.1em;
+    text-transform:uppercase; color:var(--pale); padding:6px 8px;
+  }
+  #sp-reperes button:hover { color:var(--ecrit); background:rgba(255,255,255,.04); }
+  #sp-reperes button.actif { color:var(--braise); background:none;
+                             border-bottom-color:var(--braise); }
+
+  /* L'action principale du panneau garde son rang — c'est la seule qui mène
+     ailleurs — mais elle prend la géométrie du reste : un cadre net plutôt
+     qu'un galet arrondi, et un trait plutôt qu'un aplat. */
+  #b-methode {
+    width:100%; border-radius:2px; padding:10px 8px;
+    font-family:var(--chiffre); font-size:9px; letter-spacing:.12em;
+    text-transform:uppercase;
+    color:var(--braise); background:none; border:1px solid var(--braise-b);
+  }
+  #b-methode:hover { background:var(--braise-f); border-color:var(--braise); }
+
   #rouage {
     width:34px; height:34px; padding:0; border-radius:50%; font-size:15px;
     display:grid; place-items:center; pointer-events:auto; flex:none;
