@@ -338,6 +338,30 @@ accueil: {
     sources:["chandrasekhar1983"] },
   niveau: { id:"intro-niveau",
     t:`Avant de t'embarquer : tu en es où, en astronomie ? Je m'adapte, il n'y a pas de mauvaise réponse.` },
+
+  /* La présentation, jouée une fois, après que le son a été accepté.
+
+     Elle dit trois choses et pas une de plus : ce que c'est, ce qu'on s'accorde
+     comme libertés, et pourquoi ça vaut le détour. Le troisième temps ne parle
+     pas de physique mais d'une famille qu'on ne revoit pas — c'est le seul
+     moyen de faire sentir un facteur de Lorentz de treize mille.
+
+     Les durées y sont exactes et recalculées à l'affichage, jamais écrites en
+     dur : trente-neuf ans à bord, cinquante-quatre mille sur Terre, pour un
+     aller-retour au centre de la galaxie à un g. */
+  presentation: [
+    { sur: "Simulation pédagogique",
+      t: `Vous n'allez pas lire un cours sur les trous noirs.
+          Vous allez en approcher un.` },
+
+    { sur: "Tout est calculé",
+      t: `Pas une texture importée, pas une étoile peinte à la main.
+          Trois libertés seulement — on vous les signalera à chaque fois.` },
+
+    { sur: "Ce que ça coûte",
+      t: `Aller au centre de la galaxie et revenir : <b>trente-neuf ans</b> pour
+          vous. <b>Cinquante-quatre mille</b> pour la Terre.` },
+  ],
 },
 
 // Les trois réponses réutilisent les répliques `niveau-*` : un seul jeu de

@@ -340,6 +340,30 @@ accueil: {
   bienvenue: { id:"intro-bienvenue",
     t:`What you are looking at is not a picture. It is a calculation, redone sixty times a second.`,
     sources:["chandrasekhar1983"] },
+  /* The opening, played once, after sound has been accepted.
+
+     Three beats and no more. Hugo's brief: short but landing — nobody should
+     think "why is this thing throwing text at me". The third beat drops the
+     physics and talks about a family you never see again, because that is the
+     only way a Lorentz factor of thirteen thousand becomes real.
+
+     The durations are recomputed at display time, never written in: thirty-nine
+     years aboard, fifty-four thousand on Earth, for a round trip to the
+     galactic centre at one g. */
+  presentation: [
+    { sur: "A teaching simulation",
+      t: `You are not about to read a lecture on black holes.
+          You are about to approach one.` },
+
+    { sur: "All of it computed",
+      t: `Not one imported texture, not one hand-painted star.
+          Three liberties only — and we will flag each one as you meet it.` },
+
+    { sur: "What it would cost",
+      t: `To the centre of the galaxy and back: <b>thirty-nine years</b> for you.
+          <b>Fifty-four thousand</b> for Earth.` },
+  ],
+
   niveau: { id:"intro-niveau",
     t:`Before I take you aboard: where are you with astronomy? I adapt — there is no wrong answer.` },
 },

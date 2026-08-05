@@ -273,6 +273,66 @@
     #sp-note { min-height:0; }
   }
 
+  /* ---- la présentation ----
+
+     Rien qu'un texte posé sur l'image, sans cadre ni fond : ce qui tourne
+     derrière est l'argument, et l'encadrer reviendrait à s'en excuser. Le
+     dégradé du bas sert seulement à rendre les mots lisibles quand le disque
+     passe dessous.
+
+     Les trois points en bas disent d'emblée que c'est court. C'est le détail
+     qui empêche de fermer l'onglet — on accepte volontiers trois écrans, on
+     n'accepte pas un texte dont on ne voit pas la fin. */
+  #presentation {
+    position:fixed; inset:0; z-index:8; display:none;
+    background:linear-gradient(to top, rgba(6,5,14,.88) 0%, rgba(6,5,14,.55) 42%, rgba(6,5,14,0) 78%);
+    align-items:flex-end; justify-content:center; padding:0 24px 34px;
+  }
+  #presentation.vu { display:flex; }
+  #pr-bloc {
+    max-width:44ch; text-align:center; margin-bottom:26px;
+    opacity:0; transform:translateY(9px);
+    transition:opacity .55s ease, transform .55s ease;
+  }
+  #pr-bloc.la { opacity:1; transform:none; }
+  #pr-sur {
+    font-family:var(--chiffre); font-size:9px; letter-spacing:.22em;
+    text-transform:uppercase; color:var(--braise); margin-bottom:11px;
+  }
+  #pr-texte {
+    font-family:var(--serif); font-size:20px; line-height:1.52; font-weight:400;
+    color:#fff; text-wrap:balance;
+  }
+  #pr-texte b { font-weight:400; color:var(--braise); }
+
+  #pr-bas {
+    position:absolute; left:0; right:0; bottom:22px;
+    display:flex; flex-direction:column; align-items:center; gap:14px;
+  }
+  #pr-points { display:flex; gap:7px; }
+  #pr-points i {
+    width:5px; height:5px; border-radius:50%; background:rgba(255,255,255,.22);
+    transition:background .35s;
+  }
+  #pr-points i.la { background:var(--braise); }
+  #pr-passer {
+    background:none; border:0; padding:6px 10px; cursor:pointer;
+    font-family:var(--chiffre); font-size:9px; letter-spacing:.18em;
+    text-transform:uppercase; color:var(--sourd);
+  }
+  #pr-passer:hover { color:var(--ecrit); }
+
+  @media (max-width:760px){
+    #pr-texte { font-size:17px; }
+    #presentation { padding:0 18px 30px; }
+  }
+  /* paysage court : le texte remonte, sinon il chevauche les points */
+  @media (max-height:430px){
+    #pr-texte { font-size:15.5px; line-height:1.45; }
+    #pr-bloc { margin-bottom:14px; }
+    #pr-bas { bottom:12px; gap:9px; }
+  }
+
   /* ---- le télescope ----
 
      Un instrument, pas un menu. Il se pose au centre parce qu'on s'y met : on a
@@ -332,6 +392,20 @@
     font-family:var(--chiffre); font-size:11.5px; color:#8fb6ff;
     font-variant-numeric:tabular-nums;
   }
+
+  /* La porte de sortie de la carte. Discrète mais toujours là : c'est le seul
+     bouton disponible à ce moment, il n'a donc pas le droit de se cacher. */
+  #b-instrument {
+    top:22px; left:50%; transform:translateX(-50%);
+    display:none; pointer-events:auto; cursor:pointer;
+    background:color-mix(in srgb, var(--nuit) 88%, transparent); backdrop-filter:blur(14px);
+    border:1px solid var(--filet); border-radius:3px; padding:9px 16px;
+    font-family:var(--chiffre); font-size:9.5px; letter-spacing:.18em;
+    text-transform:uppercase; color:var(--braise);
+  }
+  #b-instrument.vu { display:block; }
+  #b-instrument:hover { border-color:var(--braise-b); color:#ffd7ad; }
+  @media (max-width:760px){ #b-instrument { top:12px; padding:8px 13px; font-size:9px; } }
 
   /* Le chronomètre du trajet. Il double la grille du recul : la grille dit la
      distance, lui dit le prix en temps. Coin bas-droit, hors du champ du
@@ -1038,6 +1112,13 @@ body.au-salon:not(.mode-boutons) #dock { opacity:0; pointer-events:none; }
   <div id="in-pied"></div>
 </div>
 
+<!-- La seule porte de sortie quand la carte des étoiles est affichée.
+
+     Sans elle, fermer le panneau d'arrivée enfermait : la carte couvre tout
+     l'écran, la barre d'actions est masquée dans le salon, et l'on ne peut plus
+     viser le poste du télescope puisqu'on ne le voit plus. Impasse complète. -->
+<button class="hud" id="b-instrument"></button>
+
 <!-- Le chronomètre du trajet. Il ne dit pas la durée de l'animation : il dit ce
      que le voyage coûterait vraiment, aux deux horloges. -->
 <div class="hud" id="chrono">
@@ -1159,6 +1240,20 @@ body.au-salon:not(.mode-boutons) #dock { opacity:0; pointer-events:none; }
 </div>
 
 
+
+<!-- La présentation. Elle se joue une seule fois, après que le son a été
+     accepté, par-dessus le trou noir qui tourne déjà. Trois temps, courts :
+     un pavé de texte à l'entrée fait fermer l'onglet. -->
+<div id="presentation">
+  <div id="pr-bloc">
+    <div id="pr-sur"></div>
+    <div id="pr-texte"></div>
+  </div>
+  <div id="pr-bas">
+    <div id="pr-points"></div>
+    <button id="pr-passer"></button>
+  </div>
+</div>
 
 <div id="voile">
   <div id="dossier">
@@ -2953,6 +3048,7 @@ $("langue-choix").previousElementSibling.textContent = T("panneau.langue");
 $("in-titre").textContent  = T("tele.titre");
 $("in-sous").textContent   = T("tele.sous");
 $("in-fermer").textContent = T("tele.fermer");
+$("b-instrument").textContent = T("tele.rouvrir");
 $("ch-note").textContent   = T("chrono.note");
 document.querySelectorAll("#chrono .ch-etiq")[0].textContent = T("chrono.abord");
 document.querySelectorAll("#chrono .ch-etiq")[1].textContent = T("chrono.auloin");
@@ -3028,6 +3124,18 @@ function fermeTelescope(){
   TELESCOPE.ouvert = false;
   $("instrument").classList.remove("vu");
 }
+
+/* Rouvrir l'instrument depuis la carte.
+
+   On garde le contenu tel qu'il était — arrivée ou trou noir d'étude — parce
+   qu'on n'a pas voyagé entre-temps : c'est la même situation qu'on retrouve,
+   pas une nouvelle. */
+$("b-instrument").onclick = () => {
+  TELESCOPE.ouvert = true;
+  if(!$("in-liste").children.length && TELESCOPE.trajet)
+    poseArrivee(TELESCOPE.trajet, TELESCOPE.trajet.calcul);
+  $("instrument").classList.add("vu");
+};
 
 /* Les destinations, avec leur prix en temps.
 
@@ -3741,6 +3849,18 @@ cv.addEventListener("wheel", e => {
 
 $("b-quete").onclick = () => {
   tais();
+  /* On oublie aussi qu'on est déjà venu.
+
+     Le bouton relançait la quête tout de suite, mais un rafraîchissement
+     redéposait au menu : la présentation, elle, ne se rejouait jamais, et il
+     fallait vider la mémoire du navigateur pour la revoir une seule fois. Après
+     ce clic, recharger la page rejoue le premier passage en entier —
+     présentation comprise. C'est ce qui la rend testable. */
+  try {
+    const m = JSON.parse(localStorage.getItem(CLE) || "{}");
+    delete m.deja;
+    localStorage.setItem(CLE, JSON.stringify(m));
+  } catch(_){}
   elAccueil.classList.add("parti");
   document.body.classList.remove("au-menu");
   document.body.classList.add("en-quete");
@@ -4749,11 +4869,18 @@ function intro(){
       avertitSonIOS();
       if(volumeMusique > 0){ MUSIQUE.regleVolume(volumeMusique); MUSIQUE.demarre(); }
     }
-      /* Un testeur qui reçoit un lien n'explore pas : il regarde deux minutes.
+    // La présentation ne se joue qu'au tout premier passage, et elle s'insère
+    // ICI : le son vient d'être accepté, donc elle peut porter de la musique, et
+    // l'on n'a encore rien montré qu'elle viendrait interrompre.
+    if(dejaVenu){ menu(); return; }
+    jouePresentation(embarquePremier);
+  };
+
+  const embarquePremier = () => {
+    /* Un testeur qui reçoit un lien n'explore pas : il regarde deux minutes.
        On le dépose donc directement à bord, et la quête lui apprend le lieu.
        Le niveau de lecture attend la fin — on ne sait pas répondre à « où en
        es-tu ? » avant d'avoir vu de quoi il s'agit. */
-    if(dejaVenu){ menu(); return; }
     elAccueil.classList.add("parti");
     document.body.classList.remove("au-menu");
     document.body.classList.add("en-quete");
@@ -4764,6 +4891,65 @@ function intro(){
   };
   $("acc-go").onclick  = () => entre(true);
   $("acc-muet").onclick = () => entre(false);
+}
+
+/* La présentation, en trois temps et pas un de plus.
+
+   Elle est imposée au premier passage — c'est le seul moment où l'on peut dire
+   ce qu'est ce site sans que personne ne l'ait déjà décidé à notre place. Mais
+   elle est courte, elle s'interrompt d'un geste, et les trois points disent
+   d'emblée combien il en reste : on accepte volontiers trois écrans, on
+   n'accepte pas un texte dont on ne voit pas la fin.
+
+   Elle se joue par-dessus le trou noir, qui tourne déjà. C'est lui l'argument ;
+   le texte ne fait que le nommer. */
+const PR_DUREE = 5200;       // millisecondes par écran
+
+function jouePresentation(fin){
+  const temps = (CONTENU.accueil && CONTENU.accueil.presentation) || [];
+  if(!temps.length){ fin(); return; }        // un contenu plus ancien : on passe
+
+  const el = $("presentation"), bloc = $("pr-bloc"), points = $("pr-points");
+  points.innerHTML = temps.map(() => "<i></i>").join("");
+  $("pr-passer").textContent = T("pr.passer");
+
+  // Le menu s'efface : on veut l'image, pas un panneau derrière le texte.
+  elAccueil.classList.add("parti");
+  document.body.classList.remove("au-menu");
+
+  let i = -1, minuterie = null, fini = false;
+
+  const termine = () => {
+    if(fini) return;                          // un double geste ne doit pas embarquer deux fois
+    fini = true;
+    clearTimeout(minuterie);
+    el.classList.remove("vu");
+    fin();
+  };
+
+  const suivant = () => {
+    if(fini) return;
+    clearTimeout(minuterie);
+    i++;
+    if(i >= temps.length){ termine(); return; }
+    bloc.classList.remove("la");
+    setTimeout(() => {
+      if(fini) return;
+      $("pr-sur").textContent  = temps[i].sur;
+      $("pr-texte").innerHTML  = temps[i].t;
+      [...points.children].forEach((p, j) => p.classList.toggle("la", j === i));
+      bloc.classList.add("la");
+    }, i === 0 ? 40 : 560);
+    minuterie = setTimeout(suivant, PR_DUREE);
+  };
+
+  $("pr-passer").onclick = e => { e.stopPropagation(); termine(); };
+  // Un geste n'importe où avance d'un temps : on ne fait pas chercher un bouton
+  // à quelqu'un qui veut simplement lire plus vite.
+  el.onclick = suivant;
+
+  el.classList.add("vu");
+  suivant();
 }
 
 /* L'interrupteur latéral de l'iPhone coupe le son des pages web.
@@ -5974,6 +6160,10 @@ function boucle(now){
 
   dessine();
   dessineVoyage(dt);
+
+  // La porte de sortie ne paraît que quand la carte cache tout le reste, et
+  // seulement si le panneau est fermé — sinon elle ferait doublon.
+  $("b-instrument").classList.toggle("vu", TELESCOPE.carte > 0.5 && !TELESCOPE.ouvert);
 
   $("lecture-flottant").style.opacity = sondeSuivie !== null ? "0" : "";
   $("s-orbite").textContent = sondes.length;

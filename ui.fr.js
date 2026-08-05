@@ -52,10 +52,13 @@ window.UI = {
   "panneau.traj":          "Trajectoires",
   "panneau.langue":        "Langue — Language",
 
+  "pr.passer":             "Passer",
+
   // ---- le télescope ----
   "tele.titre":            "Le télescope",
   "tele.sous":             "Où allons-nous ?",
   "tele.fermer":           "Revenir au salon",
+  "tele.rouvrir":          "Le télescope",
   "tele.pied":
     "Le vaisseau tient une accélération d'un g aussi longtemps qu'il faut : c'est " +
     "la seule chose qu'on vous accorde, et personne ne sait la construire. Les " +

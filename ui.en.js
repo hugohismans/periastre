@@ -40,10 +40,13 @@ Object.assign(window.UI, {
   "panneau.traj":          "Trajectories",
   "panneau.langue":        "Langue — Language",
 
+  "pr.passer":             "Skip",
+
   // ---- the telescope ----
   "tele.titre":            "The telescope",
   "tele.sous":             "Where are we going?",
   "tele.fermer":           "Back to the lounge",
+  "tele.rouvrir":          "The telescope",
   "tele.pied":
     "The ship holds one g for as long as it takes: that is the only thing you " +
     "are granted, and nobody knows how to build it. The durations come out of " +
