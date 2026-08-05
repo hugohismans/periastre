@@ -61,8 +61,8 @@
      · Éléments planétaires — table « Keplerian Elements for Approximate
        Positions of the Major Planets », E. M. Standish, JPL Solar System
        Dynamics, éléments moyens à l'époque J2000, valables 1800-2050.
-     · Rapports de masses Soleil/planète — valeurs IAU 2009 (Luzum et al. 2011,
-       Celest. Mech. Dyn. Astron. 110, 293).
+     · Rapports de masses Soleil/planète — DÉRIVÉS des GM de système de DE440
+       (Park et al. 2021), et non recopiés. Voir `SOURCES-NCORPS.md`.
      · Périodes sidérales de référence — JPL Planetary Fact Sheets.
      · Rayon et densité de Saturne, bords des anneaux — JPL Saturn Fact Sheet.
      · Coefficient fluide 2,455 — Chandrasekhar, « Ellipsoidal Figures of
@@ -673,11 +673,15 @@ sous("contre le réel : les anneaux de Saturne");
   // Toutes les particules d'anneau sont des tas de glace sans cohésion : c'est
   // la limite FLUIDE qui s'applique. Elle doit tomber au voisinage du bord
   // externe du système d'anneaux, et au-delà de tous les anneaux principaux.
-  const R_SAT = 60268;        // rayon équatorial de Saturne, km
-  const RHO_SAT = 0.687;      // densité moyenne, g/cm³
-  const RHO_GLACE = 0.93;     // glace d'eau
-  const BORD_A  = 136775;     // bord externe de l'anneau A, km
-  const ANNEAU_F = 140180;    // anneau F, km
+  // Toutes relevées aux sources le 5 août 2026 — voir `SOURCES-NCORPS.md`.
+  // Les deux valeurs d'anneaux étaient fausses au quatrième chiffre : 136 775 et
+  // 140 180 de mémoire, contre 136 770 et 140 224 relevés. Sans conséquence sur
+  // la conclusion, corrigées quand même.
+  const R_SAT = 60268;        // rayon équatorial, km — JPL SSD phys_par, ±4
+  const RHO_SAT = 0.6871;     // densité moyenne, g/cm³ — idem, ±0,0002
+  const RHO_GLACE = 0.93;     // glace d'eau (glace I à 0 °C)
+  const BORD_A  = 136770;     // bord externe de l'anneau A, km — USGS Rings
+  const ANNEAU_F = 140224;    // anneau F, km — idem
   const d = N.rocheParDensites(R_SAT, RHO_SAT, RHO_GLACE).fluide;
   dit(`         limite fluide calculée : ${fmt(d)} km = ${fmt(d/R_SAT)} rayons de Saturne`);
   dit(`         bord externe de l'anneau A : ${BORD_A} km   anneau F : ${ANNEAU_F} km`);
@@ -705,10 +709,10 @@ sous("contre le réel : les anneaux de Saturne");
             `${((d/BORD_A-1)*100).toFixed(1)} %. La formule ne connaît que le rayon ` +
             `et la densité de Saturne et celle de la glace : elle ignore ` +
             `tout des anneaux, et retombe pourtant dessus.` });
-  const dMimas = N.rocheParDensites(R_SAT, RHO_SAT, 1.15).fluide;  // Mimas, ρ=1,15
-  affirmeVrai("Mimas, à 185 540 km, est au-delà de sa propre limite fluide",
-    185540 > dMimas,
-    `limite pour ρ = 1,15 : ${fmt(dMimas)} km — la première lune commence bien ` +
+  const dMimas = N.rocheParDensites(R_SAT, RHO_SAT, 1.1501).fluide;  // JPL sats/phys_par
+  affirmeVrai("Mimas, à 185 539 km, est au-delà de sa propre limite fluide",
+    185539 > dMimas,
+    `limite pour ρ = 1,1501 : ${fmt(dMimas)} km — la première lune commence bien ` +
     `où les anneaux finissent.`);
 }
 
@@ -838,13 +842,34 @@ titre("5. SYSTÈME SOLAIRE — Soleil et quatre géantes, cinq mille ans");
    l'ordre des variations à courte période, soit quelques 10⁻³ en excentricité.
    C'est sans conséquence pour ce qu'on mesure ici — la stabilité des demi-grands
    axes — mais cela interdit de comparer les positions à une éphéméride. */
+/* Les rapports de masse ne sont plus RECOPIÉS, ils sont DÉRIVÉS.
+
+   Ils venaient de la littérature usuelle, retenus de mémoire. Relevés contre
+   DE440 le 5 août 2026, ils se sont révélés justes à 10⁻⁶ — mieux que les 10⁻³
+   qu'annonçait prudemment la note. Ce n'est pas la raison de les changer.
+
+   La raison est qu'une valeur de contrôle recopiée ne contrôle rien : elle
+   transforme une vérification en opinion, et rien ne signale le jour où elle
+   dérive. Calculée à partir d'une constante sourcée, elle ne peut plus. Voir
+   `SOURCES-NCORPS.md`.
+
+   Ce sont des GM de SYSTÈME, planète et satellites confondus, et c'est ce qu'il
+   faut : sur cinq mille ans les lunes accompagnent leur planète, et c'est la
+   masse totale qui gouverne l'orbite héliocentrique. */
+const GM_SOLEIL_KM = 1.32712440041279419e11;     // km³/s², DE440 (Park et al. 2021)
+const GM_SYSTEME = {                              // km³/s², DE440
+  Jupiter: 126712764.100000, Saturne: 37940584.841800,
+  Uranus:    5794556.400000, Neptune:  6836527.100580,
+};
+const rapportMasse = nom => GM_SOLEIL_KM / GM_SYSTEME[nom];
+
 const PLANETES = [
-  // nom       Soleil/masse    a (ua)      e           i (°)      L (°)         ϖ (°)        Ω (°)
-  ["Jupiter",  1047.348644,  5.20288700, 0.04838624,  1.30439695,  34.39644051,  14.72847983, 100.47390909],
-  ["Saturne",  3497.9018,    9.53667594, 0.05386179,  2.48599187,  49.95424423,  92.59887831, 113.66242448],
-  ["Uranus",  22902.98,     19.18916464, 0.04725744,  0.77263783, 313.23810451, 170.95427630,  74.01692503],
-  ["Neptune", 19412.24,     30.06992276, 0.00859048,  1.77004347, -55.12002969,  44.96476227, 131.78422574],
-];
+  // nom          a (ua)      e           i (°)      L (°)         ϖ (°)        Ω (°)
+  ["Jupiter",  5.20288700, 0.04838624,  1.30439695,  34.39644051,  14.72847983, 100.47390909],
+  ["Saturne",  9.53667594, 0.05386179,  2.48599187,  49.95424423,  92.59887831, 113.66242448],
+  ["Uranus",  19.18916464, 0.04725744,  0.77263783, 313.23810451, 170.95427630,  74.01692503],
+  ["Neptune", 30.06992276, 0.00859048,  1.77004347, -55.12002969,  44.96476227, 131.78422574],
+].map(([nom, ...reste]) => [nom, rapportMasse(nom), ...reste]);
 // Périodes sidérales publiées, en années juliennes — JPL Planetary Fact Sheets
 const PERIODES_REF = { Jupiter: 11.862, Saturne: 29.457, Uranus: 84.011, Neptune: 164.79 };
 
@@ -1136,12 +1161,12 @@ dit("      Ce qui est vérifié, c'est la forme fermée contre les anneaux de");
 dit("      Saturne ; ce qui est mesuré, c'est le seuil du cas rigide synchrone.");
 dit("      L'écart entre les deux n'est pas comblé, il est déclaré.");
 dit("");
-dit("    · LES MASSES PLANÉTAIRES sont des rapports Soleil/planète IAU 2009");
-dit("      recopiés de mémoire de la littérature usuelle, et non lus dans le");
-dit("      fichier d'en-tête d'une éphéméride. Ils sont assez justes pour que");
-dit("      les périodes tombent à quelques 10⁻³ près, ce que le contrôle 5");
-dit("      démontre ; ils ne le sont pas assez pour un travail de précision.");
-dit("      Même remarque pour les bords d'anneaux de Saturne au contrôle 4.");
+dit("    · LES ÉLÉMENTS SONT MOYENS, pas osculateurs. C'est ce qui reste de");
+dit("      l'ancienne réserve sur les masses — celle-là est levée : les rapports");
+dit("      Soleil/planète ne sont plus recopiés, ils se dérivent des GM de");
+dit("      DE440 à l'exécution. Mais les éléments orbitaux de Standish restent");
+dit("      des moyennes valables 1800-2050, ce qui interdit de comparer les");
+dit("      POSITIONS à une éphéméride. Les demi-grands axes, eux, sont bons.");
 dit("");
 dit("    · LA STABILITÉ À LONG TERME n'est pas prouvée par 5 000 ans. Les");
 dit("      instabilités du système solaire se comptent en centaines de millions");
