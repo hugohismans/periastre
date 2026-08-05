@@ -508,6 +508,73 @@ que coûterait le trajet à 1 g ; de l'autre ce qu'il coûterait avec ce qu'on a
 réellement lancé. Deux colonnes, et la leçon se lit sans être écrite.
 
 
+## Depuis la Terre, remplacer la Lune — *5 août 2026*
+
+Idée d'Hugo. Un point de vue nouveau : **debout sur Terre**, la nuit, on regarde
+le ciel. Et l'on remplace la Lune par autre chose, pour sentir les tailles.
+
+C'est le seul endroit du site où l'échelle serait donnée par comparaison à
+quelque chose que tout le monde a déjà vu de ses yeux. Tout le reste s'exprime
+en rayons de Schwarzschild ou en unités astronomiques, qui ne veulent rien dire
+tant qu'on n'a pas de point d'appui.
+
+### Les chiffres, calculés
+
+Taille apparente à la distance de la Lune (384 400 km) :
+
+| à la place de la Lune | diamètre apparent | en Lunes |
+|---|---:|---:|
+| la Lune | 0,52° | 1 |
+| Mars | 1,01° | 2 |
+| la Terre | 1,90° | 3,7 |
+| Neptune | 7,33° | 14 |
+| Saturne | 17,2° | 33 |
+| Jupiter | 20,6° | 40 |
+| le Soleil | 122° | 236 |
+
+Jupiter couvrirait quarante fois la Lune, et le Soleil emplirait les deux tiers
+du ciel visible d'un bord à l'autre. Ce sont des tangentes, rien de plus : le
+calcul se refait à la main et se vérifie.
+
+### Le trou noir de la masse de la Lune
+
+**Rayon de Schwarzschild : 0,109 mm.** Un dixième de millimètre. Plus petit
+qu'un grain de sable, pour la masse entière de la Lune.
+
+Et c'est là toute la leçon, celle qu'Hugo vise : **on ne serait pas aspirés**.
+À 384 400 km, un point de 7,3 × 10²² kg attire exactement comme une boule de
+3 474 km de la même masse. Les marées ne changeraient pas, l'orbite de la Terre
+non plus. Ce qu'on perdrait, c'est le clair de lune, les éclipses, et le disque.
+Rien d'autre. Le ciel serait juste vide à cet endroit.
+
+### La réserve, et elle est sérieuse
+
+Hugo imagine ensuite une **rencontre** : le trou noir croise la Lune, l'absorbe,
+et c'est spectaculaire. Deux objections.
+
+La première est physique. Je **ne sais pas** ce qui se passerait, et je ne
+veux pas l'inventer. Deux masses égales qui se croisent, ce n'est pas une
+absorption tranquille : c'est un problème d'hydrodynamique violent où la Lune
+serait d'abord disloquée par l'interaction gravitationnelle, et où le taux
+d'accrétion sur un objet de 0,1 mm dépend de choses (moment cinétique, pression
+du matériau, vitesse relative) qui ne se tranchent pas de tête. Le rayon de
+capture gravitationnelle sort autour de quelques centaines de kilomètres pour
+une vitesse relative de quelques kilomètres par seconde, donc l'effet n'est pas
+négligeable — mais en tirer un film demanderait une vraie simulation, ou une
+source. **À ne pas montrer tant que ce n'est pas sourcé.**
+
+La seconde est pédagogique, et elle est plus gênante. Montrer la Lune dévorée
+avec fracas **enseigne exactement le contraire** de ce qu'on veut : ça dit
+« aspirateur cosmique ». La leçon est dans l'anticlimax — on échange la Lune
+contre un trou noir de même masse, et **il ne se passe rien**. Les marées
+continuent, l'orbite tient, la nuit est simplement plus noire. C'est décevant,
+et c'est précisément pour ça que c'est instructif.
+
+Si l'on veut du spectaculaire sans mentir, il est déjà là : mettre un objet de
+**0,109 mm** là où était la Lune, et le dire. Ça se regarde très bien.
+
+---
+
 ## Le système solaire, planète par planète — *le long terme*
 
 Hugo : aller au système solaire, se mettre en orbite autour de chaque planète,
