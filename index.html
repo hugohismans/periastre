@@ -5659,7 +5659,53 @@ function tempsDepuis(iso){
 // Écran plaqué sur une paroi. Un vrai écran dans une pièce sombre n'est pas un
 // rectangle noir : il a un biseau, il émet de la lumière autour de lui, et sa
 // dalle se trahit par un balayage. Sans ça on lit un panneau de débogage.
-function ecran(M, coins, dessineDedans){
+/* Les écrans se rasterisent HORS CHAMP, et pas soixante fois par seconde.
+
+   Mesuré : `dessineEcrans()` coûtait 0,417 ms sur 1,757 ms de boucle — un quart
+   du temps processeur, sur une machine rapide. Sur téléphone, où le texte en
+   Canvas 2D est bien plus lent, c'est la première cause de saccade.
+
+   Or leur contenu ne change pas à la cadence de l'affichage : l'horloge avance
+   à la seconde, le tracé d'orbite d'un point tous les quelques dixièmes. On les
+   dessine donc dans une toile hors champ quatre fois par seconde, et chaque
+   image ne fait plus qu'un `drawImage` déformé — ce que le processeur graphique
+   sait faire pour rien.
+
+   Le balayage y est cuit aussi : c'étaient quatre-vingt-quatre rectangles par
+   écran et par image, soit cent soixante-huit qu'on refaisait pour un motif
+   rigoureusement identique.
+
+   Le suréchantillonnage à deux compense la déformation : la toile est tracée à
+   600 × 400 pour être posée sur un quadrilatère qui, de près, dépasse la taille
+   nominale. */
+const TOILES = new Map();
+const SUR_ECH = 2;              // suréchantillonnage de la toile hors champ
+const RAFRAICHI = 250;          // millisecondes entre deux rasterisations
+const EC_LARG = 300, EC_HAUT = 200;
+
+function toileEcran(cle, dedans){
+  let e = TOILES.get(cle);
+  if(!e){
+    const c = document.createElement("canvas");
+    c.width = EC_LARG*SUR_ECH; c.height = EC_HAUT*SUR_ECH;
+    e = { c, o: c.getContext("2d"), quand: -1e9 };
+    TOILES.set(cle, e);
+  }
+  const now = performance.now();
+  if(now - e.quand > RAFRAICHI){
+    e.quand = now;
+    const o = e.o;
+    o.setTransform(SUR_ECH, 0, 0, SUR_ECH, 0, 0);
+    o.clearRect(0, 0, EC_LARG, EC_HAUT);
+    dedans(o);
+    // le balayage, cuit une fois pour toutes dans la toile
+    o.fillStyle = "rgba(0,0,0,0.16)";
+    for(let y = 0; y < EC_HAUT; y += EC_HAUT*0.012) o.fillRect(0, y, EC_LARG, EC_HAUT*0.006);
+  }
+  return e.c;
+}
+
+function ecran(M, coins, dessineDedans, cle){
   /* Un écran est plaqué sur une cloison : on ne doit pas le voir depuis
      l'autre côté. Le tracé se fait sur un calque à deux dimensions, sans
      tampon de profondeur, donc rien ne l'occulte tout seul — d'où ces deux
@@ -5759,11 +5805,9 @@ function ecran(M, coins, dessineDedans){
 
   // (0,0)->a, (1,0)->b, (0,1)->d : l'affine qui redresse l'écriture
   ctx.transform(b[0]-a[0], b[1]-a[1], d[0]-a[0], d[1]-a[1], a[0], a[1]);
-  dessineDedans();
-
-  // balayage, dans le repère local pour qu'il suive la perspective
-  ctx.fillStyle = "rgba(0,0,0,0.16)";
-  for(let y = 0; y < 1; y += 0.012) ctx.fillRect(0, y, 1, 0.006);
+  // Une seule image posée, balayage compris — voir `toileEcran`.
+  ctx.imageSmoothingQuality = "high";
+  ctx.drawImage(toileEcran(cle, dessineDedans), 0, 0, 1, 1);
   ctx.restore();
 }
 
@@ -5773,10 +5817,16 @@ function dessineEcrans(){
   const z = -VAISSEAU.P/2 + 0.012, y0 = 0.86, y1 = 2.34;
   const g0 = -4.42, g1 = -2.80, d0 = 2.80, d1 = 4.42;
 
-  // Repère local commun : 300 × 200 « pixels d'écran », marge de 22.
-  const LARG = 300, HAUT = 200, MG = 22;
-  const local = () => ctx.scale(1/LARG, 1/HAUT);
-  const titre = t => {
+  /* Repère local commun : 300 × 200 « pixels d'écran », marge de 22.
+
+     La toile hors champ étant DÉJÀ dans ce repère, il n'y a plus de mise à
+     l'échelle à faire ici — c'était le rôle de `local()`, devenu inutile.
+
+     Et le contexte arrive en PARAMÈTRE, nommé `ctx` : il masque le global dans
+     tout le corps des deux fonctions ci-dessous, qui n'ont donc pas eu à
+     changer d'une ligne alors qu'elles dessinent désormais ailleurs. */
+  const LARG = EC_LARG, HAUT = EC_HAUT, MG = 22;
+  const titre = (ctx, t) => {
     ctx.textAlign = "left";
     ctx.fillStyle = "#5f7ba8"; ctx.font = "10px ui-monospace, monospace";
     ctx.fillText(t, MG, 26);
@@ -5785,9 +5835,8 @@ function dessineEcrans(){
   };
 
   // --- écran de gauche : où sommes-nous ---
-  ecran(M, [[g0,y1,z], [g1,y1,z], [g1,y0,z], [g0,y0,z]], () => {
-    local();
-    titre(T("salon.ecran.position"));
+  ecran(M, [[g0,y1,z], [g1,y1,z], [g1,y0,z], [g0,y0,z]], ctx => {
+    titre(ctx, T("salon.ecran.position"));
 
     ctx.fillStyle = "#dce6f5"; ctx.font = "22px KaTeX_Main, Georgia, serif";
     ctx.fillText(D.nom, MG, 68);
@@ -5830,7 +5879,7 @@ function dessineEcrans(){
     ctx.fillStyle = "#5f7ba8"; ctx.font = "8px ui-monospace, monospace";
     ctx.textAlign = "center";
     ctx.fillText(T("salon.ecran.nous"), vx, vy - 9);
-  });
+  }, "position");
 
   /* L'aura de ce qu'il faut toucher.
 
@@ -5866,9 +5915,8 @@ function dessineEcrans(){
   }
 
   // --- écran de droite : le temps, et l'aveu ---
-  ecran(M, [[d0,y1,z], [d1,y1,z], [d1,y0,z], [d0,y0,z]], () => {
-    local();
-    titre(T("salon.ecran.temps"));
+  ecran(M, [[d0,y1,z], [d1,y1,z], [d1,y0,z], [d0,y0,z]], ctx => {
+    titre(ctx, T("salon.ecran.temps"));
 
     const filet = y => {
       ctx.strokeStyle = "rgba(120,160,220,0.12)";
@@ -5924,7 +5972,7 @@ function dessineEcrans(){
       x: virgule((cadence(len(salon.p))*100).toFixed(1)),
     }), MG, 180);
     ctx.fillText(remplit("salon.ecran.accelere", { f: salon.facteur }), MG, 193);
-  });
+  }, "temps");
 }
 
 // ============ cockpit ============

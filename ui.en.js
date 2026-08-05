@@ -119,9 +119,22 @@ Object.assign(window.UI, {
      visitor meets it. The braces `{…}` are holes the script fills: their names
      do not translate, their ORDER may.
 
-     The site name stays "Périastre" on purpose — see CHAINES-UI.md, "À
-     trancher" #1. It is a proper noun until Hugo decides otherwise, and
-     deciding it here would have decided it everywhere.
+     ---------------------------------------------------------------------------
+     THE NAME — decided by Hugo, 5 August 2026
+
+     "Keep the French name for the app, and anglicise it where necessary."
+
+     So: the SITE is **Périastre**, accent and all, in every language. It is a
+     proper noun, and a proper noun does not translate — one does not rename a
+     place because a visitor speaks another tongue.
+
+     What does anglicise is the word used INSIDE the English prose, where French
+     would read as a foreign body: the ship is *the Periastron* in
+     `contenu.en.js`. That is not an inconsistency, it is the rule working —
+     the name of the thing stays, the way it sits in a sentence adapts.
+
+     A third language would do the same: keep "Périastre" for the site, and let
+     the ship take whatever form the language wants for it.
      ========================================================================== */
 
   // ---- the document ----
