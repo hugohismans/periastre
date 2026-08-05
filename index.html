@@ -4735,6 +4735,7 @@ function dessineCockpit(){
 
 // ============ boucle ============
 let echelle = 1.0, tPrec = performance.now(), images = 0, cumul = 0;
+let tCalme = 0;   // dernier moment où la résolution a bougé ou où ça a ramé
 
 /* Une seule mesure pour les deux toiles.
 
@@ -4787,8 +4788,25 @@ function boucle(now){
   images++; cumul += dt*1000;
   if(images === 90){
     const moy = cumul/images;
-    if(moy > 26 && echelle > 0.55){ echelle = 0.62; reechelonne(); }
-    else if(moy < 11 && echelle < 1.0){ echelle = 1.0; reechelonne(); }
+    /* La bascule de résolution est volontairement COLLANTE.
+
+       Elle change la taille du tampon, donc elle se voit : l'image devient
+       nette ou floue d'un coup. Or la charge varie avec l'orbite — au
+       périastre l'astre emplit le champ et le lancer de rayons coûte plus
+       cher qu'à l'apoastre. Sur une machine juste, la moyenne peut donc
+       traverser les deux seuils une fois par tour, et l'on voit sauter
+       l'image à chaque passage.
+
+       On descend vite, parce qu'une image molle vaut mieux qu'une image
+       saccadée. Mais on ne remonte qu'après une longue accalmie : mieux vaut
+       rester en basse résolution tout du long que clignoter deux fois par
+       orbite. */
+    if(moy > 26 && echelle > 0.55){
+      echelle = 0.62; reechelonne(); tCalme = now;
+    } else if(moy < 9 && echelle < 1.0 && now - tCalme > 30000){
+      echelle = 1.0; reechelonne(); tCalme = now;
+    }
+    if(moy > 14) tCalme = now;      // toute lenteur repousse le retour au piqué
     images = 0; cumul = 0;
   }
 
