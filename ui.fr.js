@@ -60,6 +60,10 @@ window.UI = {
   "panneau.traj":          "Trajectoires",
   "panneau.langue":        "Langue — Language",
 
+  "pr.suivant":             "Suivant",
+
+  "pr.entrer":             "Entrer",
+
   "pr.passer":             "Passer",
 
   // ---- le télescope ----

@@ -44,6 +44,10 @@ Object.assign(window.UI, {
   "panneau.traj":          "Trajectories",
   "panneau.langue":        "Langue — Language",
 
+  "pr.suivant":             "Next",
+
+  "pr.entrer":             "Enter",
+
   "pr.passer":             "Skip",
 
   // ---- the telescope ----

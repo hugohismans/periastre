@@ -322,6 +322,17 @@
   }
   #pr-passer:hover { color:var(--ecrit); }
 
+  /* Le bouton qui fait avancer. Il est franc, là où « passer » est discret :
+     l'un est le geste normal, l'autre la sortie de secours. */
+  #pr-suite {
+    background:color-mix(in srgb, var(--ambre) 14%, transparent);
+    border:1px solid color-mix(in srgb, var(--ambre) 45%, transparent);
+    border-radius:3px; padding:9px 20px; min-height:34px; cursor:pointer;
+    font-family:var(--chiffre); font-size:10px; letter-spacing:.18em;
+    text-transform:uppercase; color:#ffd6a8;
+  }
+  #pr-suite:hover { background:color-mix(in srgb, var(--ambre) 26%, transparent); color:#fff; }
+
   @media (max-width:760px){
     #pr-texte { font-size:17px; }
     #presentation { padding:0 18px 30px; }
@@ -1372,6 +1383,7 @@ body.au-salon:not(.mode-boutons) #dock { opacity:0; pointer-events:none; }
   <div id="pr-bas">
     <div id="pr-points"></div>
     <button id="pr-passer"></button>
+    <button id="pr-suite"></button>
   </div>
 </div>
 
@@ -5188,13 +5200,29 @@ function jouePresentation(fin){
       $("pr-texte").innerHTML  = temps[i].t;
       [...points.children].forEach((p, j) => p.classList.toggle("la", j === i));
       bloc.classList.add("la");
+      // Le libellé dit où l'on est : au dernier écran, « Suivant » mentirait.
+      $("pr-suite").textContent = i === temps.length - 1 ? T("pr.entrer") : T("pr.suivant");
     }, i === 0 ? 40 : 560);
-    minuterie = setTimeout(suivant, PR_DUREE);
   };
 
+  /* ON NE DÉFILE PLUS TOUT SEUL.
+
+     Chaque écran restait 5,2 secondes, puis l'écran suivant arrivait. Hugo :
+     « les textes défilent trop rapidement, je pense que c'est mieux de faire
+     cliquer l'utilisateur sur un genre de "suivant" pour passer le texte et
+     bien laisser le temps. »
+
+     Il a raison, et pas seulement sur la durée. Une minuterie impose le rythme
+     de celui qui l'a réglée : trop lent pour qui lit vite, trop rapide pour qui
+     s'arrête sur un chiffre — et c'est précisément là qu'on voudrait qu'il
+     s'arrête, puisque le troisième écran dit trente-neuf ans contre
+     cinquante-quatre mille.
+
+     Trois écrans ne sont pas une vidéo. On avance quand on a fini de lire. */
   $("pr-passer").onclick = e => { e.stopPropagation(); termine(); };
-  // Un geste n'importe où avance d'un temps : on ne fait pas chercher un bouton
-  // à quelqu'un qui veut simplement lire plus vite.
+  $("pr-suite").onclick  = e => { e.stopPropagation(); suivant(); };
+  // Un geste n'importe où avance aussi : le bouton dit quoi faire, il ne rend
+  // pas le reste de l'écran inerte.
   el.onclick = suivant;
 
   el.classList.add("vu");

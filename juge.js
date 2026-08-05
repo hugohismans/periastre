@@ -54,73 +54,31 @@ function auSalon(x, z, lacet, tangage){
 // ============================================================ les décisions
 const DECISIONS = [
 
-  /* Celle-ci d'abord, parce que c'est la seule qui me DÉBLOQUE. Les autres
-     améliorent ; celle-là décide si une pièce entière se construit. */
-  /* La question a changé, parce que la réponse d'Hugo l'a changée. Il avait
-     répondu « aucune » aux trois EMPLACEMENTS, avec un seul mot : « agrandir ».
-     Ce n'était donc pas la place qu'il fallait lui faire choisir.
+  /* TROIS QUESTIONS ONT DISPARU D'ICI, ET C'EST LE BUT.
 
-     La place est maintenant arrêtée — le milieu de la portion libre de la fosse,
-     seul endroit où une console d'un mètre ne chevauche ni un occupant ni le
-     télescope — et c'est l'ÉCHELLE qui se compare. */
-  { id: "console-tir",
-    titre: "La console de tir : quelle taille ?",
-    quoi: "Tu avais dit « agrandir ». Laquelle se lit comme un instrument ?",
-    pose: () => auSalon(0, 0.9, 0, -0.26),
-    options: [
-      // « Pas de console » et non « Aucune » : sinon le bouton disait « Je garde
-      // « Aucune » » juste à côté de « Aucune des 4 ne va », et les deux ne
-      // veulent pas du tout dire la même chose.
-      { nom: "Pas de console", fait: () => VAISSEAU.poseTir(gl, null) },
-      { nom: "Grande",      fait: () => VAISSEAU.poseTir(gl, 0.25, 1.0)  },
-      { nom: "Très grande", fait: () => VAISSEAU.poseTir(gl, 0.25, 1.35) },
-      { nom: "Énorme",      fait: () => VAISSEAU.poseTir(gl, 0.25, 1.75) },
-    ],
-    // On repart toujours de l'état de production : éteinte.
-    rend: () => VAISSEAU.poseTir(gl, null),
-  },
+     Une séance de jugement doit rétrécir. Les lampes du bord — gardées, avec
+     les lampes ; le disque en lumière visible — gardé travaillé ; la bulle de
+     Lumen — ça va. Des questions qui dormaient dans le carnet depuis des
+     semaines, tranchées en deux séances, et qu'on ne repose plus.
 
-  /* Cette question a d'abord été posée AVEC LE MAUVAIS BOUTON.
+     La console de tir a disparu aussi, mais pour une autre raison : la réponse
+     d'Hugo n'était pas un choix parmi les miens. « Quand je dis agrandir, je
+     veux dire agrandir LE VAISSEAU, et mettre le canon dans une nouvelle
+     salle. » Ce n'est plus une question de taille de meuble, c'est une aile de
+     plus — et ça ne se tranche pas en trois secondes devant un écran.
 
-     Elle actionnait « Lumière réelle », que j'avais pris pour l'éclairage de la
-     pièce. Il ne fait pas ça du tout : il montre le disque tel qu'un œil humain
-     le verrait — c'est-à-dire presque rien. Hugo l'a vu en trois secondes :
-     « ça n'éteignait pas les lampes, ça mettait le disque en lumière visible ».
-
-     Il n'existait alors AUCUN interrupteur pour les lampes du bord : la question
-     était dans le carnet depuis des semaines et rien ne permettait de la
-     regarder. Le voici. Et le vrai bouton a désormais sa propre question, plus
-     bas, parce qu'elle est bonne aussi. */
-  { id: "lumiere-salon",
-    titre: "Les lampes du bord",
-    quoi: "Compare. Laquelle fait un vaisseau plutôt qu'un diorama ?",
-    pose: () => auSalon(0, 1.2, 0.10, -0.05),
-    options: [
-      { nom: "Avec les lampes", fait: () => { lampesBord = true;  } },
-      { nom: "L'astre seul",    fait: () => { lampesBord = false; } },
-    ],
-    rend: () => { lampesBord = true; },
-  },
-
-  { id: "lumiere-reelle",
-    titre: "Le disque en lumière vraiment visible",
-    quoi: "Sgr A* est presque invisible à l'œil nu. Le montrer sert le propos, ou déçoit ?",
-    pose: () => auSalon(0, 1.2, 0, -0.05),
-    options: [
-      { nom: "Image travaillée", fait: () => { if($$("b-reel").classList.contains("actif")) $$("b-reel").click(); } },
-      { nom: "Ce que l'œil verrait", fait: () => { if(!$$("b-reel").classList.contains("actif")) $$("b-reel").click(); } },
-    ],
-    rend: () => { if($$("b-reel").classList.contains("actif")) $$("b-reel").click(); },
-  },
+     Ce qui reste : cinq questions, toutes signalées « ça coince ». */
 
   { id: "presentation",
     titre: "La présentation d'entrée",
+    libre: true,
     quoi: "Trois écrans. Le rythme est-il bon ? Le dernier atteint-il ?",
     pose: () => { cinema.actif = true; cinema.t = 0; vaAu("libre"); jouePresentation(() => {}); },
   },
 
   { id: "quadrillage",
     titre: "Le quadrillage pendant le recul",
+    libre: true,
     quoi: "On part. Tu sens qu'on s'éloigne, ou c'est du désordre ?",
     pose: () => {
       auSalon(0, 0.6, 0, -0.05);
@@ -135,39 +93,22 @@ const DECISIONS = [
 
   { id: "carte-etoiles",
     titre: "La carte des étoiles S",
+    libre: true,
     quoi: "Dix orbites autour d'un point vide. On comprend, sans lire ?",
     pose: () => { auSalon(0, 0.6, 0, -0.05); TELESCOPE.carte = 1; ETOILES_S.vue.annee = 1992; },
     rend: () => { TELESCOPE.carte = 0; },
   },
 
-  /* Hugo, sur la première version : « tu me demandais de voir si on voyait le
-     robot, on ne voit pas le robot ». Poser une question sur une chose qu'on ne
-     montre pas est la pire façon de faire perdre son temps à quelqu'un.
-
-     Le drone flotte à une ancre recalculée quand on s'en éloigne trop ; la
-     scène le laissait où il traînait. Ici on le POSE devant, on regarde vers
-     lui, et `cible` fait vérifier à la séance qu'il est bien à l'écran avant de
-     demander quoi que ce soit. */
-  { id: "bulle-lumen",
-    titre: "La bulle de Lumen",
-    quoi: "Elle chevauche le drone. Gênant, ou pas ?",
-    pose: () => {
-      auSalon(0, 1.4, 0, -0.02);
-      const oe = oeilSalon();
-      ancreLumen = [oe[0], oe[1] - 0.10, oe[2] - 1.5];   // droit devant, à 1,5 m
-      reagit("salon", true);
-    },
-    cible: () => ROBOT.boiteVisee(salon.horloge).c,
-  },
-
   { id: "scintillement",
     titre: "Le scintillement des étoiles",
+    libre: true,
     quoi: "Tourne lentement et regarde le fond. Ça grouille encore ?",
     pose: () => { vaAu("libre"); cinema.actif = false; cam.dist = 26; cam.elev = 0.5; },
   },
 
   { id: "trou-noir-etude",
     titre: "La rotation du trou noir d'étude",
+    libre: true,
     quoi: "Passe les quatre rotations. L'effet se voit, ou pas ?",
     pose: () => { vaAu("libre"); cinema.actif = false; if(typeof poseEtude === "function") poseEtude(); },
   },
@@ -233,13 +174,19 @@ style.textContent = `
   #juge .oui { border-color:rgba(110,255,180,.4) !important; color:#8ff0c0 !important; }
   #juge .non { border-color:rgba(255,120,120,.4) !important; color:#ffa8a8 !important; }
   #juge .pas { font-family:ui-monospace, monospace; font-size:9px; color:#6b6880; margin-top:8px; }
-  /* Replié, il ne reste que le rang de boutons — de quoi rouvrir, et surtout de
-     quoi REGARDER la scène sans un panneau au milieu. On ne peut pas juger une
-     pièce à travers un formulaire posé dessus. */
-  #juge.replie { padding:7px 10px; width:auto; }
+  /* Replié, il ne reste qu'un bandeau — le titre et de quoi rouvrir.
+
+     Hugo, deuxième séance : « le champ du test est devant la présentation » et
+     « je n'ai pas accès au bouton avec l'interface de test ». Un panneau posé au
+     milieu de l'écran cache justement ce qu'il demande de regarder, et couvre
+     les commandes qu'il demande d'essayer. Les questions qui envoient explorer
+     le site s'ouvrent donc REPLIÉES. */
+  #juge.replie { padding:7px 11px; width:auto; max-width:min(420px, 92vw); }
   #juge.replie h4, #juge.replie p, #juge.replie .variantes,
-  #juge.replie textarea, #juge.replie .sur,
-  #juge.replie .rangee:not(:last-of-type), #juge.replie .pas { display:none; }
+  #juge.replie textarea, #juge.replie .rangee:not(.replie-visible),
+  #juge.replie .pas { display:none; }
+  #juge.replie .sur { margin-bottom:0; color:#a8d8ee; }
+  #juge .rangee.replie-visible { margin-top:6px; }
 `;
 document.head.appendChild(style);
 
@@ -382,8 +329,16 @@ function montre(){
   bCache.className = "note-libre";
   bCache.textContent = "👁  Replier pour regarder";
   bCache.onclick = () => boite.classList.toggle("replie");
+  notes.className = "rangee replie-visible";      // seul rang visible une fois replié
   notes.appendChild(bNote); notes.appendChild(bCache);
   rang.parentElement.insertBefore(notes, q(".pas"));
+
+  /* Les questions qui envoient EXPLORER s'ouvrent repliées : sinon le panneau
+     couvre la présentation qu'il faut regarder, ou les boutons qu'il faut
+     essayer. On déplie quand on est prêt à répondre. */
+  boite.classList.toggle("replie", !!d.libre);
+  bCache.textContent = d.libre ? "▸  Déplier pour répondre" : "👁  Replier pour regarder";
+  if(d.libre) q(".sur").textContent += "  ·  " + d.titre;
 
   /* La première variante s'applique d'office, mais SEULEMENT MAINTENANT : son
      gestionnaire écrit dans le bouton de validation, qui vient d'être créé.
