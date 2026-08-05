@@ -699,3 +699,42 @@ mort quelque part au-dessus.
 
 `kerr` reste comme témoin de la branche d'exploration qui a servi au moteur de
 Kerr. Elle n'a plus d'usage courant.
+
+## Le recul — comment la scène des étoiles doit vraiment se faire
+
+Idée d'Hugo, et elle remplace celle que j'avais commencée : plutôt qu'une scène
+séparée, **le vaisseau s'éloigne**. On voit le trou noir rétrécir par la baie
+jusqu'à ce qu'il ne soit plus rien, et à ce moment-là les orbites des étoiles
+apparaissent.
+
+C'est bien meilleur, pour une raison qui n'est pas d'esthétique : **le disque
+d'accrétion devient invisible à cette distance**, et c'est précisément le
+propos. On ne voit plus le trou noir. On voit des étoiles tourner autour de
+rien — et c'est comme ça qu'on l'a découvert, trente ans avant d'en avoir une
+image.
+
+Un changement d'échelle raconte donc l'argument tout seul, là où deux scènes
+juxtaposées auraient demandé de l'expliquer.
+
+### Ce que ça implique
+
+- **Le recul est continu**, pas une coupure. On garde la baie, on garde le
+  lieu, et la seule chose qui change est la distance. Il faut donc que le
+  lanceur de géodésiques et la scène des orbites cohabitent dans la même image
+  pendant la transition — le premier s'éteint quand l'astre passe sous le
+  pixel, la seconde s'allume.
+- **Le temps s'adapte à l'échelle.** À dix rayons on compte en minutes, à mille
+  unités astronomiques en années. L'accélération doit suivre le recul, sinon
+  l'un des deux est illisible.
+- **Le module `etoiles.js` sur `dev` reste valable** pour le calcul des orbites
+  — Kepler, les trois rotations, les tracés. C'est son mode d'affichage séparé
+  qui tombe.
+
+### Le rapport d'échelle, qui est le vrai obstacle
+
+Le rayon de Schwarzschild vaut 1,3 × 10^10 m ; le demi-grand axe de S2 environ
+1,5 × 10^14 m. Quatre décades. Un recul linéaire passerait l'essentiel du
+trajet dans le vide : il faut une progression **logarithmique**, ce qui est
+exactement le moteur de zoom décrit dans `OBJECTIFS.md` et jamais construit.
+C'est l'occasion de le faire, et il resservira pour le dézoom vers la Voie
+lactée.

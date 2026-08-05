@@ -2055,9 +2055,18 @@ function posteVise(ev){
   const oeil = oeilSalon();
   const b = ROBOT.boiteVisee(salon.horloge);
   POSTE_LUMEN.c = b.c; POSTE_LUMEN.d = b.d;
+  /* Quatre centimètres et demi de tolérance conviennent à un curseur, qui se
+     pose exactement où l'œil regarde. Un pouce couvre un centimètre d'écran et
+     ne voit pas ce qu'il cache : il lui faut une cible bien plus large, sans
+     quoi viser devient un exercice d'adresse au lieu d'une intention. */
+  /* Neuf centimètres, pas trente. La marge s'exprime en mètres du décor, donc
+     son effet à l'écran dépend de la distance : trente centimètres étaient
+     raisonnables sur un drone à quatre mètres, et couvraient la moitié de
+     l'image une fois qu'il venait à portée de bras. */
+  const marge = (ev && ev.pointerType === "touch") ? 0.09 : 0.045;
   let meilleur = null, dmin = 1e9;
   for(const p of VAISSEAU.POSTES.concat(POSTE_LUMEN)){
-    const t = toucheBoite(oeil, d, p.c, p.d, 0.045);
+    const t = toucheBoite(oeil, d, p.c, p.d, marge);
     if(t !== null && t < dmin){ dmin = t; meilleur = p; }
   }
   return meilleur;
@@ -4949,7 +4958,16 @@ function boucle(now){
         salon.horloge, 0);
     }
 
-    // Lumen, qui fait sa ronde. Il s'éveille quand on le vise ou qu'il parle.
+    // Lumen. Il fait sa ronde, sauf quand l'étape demande qu'on lui parle :
+    // il vient alors se placer à portée, et cesse de se dérober au doigt.
+    if(attendu === "a-lumen"){
+      // une longueur de bras et demie devant, décalé pour ne pas masquer la baie
+      const { av, dr } = regardSalon();
+      const oe = oeilSalon();
+      ROBOT.veutAttendre(1, [ oe[0] + av[0]*1.45 + dr[0]*0.42,
+                              oe[1] + av[1]*1.45 - 0.06,
+                              oe[2] + av[2]*1.45 + dr[2]*0.42 ]);
+    } else ROBOT.veutAttendre(0);
     ROBOT.dessine(gl, envoie, salon.horloge, oeilSalon(),
       (salon.vise === POSTE_LUMEN || questionsOuvertes) ? 1
       : (attendu === "a-lumen" ? 0.55 : 0));
