@@ -1089,3 +1089,40 @@ d'expliquer** des trajectoires connues, pas de proposer d'en calculer.
 Dans l'explication du premier voyage, en regard du chronomètre. D'un côté ce
 que coûterait le trajet à 1 g ; de l'autre ce qu'il coûterait avec ce qu'on a
 réellement lancé. Deux colonnes, et la leçon se lit sans être écrite.
+
+## Deux objets, pas un curseur ambigu
+
+Hugo, sur le spin : *« qu'on puisse modifier la valeur, ou une fois dans le
+télescope passer sur un trou noir modifiable et voir ce que ça change. »*
+
+C'est mieux que l'arbitrage que je lui proposais, parce que ça règle le
+problème au lieu de le trancher. Deux objets nommés, et non un réglage qui
+brouille les deux :
+
+- **Sagittarius A***. Ce qu'on mesure. Masse et distance connues à un pour cent
+  près ; spin **inconnu**, et le dire. Les valeurs proposées sont des
+  hypothèses déclarées.
+- **Un trou noir d'étude**, atteint depuis le télescope. On y tourne tous les
+  boutons — masse, spin, inclinaison, taille du disque — et l'on regarde ce que
+  ça change. Il n'est plus Sagittarius A*, et l'interface le dit.
+
+La distinction n'est pas cosmétique : elle sépare **ce qu'on sait** de **ce que
+la physique autorise**. C'est exactement la frontière que le site défend
+partout ailleurs, et elle méritait d'exister dans les commandes.
+
+### Ce qui est fait
+
+Le cadrage. Le réglage s'intitule désormais « Rotation — non mesurée », zéro
+est présenté comme le **cas de référence** et non comme la vérité, et chaque
+valeur porte le mot « hypothèse ». Présenter zéro par défaut laissait croire que
+Sgr A* ne tourne pas — or aucun trou noir réel n'est immobile, ils naissent
+d'étoiles qui tournaient. Nous ignorons seulement de combien.
+
+### Ce qui reste
+
+Le trou noir d'étude lui-même, dans le télescope, avec ses paramètres libres.
+Et une réserve technique à ne pas oublier : en rotation, l'axe polaire est
+singulier dans les coordonnées employées, d'où une couture fine. La corriger
+demande de passer en coordonnées de Kerr-Schild, soit une réécriture du moteur.
+Tant que ce n'est pas fait, le cas de référence reste le seul sans artefact —
+ce qui justifie qu'il ouvre le site, mais ne le rend pas plus vrai.
