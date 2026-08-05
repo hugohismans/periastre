@@ -209,6 +209,78 @@ function coherence(){
   return enCours;
 }
 
+/* 1 ter. LE TEMPS AVANCE À LA VITESSE QU'ON LUI DEMANDE.
+
+   Ce contrôle existe parce qu'un défaut lui a échappé : en « temps réel », le
+   disque tournait SIX CENT VINGT-DEUX FOIS trop vite. Deux mécanismes
+   écrivaient la même horloge — le réglage de la vue libre et la commande du mur
+   du salon — et régler l'un ne retirait pas l'autre.
+
+   Aucun œil ne peut vérifier un facteur de temps ; on ne sait pas si un gaz
+   tourne six cents fois trop vite en le regardant. Une horloge, en revanche, se
+   compare. C'est exactement le genre de chose qu'un harnais doit porter, et
+   celui-ci ne le portait pas.
+
+   La règle, à chaque fois qu'un défaut est trouvé à l'œil : on le corrige, puis
+   on ajoute le contrôle qui l'aurait vu. Sans quoi il revient. */
+function tempsJuste(){
+  ouvre("Le temps avance à la vitesse demandée");
+  if(typeof facteurTemps !== "function"){
+    point("facteurTemps accessible", false, "function", typeof facteurTemps);
+    return enCours;
+  }
+  const degele = fige();
+  const avLieu = lieu, avF = salon.facteur;
+  try {
+    // Une image, un pas connu : c'est la seule façon de mesurer sans que
+    // l'horloge du test ne se mêle de celle du site.
+    const pas = (f, ou) => {
+      vaAu(ou);
+      salon.facteur = f;
+      let t = performance.now();
+      images = 0; cumul = 0; t += 16.7; boucle(t);       // une image d'amorce
+      const av = tempsGeo;
+      images = 0; cumul = 0; t += 16.7; boucle(t);       // celle qu'on mesure
+      return tempsGeo - av;
+    };
+    const DT = 0.0167, SPU = 42.34;
+
+    for(const f of [1, 60, 600]){
+      const d = pas(f, "salon");
+      const attendu = f*DT/SPU;
+      point("au salon, mur ×" + f, proche(d/attendu, 1, 0.02),
+            +attendu.toFixed(6), +d.toFixed(6),
+            "rapport " + (d/attendu).toFixed(3));
+    }
+
+    // Et en vue libre, où c'est l'autre commande qui décide.
+    const d = pas(VITESSES[iVitesse].mult, "libre");
+    const attendu = VITESSES[iVitesse].mult*DT/SPU;
+    point("en vue libre, cran " + iVitesse, proche(d/attendu, 1, 0.02),
+          +attendu.toFixed(6), +d.toFixed(6), "rapport " + (d/attendu).toFixed(3));
+
+    /* Le disque tourne-t-il à la vitesse képlérienne ? C'est le nuanceur qui le
+       fait, donc on ne peut pas le mesurer directement — mais on peut vérifier
+       que la formule qu'il applique est la bonne, et que la période qui en sort
+       est celle de la physique. */
+    const omega = r => 0.707 / Math.pow(r, 1.5);      // ce qu'écrit le nuanceur
+    const theorie = r => Math.sqrt(PHYSIQUE.M / (r*r*r));
+    for(const r of [3, 6, 11]){
+      point("rotation du gaz à r = " + r, proche(omega(r), theorie(r), 1e-3*theorie(r)),
+            +theorie(r).toFixed(6), +omega(r).toFixed(6), "Ω = √(M/r³)");
+    }
+    // Et sa période au temps réel, en secondes : trente-deux minutes à l'ISCO.
+    const periode = 2*Math.PI / (theorie(3) / SPU);
+    point("une révolution à l'ISCO, au temps réel",
+          periode > 1800 && periode < 2100, "≈ 1955 s", Math.round(periode) + " s");
+  } finally {
+    salon.facteur = avF;
+    vaAu(avLieu);
+    degele();
+  }
+  return enCours;
+}
+
 /* 2. LE NUANCEUR EST LIÉ.
 
    Une erreur de compilation GLSL jette au chargement et emporte le bloc — même
@@ -534,7 +606,8 @@ function texte(){
    C'est celle qu'on lance après une modification, en boucle. */
 function sain(){
   resultats.length = 0;
-  vivant(); coherence(); nuanceurs(); clesNues(); banc(); pixels(); mesurePage(); budget();
+  vivant(); coherence(); tempsJuste(); nuanceurs(); clesNues(); banc(); pixels();
+  mesurePage(); budget();
   return bilan();
 }
 
@@ -542,13 +615,15 @@ function sain(){
    on la lance sur une page fraîche. */
 function tout(){
   resultats.length = 0;
-  vivant(); coherence(); nuanceurs(); clesNues(); banc(); pixels(); mesurePage(); budget();
+  vivant(); coherence(); tempsJuste(); nuanceurs(); clesNues(); banc(); pixels();
+  mesurePage(); budget();
   parcours(); voyage();
   return bilan();
 }
 
 global.VERIF = {
-  vivant, coherence, nuanceurs, clesNues, banc, pixels, mesurePage, parcours, voyage, budget,
+  vivant, coherence, tempsJuste, nuanceurs, clesNues, banc, pixels, mesurePage,
+  parcours, voyage, budget,
   sain, tout, bilan, texte, resultats, FORMATS, OR,
   // outillage exposé : d'autres contrôles pourront s'y adosser
   pose, fige, avanceImages,
