@@ -13,6 +13,11 @@
 
 window.CONTENU = {
 
+// La langue de ce fichier. Elle sert au chemin des voix, et elle dira un jour
+// à la page quel jeu de textes elle a chargé.
+langue: "fr",
+
+
 // ---------------------------------------------------------------- références
 sources: {
   gravity2021: {

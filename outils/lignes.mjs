@@ -8,8 +8,13 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
+/* La langue se passe en argument. Le français garde `contenu.js` — son nom
+   d'origine, que trois autres outils connaissent — et les autres langues
+   prennent `contenu.<langue>.js`. */
 const ici = dirname(fileURLToPath(import.meta.url));
-const source = readFileSync(join(ici, "..", "contenu.js"), "utf8");
+const langue = (process.argv[2] || "fr").toLowerCase();
+const fichier = langue === "fr" ? "contenu.js" : `contenu.${langue}.js`;
+const source = readFileSync(join(ici, "..", fichier), "utf8");
 
 const fenetre = {};
 new Function("window", source)(fenetre);

@@ -5,8 +5,14 @@ sert que des fichiers : pas de clé d'API, pas de serveur, pas de coût, et la
 même voix pour tout le monde quel que soit le système du visiteur.
 
     pip install edge-tts
-    python outils/voix.py            # ne régénère que ce qui manque
-    python outils/voix.py --tout     # tout refaire
+    python outils/voix.py                    # français, ce qui manque seulement
+    python outils/voix.py --tout             # français, tout refaire
+    python outils/voix.py --langue en        # anglais
+
+Chaque langue a ses voix, déclarées dans son fichier de contenu, et son dossier :
+`voix/<langue>/<voix>/<id>.mp3`. Les identifiants, eux, sont communs à toutes les
+langues — c'est ce qui fait qu'une réplique et sa traduction sont la même
+réplique, et ce qui permet de changer de langue sans rien casser.
 
 Une connexion est nécessaire pour générer, pas pour consulter le site.
 """
@@ -24,9 +30,15 @@ SORTIE = RACINE / "voix"
 DEBIT = "+4%"          # les voix neuronales sont un peu lentes par défaut
 
 
-def lire_lignes():
+def langue_demandee():
+    if "--langue" in sys.argv:
+        return sys.argv[sys.argv.index("--langue") + 1].lower()
+    return "fr"
+
+
+def lire_lignes(langue):
     r = subprocess.run(
-        ["node", str(RACINE / "outils" / "lignes.mjs")],
+        ["node", str(RACINE / "outils" / "lignes.mjs"), langue],
         capture_output=True, text=True, encoding="utf-8-sig", check=True,
     )
     return json.loads(r.stdout)
@@ -34,13 +46,14 @@ def lire_lignes():
 
 async def main():
     tout = "--tout" in sys.argv
-    d = lire_lignes()
+    langue = langue_demandee()
+    d = lire_lignes(langue)
     faits = sautes = 0
 
-    print(f'{len(d["lignes"])} répliques × {len(d["voix"])} voix\n')
+    print(f'[{langue}] {len(d["lignes"])} répliques × {len(d["voix"])} voix\n')
 
     for v in d["voix"]:
-        dossier = SORTIE / v["id"]
+        dossier = SORTIE / langue / v["id"]
         dossier.mkdir(parents=True, exist_ok=True)
         for ligne in d["lignes"]:
             cible = dossier / f'{ligne["id"]}.mp3'
