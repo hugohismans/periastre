@@ -427,8 +427,8 @@ reactions: {
     { id:"inactif-11", t:`Second avis aux passagers, dans le même esprit. Notre moteur tient <b>1 g</b> indéfiniment, ce qui est très commode et parfaitement invraisemblable. Le service technique n'a jamais voulu expliquer comment il fonctionne, et je crois que c'est parce qu'il ne le sait pas non plus.`,
       dire:`Second avis aux passagers, dans le même esprit. Notre moteur tient un g indéfiniment, ce qui est très commode et parfaitement invraisemblable. Le service technique n'a jamais voulu expliquer comment il fonctionne, et je crois que c'est parce qu'il ne le sait pas non plus.`,
       pourquoi:`La difficulté n'est pas la poussée, c'est de l'entretenir. Une fusée qui
-                veut changer sa rapidité de $\Delta\eta$ doit emporter un rapport de
-                masses $M_i/M_f = e^{\Delta\eta / (v_e/c)}$ : le carburant doit pousser
+                veut changer sa rapidité de $\\Delta\\eta$ doit emporter un rapport de
+                masses $M_i/M_f = e^{\\Delta\\eta / (v_e/c)}$ : le carburant doit pousser
                 le carburant, et la note grimpe de façon <b>exponentielle</b>.
                 <br><br>Pour rejoindre le centre galactique à 1 g, la rapidité accumulée
                 vaut 20,47. Même avec le moteur le plus efficace que la physique autorise
@@ -634,8 +634,8 @@ accueilQuete: [
     dire:`Arrête-toi une seconde sur ce que tu as devant toi. Personne n'a jamais vu ça. Aucune caméra n'a jamais été ici. Et ce n'est pas une vue d'artiste : chaque point de cette image est un rayon lumineux qu'on a suivi, un par un, dans l'espace-temps déformé par quatre millions de Soleils. L'anneau n'a pas été dessiné. Le dessous du disque, que tu vois passer par-dessus, non plus : c'est la lumière qui a fait le tour. Le côté qui brille plus fort est celui qui vient vers toi. Alors soyons exacts. La forme, tu la verrais vraiment comme ça. Les couleurs, non, et je te dirai pourquoi. Mais la géométrie que tu regardes est celle que donnent les équations d'Einstein, sans un pixel arrangé.`,
     pourquoi:`Chaque pixel de l'image lance une géodésique nulle intégrée à rebours du temps
               dans la métrique de Schwarzschild, sous la forme cartésienne
-              $\mathbf{a} = -\tfrac{3}{2}h^{2}\mathbf{r}/r^{5}$. Rien n'est plaqué :
-              la sphère des photons à 1,5 r_s, l'ombre à $\sqrt{27}/2$, les images
+              $\\mathbf{a} = -\\tfrac{3}{2}h^{2}\\mathbf{r}/r^{5}$. Rien n'est plaqué :
+              la sphère des photons à 1,5 r_s, l'ombre à $\\sqrt{27}/2$, les images
               d'ordre supérieur et l'asymétrie Doppler sont des conséquences, et le banc
               d'essai du site les mesure en direct — 0,002 % d'écart sur le rayon de
               l'ombre. Les couleurs, elles, sont inventées : Sgr A* rayonne dans le
@@ -660,8 +660,8 @@ accueilQuete: [
     dire:`Merci. À cette vitesse, plus rien ne bouge, et c'est la vérité : un tour d'orbite dure quatre heures quarante-quatre. L'accélération est un choix de confort, et c'est le seul endroit du site où l'on te ment. Remets ce que tu veux. Tant qu'on parle du temps, tu devrais savoir comment nous sommes arrivés ici. Ce vaisseau a poussé à un g, la pesanteur terrestre, la moitié du trajet en accélérant et l'autre en freinant. Une vingtaine d'années de vie à bord. Sur Terre, il s'en est écoulé vingt-sept mille. Personne de ceux qui nous ont regardés partir n'était là pour nous voir arriver. Ce n'est pas une licence de scénario : c'est ce que donnent les équations.`,
     pourquoi:`Fusée relativiste à accélération propre constante. Le temps propre d'un trajet
               où l'on accélère puis freine vaut
-              $\tau = \tfrac{2c}{a}\,\operatorname{arccosh}\!\left(\tfrac{ad}{2c^{2}}+1\right)$.
-              Pour $a = g$ et $d = 8\,277$ pc, il vient une vingtaine d'années propres,
+              $\\tau = \\tfrac{2c}{a}\\,\\operatorname{arccosh}\\!\\left(\\tfrac{ad}{2c^{2}}+1\\right)$.
+              Pour $a = g$ et $d = 8\\,277$ pc, il vient une vingtaine d'années propres,
               tandis que le temps mesuré depuis la Terre reste à peine supérieur à $d/c$,
               soit environ 27 000 ans : à ces vitesses le vaisseau suit la lumière de très
               près. Le voyage tient donc dans une vie — c'est le retour qui n'y tient pas.`,
@@ -827,7 +827,7 @@ fiches: [
     Tu vois littéralement le dos de l'objet par-dessus sa tête.`,
 
    `Géodésiques nulles de Schwarzschild. L'équation orbitale se réduit à
-    $d^{2}u/d\varphi^{2} + u = 3GMu^{2}/c^{2}$ avec u = 1/r ; le membre de droite est le terme purement
+    $d^{2}u/d\\varphi^{2} + u = 3GMu^{2}/c^{2}$ avec u = 1/r ; le membre de droite est le terme purement
     relativiste, celui qui <b>double</b> la déflexion newtonienne. 1,75″ au limbe solaire est
     la <i>prédiction</i> : les mesures de 1919 donnèrent 1,98″ ± 0,12 à Sobral et
     1,61″ ± 0,30 à Príncipe — là où se trouvait Eddington, et c'est le résultat le moins précis
@@ -861,7 +861,7 @@ fiches: [
    `Sphère des photons à r = 3GM/c², ombre de rayon apparent √27 GM/c² ≈ 2,598 r<sub>s</sub>,
     — un diamètre de ~53 μas pour Sgr A* — d'où l'interférométrie à l'échelle du globe. Les sous-anneaux
     n ≥ 1, portant la lumière ayant bouclé un demi-tour de plus, sont espacés d'un facteur
-    $e^{-\pi} \approx 0{,}043$ en flux et sont quasi insensibles à l'astrophysique du disque.
+    $e^{-\\pi} \\approx 0{,}043$ en flux et sont quasi insensibles à l'astrophysique du disque.
     C'est la cible de l'<b>EHT spatial</b> (BHEX) : l'anneau n = 1 deviendrait une mesure
     directe de la métrique.`,
   ]
@@ -948,7 +948,7 @@ fiches: [
 
    `r<sub>ISCO</sub> = 6GM/c² pour a = 0 ; elle descend à GM/c² en Kerr extrême prograde et
     monte à 9GM/c² en rétrograde. Elle sort du potentiel effectif
-    $V = -\dfrac{GM}{r} + \dfrac{L^{2}}{2r^{2}} - \dfrac{GML^{2}}{c^{2}r^{3}}$ : le terme en r⁻³ supprime le minimum en deçà.
+    $V = -\\dfrac{GM}{r} + \\dfrac{L^{2}}{2r^{2}} - \\dfrac{GML^{2}}{c^{2}r^{3}}$ : le terme en r⁻³ supprime le minimum en deçà.
     Sa position fixe le rendement radiatif, et c'est en ajustant le bord interne du disque
     que la <b>méthode du continuum</b> contraint le spin — principale alternative à
     l'élargissement de la raie Kα du fer à 6,4 keV.`,
@@ -1034,7 +1034,7 @@ fiches: [
     <b>Ce sont des résultats, pas des réglages.</b>`,
 
    `<b>Exact</b> — géodésiques nulles intégrées sous forme cartésienne
-    l'intégration de $\mathbf{a} = -\tfrac{3}{2}h^{2}\mathbf{r}/r^{5}$ avec $h = \lVert\mathbf{r}\times\dot{\mathbf{r}}\rVert$, équivalente à la Binet $d^{2}u/d\varphi^{2} + u = 3Mu^{2}$ :
+    l'intégration de $\\mathbf{a} = -\\tfrac{3}{2}h^{2}\\mathbf{r}/r^{5}$ avec $h = \\lVert\\mathbf{r}\\times\\dot{\\mathbf{r}}\\rVert$, équivalente à la Binet $d^{2}u/d\\varphi^{2} + u = 3Mu^{2}$ :
     d'où sphère des photons à 1,5 r<sub>s</sub>, ombre à √27/2, images d'ordre n,
     Ω képlérien en r<sup>−3/2</sup>, et la période orbitale du photon 6√3·πGM/c³.<br><br>
     <b>Approximé</b> — le disque, pas la géométrie : la rotation est disponible et
@@ -1125,8 +1125,8 @@ methode: [
  calculées analytiquement il y a un siècle :</p>
  <ul>
    <li>La sphère des photons à <i>1,5</i> rayon de Schwarzschild</li>
-   <li>Le rayon apparent de l'ombre : $\sqrt{27}/2 \approx 2{,}598$</li>
-   <li>La déflexion à grande distance : $\alpha = 4GM/c^{2}b$</li>
+   <li>Le rayon apparent de l'ombre : $\\sqrt{27}/2 \\approx 2{,}598$</li>
+   <li>La déflexion à grande distance : $\\alpha = 4GM/c^{2}b$</li>
    <li>La dernière orbite stable pour la matière : <i>3</i> rayons</li>
  </ul>
  <p>Le troisième est le plus parlant. Newton <b>aussi</b> prédisait une déviation de la
