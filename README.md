@@ -38,6 +38,8 @@ au niveau « Astrophysicien ».
 ## Organisation
 
     index.html      rendu, simulation, interface
+    physique.js     géodésiques, orbites, les quatre repères du banc
+    vol.js          sondes et photons : leur avenir, leur avancée, leur fin
     contenu.js      source de vérité : textes, sources, répliques de Lumen
     voix/           MP3 pré-synthétisés, un dossier par voix
     outils/         génération de la voix
@@ -46,6 +48,41 @@ au niveau « Astrophysicien ».
 
 Aucune affirmation factuelle ne doit exister ailleurs que dans `contenu.js`, et
 chacune porte ses clés de sources.
+
+## Vérifier
+
+Rien ici ne demande un œil humain. C'est délibéré : tant que la vérification
+dépendait de quelqu'un qui regarde, le projet n'avançait qu'en sa présence.
+
+**Sans navigateur** — les modules de physique ne touchent ni au document ni à
+WebGL, donc ils s'exécutent en ligne de commande. Chacun sort en code 0 ou 1.
+
+```bash
+node outil-banc.js          # sphère des photons, ombre, déflexion, ISCO
+node outil-verif-vol.js     # invariants, précession du périastre, l'horizon
+node outil-verif-ncorps.js  # énergie, moment cinétique, résonances, Roche
+node outil-verif-lune.js    # la Lune remplacée : tangentes, diamètres apparents
+node outil-verif-etoiles.js # les orbites des étoiles S
+```
+
+Le banc compare à **deux** choses, et la distinction est le sujet : la théorie,
+qui ne bougera jamais, et les valeurs mesurées publiées plus bas, qui bougent si
+le moteur change. La première dit « le calcul est juste », la seconde dit « le
+calcul n'a pas changé ».
+
+**Dans la page** — ce qui a besoin du rendu, du DOM ou d'une vraie boucle.
+
+    ?verif    cinquante contrôles : le bloc de script vit, aucune clé nue,
+              aucun pixel non peint, les zones tactiles sont atteignables,
+              le temps avance à la vitesse demandée, le budget d'image tient.
+              VERIF.sain() ne casse rien ; VERIF.tout() va jusqu'au parcours.
+
+    ?test     le protocole joué. Il coche seul tout ce qui se contrôle et ne
+              pose que les cinq questions qu'une machine ne peut pas trancher,
+              au moment où la chose vient d'être vécue. Rend un Markdown.
+
+Un contrôle qui ne peut pas échouer ne contrôle rien : chacun a été éprouvé en
+cassant volontairement ce qu'il surveille.
 
 ## Régénérer la voix
 

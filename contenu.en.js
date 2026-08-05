@@ -1420,6 +1420,7 @@ notes: {
         "<b>A thin seam on the axis when the black hole spins.</b> The coordinates we use are singular there. The physics stays correct at that spot; it is the description that breaks. Fixing it would mean rewriting the engine in another system.",
         "<b>The onboard screens are drawn flat.</b> They have no true perspective, and nothing passes in front of them.",
         "<b>The disc stops at eleven radii.</b> A real accretion flow reaches much further, but its outer part is cold and dark; cutting it there costs the image little and saves a great deal of computation.",
+        "<b>The well is too deep right near the edge.</b> Light does follow the true geodesics. But the probes are computed with a shortcut: Newton's gravity plus a correction term. That shortcut is excellent — it recovers the innermost stable orbit exactly, and exactly the periastron advance measured on the star S2. Its limit lies elsewhere: below two radii you would need to exceed the speed of light to leave, whereas the true answer is one radius. In other words, between one and two radii our probes are trapped a little too early.",
       ],
     },
   ],

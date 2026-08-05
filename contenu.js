@@ -1430,6 +1430,7 @@ notes: {
         "<b>Une fine couture sur l'axe, quand le trou noir tourne.</b> Les coordonnées employées y sont singulières. La physique reste juste à cet endroit ; c'est sa description qui s'y casse. Corriger demanderait de réécrire le moteur dans un autre système.",
         "<b>Les écrans du bord sont dessinés à plat.</b> Ils n'ont pas de perspective véritable, et rien ne passe devant eux.",
         "<b>Le disque s'arrête à onze rayons.</b> Un vrai flot d'accrétion s'étend beaucoup plus loin, mais sa partie externe est froide et sombre ; la couper là coûte peu à l'image et beaucoup moins cher à calculer.",
+        "<b>Le puits est trop profond tout près du bord.</b> La lumière, elle, suit les vraies géodésiques. Mais les sondes sont calculées avec un raccourci : la gravité de Newton plus un terme correctif. Ce raccourci est excellent — il retrouve exactement la dernière orbite stable, et exactement l'avance du périastre qu'on a mesurée sur l'étoile S2. Sa limite est ailleurs : sous deux rayons, il faudrait dépasser la vitesse de la lumière pour repartir, alors que la vraie réponse est un rayon. Autrement dit, entre un et deux rayons, nos sondes sont prisonnières un peu trop tôt.",
       ],
     },
   ],

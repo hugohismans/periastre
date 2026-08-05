@@ -2128,6 +2128,9 @@ void main(){
      WebGL, et son extraction rend le banc d'essai exécutable en ligne de
      commande — donc vérifiable sans navigateur. Premier morceau du chantier F2. -->
 <script src="physique.js"></script>
+<!-- Ce qui vole. Deuxième morceau de F2, et le socle de la salle de tir
+     balistique : elle ne sera que `destin()` avec une vitesse choisie. -->
+<script src="vol.js"></script>
 <script src="kerr.js"></script>
 <script src="vaisseau.js"></script>
 <script src="personnage.js"></script>
@@ -2199,7 +2202,6 @@ const millier = (x, n) =>
    cents endroits qui s'en servent : la découpe doit se faire sans réécrire le
    fichier, sans quoi elle ne se fera jamais. */
 const { SEC_PAR_UNITE, KM_PAR_UNITE, M, R_HORIZON, R_PHOTON, R_ISCO, R_OMBRE } = PHYSIQUE;
-const MAX_SONDES = 420;
 
 // ============ WebGL ============
 const cv = document.getElementById("gl");
@@ -2980,88 +2982,24 @@ function surLePlan(px, py){
    là qu'ils doivent être lus. */
 const { acceleration, integre, integrePhoton, rayonDepuis, vCirc } = PHYSIQUE;
 
-// ============ sondes ============
+/* ============ ce qui vole ============
+
+   Les sondes et les photons vivent dans `vol.js` — leur avenir calculé au
+   départ, leur avancée, leur fin. On les relie ici sous leurs anciens noms,
+   pour que la centaine d'endroits qui les lisent n'ait rien à réécrire.
+
+   Une exception : les compteurs. `nChute` était une variable réassignée, et une
+   variable réassignée ne se partage pas entre deux fichiers — la lier ailleurs
+   en figerait la valeur du moment. Ils sont devenus des champs de `compte`, et
+   les six endroits qui les touchent ont suivi. */
+const { MAX_SONDES, sondes, photons, compte, destin, lance, pluie, lancePhoton } = VOL;
+
+// Les teintes restent ici : c'est du rendu, pas du vol.
 const TEINTES = {
   orbite: [127, 216, 255],
   chute:  [255,  93, 122],
   fuite:  [110, 255, 180],
 };
-
-const sondes = [];
-let nChute = 0, nFuite = 0;
-
-// On intègre l'avenir de la sonde une fois, au lancement : ça donne à la fois
-// son sort (orbite / chute / fuite) et le tracé complet à afficher.
-function destin(p0, v0){
-  let p = [...p0], v = [...v0];
-  const chemin = [];
-  let sort = "orbite";
-  for(let i = 0; i < 2600; i++){
-    [p, v] = integre(p, v, 0.10);
-    if((i & 7) === 0) chemin.push([p[0], p[1], p[2]]);
-    const r = len(p);
-    if(r < R_HORIZON*1.05){ sort = "chute"; break; }
-    if(r > 50){ sort = "fuite"; break; }
-  }
-  return { sort, chemin };
-}
-
-let essaisPres = 0;      // tentatives lancées sous la dernière orbite stable
-
-function lance(p, v){
-  const { sort, chemin } = destin(p, v);
-  if(len(p) < R_ISCO - 0.1) essaisPres++;
-  if(sondes.length >= MAX_SONDES) sondes.shift();
-  sondes.push({ p:[...p], v:[...v], sort, chemin, age:0, trace:[] });
-}
-
-function pluie(n = 80){
-  for(let i = 0; i < n; i++){
-    const r = 2.2 + Math.random()*11;
-    const a = Math.random()*6.2832;
-    const p = [ Math.cos(a)*r, (Math.random()-0.5)*0.7, Math.sin(a)*r ];
-    // tangentielle, plus ou moins vite que l'orbite circulaire — c'est ce
-    // facteur qui décide de tout
-    const t = norm(cross([0,1,0], p));
-    const rad = norm([p[0], 0, p[2]]);
-    // 1 = orbite circulaire, √2 ≈ 1,414 = vitesse de libération. Il faut couvrir
-    // les deux seuils pour voir les trois familles se séparer.
-    const f = 0.40 + Math.random()*1.25;
-    const vc = vCirc(r);
-    lance(p, [
-      t[0]*vc*f + rad[0]*(Math.random()-0.5)*0.10,
-      (Math.random()-0.5)*0.10,
-      t[2]*vc*f + rad[2]*(Math.random()-0.5)*0.10,
-    ]);
-  }
-}
-
-// ============ photons ============
-const photons = [];
-
-function lancePhoton(){
-  // La sphère des photons est une crête : du bon côté le rayon s'échappe après
-  // quelques tours, du mauvais il tombe. On tire donc chaque fois d'un point et
-  // dans un sens différents — deux photons voisins ont des destins opposés,
-  // et c'est précisément ce qu'il faut montrer.
-  //
-  // Les conditions initiales passent par rayonDepuis : poser naïvement |d| = 1
-  // donnerait h² = r² = 2,25 au lieu de b_c² = 6,75, et ferait tourner le
-  // photon √3 fois trop vite.
-  const a = Math.random()*6.2832;
-  const r = R_PHOTON * (0.975 + Math.random()*0.07);
-  const p = [ Math.cos(a)*r, 0, Math.sin(a)*r ];
-  const sens = Math.random() < 0.5 ? 1 : -1;          // prograde ou rétrograde
-  const t = norm(cross([0,1,0], p)), rh = norm(p);
-  const vise = norm([
-    sens*t[0] + rh[0]*(Math.random()-0.5)*0.13,
-    (Math.random()-0.5)*0.45,                          // un peu hors du plan
-    sens*t[2] + rh[2]*(Math.random()-0.5)*0.13,
-  ]);
-  const ray = rayonDepuis(p, vise);
-  if(photons.length >= 4) photons.shift();
-  photons.push({ p, d:ray.d, h2:ray.h2, temps:0, angle:0, trace:[] });
-}
 
 // ============ temps ============
 const VITESSES = [
@@ -3140,61 +3078,17 @@ function avanceCorps(dtGeo, dtSec){
     horloge.mere += dtGeo * SEC_PAR_UNITE * cadence(R_MERE);
   }
 
-  // sondes
-  const n = Math.max(1, Math.min(Math.ceil(dtGeo/0.03), 32));
-  const pas = dtGeo/n;
-  for(let i = sondes.length - 1; i >= 0; i--){
-    const s = sondes[i];
-
-    // Dilatation du temps : vue de loin, une sonde qui approche de l'horizon
-    // ralentit et ne le franchit JAMAIS. Elle se fige, rougit, et s'éteint.
-    // Le facteur (1 − r_s/r) est la relation entre temps propre et temps
-    // coordonnée ; sans lui la sonde traverserait, ce qu'aucun observateur
-    // extérieur ne peut voir.
-    const dilat = Math.max(0, 1 - R_HORIZON/len(s.p));
-    const pasEff = pas * dilat;
-    for(let k = 0; k < n; k++){
-      const [np, nv] = integre(s.p, s.v, pasEff);
-      s.p = np; s.v = nv;
-    }
-    s.age += dtSec;
-    s.trace.push([s.p[0], s.p[1], s.p[2]]);
-    if(s.trace.length > 46) s.trace.shift();
-
-    const r = len(s.p);
-    // le flux perçu décroît exponentiellement, d'échelle ~ r_s/c
-    if(dilat < 0.06){
-      s.gel = (s.gel || 0) + dtGeo;
-      if(s.gel > 14){ sondes.splice(i,1); nChute++; continue; }
-      if(!s.vue){ s.vue = true; flash(); message(T("msg.figee")); reagit("avalee", true); }
-    }
-    if(r > 52){ sondes.splice(i,1); nFuite++; }
-  }
-
-  // photons — pas plus fin, ils frôlent l'horizon
-  const np_ = Math.max(1, Math.min(Math.ceil(dtGeo/0.012), 96));
-  const pasP = dtGeo/np_;
-  for(let i = photons.length - 1; i >= 0; i--){
-    const f = photons[i];
-    for(let k = 0; k < np_; k++){
-      const a0 = Math.atan2(f.p[2], f.p[0]);
-      const [np2, nd] = integrePhoton(f.p, f.d, f.h2, pasP);
-      f.p = np2; f.d = nd;
-      let da = Math.atan2(f.p[2], f.p[0]) - a0;
-      if(da >  Math.PI) da -= 6.2832;
-      if(da < -Math.PI) da += 6.2832;
-      f.angle += Math.abs(da);
-      // λ est le paramètre affine, pas le temps. Ce qu'un observateur lointain
-      // chronomètre, c'est t, et dt/dλ = E/(1 − r_s/r) : au ras de la sphère
-      // des photons ce facteur vaut 3.
-      f.temps += pasP / Math.max(1 - R_HORIZON/len(f.p), 1e-3);
-    }
-    f.trace.push([f.p[0], f.p[1], f.p[2]]);
-    if(f.trace.length > 200) f.trace.shift();
-
-    const r = len(f.p);
-    if(r < R_HORIZON*1.02){ photons.splice(i,1); message(T("msg.photonAvale")); reagit("photonAvale", true); }
-    else if(r > 45)       { photons.splice(i,1); message(T("msg.photonFuite")); reagit("photonFuite", true); }
+  /* Le vol lui-même est dans `vol.js`. Il ne parle pas : il rend la liste de ce
+     qui vient d'arriver, et c'est ICI qu'on décide d'en faire un éclair ou une
+     réplique. C'est le point du découpage — la salle balistique voudra faire
+     tout autre chose des mêmes instants. */
+  for(const f of VOL.avance(dtGeo, dtSec)){
+    if(f.quoi === "figee"){ flash(); message(T("msg.figee")); reagit("avalee", true); }
+    else if(f.quoi === "photonAvale"){ message(T("msg.photonAvale")); reagit("photonAvale", true); }
+    else if(f.quoi === "photonFuite"){ message(T("msg.photonFuite")); reagit("photonFuite", true); }
+    // « tombée » n'a pas de voix aujourd'hui : la sonde s'est éteinte il y a
+    // quatorze unités de temps, et on l'a déjà dit à ce moment-là. Le mémorial,
+    // lui, écoutera cet événement-ci.
   }
 }
 
@@ -3339,7 +3233,7 @@ document.querySelectorAll("#chrono .ch-etiq")[1].textContent = T("chrono.auloin"
 // ---- boutons ----
 $("b-pluie").onclick  = () => { pluie(80); reagit("pluie"); };
 $("b-photon").onclick = () => { lancePhoton(); reagit("photon"); };
-$("b-vide").onclick   = () => { sondes.length = 0; photons.length = 0; nChute = 0; nFuite = 0; };
+$("b-vide").onclick   = () => VOL.vide();
 $("b-traj").onclick   = () => {
   montreTraj = !montreTraj;
   $("b-traj").classList.toggle("actif", montreTraj);
@@ -4911,10 +4805,10 @@ const MIS_DE_COTE = new Set(["m-jumeaux", "m-bord"]);
 const MISSIONS = CONTENU.missions.filter(m => !MIS_DE_COTE.has(m.id));
 
 const VERIFS = {
-  "m-chute":  () => nChute > 0,
+  "m-chute":  () => compte.chute > 0,
   "m-orbite": () => sondes.some(s => s.sort === "orbite" && !s.gel && s.age > 4),
   "m-pluie":  () => sondes.length >= 50,
-  "m-limite": () => essaisPres >= 1,
+  "m-limite": () => compte.essaisPres >= 1,
   "m-photon": () => photons.length > 0 && iVitesse === 0,
   "m-reel":   () => reelCible > 0.5,
   "m-bord":   () => sondeSuivie !== null,
@@ -6559,8 +6453,8 @@ function finBoucle(now, dt){
 
   $("lecture-flottant").style.opacity = sondeSuivie !== null ? "0" : "";
   $("s-orbite").textContent = sondes.length;
-  $("s-chute").textContent  = nChute;
-  $("s-fuite").textContent  = nFuite;
+  $("s-chute").textContent  = compte.chute;
+  $("s-fuite").textContent  = compte.fuite;
   majLecture();
 
   veilleLumen(now);
