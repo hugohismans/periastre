@@ -81,6 +81,12 @@ calcul n'a pas changé ».
               pose que les cinq questions qu'une machine ne peut pas trancher,
               au moment où la chose vient d'être vécue. Rend un Markdown.
 
+    ?juge     la séance de jugement. Huit décisions qu'aucun calcul ne tranche —
+              est-ce beau, est-ce lisible, LAQUELLE des trois. Elle va chercher
+              la chose et la pose sous les yeux ; là où il y a des options,
+              elles se comparent en direct sur la même vue. Rend un message
+              écrit pour Claude, prêt à coller.
+
 Un contrôle qui ne peut pas échouer ne contrôle rien : chacun a été éprouvé en
 cassant volontairement ce qu'il surveille.
 

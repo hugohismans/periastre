@@ -1,5 +1,16 @@
 # Ce qui attend des yeux
 
+> ## 👉 Ne lis pas ce fichier. Ouvre ça :
+> ### **https://hugohismans.github.io/periastre/?juge**
+>
+> Les huit décisions ci-dessous s'y jouent une par une. La séance **va chercher
+> la chose et la pose sous tes yeux** — tu ne navigues pas, tu ne lis pas. Là où
+> il y a plusieurs options, elles se comparent en direct, sur la même vue, d'un
+> bouton à l'autre. À la fin, un bouton « Copier » : ce qui sort est un **message
+> écrit pour Claude**, prêt à coller dans la conversation.
+>
+> Compte dix minutes. Ce document n'est que sa source.
+
 Tout ce qui ne peut pas se vérifier par la mesure, et qui attend donc qu'un
 humain regarde. **Rien ici ne bloque quoi que ce soit** — c'est une file, pas
 une dette. Elle existe pour que ça ne se perde pas dans une conversation.

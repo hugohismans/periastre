@@ -6355,10 +6355,19 @@ function dessineHabitacle(){
     // L'étape en cours, s'il y en a une : elle désigne le poste à mettre en avant.
     const attendu = (queteActive && QUETE[iQuete]) ? QUETE[iQuete].id : null;
     for(const p of VAISSEAU.POSTES){
-      if(p.id === "telescope"){
-        // Sa boîte de visée n'est pas dessinée — l'instrument est déjà là. On
-        // ne montre qu'un halo quand on le vise, pour dire qu'il s'active.
-        const appele = attendu === "a-telescope";
+      /* Deux familles de postes, et la distinction n'est pas cosmétique.
+
+         Les lames du temps N'ONT PAS de géométrie propre : le cube dessiné ici
+         EST la lame. Le télescope et la console de tir, eux, sont modelés dans
+         `vaisseau.js` — leur boîte ne sert qu'à les viser, et la dessiner
+         poserait un pavé cyan de soixante-dix centimètres sur l'instrument.
+
+         Je l'ai appris en posant la console : elle apparaissait comme un bloc
+         bleu uniforme, et j'ai cherché la faute dans ses teintes, dans son
+         placement, jusque dans l'alignement des attributs de sommets. La vraie
+         géométrie était dessous, cachée par sa propre zone de visée. */
+      if(p.id === "telescope" || p.id === "tir"){
+        const appele = attendu === "a-telescope" && p.id === "telescope";
         if(salon.vise !== p && !appele) continue;
         gl.uniform3fv(uTeinteF, VAISSEAU.AMBRE);
         gl.uniform1f(uEmiF, salon.vise === p ? 0.17
@@ -6508,6 +6517,15 @@ if(/[?&]test\b/.test(location.search)){
   var e = document.createElement("script");
   e.src = "essai.js";
   document.body.appendChild(e);
+}
+/* Et la séance de jugement : `?juge`. Elle ne demande QUE ce qu'aucun calcul ne
+   tranche — est-ce beau, est-ce lisible, laquelle des trois. Elle va chercher
+   la chose, la pose sous les yeux, et rend à la fin un message écrit pour
+   Claude, prêt à coller. On ne lit rien, on ne navigue pas. */
+if(/[?&]juge\b/.test(location.search)){
+  var j = document.createElement("script");
+  j.src = "juge.js";
+  document.body.appendChild(j);
 }
 </script>
 </body>

@@ -311,6 +311,29 @@ function construitGeometrie(){
   // le petit écran de contrôle, sur la fourche
   boite(T, [TX + 0.30, TY + 0.94, TZ + 0.10], [0.012, 0.075, 0.11], CYAN, 1);
 
+  /* ---- la console de tir, dans la fosse ----
+
+     Sa forme dit ce qu'elle fait : un pupitre incliné vers qui s'en approche,
+     et un tube de lancement qui sort vers la vitre. On ne se demande pas dans
+     quelle direction ça part.
+
+     Sombre, comme le télescope. Le pâle est réservé aux lames du temps — deux
+     instruments de la même teinte à quelques mètres l'un de l'autre deviennent
+     un seul objet indistinct, et c'est arrivé au premier essai. */
+  if(TIR.actif){
+    const CX = TIR.x, CZ = TIR.z, CY = FOSSE;
+    boite(T, [CX, CY + 0.05, CZ],         [0.34, 0.05, 0.28], STRUCT);   // embase
+    boite(T, [CX, CY + 0.42, CZ],         [0.24, 0.37, 0.18], STRUCT);   // fût
+    boite(T, [CX, CY + 0.79, CZ],         [0.27, 0.02, 0.21], CADRE);    // plateau
+    boiteX(T, [CX, CY + 0.86, CZ + 0.07], [0.25, 0.020, 0.17], 0.52, CADRE);
+    boiteX(T, [CX, CY + 0.89, CZ + 0.06], [0.20, 0.007, 0.125], 0.52, AMBRE, 0.75);
+    // Le tube de lancement. Il n'a aucune fonction de calcul : il existe pour
+    // qu'on sache d'un coup d'œil où ça sort.
+    boiteX(T, [CX, CY + 0.97, CZ - 0.28], [0.070, 0.070, 0.34], -0.22, CADRE);
+    boiteX(T, [CX, CY + 1.05, CZ - 0.62], [0.085, 0.085, 0.028], -0.22, STRUCT);
+    boite(T, [CX - 0.26, CY + 0.62, CZ],  [0.010, 0.050, 0.075], CYAN, 1);
+  }
+
   // ---- caissons techniques au plafond, décalés ----
   boite(T, [-2.9, H - 0.15, z0 + 3.9], [1.6, 0.15, 0.60], STRUCT);
   boite(T, [ 2.1, H - 0.11, z0 + 5.6], [1.2, 0.11, 0.44], STRUCT);
@@ -350,6 +373,17 @@ const VITESSES = [
 // elle n'est déclarée qu'une fois.
 const TELESCOPE = { x:-3.0, z:-3.15 };
 
+/* La console de tir. Elle est ÉTEINTE par défaut, et c'est un choix.
+
+   Sa mécanique est prête — `vol.js` calcule déjà l'avenir complet d'un tir
+   avant qu'il parte. Ce qui n'est pas tranché, c'est sa PLACE : posée à
+   x = 3 en miroir du télescope, elle se noyait dans les cinq lames du temps ;
+   posée au centre de la fosse, elle vient devant l'astre. Je n'ai pas su
+   trancher à l'écran, et un objet en volume se juge d'un coup d'œil.
+
+   Elle attend donc un œil, et la séance `?juge` la propose aux trois places. */
+const TIR = { x:1.2, z:-3.30, actif:false };
+
 const POSTES = VITESSES.map((v, i) => {
   const h = 0.030 + i*0.027;
   return {
@@ -364,6 +398,22 @@ POSTES.push({
   c:[TELESCOPE.x, FOSSE + 1.02, TELESCOPE.z],
   d:[0.24, 0.34, 0.55],
 });
+
+/* Rebâtir la pièce avec la console à une autre place, sans recharger.
+
+   C'est ce qui rend le jugement possible en trois secondes au lieu d'une
+   séance : on bascule d'une place à l'autre en regardant la même chose. */
+function poseTir(gl, x){
+  TIR.actif = x !== null;
+  if(x !== null) TIR.x = x;
+  const i = POSTES.findIndex(p => p.id === "tir");
+  if(i >= 0) POSTES.splice(i, 1);
+  if(TIR.actif) POSTES.push({
+    id:"tir", nom:"la console de tir",
+    c:[TIR.x, FOSSE + 0.60, TIR.z - 0.10], d:[0.34, 0.52, 0.42],
+  });
+  construit(gl);
+}
 
 // --------------------------------------------------------------- rendu
 let vao = null, nSommets = 0;
@@ -418,8 +468,8 @@ function dessine(gl){
   gl.bindVertexArray(null);
 }
 
-global.VAISSEAU = { L, H, P, OEIL, FOSSE, ZF, RAMPE, BAIE, POSTES, TELESCOPE, AMBRE, CYAN,
-                    construit, dessine, dessineCube,
+global.VAISSEAU = { L, H, P, OEIL, FOSSE, ZF, RAMPE, BAIE, POSTES, TELESCOPE, TIR, AMBRE, CYAN,
+                    construit, poseTir, dessine, dessineCube,
                     get sommets(){ return nSommets; } };
 
 })(window);
