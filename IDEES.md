@@ -797,3 +797,68 @@ astre nommé sur une orbite mesurée.
 C'est d'ailleurs pourquoi le quadrillage est la bonne réponse à l'échelle. Il
 ne fait semblant de rien : il se déclare comme un instrument, alors qu'une
 étoile ajoutée se ferait passer pour une observation.
+
+## Deux vaisseaux, et le voyage comme mécanique
+
+Idée d'Hugo, en trois morceaux qui n'ont pas du tout le même coût.
+
+### Le morceau qui vaut le plus, et qui coûte le moins : voyager
+
+Se déplacer ne serait pas une téléportation mais **un voyage**, poussé à 1 g,
+avec un chronomètre annonçant la durée réelle. La coque tremble, l'astre
+s'éloigne, et l'on arrive.
+
+C'est la meilleure idée de l'ensemble parce qu'elle transforme **chaque
+déplacement en leçon**, sans rien ajouter de pédagogique : la formule de la
+fusée relativiste est déjà dans le site, et elle s'applique à n'importe quelle
+distance.
+
+Le fait qui rend la mécanique jouable, et que j'ai calculé ici — **à vérifier** :
+
+$$\tau = \tfrac{4c}{g}\,\operatorname{arccosh}\!\left(\tfrac{gd}{4c^{2}}+1\right)$$
+
+- du salon jusqu'à la distance d'observation des étoiles S (mille unités
+  astronomiques, soit 0,016 année-lumière) : **environ trois mois** de temps
+  propre ;
+- jusqu'au système solaire (27 000 années-lumière) : **une vingtaine d'années**.
+
+Le rapport est énorme alors que les distances vont de un à un million : c'est
+la signature logarithmique de l'accélération constante, et c'est exactement ce
+qu'il faut faire sentir. Les déplacements locaux coûtent des mois, les
+interstellaires des décennies. La mécanique enseigne donc toute seule pourquoi
+la galaxie est hors de portée.
+
+### Le morceau structurant : deux vaisseaux
+
+Un **vaisseau commun**, le lobby, en orbite autour de l'objet du moment,
+partagé par tout le monde et honnête sur le temps. Et un **vaisseau personnel**
+qu'on déplace où l'on veut, qui est son instance.
+
+C'est la bonne réponse à une tension déjà écrite dans `OBJECTIFS.md` : le salon
+doit être partagé et en temps réel, le simulateur personnel et permissif. Deux
+vaisseaux au lieu d'un règlent la contradiction au lieu de la contourner.
+
+**Mais le partage n'existe pas encore.** Les règles Firestore ne sont toujours
+pas publiées, le panthéon tourne en mémoire locale. Tant que ce n'est pas fait,
+« vaisseau commun » et « vaisseau personnel » désignent la même chose, et la
+distinction ne se voit pas.
+
+### Le morceau que je repousserais : la carte des vaisseaux
+
+Voir où sont les autres sur une carte de l'univers est séduisant et c'est le
+plus cher au bénéfice rendu : il faut l'état partagé, une carte à dix-sept
+décades, et une position par joueur tenue à jour. Ça pose aussi une question
+qu'on n'a pas eue jusqu'ici — afficher la position de quelqu'un, même sous un
+pseudonyme composé, est une information sur lui.
+
+Rien d'insurmontable, mais c'est la troisième étape, pas la première.
+
+### L'ordre que je propose
+
+1. **Le voyage** sur le vaisseau actuel : animation, chronomètre, distance
+   choisie. Aucun partage requis, et ça donne immédiatement le dézoom vers les
+   étoiles S que réclame la scène des orbites.
+2. **Les règles Firestore**, qui débloquent tout le reste.
+3. **La séparation des deux vaisseaux**, une fois qu'il y a vraiment quelque
+   chose à partager.
+4. **La carte**, si elle se justifie encore à ce moment-là.
