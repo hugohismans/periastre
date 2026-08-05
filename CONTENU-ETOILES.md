@@ -11,11 +11,12 @@
    **doublée**. Ne les simplifie pas en recopiant : c'est exactement le piège qui
    avait donné quatre formules en charabia.
 2. **Clés de sources.** Cinq clés nouvelles sont nécessaires : `gillessen2017`,
-   `gravity2022b` *(non — voir plus bas, aucune)*, `maoz1998`, `schoedel2003`,
-   `ghez1998`, `habibi2017`. Elles sont rédigées au § 1.1 (fr) et § 2.1 (en).
-   `genzel2010`, `gravity2018`, `gravity2020`, `gravity2021`, `nobel2020`,
-   `penrose1965`, `eht2022`, `bardeen1972`, `bardeen1973`, `misner1973` existent
-   déjà et sont réutilisées telles quelles.
+   `maoz1998`, `schoedel2003`, `ghez1998`, `habibi2017`. Elles sont rédigées au
+   § 1.1 (fr) et § 2.1 (en). `genzel2010`, `gravity2018`, `gravity2020`,
+   `gravity2021`, `nobel2020`, `penrose1965`, `eht2022`, `bardeen1972`,
+   `bardeen1973`, `misner1973` existent déjà et sont réutilisées telles quelles.
+   Attention à ne pas rouvrir une entrée pour l'article A&A 657, L12 (2022) :
+   c'est `gravity2021`, il est déjà là malgré son nom.
 3. **Les `id`.** Ceux des répliques (`q7-0`, `q8-1`…) sont des noms de fichiers
    de voix. Ils sont neufs et ne collisionnent avec aucun `id` existant de
    `contenu.js` (dernière question existante : `q6-*`). Les mêmes `id` sont
@@ -39,11 +40,6 @@ article-là. Voir § 5, point 6. Je n'ai rien modifié.
     doi: "10.3847/1538-4357/aa5c41",
     sert: "Éléments orbitaux des 40 étoiles S ; ajustement multi-étoiles M = 4,28 ± 0,10 × 10⁶ M☉ à R₀ = 8,32 ± 0,07 kpc",
   },
-  gravity2020b: {
-    ref: "GRAVITY Collaboration (Abuter et al.), « Mass distribution in the Galactic Centre based on interferometric astrometry of multiple stellar orbits », Astronomy & Astrophysics 657, L12 (2022)",
-    doi: "10.1051/0004-6361/202142465",
-    sert: "NE PAS AJOUTER — doublon de gravity2021 déjà présent. Ligne laissée ici pour mémoire.",
-  },
   maoz1998: {
     ref: "E. Maoz, « Dynamical Constraints on Alternatives to Supermassive Black Holes in Galactic Nuclei », The Astrophysical Journal 494, L181 (1998)",
     doi: "10.1086/311194",
@@ -65,10 +61,6 @@ article-là. Voir § 5, point 6. Je n'ai rien modifié.
     sert: "Nature stellaire des étoiles S : type spectral B0-B3V, masses 8-14 M☉, âge de S2 6,6 (+3,4 / −4,7) Myr",
   },
 ```
-
-> **Retire la ligne `gravity2020b` avant de coller** : `gravity2021` couvre déjà
-> l'article A&A 657, L12 (2022). Je l'ai laissée pour que tu voies que je m'en
-> suis aperçu et que je ne l'ai pas dupliquée en douce.
 
 ### 1.2 Fiches — à ajouter au tableau `fiches`
 
@@ -680,7 +672,7 @@ déjà dans `contenu.js`.
 | R₀ = 8 246,7 ± 9,3 pc dans le même ajustement | GR20 | Table E.1 |
 | 0,125058″ × 8 246,7 pc = 1 031 UA ; 1 031³/16,0455² = 4,26 × 10⁶ | *arithmétique* | calcul refait ici à partir des deux lignes ci-dessus |
 | M• = 4,261 ± 0,012 × 10⁶ M☉ | GR20 | Table E.1 |
-| M ∝ R₀² pour un ajustement astrométrique | GR22 | note de la Table B.1 : « *using $M \propto R_0^2$ (Gillessen et al. 2017)* » |
+| M ∝ R₀² pour un ajustement astrométrique | GR22 | note de la Table B.1 : « *using M ∝ R₀² (Gillessen et al. 2017)* » |
 | G17 : 4,28 ± 0,10 × 10⁶ M☉ à 8,32 ± 0,07 kpc | G17 | Table 1, ligne 9 (ajustement multi-étoiles, 17 étoiles) |
 | GR22 : M• = 4,297 ± 0,012 × 10⁶ M☉, R₀ = 8 277 ± 9 pc (erreurs statistiques) | GR22 | § 4 et Table B.1 |
 | f_SP = 0,997 ± 0,144 sur l'ajustement à quatre étoiles ; « 14 % measurement precision » | GR22 | Table B.1 et § 4 |

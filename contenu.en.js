@@ -25,7 +25,7 @@ langue: "en",
 // ---------------------------------------------------------------- references
 sources: {
   gravity2021: {
-    ref: "GRAVITY Collaboration (Abuter et al.), “Mass distribution in the Galactic Centre based on interferometric astrometry of multiple stellar orbits”, Astronomy & Astrophysics 657, L12 (2022)",
+    ref: "GRAVITY Collaboration (Abuter et al.), “The mass distribution in the Galactic Centre from interferometric astrometry of multiple stellar orbits”, Astronomy & Astrophysics 657, L12 (2022)",
     doi: "10.1051/0004-6361/202142465",
     sert: "Mass of Sgr A* (4.297 × 10⁶ M☉) and distance (8,277 pc)",
   },
@@ -168,6 +168,31 @@ sources: {
   misner1973: {
     ref: "C. W. Misner, K. S. Thorne, J. A. Wheeler, Gravitation, W. H. Freeman (1973), §25 and §31",
     sert: "Tides going as M/r³, regular free fall through the horizon, maximum proper time πGM/c³",
+  },
+  gillessen2017: {
+    ref: "S. Gillessen, P. M. Plewa, F. Eisenhauer, R. Sari, I. Waisberg, M. Habibi, O. Pfuhl, E. George, J. Dexter, S. von Fellenberg, T. Ott, R. Genzel, “An Update on Monitoring Stellar Orbits in the Galactic Center”, The Astrophysical Journal 837, 30 (2017)",
+    doi: "10.3847/1538-4357/aa5c41",
+    sert: "Orbital elements of the 40 S-stars; multi-star fit M = 4.28 ± 0.10 × 10⁶ M☉ at R₀ = 8.32 ± 0.07 kpc",
+  },
+  maoz1998: {
+    ref: "E. Maoz, “Dynamical Constraints on Alternatives to Supermassive Black Holes in Galactic Nuclei”, The Astrophysical Journal 494, L181 (1998)",
+    doi: "10.1086/311194",
+    sert: "Maximum lifetime of a cluster of dark objects, set by relaxation and collisions",
+  },
+  schoedel2003: {
+    ref: "R. Schödel, R. Genzel, T. Ott, A. Eckart, N. Mouawad, T. Alexander, “Stellar dynamics in the central arcsecond of our galaxy”, The Astrophysical Journal 596, 1015 (2003)",
+    doi: "10.1086/378122",
+    sert: "Dark cluster as a Plummer model: central density > 2.2 × 10¹⁷ M☉/pc³, lifetime < 10⁵ years; fermion ball and boson star ruled out",
+  },
+  ghez1998: {
+    ref: "A. M. Ghez, B. L. Klein, M. Morris, E. E. Becklin, “High Proper-Motion Stars in the Vicinity of Sgr A*: Evidence for a Supermassive Black Hole at the Center of Our Galaxy”, The Astrophysical Journal 509, 678 (1998)",
+    doi: "10.1086/306528",
+    sert: "Diffraction-limited imaging at the Keck 10 m, 1995-1997: 90 stars, velocities up to 1,400 ± 100 km/s",
+  },
+  habibi2017: {
+    ref: "M. Habibi, S. Gillessen, F. Martins, F. Eisenhauer et al., “Twelve Years of Spectroscopic Monitoring in the Galactic Center: The Closest Look at S-stars near the Black Hole”, The Astrophysical Journal 847, 120 (2017)",
+    doi: "10.3847/1538-4357/aa876f",
+    sert: "Stellar nature of the S-stars: spectral type B0-B3V, masses 8-14 M☉, age of S2 6.6 (+3.4 / −4.7) Myr",
   },
 },
 
@@ -742,6 +767,36 @@ questions: [
     dire:`Exact gravitational optics, decorative astrophysics. The spin is there: at non-zero spin, we switch to Kerr, with frame dragging, ergosphere and displaced I S C O, at the cost of a seam on the polar axis, singular in Boyer-Lindquist. Missing, on the other hand: radiative transfer in optically thin plasma, the thick geometry of a R I A F, and variability. A real render starts from G R M H D post-processing. Here, the emissivity is set by hand.`,
     sources:["bardeen1972","yuan2014","eht2022"] },
 ]},
+{ q:"Why don't the stars fall in?", niv:[
+  { id:"q7-0", t:`For the same reason the Earth doesn't fall into the Sun: they are moving <b>sideways</b>. Something that falls while going fast enough misses its target and starts again, forever. An orbit is a fall that never lands.`,
+    sources:["misner1973"] },
+  { id:"q7-1", t:`They are falling, constantly — but with angular momentum, and that is conserved. The path is then an ellipse whose pericentre is a <i>minimum distance</i>, not a destination. For S2 that minimum is 120 AU, about <b>1,400 Schwarzschild radii</b>: a thousand times too far out for the horizon to come into it.`,
+    dire:`They are falling, constantly, but with angular momentum, and that is conserved. The path is then an ellipse whose pericentre is a minimum distance, not a destination. For S 2 that minimum is a hundred and twenty astronomical units, about fourteen hundred Schwarzschild radii: a thousand times too far out for the horizon to come into it.`,
+    sources:["gravity2018","misner1973"] },
+  { id:"q7-2", t:`S2's specific angular momentum is far above the capture threshold: the innermost stable orbit is at 3 r<sub>s</sub>, its pericentre is at ~1,400. The regime is first-order post-Newtonian — $\\Delta\\varphi \\simeq 12'$ per period, measurable, but a long way from strong field. And nothing will bring it down within its own lifetime: the two-body relaxation time in the Galactic Centre is 10¹⁰ to 2 × 10¹¹ years, while S2 is about 7 × 10⁶ years old.`,
+    dire:`S 2's specific angular momentum is far above the capture threshold: the innermost stable orbit is at three Schwarzschild radii, its pericentre is at fourteen hundred. The regime is first-order post-Newtonian: twelve arcminutes per period, measurable, but a long way from strong field. And nothing will bring it down within its own lifetime: the two-body relaxation time in the Galactic Centre runs to tens of billions of years, while S 2 is about seven million years old.`,
+    sources:["gravity2018","genzel2010","bardeen1972","habibi2017"] },
+]},
+{ q:"If it was photographed in 2022, why say we knew before?", niv:[
+  { id:"q8-0", t:`Because the proof wasn't a photograph, it was in the <b>motion</b>. Seeing stars go round an empty point and measuring how much that point weighs was enough. We knew what to expect thirty years before the image arrived — and the image confirmed, it did not reveal.`,
+    sources:["gravity2021","eht2022","nobel2020"] },
+  { id:"q8-1", t:`The two measurements are not about the same thing. The orbits give a <b>mass</b> and a <b>minimum density</b>. The EHT image gives an <i>apparent size</i>: a ring of 51.8 ± 2.3 μas, consistent with the shadow expected for that mass at that distance. The second checks the first on a scale hundreds of times smaller — 2.6 horizon radii for the shadow, against 1,400 for S2's pericentre.`,
+    dire:`The two measurements are not about the same thing. The orbits give a mass and a minimum density. The E H T image gives an apparent size: a ring of about fifty-two microarcseconds, consistent with the shadow expected for that mass at that distance. The second checks the first on a scale hundreds of times smaller: two point six horizon radii for the shadow, against fourteen hundred for S 2's pericentre.`,
+    sources:["gravity2018","eht2022","bardeen1973"] },
+  { id:"q8-2", t:`Two independent constraints on one object. The orbits constrain $M$ and $R_{0}$, correlated, plus a minimum density and a bound on extended mass. The EHT constrains the angular diameter of the ring, $51.8 \\pm 2.3\\ \\mu\\mathrm{as}$, hence $GM/(c^{2}D)$ through the critical impact parameter $\\sqrt{27}\\,GM/c^{2}$. The two agree, which was in no way guaranteed: instruments, wavelengths and systematics have nothing in common. That <b>redundancy</b> is what makes the result solid, not either measurement on its own.`,
+    dire:`Two independent constraints on one object. The orbits constrain the mass and the distance, which are correlated, plus a minimum density and a bound on extended mass. The E H T constrains the angular diameter of the ring, hence G M over c squared D, through the critical impact parameter. The two agree, which was in no way guaranteed: instruments, wavelengths and systematics have nothing in common. That redundancy is what makes the result solid, not either measurement on its own.`,
+    sources:["gravity2021","eht2022","bardeen1973"] },
+]},
+{ q:"Are we really seeing the stars move?", niv:[
+  { id:"q9-0", t:`Yes, but not like a video. What exists is <b>photographs</b>, taken year after year for thirty years, on which each star has shifted a little. The animation you are watching joins those points up: the points are real, the motion between two points is computed.`,
+    sources:["gravity2021"] },
+  { id:"q9-1", t:`What the papers publish is dated positions and radial velocities, not a film. For S2: 128 positions from adaptive optics, 82 from the interferometer, about a hundred spectra, between 1992 and 2021. The orbit is a <b>fit</b> passing as well as it can through those points; the animation replays that fit at whatever speed you like. The shape is measured, the smoothness is added.`,
+    dire:`What the papers publish is dated positions and radial velocities, not a film. For S 2: a hundred and twenty-eight positions from adaptive optics, eighty-two from the interferometer, about a hundred spectra, between 1992 and 2021. The orbit is a fit passing as well as it can through those points; the animation replays that fit at whatever speed you like. The shape is measured, the smoothness is added.`,
+    sources:["gravity2021","gillessen2017"] },
+  { id:"q9-2", t:`This scene solves Kepler on the osculating elements of Gillessen et al. 2017, <b>with no relativistic term</b>: the Schwarzschild precession, 12′ per period for S2, is not rendered. For the long orbits in the same table the uncertainty on <i>a</i> and <i>P</i> reaches tens of per cent — S85 is published at 3,580 ± 2,550 years — and one row, S111, carries a formally negative semi-major axis, hence a hyperbolic orbit, excluded from any ellipse. The stars shown here are the ones whose period is short and well sampled. This is not a complete sample, and it does not claim to be.`,
+    dire:`This scene solves Kepler on the osculating elements of Gillessen and collaborators, twenty seventeen, with no relativistic term: the Schwarzschild precession, twelve arcminutes per period for S 2, is not rendered. For the long orbits in the same table the uncertainty on the semi-major axis and the period reaches tens of per cent, and one row carries a formally negative semi-major axis, hence a hyperbolic orbit, excluded from any ellipse. The stars shown here are the ones whose period is short and well sampled. This is not a complete sample, and it does not claim to be.`,
+    sources:["gillessen2017","gravity2020"] },
+]},
 ],
 
 // ---------------------------------------------------------------- cards
@@ -769,10 +824,10 @@ fiches: [
    `Sagittarius A* is 4.3 million solar masses packed into a ball of
     <i>12.7 million km</i> — it would fit inside Mercury's orbit.
     Its mass was measured by following the star S2 for thirty years; S2 goes all the way
-    round in 16 years at 3 % of the speed of light. That work earned the
-    <b>2020 Nobel Prize in Physics</b>.`,
+    round in 16 years, and grazes <b>2.5 % of the speed of light</b> at its closest approach.
+    That work earned the <b>2020 Nobel Prize in Physics</b>.`,
 
-   `M = (4.297 ± 0.012 ± 0.040) × 10⁶ M☉ at R₀ = 8,277 ± 9 ± 33 pc (GRAVITY, 2022), from infrared
+   `M = (4.297 ± 0.012 ± 0.040) × 10⁶ M☉ at R₀ = 8,277 ± 9 ± 30 pc (GRAVITY, 2022), from infrared
     astrometry of S2 — whose <b>Schwarzschild precession</b> of 12′ per orbit has been
     measured. EHT image from May 2022: a ring of <i>51.8 ± 2.3 μas</i>, consistent with a
     low inclination, spin poorly constrained. Accretion in the RIAF regime at ~10⁻⁹ L_Edd:
@@ -1009,6 +1064,234 @@ fiches: [
     at a* = 0.95 because the integrator loses its grip when the prograde photon orbit sticks to
     the horizon, and a seam remains visible on the polar axis — a singularity of the
     Boyer-Lindquist coordinates, not of the calculation.`,
+  ]
+},
+{
+  id: "f-etoiles",
+  titre: "Stars going round nothing",
+  sources: [
+    ["gravity2021", "eht2022"],
+    ["gravity2020", "gravity2021"],
+    ["gillessen2017", "gravity2020", "gravity2021"],
+  ],
+  t: [
+   `Back away. Keep going. The black hole shrinks to a dot, then to nothing at all:
+    there is literally nothing left to see in the middle of the screen.
+    <br><br>The stars are still there. And they are <b>going round</b>.
+    Each one traces a long loop about the same empty spot. A loop like that is
+    called an <i>orbit</i>: the path an object follows when something else's
+    gravity holds on to it. The Earth traces one around the Sun, the Moon one
+    around the Earth. There is always something in the middle.
+    <br><br>Except that here, in the middle, there is no star. Nothing.
+    And it is that nothing that holds them.
+    <br><br>To get this picture, astronomers photographed the same small patch of
+    sky for <b>thirty years</b>. That is where the discovery is — not in the 2022
+    image, which came long afterwards.`,
+
+   `What you are looking at is a set of ellipses sharing a <b>focus</b>. Not a
+    centre: a focus. The empty point sits off to one side along the major axis,
+    and that offset is already the signature of a Keplerian orbit. From there, two
+    measurements are enough.
+    <br><br>Follow one star through a complete revolution, read off its semi-major
+    axis <i>a</i> and its period <i>P</i>. Kepler's third law gives the mass at the
+    focus, $P^{2} = 4\\pi^{2}a^{3}/GM$, which sheds every constant if you count
+    <i>a</i> in astronomical units, <i>P</i> in years and <i>M</i> in solar masses:
+    $M = a^{3}/P^{2}$.
+    <br><br>For S2, using the published values: apparent semi-major axis 0.125″,
+    which is 1,031 AU at 8,247 pc, and a period of 16.05 years. The arithmetic
+    fits on one line, $1031^{3}/16.05^{2} \\simeq 4.26 \\times 10^{6}$. Four and a
+    quarter million suns — and the full published fit gives
+    <b>4.261 ± 0.012 × 10⁶ M☉</b>. A law from 1619, right to within a thousandth.`,
+
+   `The elements plotted here come from <b>Gillessen et al. 2017</b>, the table of
+    forty orbits: <i>a</i> in arcseconds, <i>e</i>, the three angles <i>i</i>, Ω, ω,
+    the epoch of pericentre, the period. They are <b>osculating elements</b> — the
+    orbit is Keplerian only to first order, and the parameters hold for a reference
+    epoch, the 2010 apocentre in GRAVITY's case.
+    <br><br>Converting angle to length goes through R₀, so mass and distance are
+    correlated, as $M \\propto R_{0}^{2}$ for an astrometric fit. That is why the
+    published values move from paper to paper with none of them being wrong:
+    G17 gives 4.28 ± 0.10 × 10⁶ M☉ at 8.32 kpc, GRAVITY 2020 gives 4.261 ± 0.012
+    at 8,246.7 pc, GRAVITY 2022 gives 4.297 ± 0.012 at 8,277 pc. <b>Never mix rows
+    from different tables into one set of elements.</b>
+    <br><br>The modern fit has fourteen parameters per star: six orbital elements,
+    R₀, M•, five coordinates for the on-sky position and the 3D velocity of the
+    mass relative to the astrometric frame, and one dimensionless parameter for the
+    post-Newtonian effect under test. Combining four stars — S2, S29, S38, S55 —
+    GRAVITY obtains $f_{SP} = 0.997 \\pm 0.144$: the relativistic precession
+    measured to 14 %.`,
+  ]
+},
+{
+  id: "f-s2",
+  titre: "S2, the witness",
+  sources: [
+    ["gravity2018", "gillessen2017"],
+    ["gravity2018", "gravity2020", "habibi2017"],
+    ["gravity2020", "gravity2021"],
+  ],
+  t: [
+   `Of all the stars you can see going round, one does nearly all the work:
+    <b>S2</b>.
+    <br><br>It has three qualities, and having them together is rare. It is among
+    the brightest of the set, so it is easy to track in a very crowded place. It
+    completes its circuit in just <i>sixteen years</i> — few enough that an
+    astronomer sees several in one career. And its orbit is very elongated: it
+    dives in close, then swings far out again.
+    <br><br>In May 2018 it made its closest approach. At a hundred and twenty times
+    the Earth-Sun distance, travelling at <b>7,650 kilometres per second</b>, two
+    and a half per cent of the speed of light. Everyone was watching, and had been
+    for sixteen years.`,
+
+   `S2 is a young, hot star: spectral type B0 to B3 on the main sequence, between
+    8 and 14 solar masses for the S-stars studied, an age of order
+    <i>7 million years</i>. Nothing exotic. What matters is its orbit:
+    $e = 0.884$, period 16.05 years, pericentre at 120 AU, about
+    <b>1,400 Schwarzschild radii</b>.
+    <br><br>At that distance general relativity stops being an invisible
+    correction. At the 2018 passage the expected redshift was measured — the
+    combined gravitational redshift and transverse Doppler effect, about 200 km/s
+    expressed as a velocity. Parameterising the departure from Newton by a factor
+    <i>f</i> equal to 0 for Newton and 1 for Einstein, the measurement gives
+    <i>f</i> = 0.90 ± 0.09 (stat) ± 0.15 (sys). The S2 data are <b>inconsistent
+    with pure Newtonian dynamics</b>.
+    <br><br>Two years later, the pericentre precession: the major axis of the
+    ellipse swings round by <i>12 arcminutes per revolution</i>. The orbit does not
+    close on itself — it slowly traces a rosette.`,
+
+   `A fourteen-parameter fit, osculating elements referred to the 2010 apocentre.
+    GRAVITY 2020, on data up to the end of 2019: $a = 125.058 \\pm 0.041$ mas,
+    $e = 0.884649$, $P = 16.0455 \\pm 0.0013$ yr, $t_{p} = 2018.379$,
+    $f_{SP} = 1.10 \\pm 0.19$ — the Schwarzschild precession detected,
+    $\\Delta\\varphi \\simeq 12'$ per period.
+    <br><br>The S2 data set spans <b>1992.2 to 2021.6</b>: 128 NACO astrometric
+    positions, 92 SINFONI spectra, 82 GRAVITY positions, plus 3 Keck spectra,
+    2 NACO and 4 GNIRS/Gemini. Three techniques, one orbit.
+    <br><br>What it constrains: M• and R₀, correlated; the first-order
+    post-Newtonian terms, gravitational redshift ($f = 0.90 \\pm 0.09 \\pm 0.15$ in
+    2018, later $1.04 \\pm 0.05$) and pericentre precession; and a bound on any
+    extended mass inside the orbit. What it does not constrain: the <b>spin</b>.
+    It appears in none of these fits — the fourteen-parameter model has no term for
+    it. Kerr geometry is not tested by stellar orbits; that is another
+    instrument's job.`,
+  ]
+},
+{
+  id: "f-preuve",
+  titre: "Why it can't be anything else",
+  sources: [
+    ["schoedel2003", "maoz1998"],
+    ["genzel2010", "maoz1998", "gravity2021"],
+    ["genzel2010", "maoz1998", "schoedel2003", "gravity2021"],
+  ],
+  t: [
+   `“Four million suns in a tiny space.” Fine — but why a black hole? Why not
+    simply <i>a lot of stars</i>, packed tight, too faint for us to see from here?
+    <br><br>Because a pile of objects that tightly packed <b>does not hold
+    together</b>. They graze each other, they collide, they trade speed on the way
+    past: some get flung outwards, others fall towards the centre. The pile drains
+    and collapses. We can work out how long that takes, and the answer is
+    <b>less than a hundred thousand years</b>.
+    <br><br>A hundred thousand years, against a galaxy that has been around for ten
+    billion, is the blink of an eye. We would have to have turned up at exactly the
+    right moment to catch it. Nobody bets on that.`,
+
+   `The argument is an <b>elimination</b>, not a direct observation. You measure a
+    mass and a volume, hence a density, and then ask what could hold that density
+    up.
+    <br><br>The proper motions detected between 1996 and 1998 — of order 1,000 km/s
+    over 0.02 parsec — already required 10¹² solar masses per cubic parsec, which
+    capped the lifetime of a cluster of dark objects at 10⁷-10⁸ years. Orbit
+    tracking since 2002, S2 above all, gained <i>four orders of magnitude</i>:
+    about 10¹⁶ M☉/pc³. At that density a cluster of brown dwarfs, white dwarfs,
+    neutron stars, stellar black holes or even rocks is destroyed by relaxation and
+    collisions — core collapse, evaporation — in <b>a few hundred thousand
+    years</b>.
+    <br><br>There is better now. Combining four stars, GRAVITY shows the potential
+    is that of a <i>single point mass</i>: any additional extended mass out to
+    230 milliarcseconds is limited to <b>3,000 solar masses</b>, one thousandth of
+    the total.`,
+
+   `The chronology of the elimination. 1996-1998: proper motions of the S-stars, of
+    order $10^{3}$ km/s on a scale of 0.02 pc, require
+    $\\rho \\gtrsim 10^{12}\\,M_{\\odot}\\,\\mathrm{pc}^{-3}$; at that density a
+    collisional cluster lives $\\sim 10^{7-8}$ yr (Maoz 1998). Orbits, from 2002 on,
+    gain four orders of magnitude,
+    $\\sim 10^{16}\\,M_{\\odot}\\,\\mathrm{pc}^{-3}$, and the lifetime drops below a few
+    $10^{5}$ yr — a vanishing fraction of the lifetime of the stars in the central
+    cusp. Schödel et al. 2003 put the same argument as a Plummer model: the central
+    density would have to exceed
+    $2.2 \\times 10^{17}\\,M_{\\odot}\\,\\mathrm{pc}^{-3}$.
+    <br><br>The collisionless alternatives need separate treatment. A degenerate
+    <b>fermion ball</b> accounting for <i>all</i> the dark concentrations in
+    galactic nuclei is excluded; a <b>boson star</b> would in any case end up
+    collapsing to a black hole by accreting the gas and dust of the Galactic
+    Centre.
+    <br><br>Current state: a Plummer profile of scale length 0.3″ fitted jointly
+    with everything else, $M_{\\mathrm{ext}} \\lesssim 3{,}000\\,M_{\\odot}$ out to
+    230 mas; the enclosed mass only tentatively exceeds M• beyond
+    $r \\gtrsim 2.5''$, consistent with the expected stellar distribution. No dark
+    matter component and no intermediate-mass black hole above
+    $10^{3}\\,M_{\\odot}$ is required by, or compatible with, the data. What this
+    route does not settle is the existence of a <i>horizon</i>: orbits constrain a
+    mass and a compactness, not a surface of no return.`,
+  ]
+},
+{
+  id: "f-nobel",
+  titre: "Thirty years for a proof",
+  sources: [
+    // Ghez 1998 is the Keck work this level describes: it is the source for
+    // the claim that two teams shared nothing and still agreed.
+    ["nobel2020", "penrose1965", "ghez1998"],
+    ["gravity2021", "gravity2018", "genzel2010"],
+    ["gravity2021", "nobel2020", "penrose1965", "eht2022"],
+  ],
+  t: [
+   `The 2020 Nobel Prize in Physics rewarded exactly this reasoning.
+    <br><br>One half went to <b>Reinhard Genzel</b> and <b>Andrea Ghez</b>, a
+    quarter each, “<i>for the discovery of a supermassive compact object at the
+    centre of our galaxy</i>”. Two teams with nothing in common: one measuring at
+    ESO's VLT in Chile, the other at the Keck telescope in Hawaii. They tracked the
+    same stars for thirty years, each on their own, taking nothing on trust from
+    the other — and they agreed.
+    <br><br>The other half went to <b>Roger Penrose</b>, and this is the thing not
+    to confuse: his work has nothing to do with these measurements. In 1965, with
+    paper and pencil, he proved that the formation of a black hole is an
+    <i>unavoidable consequence</i> of Einstein's theory. He observed nothing. He
+    showed it had to exist.`,
+
+   `What it took, technically, for this picture to exist.
+    <br><br>At the start, atmospheric turbulence limited images to
+    <i>0.4-0.5 arcseconds</i> across: at that resolution the Galactic Centre is a
+    smear and the S-stars run into one another. <b>Adaptive optics</b> — a
+    deformable mirror correcting the turbulence in real time — brought 8-to-10-metre
+    class telescopes down to <i>50-60 milliarcseconds</i>, with positions measured
+    to 300-500 microarcseconds.
+    <br><br>Then <b>interferometry</b>. You combine the light of the four VLT
+    telescopes, and the whole thing resolves as a mirror as wide as their
+    separation would. That is GRAVITY, in service since 2016: a beam of
+    <i>2 × 4 milliarcseconds</i>, and positions to
+    <b>30-100 microarcseconds</b>. A factor of ten gained on precision — just in
+    time for the pericentre passage of May 2018.`,
+
+   `The instrumental gain, in numbers. Seeing-limited imaging: 0.4-0.5″ FWHM.
+    Adaptive optics on 8-10 m class: 50-60 mas, astrometry 300-500 μas.
+    GRAVITY/VLTI: a 2 × 4 mas beam, astrometry 30-100 μas, sensitivity
+    $m_{K} = 20$ when combining one night's data.
+    <br><br><b>Spectroscopy</b> is not a garnish. Astrometry alone gives an orbit
+    in units of angle; it is the radial velocity, in kilometres per second, that
+    supplies the physical scale and lets R₀ be extracted jointly with M•. Without
+    it the orbit stays degenerate along the line of sight — which is precisely why
+    some stars in Gillessen's table, S55 for one, are less well constrained than
+    their short period would suggest.
+    <br><br>Nobel 2020: one half to Penrose for the 1965 <b>singularity
+    theorem</b>, a theoretical result unrelated to infrared astrometry; a quarter
+    to Genzel, a quarter to Ghez, for the discovery of a supermassive compact
+    object at the centre of our galaxy. The official wording does say
+    “<i>supermassive compact object</i>”, not “black hole”. The committee was
+    careful, and it was right to be: orbits constrain a mass and a density, not a
+    horizon. The horizon was the EHT's business, two years later.`,
   ]
 },
 {

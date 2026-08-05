@@ -7,21 +7,23 @@ Mis à jour le 5 août 2026.
 
 ---
 
+## Fait, et branché
+
+| | chantier | ce qui existe |
+|---|---|---|
+| 1 | **Interface** | Barre en rail, menu en index, panneaux en commandes segmentées. **En production.** |
+| 3 | **Le voyage à 1 g** | Le télescope est un lieu : on choisit une destination, le vaisseau part, le chronomètre dit ce que le trajet coûte vraiment aux deux horloges. `VOYAGE.enChemin` calcule le temps propre en cours de route au lieu de l'interpoler. |
+| 4 | **Le recul logarithmique** | Vécu depuis le salon, par la baie, avec le quadrillage qui se renumérote à chaque décade. |
+| 5 | **Les étoiles S** | Dix orbites sourcées, avec étalon, date, et la mention qu'il s'agit d'une reconstruction. Orientable et zoomable. |
+| 11 | **Trou noir d'étude** | Un objet distinct, nommé comme tel, à rotation libre. La masse n'y est pas — et le panneau dit pourquoi c'est le point le plus instructif. |
+| 12 | **Registre temporel** | Chaque trajet inscrit son écart ; le total se lit dans le carnet de bord. Se fige hors connexion. |
+
 ## En cours
 
-| | chantier | où | état |
-|---|---|---|---|
-| 1 | **Interface** — panneaux réglages et spectre au vocabulaire du bord | `dev` | barre et menu faits |
-| 2 | **Chemin de progression** — l'orbite qu'on remonte, un palier par notion | `dev` | menu en index, base posée |
-
-## Prêt à brancher
-
-| | chantier | où | état |
-|---|---|---|---|
-| 3 | **Le voyage à 1 g** — durées, retournement, chronomètre | `dev` | `voyage1g.js` vérifié |
-| 4 | **Le recul logarithmique** et son quadrillage | `dev` | `recul.js` vérifié |
-| 5 | **Les étoiles S** — dix orbites sourcées | `dev` | `etoiles.js`, convention à éprouver |
-| 6 | **Le bilingue** — sélecteur, extraction des chaînes en dur | `dev` | `contenu.en.js` fait |
+| | chantier | état |
+|---|---|---|
+| 6 | **Le bilingue** | Sélecteur fait, contenu traduit, unités et ponctuation des nombres suivent la langue. **Restent environ cent quarante chaînes en dur**, toutes inventoriées dans `CHAINES-UI.md` avec leur clé et leur traduction — c'est du travail mécanique, pas de la conception. |
+| 2 | **Chemin de progression** | Menu en index, base posée. Rien de plus. |
 
 ## Ensuite
 
@@ -31,8 +33,6 @@ Mis à jour le 5 août 2026.
 | 8 | **Carnet d'apprentissage** — relevé de ce qui a été lu | — |
 | 9 | **Questionnaire diagnostique** — sans note, avec porte de sortie | 8 |
 | 10 | **Renvois de lecture par langue** — distincts des sources | 6 |
-| 11 | **Trou noir d'étude** — paramètres libres, depuis le télescope | 3 |
-| 12 | **Registre temporel** — le décalage accumulé, avec ses formules | 3 |
 | 13 | **Le panthéon gravé** — la paroi, Firestore est prêt | mission de chute |
 | 14 | **La chute derrière l'horizon** — `CHUTE.md` est écrit | — |
 
@@ -55,5 +55,18 @@ vaisseaux.
 - **Cockpit enfermé dans une bande** sur écran large et court.
 - **Saut d'image une fois par orbite** : non reproduit, hypothèse de la bascule
   de résolution traitée. Hugo doit presser `C` au moment du saut.
-- **Convention d'orientation des étoiles S** déduite, non citée : à éprouver
-  numériquement avant publication.
+- **Orientation des étoiles S : le signe de la profondeur reste ouvert.**
+  Éprouvé numériquement, sans pouvoir trancher. La formule reproduit
+  Thiele-Innes tel que Wright & Howard le définissent — convention que Gillessen
+  cite —, et dans laquelle le nœud ascendant est le nœud d'approche. Départager
+  cette lecture de l'usage des binaires visuelles demande le signe de la vitesse
+  radiale de S2 à une date connue, lequel ne figure dans le TEXTE d'aucun
+  article consulté : seulement sur une figure. La géométrie impose que les deux
+  extrêmes soient dans un rapport de 2,16 — environ 4 050 et 1 880 km/s — mais
+  pas lequel précède le périastre. Ce qui est en revanche vérifié et solide :
+  les dix étoiles rendent la même masse centrale à 1 % près, le périastre de S2
+  tombe à 120,6 UA contre 120 publiées, et S55 est saine.
+  **Conséquence pratique** : la vue n'indique aucune direction vers la Terre et
+  ne marque aucun côté proche, donc l'ambiguïté n'est pas observable et le site
+  n'affirme rien. Ne pas ajouter d'axe « vers la Terre » sans avoir tranché.
+- **Le titre de la page** reste français dans les deux langues.

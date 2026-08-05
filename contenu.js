@@ -21,7 +21,7 @@ langue: "fr",
 // ---------------------------------------------------------------- références
 sources: {
   gravity2021: {
-    ref: "GRAVITY Collaboration (Abuter et al.), « Mass distribution in the Galactic Centre based on interferometric astrometry of multiple stellar orbits », Astronomy & Astrophysics 657, L12 (2022)",
+    ref: "GRAVITY Collaboration (Abuter et al.), « The mass distribution in the Galactic Centre from interferometric astrometry of multiple stellar orbits », Astronomy & Astrophysics 657, L12 (2022)",
     doi: "10.1051/0004-6361/202142465",
     sert: "Masse de Sgr A* (4,297 × 10⁶ M☉) et distance (8 277 pc)",
   },
@@ -164,6 +164,31 @@ sources: {
   misner1973: {
     ref: "C. W. Misner, K. S. Thorne, J. A. Wheeler, Gravitation, W. H. Freeman (1973), §25 et §31",
     sert: "Marées en M/r³, chute libre régulière à travers l'horizon, temps propre maximal πGM/c³",
+  },
+  gillessen2017: {
+    ref: "S. Gillessen, P. M. Plewa, F. Eisenhauer, R. Sari, I. Waisberg, M. Habibi, O. Pfuhl, E. George, J. Dexter, S. von Fellenberg, T. Ott, R. Genzel, « An Update on Monitoring Stellar Orbits in the Galactic Center », The Astrophysical Journal 837, 30 (2017)",
+    doi: "10.3847/1538-4357/aa5c41",
+    sert: "Éléments orbitaux des 40 étoiles S ; ajustement multi-étoiles M = 4,28 ± 0,10 × 10⁶ M☉ à R₀ = 8,32 ± 0,07 kpc",
+  },
+  maoz1998: {
+    ref: "E. Maoz, « Dynamical Constraints on Alternatives to Supermassive Black Holes in Galactic Nuclei », The Astrophysical Journal 494, L181 (1998)",
+    doi: "10.1086/311194",
+    sert: "Durée de vie maximale d'un amas d'objets sombres, limitée par la relaxation et les collisions",
+  },
+  schoedel2003: {
+    ref: "R. Schödel, R. Genzel, T. Ott, A. Eckart, N. Mouawad, T. Alexander, « Stellar dynamics in the central arcsecond of our galaxy », The Astrophysical Journal 596, 1015 (2003)",
+    doi: "10.1086/378122",
+    sert: "Amas sombre en modèle de Plummer : densité centrale > 2,2 × 10¹⁷ M☉/pc³, durée de vie < 10⁵ ans ; exclusion de la boule de fermions et de l'étoile à bosons",
+  },
+  ghez1998: {
+    ref: "A. M. Ghez, B. L. Klein, M. Morris, E. E. Becklin, « High Proper-Motion Stars in the Vicinity of Sgr A*: Evidence for a Supermassive Black Hole at the Center of Our Galaxy », The Astrophysical Journal 509, 678 (1998)",
+    doi: "10.1086/306528",
+    sert: "Imagerie à la limite de diffraction au Keck 10 m, 1995-1997 : 90 étoiles, vitesses jusqu'à 1 400 ± 100 km/s",
+  },
+  habibi2017: {
+    ref: "M. Habibi, S. Gillessen, F. Martins, F. Eisenhauer et al., « Twelve Years of Spectroscopic Monitoring in the Galactic Center: The Closest Look at S-stars near the Black Hole », The Astrophysical Journal 847, 120 (2017)",
+    doi: "10.3847/1538-4357/aa876f",
+    sert: "Nature stellaire des étoiles S : type spectral B0-B3V, masses 8-14 M☉, âge de S2 6,6 (+3,4 / −4,7) Myr",
   },
 },
 
@@ -737,6 +762,36 @@ questions: [
     dire:`Optique gravitationnelle exacte, astrophysique décorative. Le spin est là : à spin non nul, on bascule sur Kerr, avec frame-dragging, ergosphère et I S C O déplacée, au prix d'une couture sur l'axe polaire, singulier en Boyer-Lindquist. Manquent en revanche le transfert radiatif en plasma optiquement mince, la géométrie épaisse d'un R I A F, et la variabilité. Un vrai rendu part d'un post-traitement G R M H D. Ici, l'émissivité est posée à la main.`,
     sources:["bardeen1972","yuan2014","eht2022"] },
 ]},
+{ q:"Pourquoi les étoiles ne tombent pas dedans ?", niv:[
+  { id:"q7-0", t:`Pour la même raison que la Terre ne tombe pas sur le Soleil : elles vont <b>de côté</b>. Une chose qui tombe en avançant assez vite rate sa cible et recommence, indéfiniment. Une orbite, c'est une chute qui n'en finit pas.`,
+    sources:["misner1973"] },
+  { id:"q7-1", t:`Elles tombent en permanence — mais avec du moment cinétique, et celui-ci se conserve. La trajectoire est alors une ellipse dont le périastre est une <i>distance minimale</i>, pas un point d'arrivée. Pour S2, ce minimum vaut 120 UA, environ <b>1 400 rayons de Schwarzschild</b> : mille fois trop loin pour que l'horizon entre en jeu.`,
+    dire:`Elles tombent en permanence, mais avec du moment cinétique, et celui-ci se conserve. La trajectoire est alors une ellipse dont le périastre est une distance minimale, pas un point d'arrivée. Pour S 2, ce minimum vaut cent vingt unités astronomiques, environ mille quatre cents rayons de Schwarzschild : mille fois trop loin pour que l'horizon entre en jeu.`,
+    sources:["gravity2018","misner1973"] },
+  { id:"q7-2", t:`Le moment cinétique spécifique de S2 est très au-dessus du seuil de capture : la dernière orbite stable est à 3 r<sub>s</sub>, son périastre est à ~1 400. Le régime est post-newtonien d'ordre 1 — $\\Delta\\varphi \\simeq 12'$ par période, mesurable, mais très loin du champ fort. Et rien ne viendra la faire tomber à l'échelle de sa vie : le temps de relaxation à deux corps au centre galactique est de 10¹⁰ à 2 × 10¹¹ ans, quand S2 a environ 7 × 10⁶ ans.`,
+    dire:`Le moment cinétique spécifique de S 2 est très au-dessus du seuil de capture : la dernière orbite stable est à trois rayons de Schwarzschild, son périastre est à mille quatre cents. Le régime est post-newtonien d'ordre un : douze minutes d'arc par période, mesurable, mais très loin du champ fort. Et rien ne viendra la faire tomber à l'échelle de sa vie : le temps de relaxation à deux corps au centre galactique se compte en dizaines de milliards d'années, quand S 2 en a sept millions.`,
+    sources:["gravity2018","genzel2010","bardeen1972","habibi2017"] },
+]},
+{ q:"Si on l'a photographié en 2022, pourquoi dire qu'on savait avant ?", niv:[
+  { id:"q8-0", t:`Parce que la preuve n'était pas une photo, elle était dans le <b>mouvement</b>. Voir des étoiles tourner autour d'un point vide et mesurer combien pèse ce point, ça suffisait. On savait à quoi s'attendre trente ans avant que l'image arrive — et l'image a confirmé, elle n'a pas révélé.`,
+    sources:["gravity2021","eht2022","nobel2020"] },
+  { id:"q8-1", t:`Les deux mesures ne portent pas sur la même chose. Les orbites donnent une <b>masse</b> et une <b>densité minimale</b>. L'image de l'EHT donne une <i>taille apparente</i> : un anneau de 51,8 ± 2,3 μas, compatible avec l'ombre attendue pour cette masse à cette distance. La seconde vérifie la première à une échelle des centaines de fois plus petite — 2,6 rayons d'horizon pour l'ombre, contre 1 400 pour le périastre de S2.`,
+    dire:`Les deux mesures ne portent pas sur la même chose. Les orbites donnent une masse et une densité minimale. L'image de l'E H T donne une taille apparente : un anneau de cinquante et une microsecondes d'arc, compatible avec l'ombre attendue pour cette masse à cette distance. La seconde vérifie la première à une échelle des centaines de fois plus petite : deux virgule six rayons d'horizon pour l'ombre, contre mille quatre cents pour le périastre de S 2.`,
+    sources:["gravity2018","eht2022","bardeen1973"] },
+  { id:"q8-2", t:`Deux contraintes indépendantes sur le même objet. Les orbites contraignent $M$ et $R_{0}$, corrélés, plus une densité minimale et une borne sur la masse étendue. L'EHT contraint le diamètre angulaire de l'anneau, $51{,}8 \\pm 2{,}3\\ \\mu\\mathrm{as}$, donc $GM/(c^{2}D)$ via le paramètre d'impact critique $\\sqrt{27}\\,GM/c^{2}$. Les deux s'accordent, ce qui n'était nullement acquis : instruments, longueurs d'onde et systématiques n'ont rien de commun. C'est cette <b>redondance</b> qui fait la solidité du résultat, pas l'une des deux mesures prise seule.`,
+    dire:`Deux contraintes indépendantes sur le même objet. Les orbites contraignent la masse et la distance, qui sont corrélées, plus une densité minimale et une borne sur la masse étendue. L'E H T contraint le diamètre angulaire de l'anneau, donc le rapport G M sur c carré D, via le paramètre d'impact critique. Les deux s'accordent, ce qui n'était nullement acquis : instruments, longueurs d'onde et systématiques n'ont rien de commun. C'est cette redondance qui fait la solidité du résultat, pas l'une des deux mesures prise seule.`,
+    sources:["gravity2021","eht2022","bardeen1973"] },
+]},
+{ q:"Les étoiles qui bougent, on les voit vraiment ?", niv:[
+  { id:"q9-0", t:`Oui, mais pas comme une vidéo. On a des <b>photos</b>, prises année après année pendant trente ans, sur lesquelles chaque étoile a un peu bougé. L'animation que tu regardes relie ces points : les points sont réels, le mouvement entre deux points est calculé.`,
+    sources:["gravity2021"] },
+  { id:"q9-1", t:`Ce que publient les articles, ce sont des positions datées et des vitesses radiales, pas un film. Pour S2 : 128 positions à l'optique adaptative, 82 à l'interféromètre, une centaine de spectres, entre 1992 et 2021. L'orbite est un <b>ajustement</b> qui passe au mieux par ces points ; l'animation rejoue cet ajustement à la vitesse qu'on veut. La forme est mesurée, la fluidité est ajoutée.`,
+    dire:`Ce que publient les articles, ce sont des positions datées et des vitesses radiales, pas un film. Pour S 2 : cent vingt-huit positions à l'optique adaptative, quatre-vingt-deux à l'interféromètre, une centaine de spectres, entre 1992 et 2021. L'orbite est un ajustement qui passe au mieux par ces points ; l'animation rejoue cet ajustement à la vitesse qu'on veut. La forme est mesurée, la fluidité est ajoutée.`,
+    sources:["gravity2021","gillessen2017"] },
+  { id:"q9-2", t:`Cette scène résout Kepler sur les éléments osculateurs de Gillessen et al. 2017, <b>sans terme relativiste</b> : la précession de Schwarzschild, 12′ par période pour S2, n'est pas rendue. Sur les orbites longues du même tableau, l'incertitude sur <i>a</i> et <i>P</i> atteint plusieurs dizaines de pour cent — S85 est publiée à 3 580 ± 2 550 ans — et une ligne, S111, porte un demi-grand axe formellement négatif, donc une orbite hyperbolique, exclue de tout tracé d'ellipse. Les étoiles montrées ici sont celles dont la période est courte et bien échantillonnée. Ce n'est pas un échantillon complet, et ça ne prétend pas l'être.`,
+    dire:`Cette scène résout Kepler sur les éléments osculateurs de Gillessen et collaborateurs, deux mille dix-sept, sans terme relativiste : la précession de Schwarzschild, douze minutes d'arc par période pour S 2, n'est pas rendue. Sur les orbites longues du même tableau, l'incertitude sur le demi-grand axe et la période atteint plusieurs dizaines de pour cent, et une ligne porte un demi-grand axe formellement négatif, donc une orbite hyperbolique, exclue de tout tracé d'ellipse. Les étoiles montrées ici sont celles dont la période est courte et bien échantillonnée. Ce n'est pas un échantillon complet, et ça ne prétend pas l'être.`,
+    sources:["gillessen2017","gravity2020"] },
+]},
 ],
 
 // ---------------------------------------------------------------- fiches
@@ -764,10 +819,10 @@ fiches: [
    `Sagittarius A* fait 4,3 millions de masses solaires tassées dans une bille de
     <i>12,7 millions de km</i> — ça tiendrait à l'intérieur de l'orbite de Mercure.
     Sa masse a été mesurée en suivant pendant trente ans l'étoile S2, qui en fait le tour
-    en 16 ans à 3 % de la vitesse de la lumière. Ce travail a valu le
-    <b>prix Nobel de physique 2020</b>.`,
+    en 16 ans et frôle <b>2,5 % de la vitesse de la lumière</b> à son passage au plus près.
+    Ce travail a valu le <b>prix Nobel de physique 2020</b>.`,
 
-   `M = (4,297 ± 0,012 ± 0,040) × 10⁶ M☉ à R₀ = 8 277 ± 9 ± 33 pc (GRAVITY, 2022), par astrométrie
+   `M = (4,297 ± 0,012 ± 0,040) × 10⁶ M☉ à R₀ = 8 277 ± 9 ± 30 pc (GRAVITY, 2022), par astrométrie
     infrarouge de S2 — dont la <b>précession de Schwarzschild</b> de 12′ par orbite est
     mesurée. Image EHT de mai 2022 : anneau de <i>51,8 ± 2,3 μas</i>, compatible avec une
     inclinaison faible, spin mal contraint. Accrétion en régime RIAF à ~10⁻⁹ L_Edd :
@@ -1005,6 +1060,241 @@ fiches: [
     à a* = 0,95 car l'intégrateur décroche quand l'orbite photonique prograde se colle à
     l'horizon, et une couture reste visible sur l'axe polaire — singularité des
     coordonnées de Boyer-Lindquist, non du calcul.`,
+  ]
+},
+{
+  id: "f-etoiles",
+  titre: "Des étoiles autour de rien",
+  sources: [
+    ["gravity2021", "eht2022"],
+    ["gravity2020", "gravity2021"],
+    ["gillessen2017", "gravity2020", "gravity2021"],
+  ],
+  t: [
+   `Recule. Recule encore. Le trou noir devient un point, puis plus rien du tout :
+    il n'y a littéralement plus rien à voir au milieu de l'écran.
+    <br><br>Les étoiles, elles, sont toujours là. Et elles <b>tournent</b>.
+    Chacune décrit une longue boucle autour du même endroit vide. Une boucle comme
+    ça s'appelle une <i>orbite</i> : c'est le chemin que suit un objet retenu par
+    la gravité d'un autre. La Terre en décrit une autour du Soleil, la Lune une
+    autour de la Terre. Il faut toujours quelque chose au milieu.
+    <br><br>Sauf qu'ici, au milieu, il n'y a aucune étoile. Rien.
+    Et c'est ce rien qui les tient.
+    <br><br>Pour obtenir ce dessin, des astronomes ont photographié le même petit
+    coin de ciel pendant <b>trente ans</b>. La découverte est là — pas dans la
+    photo de 2022, qui est arrivée bien après.`,
+
+   `Ce que tu regardes est un jeu d'ellipses partageant un <b>foyer</b>. Pas un
+    centre : un foyer. Le point vide est décalé sur le grand axe, et ce décalage
+    est déjà la signature d'une orbite képlérienne. À partir de là, deux mesures
+    suffisent.
+    <br><br>Suis une étoile sur une révolution complète, relève son demi-grand axe
+    <i>a</i> et sa période <i>P</i>. La troisième loi de Kepler donne la masse au
+    foyer, $P^{2} = 4\\pi^{2}a^{3}/GM$, qui perd toutes ses constantes si l'on compte
+    <i>a</i> en unités astronomiques, <i>P</i> en années et <i>M</i> en masses
+    solaires : $M = a^{3}/P^{2}$.
+    <br><br>Pour S2, avec les valeurs publiées : demi-grand axe apparent 0,125″,
+    soit 1 031 UA à 8 247 pc, et période 16,05 ans. Le calcul tient sur une ligne,
+    $1031^{3}/16{,}05^{2} \\simeq 4{,}26 \\times 10^{6}$. Quatre millions et quart de
+    soleils — et l'ajustement complet publié donne
+    <b>4,261 ± 0,012 × 10⁶ M☉</b>. La loi de 1619 tombe juste au millième près.`,
+
+   `Les éléments tracés viennent de <b>Gillessen et al. 2017</b>, tableau des
+    quarante orbites : <i>a</i> en secondes d'arc, <i>e</i>, les trois angles
+    <i>i</i>, Ω, ω, l'époque du périastre, la période. Ce sont des <b>éléments
+    osculateurs</b> — l'orbite n'est képlérienne qu'au premier ordre et les
+    paramètres valent pour une époque de référence, l'apocentre de 2010 chez
+    GRAVITY.
+    <br><br>La conversion angle → longueur passe par R₀, si bien que masse et
+    distance sont corrélées, en $M \\propto R_{0}^{2}$ pour un ajustement
+    astrométrique. C'est pourquoi les valeurs publiées se déplacent d'un article à
+    l'autre sans qu'aucune soit fausse : G17 donne 4,28 ± 0,10 × 10⁶ M☉ à
+    8,32 kpc, GRAVITY 2020 4,261 ± 0,012 à 8 246,7 pc, GRAVITY 2022
+    4,297 ± 0,012 à 8 277 pc. <b>Ne jamais mélanger deux lignes de tableaux
+    différents dans un même jeu d'éléments.</b>
+    <br><br>L'ajustement moderne compte quatorze paramètres par étoile : six
+    éléments orbitaux, R₀, M•, cinq coordonnées pour la position sur le ciel et la
+    vitesse à trois dimensions de la masse relativement au repère astrométrique,
+    et un paramètre sans dimension pour l'effet post-newtonien testé. En
+    combinant quatre étoiles — S2, S29, S38, S55 — GRAVITY obtient
+    $f_{SP} = 0{,}997 \\pm 0{,}144$, soit la précession relativiste mesurée à 14 %.`,
+  ]
+},
+{
+  id: "f-s2",
+  titre: "S2, l'étoile témoin",
+  sources: [
+    ["gravity2018", "gillessen2017"],
+    ["gravity2018", "gravity2020", "habibi2017"],
+    ["gravity2020", "gravity2021"],
+  ],
+  t: [
+   `Parmi les étoiles que tu vois tourner, une seule fait presque tout le
+    travail : <b>S2</b>.
+    <br><br>Elle a trois qualités et c'est rare de les avoir ensemble. Elle est
+    parmi les plus brillantes du lot, donc facile à suivre dans un endroit très
+    encombré. Elle boucle son tour en <i>seize ans</i> seulement — assez peu pour
+    qu'un astronome en voie plusieurs dans une carrière. Et son orbite est très
+    allongée : elle plonge tout près, puis repart très loin.
+    <br><br>En mai 2018, elle est passée au plus près. À cent vingt fois la
+    distance de la Terre au Soleil, filant à <b>7 650 kilomètres par seconde</b>,
+    deux et demi pour cent de la vitesse de la lumière. Tout le monde regardait,
+    et depuis seize ans.`,
+
+   `S2 est une étoile jeune et chaude : type spectral B0 à B3 de la séquence
+    principale, entre 8 et 14 masses solaires pour les étoiles S étudiées, un âge
+    de l'ordre de <i>7 millions d'années</i>. Rien d'exotique. Ce qui compte, c'est
+    son orbite : $e = 0{,}884$, période 16,05 ans, périastre à 120 UA, soit environ
+    <b>1 400 rayons de Schwarzschild</b>.
+    <br><br>À cette distance, la relativité générale cesse d'être une correction
+    invisible. Au passage de 2018 on a mesuré le décalage vers le rouge attendu —
+    la somme du décalage gravitationnel et de l'effet Doppler transverse, soit
+    environ 200 km/s exprimés en vitesse. En paramétrant l'écart au newtonien par
+    un facteur <i>f</i> valant 0 pour Newton et 1 pour Einstein, la mesure donne
+    <i>f</i> = 0,90 ± 0,09 (stat.) ± 0,15 (syst.). Les données de S2 sont
+    <b>incompatibles avec la dynamique newtonienne pure</b>.
+    <br><br>Deux ans plus tard, la précession du périastre : le grand axe de
+    l'ellipse pivote de <i>12 minutes d'arc par révolution</i>. L'orbite ne se
+    referme pas sur elle-même — elle dessine lentement une rosette.`,
+
+   `Ajustement à quatorze paramètres, éléments osculateurs rapportés à l'apocentre
+    de 2010. GRAVITY 2020, sur les données jusqu'à fin 2019 : $a = 125{,}058 \\pm
+    0{,}041$ mas, $e = 0{,}884649$, $P = 16{,}0455 \\pm 0{,}0013$ an,
+    $t_{p} = 2018{,}379$, $f_{SP} = 1{,}10 \\pm 0{,}19$ — la précession de
+    Schwarzschild détectée, $\\Delta\\varphi \\simeq 12'$ par période.
+    <br><br>Le jeu de données de S2 couvre <b>1992,2 à 2021,6</b> : 128 positions
+    astrométriques NACO, 92 spectres SINFONI, 82 positions GRAVITY, plus 3 spectres
+    Keck, 2 NACO et 4 GNIRS/Gemini. Trois techniques, une seule orbite.
+    <br><br>Ce que ça contraint : M• et R₀, corrélés ; les termes post-newtoniens
+    d'ordre 1, décalage gravitationnel ($f = 0{,}90 \\pm 0{,}09 \\pm 0{,}15$ en 2018,
+    puis $1{,}04 \\pm 0{,}05$) et précession du périastre ; et une borne sur toute
+    masse étendue à l'intérieur de l'orbite. Ce que ça ne contraint pas : le
+    <b>spin</b>. Il ne figure dans aucun de ces ajustements — le modèle à quatorze
+    paramètres n'en comporte pas de terme. La géométrie de Kerr n'est pas testée
+    par les orbites stellaires ; c'est un autre instrument qui s'en charge.`,
+  ]
+},
+{
+  id: "f-preuve",
+  titre: "Pourquoi ça ne peut pas être autre chose",
+  sources: [
+    ["schoedel2003", "maoz1998"],
+    ["genzel2010", "maoz1998", "gravity2021"],
+    ["genzel2010", "maoz1998", "schoedel2003", "gravity2021"],
+  ],
+  t: [
+   `« Quatre millions de soleils dans un tout petit espace. » D'accord — mais
+    pourquoi un trou noir ? Pourquoi pas simplement <i>beaucoup d'étoiles</i>,
+    serrées, trop sombres pour qu'on les voie d'ici ?
+    <br><br>Parce qu'un tas d'objets aussi serré <b>ne tient pas</b>. Ils se
+    frôlent, se percutent, s'échangent de la vitesse au passage : les uns sont
+    éjectés vers l'extérieur, les autres tombent vers le centre. Le tas se vide et
+    s'effondre. On sait calculer en combien de temps, et la réponse est
+    <b>moins de cent mille ans</b>.
+    <br><br>Cent mille ans, à l'échelle d'une galaxie qui en a dix milliards, c'est
+    un battement de cils. Il faudrait que nous soyons tombés pile au bon moment
+    pour l'observer. Personne ne mise là-dessus.`,
+
+   `L'argument est une <b>élimination</b>, pas une observation directe. On mesure
+    une masse et un volume, donc une densité, et l'on demande ce qui peut soutenir
+    cette densité-là.
+    <br><br>Les mouvements propres détectés entre 1996 et 1998 — de l'ordre de
+    1 000 km/s sur 0,02 parsec — imposaient déjà 10¹² masses solaires par parsec
+    cube, ce qui bornait la durée de vie d'un amas d'objets sombres à 10⁷-10⁸ ans.
+    Le suivi des orbites depuis 2002, S2 en tête, a gagné <i>quatre ordres de
+    grandeur</i> : environ 10¹⁶ M☉/pc³. À cette densité, un amas de naines brunes,
+    de naines blanches, d'étoiles à neutrons, de trous noirs stellaires ou même de
+    cailloux est détruit par relaxation et par collisions — effondrement du cœur,
+    évaporation — en <b>quelques centaines de milliers d'années</b>.
+    <br><br>Il y a mieux depuis. En combinant quatre étoiles, GRAVITY montre que le
+    potentiel est celui d'une <i>masse ponctuelle unique</i> : toute masse étendue
+    supplémentaire jusqu'à 230 millisecondes d'arc est limitée à
+    <b>3 000 masses solaires</b>, un millième du total.`,
+
+   `Chronologie de l'exclusion. 1996-1998 : les mouvements propres des étoiles S,
+    de l'ordre de $10^{3}$ km/s à l'échelle de 0,02 pc, imposent
+    $\\rho \\gtrsim 10^{12}\\,M_{\\odot}\\,\\mathrm{pc}^{-3}$ ; à cette densité un amas
+    collisionnel vit $\\sim 10^{7-8}$ ans (Maoz 1998). Les orbites, à partir de
+    2002, gagnent quatre ordres de grandeur,
+    $\\sim 10^{16}\\,M_{\\odot}\\,\\mathrm{pc}^{-3}$, et la durée de vie tombe sous
+    quelques $10^{5}$ ans — une fraction infime de la durée de vie des étoiles du
+    cusp central. Schödel et al. 2003 posent le même argument sous forme de modèle
+    de Plummer : la densité centrale devrait excéder
+    $2{,}2 \\times 10^{17}\\,M_{\\odot}\\,\\mathrm{pc}^{-3}$.
+    <br><br>Les alternatives non collisionnelles demandent un autre traitement.
+    Une <b>boule de fermions</b> dégénérés qui rendrait compte de <i>toutes</i> les
+    concentrations sombres des noyaux de galaxies est exclue ; une <b>étoile à
+    bosons</b> finirait de toute façon par s'effondrer en trou noir en accrétant le
+    gaz et la poussière du centre galactique.
+    <br><br>État actuel : profil de Plummer de longueur d'échelle 0,3″ ajusté
+    conjointement au reste, $M_{\\mathrm{ext}} \\lesssim 3\\,000\\,M_{\\odot}$ jusqu'à
+    230 mas ; l'excès de masse sur M• n'apparaît qu'au-delà de
+    $r \\gtrsim 2{,}5''$, en accord avec la distribution stellaire attendue. Aucune
+    composante de matière noire ni trou noir de masse intermédiaire au-dessus de
+    $10^{3}\\,M_{\\odot}$ n'est requise ni compatible avec les données. Ce qui reste
+    non tranché par cette voie, c'est l'existence d'un <i>horizon</i> : les orbites
+    contraignent une masse et une compacité, pas une surface de non-retour.`,
+  ]
+},
+{
+  id: "f-nobel",
+  titre: "Trente ans pour une preuve",
+  sources: [
+    // Ghez 1998 est le travail du Keck dont ce niveau parle : c'est la source
+    // de l'affirmation « deux équipes qui ne partageaient rien ».
+    ["nobel2020", "penrose1965", "ghez1998"],
+    ["gravity2021", "gravity2018", "genzel2010"],
+    ["gravity2021", "nobel2020", "penrose1965", "eht2022"],
+  ],
+  t: [
+   `Le prix Nobel de physique 2020 a récompensé exactement ce raisonnement.
+    <br><br>Une moitié est allée à <b>Reinhard Genzel</b> et <b>Andrea Ghez</b>, un
+    quart chacun, « <i>pour la découverte d'un objet compact supermassif au centre
+    de notre galaxie</i> ». Deux équipes qui ne partageaient rien : l'une mesurait
+    au VLT de l'ESO, au Chili, l'autre au télescope Keck, à Hawaï. Elles ont suivi
+    les mêmes étoiles pendant trente ans, chacune de son côté, sans se croire sur
+    parole — et sont tombées d'accord.
+    <br><br>L'autre moitié est allée à <b>Roger Penrose</b>, et il ne faut surtout
+    pas confondre : son travail n'a rien à voir avec ces mesures. Il avait
+    démontré en 1965, avec du papier et un crayon, que la formation d'un trou noir
+    est une <i>conséquence inévitable</i> de la théorie d'Einstein. Lui n'a rien
+    observé. Il a montré que ça devait exister.`,
+
+   `Ce qu'il a fallu, techniquement, pour que ce dessin existe.
+    <br><br>Au début, la turbulence de l'atmosphère limitait les images à
+    <i>0,4-0,5 seconde d'arc</i> de largeur : à cette résolution le centre
+    galactique est une bouillie et les étoiles S sont confondues les unes avec les
+    autres. L'<b>optique adaptative</b> — un miroir déformable qui corrige la
+    turbulence en temps réel — a fait descendre les télescopes de la classe
+    8 à 10 mètres à <i>50-60 millisecondes d'arc</i>, avec une position mesurée à
+    300-500 microsecondes d'arc près.
+    <br><br>Puis l'<b>interférométrie</b>. On combine la lumière des quatre
+    télescopes du VLT, et l'ensemble sépare comme le ferait un miroir aussi large
+    que leur écartement. C'est GRAVITY, en service depuis 2016 : un lobe de
+    <i>2 × 4 millisecondes d'arc</i>, et des positions à
+    <b>30-100 microsecondes d'arc</b>. Un facteur dix gagné sur la précision —
+    juste à temps pour le périastre de mai 2018.`,
+
+   `Le gain instrumental, chiffré. Imagerie limitée par le <i>seeing</i> :
+    0,4-0,5″ de largeur à mi-hauteur. Optique adaptative sur classe 8-10 m :
+    50-60 mas, astrométrie 300-500 μas. GRAVITY/VLTI : lobe de 2 × 4 mas,
+    astrométrie 30-100 μas, sensibilité $m_{K} = 20$ en cumulant les données d'une
+    nuit.
+    <br><br>La <b>spectroscopie</b> n'est pas un supplément d'âme. L'astrométrie
+    seule donne une orbite en unités d'angle ; c'est la vitesse radiale, en
+    kilomètres par seconde, qui fournit l'échelle physique et permet d'extraire
+    R₀ conjointement à M•. Sans elle, l'orbite reste dégénérée le long de la ligne
+    de visée — et c'est précisément pourquoi certaines étoiles du tableau de
+    Gillessen, S55 par exemple, sont moins bien contraintes que leur courte période
+    ne le laisserait croire.
+    <br><br>Nobel 2020 : une moitié à Penrose pour le <b>théorème de singularité</b>
+    de 1965, résultat théorique sans rapport avec l'astrométrie infrarouge ; un
+    quart à Genzel, un quart à Ghez, pour la découverte d'un objet compact
+    supermassif au centre de notre galaxie. La formulation officielle dit bien
+    « <i>objet compact supermassif</i> », et non « trou noir ». Le comité a été
+    prudent, et il avait raison de l'être : les orbites contraignent une masse et
+    une densité, pas un horizon. L'horizon, c'est l'affaire de l'EHT, deux ans
+    plus tard.`,
   ]
 },
 {
