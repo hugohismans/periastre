@@ -2499,6 +2499,24 @@ const { joueur, MEUBLES, TAILLE, RAYON, MARCHE, VITESSE, COURSE, SAUT, PESANTEUR
    lui — y compris sur les appareils hybrides, où l'on passe de l'un à l'autre
    au cours de la même session. */
 function moyen(doigt){ document.body.classList.toggle("tactile", doigt); }
+
+/* EST-ON EN TRAIN D'ÉCRIRE ? Une seule définition, et il en fallait une.
+
+   Trois gestionnaires de clavier vivent dans ce fichier. Deux se gardaient des
+   champs de saisie, le troisième non — celui qui donne la barre d'espace à la
+   pluie de sondes. Résultat : dans n'importe quel champ de texte du site, taper
+   un espace ne l'écrivait pas ET lâchait quatre-vingts sondes.
+
+   Hugo l'a trouvé en essayant d'écrire un commentaire dans la séance de
+   jugement, c'est-à-dire dans l'outil même que j'avais bâti pour recueillir ses
+   commentaires. Le champ que je venais d'agrandir refusait les espaces.
+
+   La règle vaut aussi pour `contenteditable`, qui n'est ni un `input` ni un
+   `textarea` et que les deux anciens tests laissaient passer. */
+const enSaisie = e => {
+  const c = e.target;
+  return !!c && (/^(input|textarea|select)$/i.test(c.tagName || "") || c.isContentEditable);
+};
 addEventListener("pointerdown", e => {
   if(e.pointerType === "touch") moyen(true);
   else if(e.pointerType === "mouse") moyen(false);
@@ -2593,7 +2611,7 @@ function oeilSalon(){
 addEventListener("keydown", e => {
   const k = e.key.toLowerCase();
   if(!salon.actif || !TOUCHES_JEU.has(k)) return;
-  if(/^(input|textarea)$/i.test((e.target.tagName || ""))) return;
+  if(enSaisie(e)) return;
   if(k === " ") e.preventDefault();      // sinon la page défile sous les pieds
   if(k === "v" && !joueur.touches.has("v")) joueur.vue = joueur.vue === 1 ? 3 : 1;
   joueur.touches.add(k);
@@ -2636,7 +2654,7 @@ function appliqueEtat(e){
 addEventListener("keydown", e => {
   if(e.key.toLowerCase() !== "c" || !salon.actif) return;
   if(e.ctrlKey || e.metaKey) return;                 // on ne vole pas le copier
-  if(/^(input|textarea)$/i.test(e.target.tagName || "")) return;
+  if(enSaisie(e)) return;
   const lien = location.origin + location.pathname
              + "#etat=" + encodeURIComponent(JSON.stringify(etatCourant()));
   const dire = ok => {
@@ -4087,6 +4105,7 @@ $("b-cours").onclick = () => {
 
 addEventListener("keydown", e => {
   if(e.target.tagName === "BUTTON") return;
+  if(enSaisie(e)) return;              // on écrit : le clavier ne pilote rien
   const k = e.key.toLowerCase();
   if(k === " "){ e.preventDefault(); pluie(80); }
   else if(k === "p") lancePhoton();

@@ -68,7 +68,10 @@ const DECISIONS = [
     quoi: "Tu avais dit « agrandir ». Laquelle se lit comme un instrument ?",
     pose: () => auSalon(0, 0.9, 0, -0.26),
     options: [
-      { nom: "Aucune",      fait: () => VAISSEAU.poseTir(gl, null) },
+      // « Pas de console » et non « Aucune » : sinon le bouton disait « Je garde
+      // « Aucune » » juste à côté de « Aucune des 4 ne va », et les deux ne
+      // veulent pas du tout dire la même chose.
+      { nom: "Pas de console", fait: () => VAISSEAU.poseTir(gl, null) },
       { nom: "Grande",      fait: () => VAISSEAU.poseTir(gl, 0.25, 1.0)  },
       { nom: "Très grande", fait: () => VAISSEAU.poseTir(gl, 0.25, 1.35) },
       { nom: "Énorme",      fait: () => VAISSEAU.poseTir(gl, 0.25, 1.75) },
@@ -186,7 +189,12 @@ style.textContent = `
   }
   #juge h4 { font-size:14.5px; font-weight:500; color:#fff; margin:0 0 4px; }
   #juge p  { font-size:12px; line-height:1.55; margin:0 0 10px; }
-  #juge .variantes { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px; }
+  #juge .variantes { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px; align-items:center; }
+  #juge .titre-var {
+    flex-basis:100%; font-family:ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size:9px; letter-spacing:.16em; text-transform:uppercase;
+    color:#6b6880; margin-bottom:1px;
+  }
   #juge .variantes button {
     flex:1 1 auto; min-width:88px; padding:8px 6px; font-size:11.5px; cursor:pointer;
     border-radius:3px; border:1px solid rgba(127,216,255,.28);
@@ -295,10 +303,21 @@ function montre(){
     ? "⚠ la scène n'a pas pu se poser : " + erreur
     : (avertissement || "Rien n'est envoyé. Écris autant que tu veux, le rapport se copie à la fin.");
 
-  // Les variantes, s'il y en a. La première est appliquée d'office.
+  /* Les variantes. Le bouton de validation NOMME celle qui est sélectionnée, et
+     il change quand on bascule.
+
+     Hugo, sur la première version : « je garde celle-ci, ça veut dire je garde
+     la réponse que j'ai sélectionnée ou aucune réponse ne fonctionne ? Je ne
+     trouve pas ça très clair. » Il avait raison — un bouton qui dit « celle-ci »
+     sans dire laquelle oblige à reconstituer mentalement ce qu'on vient de
+     cliquer. Le libellé porte maintenant le nom. */
   const boiteVar = q(".variantes");
   boiteVar.innerHTML = "";
   if(d.options){
+    const titre = document.createElement("div");
+    titre.className = "titre-var";
+    titre.textContent = "Bascule pour comparer :";
+    boiteVar.appendChild(titre);
     d.options.forEach((o, k) => {
       const b = document.createElement("button");
       b.textContent = o.nom;
@@ -306,11 +325,12 @@ function montre(){
         const e = sur(o.fait);
         if(e){ q(".pas").textContent = "⚠ " + e; return; }
         choisie = o.nom;
-        [...boiteVar.children].forEach((c, j) => c.classList.toggle("la", j === k));
+        [...boiteVar.querySelectorAll("button")].forEach((c, j) => c.classList.toggle("la", j === k));
+        const val = boite.querySelector(".valider");
+        if(val) val.textContent = "✓  Je garde « " + o.nom + " »";
       };
       boiteVar.appendChild(b);
     });
-    boiteVar.children[0].click();
   }
 
   // Les verdicts. Ils ne disent pas la même chose selon le type de décision :
@@ -325,13 +345,13 @@ function montre(){
     rang.appendChild(b);
   };
   if(d.options){
-    bouton("Je garde celle-ci", "oui", "retenu");
-    bouton("Aucune ne va", "non", "aucune");
+    bouton("✓  Je garde celle-ci", "oui valider", "retenu");
+    bouton("✕  Aucune de ces " + d.options.length + " ne convient", "non", "aucune");
   } else {
-    bouton("Ça va", "oui", "ça va");
-    bouton("Ça coince", "non", "ça coince");
+    bouton("✓  Ça va", "oui", "ça va");
+    bouton("✕  Ça coince", "non", "ça coince");
   }
-  bouton("Passer", "", "passé");
+  bouton("→  Passer, je ne sais pas", "", "passé");
 
   /* LE QUATRIÈME BOUTON, ET C'EST LE PLUS UTILE.
 
@@ -364,6 +384,12 @@ function montre(){
   bCache.onclick = () => boite.classList.toggle("replie");
   notes.appendChild(bNote); notes.appendChild(bCache);
   rang.parentElement.insertBefore(notes, q(".pas"));
+
+  /* La première variante s'applique d'office, mais SEULEMENT MAINTENANT : son
+     gestionnaire écrit dans le bouton de validation, qui vient d'être créé.
+     Placé plus haut, il écrivait dans un bouton qui n'existait pas encore. */
+  const premiere = boiteVar.querySelector("button");
+  if(premiere) premiere.click();
 }
 
 function repond(verdict){

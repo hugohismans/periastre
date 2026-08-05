@@ -391,6 +391,49 @@ function resolution(){
   return enCours;
 }
 
+/* 1 quinquies. ON PEUT ÉCRIRE DANS UN CHAMP DE TEXTE.
+
+   Ça paraît absurde à contrôler. Ça ne l'est pas : le site donne des touches au
+   jeu — l'espace lâche quatre-vingts sondes, « t » montre les trajectoires,
+   « r » efface — et trois gestionnaires de clavier se partagent le travail.
+   Deux se gardaient des champs de saisie, le troisième non.
+
+   Résultat : dans N'IMPORTE QUEL champ de texte du site, taper un espace ne
+   l'écrivait pas et lâchait quatre-vingts sondes. Hugo l'a trouvé en essayant
+   d'écrire un commentaire dans la séance de jugement — c'est-à-dire dans l'outil
+   que je venais de bâtir pour recueillir ses commentaires, et dont je venais
+   d'agrandir le champ pour qu'il puisse écrire davantage.
+
+   On ne teste pas la frappe : on vérifie que les gestionnaires laissent passer
+   l'événement, ce qui est la cause et non le symptôme. */
+function saisieLibre(){
+  ouvre("On peut écrire dans un champ de texte");
+  const zone = document.createElement("textarea");
+  zone.style.cssText = "position:fixed;left:-9999px;top:0";
+  document.body.appendChild(zone);
+  const avSondes = sondes.length, avTraj = montreTraj;
+  try {
+    zone.focus();
+    const touches = [
+      [" ", "l'espace"], ["t", "la lettre t"], ["r", "la lettre r"],
+      ["p", "la lettre p"], ["v", "la lettre v"], ["c", "la lettre c"],
+    ];
+    for(const [k, nom] of touches){
+      const ev = new KeyboardEvent("keydown", { key: k, bubbles: true, cancelable: true });
+      zone.dispatchEvent(ev);
+      point(nom + " s'écrit", !ev.defaultPrevented,
+            "non annulée", ev.defaultPrevented ? "ANNULÉE" : "non annulée");
+    }
+    point("et rien n'a été déclenché dans le jeu",
+          sondes.length === avSondes && montreTraj === avTraj,
+          avSondes + " sondes", sondes.length + " sondes",
+          "six touches frappées dans un champ : le jeu ne doit pas les entendre");
+  } finally {
+    zone.remove();
+  }
+  return enCours;
+}
+
 /* 2. LE NUANCEUR EST LIÉ.
 
    Une erreur de compilation GLSL jette au chargement et emporte le bloc — même
@@ -716,8 +759,8 @@ function texte(){
    C'est celle qu'on lance après une modification, en boucle. */
 function sain(){
   resultats.length = 0;
-  vivant(); coherence(); tempsJuste(); resolution(); nuanceurs(); clesNues();
-  banc(); pixels(); mesurePage(); budget();
+  vivant(); coherence(); tempsJuste(); resolution(); saisieLibre(); nuanceurs();
+  clesNues(); banc(); pixels(); mesurePage(); budget();
   return bilan();
 }
 
@@ -725,15 +768,15 @@ function sain(){
    on la lance sur une page fraîche. */
 function tout(){
   resultats.length = 0;
-  vivant(); coherence(); tempsJuste(); resolution(); nuanceurs(); clesNues();
-  banc(); pixels(); mesurePage(); budget();
+  vivant(); coherence(); tempsJuste(); resolution(); saisieLibre(); nuanceurs();
+  clesNues(); banc(); pixels(); mesurePage(); budget();
   parcours(); voyage();
   return bilan();
 }
 
 global.VERIF = {
-  vivant, coherence, tempsJuste, resolution, nuanceurs, clesNues, banc, pixels,
-  mesurePage, parcours, voyage, budget,
+  vivant, coherence, tempsJuste, resolution, saisieLibre, nuanceurs, clesNues,
+  banc, pixels, mesurePage, parcours, voyage, budget,
   sain, tout, bilan, texte, resultats, FORMATS, OR,
   // outillage exposé : d'autres contrôles pourront s'y adosser
   pose, fige, avanceImages,
