@@ -21,13 +21,19 @@ Mise à jour le 5 août 2026.
 
 ## À regarder en priorité, parce que c'est neuf et jamais vu
 
-| quoi | où | ce qu'il faut juger |
+| quoi | où | état |
 |---|---|---|
-| **La présentation d'entrée** | premier chargement | Hugo l'a vue une fois : « pas mal, à perfectionner ». Trois écrans. Le rythme est-il bon ? Le troisième — trente-neuf ans contre cinquante-quatre mille — atteint-il ? |
-| **Le quadrillage en volume** | pendant le recul | Trois nappes parallèles au lieu d'une. Est-ce que ça se lit comme une épaisseur, ou comme du désordre ? |
-| **Le scintillement des étoiles** | partout | Corrigé par la mesure — les étoiles font au moins un pixel. Mais c'est l'œil qui dit si ça grouille encore. |
-| **La bulle de Lumen** | quête, étape 2 | Elle ne prend plus les touchers, mais son placement chevauche encore le drone. Gênant ou pas ? |
-| **La carte des étoiles** | arrivée du voyage | Dix orbites autour d'un point vide. Est-ce qu'on comprend, sans le texte, que c'est la preuve ? |
+| **La carte des étoiles S** | arrivée du voyage | ❌ **Ça coince** — verdict d'Hugo, séance du 6 août. Sans précision : à rejouer avec une question mieux posée. |
+| **Le scintillement des étoiles** | partout | ❌ **Ça coince** — verdict du 6 août. Les cœurs font pourtant au moins un pixel, mesuré. Autre chose grouille. |
+| **La présentation d'entrée** | premier chargement | Pas tranchée le 6 août. Trois écrans. Le rythme est-il bon ? Le dernier atteint-il ? |
+| **La rotation du trou noir d'étude** | trou noir d'étude | Pas tranchée le 6 août. L'effet est calculé et réel ; est-il visible ? |
+| **Les lampes du bord** | dans le salon | Question posée avec le mauvais bouton le 6 août. L'interrupteur existe maintenant vraiment. À rejouer. |
+| **La console de tir** | fosse du salon | « Aucune » aux trois emplacements, avec un mot : **agrandir**. Trois tailles à comparer désormais. |
+
+### Tranché le 6 août — plus besoin de personne
+
+- **Le quadrillage pendant le recul** → ça va.
+- **La bulle de Lumen** → ça va.
 
 ---
 

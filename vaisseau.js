@@ -320,18 +320,42 @@ function construitGeometrie(){
      Sombre, comme le télescope. Le pâle est réservé aux lames du temps — deux
      instruments de la même teinte à quelques mètres l'un de l'autre deviennent
      un seul objet indistinct, et c'est arrivé au premier essai. */
+  /* AGRANDIE. La première version faisait 68 cm de large et montait à 1,05 m du
+     sol de la fosse ; à côté du télescope et de sa fourche, elle ne se lisait pas
+     comme un instrument mais comme une caisse. Le verdict d'Hugo tenait en un
+     mot — « agrandir » — et il visait juste : ce n'était pas la place qui
+     clochait, c'était l'échelle.
+
+     Un mètre de large, 1,45 m de haut, et un tube de lancement qu'on voit
+     dépasser vers la baie. On se tient DEVANT elle, pas dessus. */
   if(TIR.actif){
-    const CX = TIR.x, CZ = TIR.z, CY = FOSSE;
-    boite(T, [CX, CY + 0.05, CZ],         [0.34, 0.05, 0.28], STRUCT);   // embase
-    boite(T, [CX, CY + 0.42, CZ],         [0.24, 0.37, 0.18], STRUCT);   // fût
-    boite(T, [CX, CY + 0.79, CZ],         [0.27, 0.02, 0.21], CADRE);    // plateau
-    boiteX(T, [CX, CY + 0.86, CZ + 0.07], [0.25, 0.020, 0.17], 0.52, CADRE);
-    boiteX(T, [CX, CY + 0.89, CZ + 0.06], [0.20, 0.007, 0.125], 0.52, AMBRE, 0.75);
+    // `e` met tout à l'échelle : les demi-dimensions ET les hauteurs, sinon la
+    // console grandirait en largeur sans grandir en présence.
+    const e = TIR.echelle, CX = TIR.x, CZ = TIR.z, CY = FOSSE;
+    const b  = (dy, d, t, em) => boite(T, [CX, CY + dy*e, CZ], [d[0]*e, d[1]*e, d[2]*e], t, em);
+    const bx = (dy, dz, d, a, t, em) =>
+      boiteX(T, [CX, CY + dy*e, CZ + dz*e], [d[0]*e, d[1]*e, d[2]*e], a, t, em);
+
+    b(0.06, [0.50, 0.06, 0.40], STRUCT);   // embase
+    b(0.52, [0.36, 0.46, 0.27], STRUCT);   // fût
+    b(1.00, [0.42, 0.03, 0.32], CADRE);    // plateau
+    // Le pupitre incliné vers qui s'approche, et sa dalle ambre — c'est elle
+    // qui dit « on lit quelque chose ici ».
+    bx(1.11,  0.11, [0.38, 0.028, 0.26], 0.52, CADRE);
+    bx(1.15,  0.10, [0.31, 0.010, 0.19], 0.52, AMBRE, 0.75);
+    // Deux montants qui portent le tube : sans eux il a l'air posé en l'air.
+    for(const c of [-1, 1])
+      boite(T, [CX + c*0.30*e, CY + 1.16*e, CZ - 0.26*e],
+               [0.045*e, 0.14*e, 0.045*e], CADRE);
     // Le tube de lancement. Il n'a aucune fonction de calcul : il existe pour
     // qu'on sache d'un coup d'œil où ça sort.
-    boiteX(T, [CX, CY + 0.97, CZ - 0.28], [0.070, 0.070, 0.34], -0.22, CADRE);
-    boiteX(T, [CX, CY + 1.05, CZ - 0.62], [0.085, 0.085, 0.028], -0.22, STRUCT);
-    boite(T, [CX - 0.26, CY + 0.62, CZ],  [0.010, 0.050, 0.075], CYAN, 1);
+    bx(1.34, -0.34, [0.105, 0.105, 0.52], -0.20, CADRE);
+    bx(1.45, -0.85, [0.125, 0.125, 0.035], -0.20, STRUCT);  // bouche
+    bx(1.30, -0.02, [0.135, 0.135, 0.09],  -0.20, STRUCT);  // collier
+    // Les voyants, des deux côtés du fût : de loin, c'est eux qu'on repère.
+    for(const c of [-1, 1])
+      boite(T, [CX + c*0.37*e, CY + 0.72*e, CZ],
+               [0.012*e, 0.075*e, 0.11*e], CYAN, 1);
   }
 
   // ---- caissons techniques au plafond, décalés ----
@@ -382,7 +406,17 @@ const TELESCOPE = { x:-3.0, z:-3.15 };
    trancher à l'écran, et un objet en volume se juge d'un coup d'œil.
 
    Elle attend donc un œil, et la séance `?juge` la propose aux trois places. */
-const TIR = { x:1.2, z:-3.30, actif:false };
+/* `echelle` existe parce que le premier verdict d'Hugo tenait en un mot :
+   « agrandir ». Ce n'était pas la place qui clochait, c'était la taille — à
+   68 cm de large, à côté du télescope et de sa fourche, elle se lisait comme
+   une caisse et pas comme un instrument.
+
+   Plutôt que de deviner le bon facteur, on le lui laisse essayer.
+
+   La place, elle, est arrêtée : le milieu de la portion libre de la fosse. Les
+   deux occupants se tiennent à −1,40 et +1,95, le télescope à −3 ; une console
+   d'un mètre ne rentre nulle part ailleurs sans chevaucher quelqu'un. */
+const TIR = { x:0.25, z:-3.30, actif:false, echelle:1 };
 
 const POSTES = VITESSES.map((v, i) => {
   const h = 0.030 + i*0.027;
@@ -403,14 +437,16 @@ POSTES.push({
 
    C'est ce qui rend le jugement possible en trois secondes au lieu d'une
    séance : on bascule d'une place à l'autre en regardant la même chose. */
-function poseTir(gl, x){
+function poseTir(gl, x, echelle){
   TIR.actif = x !== null;
   if(x !== null) TIR.x = x;
+  if(echelle) TIR.echelle = echelle;
   const i = POSTES.findIndex(p => p.id === "tir");
   if(i >= 0) POSTES.splice(i, 1);
   if(TIR.actif) POSTES.push({
     id:"tir", nom:"la console de tir",
-    c:[TIR.x, FOSSE + 0.60, TIR.z - 0.10], d:[0.34, 0.52, 0.42],
+    c:[TIR.x, FOSSE + 0.78*TIR.echelle, TIR.z - 0.12*TIR.echelle],
+    d:[0.50*TIR.echelle, 0.72*TIR.echelle, 0.55*TIR.echelle],
   });
   // Le corps doit buter dessus comme sur le télescope. Sans cette ligne, on
   // marcherait au travers d'un instrument qu'on voit — le défaut exact que le

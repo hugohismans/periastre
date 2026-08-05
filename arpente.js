@@ -71,11 +71,17 @@ const MEUBLES = [
 function majMobilier(){
   const i = MEUBLES.findIndex(m => m.nom === "console de tir");
   if(i >= 0) MEUBLES.splice(i, 1);
-  if(V.TIR && V.TIR.actif) MEUBLES.push({
-    nom:"console de tir",
-    x0:V.TIR.x - 0.36, x1:V.TIR.x + 0.36,
-    z0:V.TIR.z - 0.32, z1:V.TIR.z + 0.32, h:V.FOSSE + 1.05,
-  });
+  // L'obstacle suit l'ÉCHELLE de la console, sinon on butterait sur une taille
+  // pendant qu'on en regarde une autre — et le contrôle de marche, lui, mesure
+  // ce qu'il voit dans cette liste.
+  if(V.TIR && V.TIR.actif){
+    const e = V.TIR.echelle || 1;
+    MEUBLES.push({
+      nom:"console de tir",
+      x0:V.TIR.x - 0.52*e, x1:V.TIR.x + 0.52*e,
+      z0:V.TIR.z - 0.44*e, z1:V.TIR.z + 0.44*e, h:V.FOSSE + 1.06*e,
+    });
+  }
 }
 
 /* La hauteur du sol sous un point.

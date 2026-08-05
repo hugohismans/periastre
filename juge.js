@@ -56,27 +56,56 @@ const DECISIONS = [
 
   /* Celle-ci d'abord, parce que c'est la seule qui me DÉBLOQUE. Les autres
      améliorent ; celle-là décide si une pièce entière se construit. */
+  /* La question a changé, parce que la réponse d'Hugo l'a changée. Il avait
+     répondu « aucune » aux trois EMPLACEMENTS, avec un seul mot : « agrandir ».
+     Ce n'était donc pas la place qu'il fallait lui faire choisir.
+
+     La place est maintenant arrêtée — le milieu de la portion libre de la fosse,
+     seul endroit où une console d'un mètre ne chevauche ni un occupant ni le
+     télescope — et c'est l'ÉCHELLE qui se compare. */
   { id: "console-tir",
-    titre: "Où poser la console de tir ?",
-    quoi: "Bascule entre les places. Laquelle se lit comme un instrument ?",
-    pose: () => auSalon(0, 0.9, 0, -0.30),
+    titre: "La console de tir : quelle taille ?",
+    quoi: "Tu avais dit « agrandir ». Laquelle se lit comme un instrument ?",
+    pose: () => auSalon(0, 0.9, 0, -0.26),
     options: [
-      { nom: "Aucune",        fait: () => VAISSEAU.poseTir(gl, null) },
-      { nom: "Fosse, centre", fait: () => VAISSEAU.poseTir(gl, 1.2)  },
-      { nom: "Tribord",       fait: () => VAISSEAU.poseTir(gl, 3.0)  },
-      { nom: "Bâbord",        fait: () => VAISSEAU.poseTir(gl, -1.5) },
+      { nom: "Aucune",      fait: () => VAISSEAU.poseTir(gl, null) },
+      { nom: "Grande",      fait: () => VAISSEAU.poseTir(gl, 0.25, 1.0)  },
+      { nom: "Très grande", fait: () => VAISSEAU.poseTir(gl, 0.25, 1.35) },
+      { nom: "Énorme",      fait: () => VAISSEAU.poseTir(gl, 0.25, 1.75) },
     ],
     // On repart toujours de l'état de production : éteinte.
     rend: () => VAISSEAU.poseTir(gl, null),
   },
 
+  /* Cette question a d'abord été posée AVEC LE MAUVAIS BOUTON.
+
+     Elle actionnait « Lumière réelle », que j'avais pris pour l'éclairage de la
+     pièce. Il ne fait pas ça du tout : il montre le disque tel qu'un œil humain
+     le verrait — c'est-à-dire presque rien. Hugo l'a vu en trois secondes :
+     « ça n'éteignait pas les lampes, ça mettait le disque en lumière visible ».
+
+     Il n'existait alors AUCUN interrupteur pour les lampes du bord : la question
+     était dans le carnet depuis des semaines et rien ne permettait de la
+     regarder. Le voici. Et le vrai bouton a désormais sa propre question, plus
+     bas, parce qu'elle est bonne aussi. */
   { id: "lumiere-salon",
-    titre: "La lumière de la pièce",
+    titre: "Les lampes du bord",
     quoi: "Compare. Laquelle fait un vaisseau plutôt qu'un diorama ?",
     pose: () => auSalon(0, 1.2, 0.10, -0.05),
     options: [
-      { nom: "Avec les lampes", fait: () => { if($$("b-reel").classList.contains("actif")) $$("b-reel").click(); } },
-      { nom: "L'astre seul",    fait: () => { if(!$$("b-reel").classList.contains("actif")) $$("b-reel").click(); } },
+      { nom: "Avec les lampes", fait: () => { lampesBord = true;  } },
+      { nom: "L'astre seul",    fait: () => { lampesBord = false; } },
+    ],
+    rend: () => { lampesBord = true; },
+  },
+
+  { id: "lumiere-reelle",
+    titre: "Le disque en lumière vraiment visible",
+    quoi: "Sgr A* est presque invisible à l'œil nu. Le montrer sert le propos, ou déçoit ?",
+    pose: () => auSalon(0, 1.2, 0, -0.05),
+    options: [
+      { nom: "Image travaillée", fait: () => { if($$("b-reel").classList.contains("actif")) $$("b-reel").click(); } },
+      { nom: "Ce que l'œil verrait", fait: () => { if(!$$("b-reel").classList.contains("actif")) $$("b-reel").click(); } },
     ],
     rend: () => { if($$("b-reel").classList.contains("actif")) $$("b-reel").click(); },
   },
@@ -108,10 +137,24 @@ const DECISIONS = [
     rend: () => { TELESCOPE.carte = 0; },
   },
 
+  /* Hugo, sur la première version : « tu me demandais de voir si on voyait le
+     robot, on ne voit pas le robot ». Poser une question sur une chose qu'on ne
+     montre pas est la pire façon de faire perdre son temps à quelqu'un.
+
+     Le drone flotte à une ancre recalculée quand on s'en éloigne trop ; la
+     scène le laissait où il traînait. Ici on le POSE devant, on regarde vers
+     lui, et `cible` fait vérifier à la séance qu'il est bien à l'écran avant de
+     demander quoi que ce soit. */
   { id: "bulle-lumen",
     titre: "La bulle de Lumen",
     quoi: "Elle chevauche le drone. Gênant, ou pas ?",
-    pose: () => { auSalon(0, 1.4, 0, -0.02); reagit("salon", true); },
+    pose: () => {
+      auSalon(0, 1.4, 0, -0.02);
+      const oe = oeilSalon();
+      ancreLumen = [oe[0], oe[1] - 0.10, oe[2] - 1.5];   // droit devant, à 1,5 m
+      reagit("salon", true);
+    },
+    cible: () => ROBOT.boiteVisee(salon.horloge).c,
   },
 
   { id: "scintillement",
@@ -150,12 +193,29 @@ style.textContent = `
     background:rgba(127,216,255,.05); color:#a8d8ee; font-family:inherit;
   }
   #juge .variantes button.la { background:rgba(127,216,255,.20); color:#fff; border-color:rgba(127,216,255,.6); }
+  /* Le champ libre était haut de quarante-quatre pixels, avec « Un mot, si tu
+     veux » pour invitation. Hugo a voulu écrire des phrases — « la question est
+     mal posée », « le robot n'était pas visible » — et le champ lui disait le
+     contraire. Une boîte de la taille d'un mot ne reçoit que des mots.
+
+     Cent pixels, et une invitation qui demande explicitement le désaccord. */
   #juge textarea {
-    width:100%; box-sizing:border-box; min-height:44px; resize:vertical;
+    width:100%; box-sizing:border-box; min-height:100px; resize:vertical;
     background:rgba(0,0,0,.32); border:1px solid rgba(255,255,255,.12);
-    border-radius:3px; color:#e4e0f0; font:inherit; font-size:12px; padding:6px 8px;
+    border-radius:3px; color:#e4e0f0; font:inherit; font-size:12.5px;
+    line-height:1.5; padding:8px 10px;
   }
-  #juge .rangee { display:flex; gap:6px; margin-top:8px; }
+  #juge textarea:focus { border-color:rgba(127,216,255,.45); outline:none; }
+  #juge .rangee { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+  #juge .mauvaise {
+    border-color:rgba(255,200,110,.45) !important; color:#ffd08a !important;
+    flex-basis:100%;
+  }
+  #juge .note-libre {
+    border-style:dashed !important; color:#8f8aa6 !important;
+    background:transparent !important; font-size:11px !important;
+  }
+  #juge .note-libre:hover { color:#fff !important; }
   #juge .rangee button {
     flex:1; padding:9px 8px; cursor:pointer; border-radius:3px; font-family:inherit;
     border:1px solid rgba(255,255,255,.16); background:rgba(255,255,255,.04);
@@ -165,9 +225,13 @@ style.textContent = `
   #juge .oui { border-color:rgba(110,255,180,.4) !important; color:#8ff0c0 !important; }
   #juge .non { border-color:rgba(255,120,120,.4) !important; color:#ffa8a8 !important; }
   #juge .pas { font-family:ui-monospace, monospace; font-size:9px; color:#6b6880; margin-top:8px; }
-  #juge.replie { padding:8px 12px; width:auto; }
+  /* Replié, il ne reste que le rang de boutons — de quoi rouvrir, et surtout de
+     quoi REGARDER la scène sans un panneau au milieu. On ne peut pas juger une
+     pièce à travers un formulaire posé dessus. */
+  #juge.replie { padding:7px 10px; width:auto; }
   #juge.replie h4, #juge.replie p, #juge.replie .variantes,
-  #juge.replie textarea, #juge.replie .pas { display:none; }
+  #juge.replie textarea, #juge.replie .sur,
+  #juge.replie .rangee:not(:last-of-type), #juge.replie .pas { display:none; }
 `;
 document.head.appendChild(style);
 
@@ -177,7 +241,9 @@ boite.className = "hud";
 boite.innerHTML =
   '<div class="sur"></div><h4></h4><p></p>' +
   '<div class="variantes"></div>' +
-  '<textarea placeholder="Un mot, si tu veux. Facultatif."></textarea>' +
+  '<textarea placeholder="Écris ce que tu veux, et autant que tu veux.\n' +
+  'Y compris : la question est mal posée, on ne voit pas ce dont tu parles, ' +
+  'ça n\'a rien à voir avec ce que fait ce bouton…"></textarea>' +
   '<div class="rangee"></div><div class="pas"></div>';
 document.body.appendChild(boite);
 
@@ -185,6 +251,14 @@ const q = s => boite.querySelector(s);
 
 // ================================================================== la séance
 const verdicts = [];
+/* Ce qu'on remarque en passant, et qui n'est la réponse à rien.
+
+   La première version ne recevait que des réponses à MES questions. Hugo :
+   « je ne pouvais pas commenter, ne fût-ce que ce que je voyais dans la scène ».
+   C'est le reproche le plus juste qu'on puisse faire à un protocole : il ne
+   récolte que ce qu'il a prévu, et ce qu'on n'a pas prévu est précisément ce
+   qu'on avait besoin d'apprendre. */
+const remarques = [];
 let i = 0, choisie = null, debut = Date.now();
 
 function montre(){
@@ -198,9 +272,28 @@ function montre(){
   q("textarea").value = "";
 
   const erreur = sur(d.pose);
+
+  /* La séance vérifie qu'elle montre bien ce dont elle parle.
+
+     Quand une décision déclare une `cible`, on projette ce point à l'écran. S'il
+     n'y est pas, on le DIT au lieu de laisser quelqu'un chercher — c'est le
+     défaut exact qu'Hugo a subi sur le drone. */
+  let avertissement = null;
+  if(!erreur && d.cible){
+    try {
+      const c = d.cible();
+      const { av } = regardSalon();
+      const oe = oeilSalon();
+      const versCible = [c[0]-oe[0], c[1]-oe[1], c[2]-oe[2]];
+      const dist = Math.hypot(versCible[0], versCible[1], versCible[2]) || 1;
+      const devant = (versCible[0]*av[0] + versCible[1]*av[1] + versCible[2]*av[2]) / dist;
+      if(devant < 0.55) avertissement = "⚠ la cible n'est pas dans le champ (cos = " + devant.toFixed(2) + ")";
+    } catch(e){ avertissement = "⚠ cible introuvable : " + e.message; }
+  }
+
   q(".pas").textContent = erreur
     ? "⚠ la scène n'a pas pu se poser : " + erreur
-    : "Rien n'est envoyé. Le rapport se copie à la fin.";
+    : (avertissement || "Rien n'est envoyé. Écris autant que tu veux, le rapport se copie à la fin.");
 
   // Les variantes, s'il y en a. La première est appliquée d'office.
   const boiteVar = q(".variantes");
@@ -239,6 +332,38 @@ function montre(){
     bouton("Ça coince", "non", "ça coince");
   }
   bouton("Passer", "", "passé");
+
+  /* LE QUATRIÈME BOUTON, ET C'EST LE PLUS UTILE.
+
+     Sans lui, quelqu'un à qui l'on pose une mauvaise question n'a que de
+     mauvaises réponses : « ça coince » accuse le site alors que c'est la
+     question qui est fausse, et « passer » perd l'information entièrement.
+
+     Hugo a vécu les deux. Une question actionnait le mauvais bouton ; une autre
+     lui demandait de juger un drone qu'on ne voyait pas. Dans les deux cas le
+     défaut était chez moi, et rien ne lui permettait de me le dire. */
+  bouton("↺  La question elle-même ne va pas", "mauvaise", "question");
+
+  /* Et de quoi noter ce qui n'est la réponse à rien. On peut en poser autant
+     qu'on veut, sans quitter la scène ni répondre. */
+  const notes = document.createElement("div");
+  notes.className = "rangee";
+  const bNote = document.createElement("button");
+  bNote.className = "note-libre";
+  bNote.textContent = "+  Noter autre chose (sans répondre)";
+  bNote.onclick = () => {
+    const txt = q("textarea").value.trim();
+    if(!txt){ q("textarea").focus(); return; }
+    remarques.push({ ou: d.titre, txt, minute: Math.round((Date.now() - debut)/60000) });
+    q("textarea").value = "";
+    q(".pas").textContent = "Noté (" + remarques.length + "). Tu peux en ajouter d'autres.";
+  };
+  const bCache = document.createElement("button");
+  bCache.className = "note-libre";
+  bCache.textContent = "👁  Replier pour regarder";
+  bCache.onclick = () => boite.classList.toggle("replie");
+  notes.appendChild(bNote); notes.appendChild(bCache);
+  rang.parentElement.insertBefore(notes, q(".pas"));
 }
 
 function repond(verdict){
@@ -278,22 +403,57 @@ function termine(){
   const dits = verdicts.filter(v => v.verdict !== "passé");
   const l = ["Voilà ma séance de jugement sur Périastre. Applique ce qui suit.", ""];
 
+  /* Les questions ratées passent EN PREMIER, et séparément.
+
+     Si une question est mal posée, la réponse ne vaut rien et corriger le site
+     serait corriger la mauvaise chose. C'est donc le premier travail, pas une
+     note de bas de page. */
+  const ratees = dits.filter(v => v.verdict === "question");
+  if(ratees.length){
+    l.push("## D'abord : des questions que tu as mal posées");
+    l.push("");
+    for(const v of ratees){
+      l.push("- **" + v.titre + "**" + (v.option ? "  (variante affichée : " + v.option + ")" : ""));
+      if(v.mot) l.push("  > " + v.mot.split("\n").join("\n  > "));
+      else l.push("  > (sans précision)");
+    }
+    l.push("");
+    l.push("Répare la question avant de toucher au site.");
+    l.push("");
+    l.push("## Ce que j'ai pu juger");
+    l.push("");
+  }
+
   for(const v of dits){
-    if(v.option !== null && v.verdict === "retenu")
+    if(v.verdict === "question") continue;               // déjà dit plus haut
+    if(v.verdict === "retenu" && v.option)
       l.push("- **" + v.titre + "** → je garde « " + v.option + " ». Pose-la et enlève les autres.");
-    else if(v.option !== null)
+    else if(v.verdict === "retenu")
+      l.push("- **" + v.titre + "** → j'ai validé, mais aucune variante n'était sélectionnée. À vérifier.");
+    else if(v.verdict === "aucune")
       l.push("- **" + v.titre + "** → aucune des variantes ne va. Cherche autre chose.");
     else if(v.verdict === "ça va")
       l.push("- **" + v.titre + "** → ça va. Raye-le de `A-REGARDER.md`.");
     else
       l.push("- **" + v.titre + "** → ça coince. À reprendre.");
-    if(v.mot) l.push("  > " + v.mot);
+    if(v.mot) l.push("  > " + v.mot.split("\n").join("\n  > "));
   }
 
   const passes = verdicts.filter(v => v.verdict === "passé");
   if(passes.length){
     l.push("");
     l.push("Pas tranché cette fois : " + passes.map(v => v.titre).join(" · ") + ".");
+  }
+
+  // Ce que je n'avais pas demandé, et qui vaut souvent mieux.
+  if(remarques.length){
+    l.push("");
+    l.push("## Ce que j'ai remarqué au passage");
+    l.push("");
+    for(const r of remarques){
+      l.push("- *(pendant « " + r.ou + " »)*");
+      l.push("  > " + r.txt.split("\n").join("\n  > "));
+    }
   }
 
   l.push("");
