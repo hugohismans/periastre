@@ -2131,6 +2131,10 @@ void main(){
 <!-- Ce qui vole. Deuxième morceau de F2, et le socle de la salle de tir
      balistique : elle ne sera que `destin()` avec une vitesse choisie. -->
 <script src="vol.js"></script>
+<!-- L'horloge. Troisième morceau de F2, et celui qui rend structurellement
+     impossible le défaut du disque à 622× : le temps simulé n'y est accessible
+     qu'en lecture, et un second écrivain devient indicible. -->
+<script src="temps.js"></script>
 <script src="kerr.js"></script>
 <script src="vaisseau.js"></script>
 <script src="personnage.js"></script>
@@ -2795,7 +2799,7 @@ function majCameraSalon(){
   // alors même qu'on file autour de lui.
   const vise = norm([-P[0], -P[1], -P[2]]);
   const nOrb = norm(cross(salon.p, salon.v));
-  // En temps RÉEL, pas en temps simulé : tempsGeo est accéléré 850 fois, et la
+  // En temps RÉEL, pas en temps simulé : TEMPS.geo est accéléré 850 fois, et la
   // dérive devenait un balayage frénétique. Une respiration de trente secondes.
   const ts = salon.horloge;
   const ang = 0.10*Math.sin(ts*0.21) + 0.045*Math.sin(ts*0.073);
@@ -3001,35 +3005,21 @@ const TEINTES = {
   fuite:  [110, 255, 180],
 };
 
-// ============ temps ============
-const VITESSES = [
-  { mult:1,    nom:"temps.v0" },
-  { mult:60,   nom:"temps.v1" },
-  { mult:600,  nom:"temps.v2" },
-  { mult:3600, nom:"temps.v3" },
-];
-let iVitesse = 2;
-let tempsGeo = 0;           // temps simulé, en unités géométriques
+/* ============ temps ============
 
-// Horloges du paradoxe des jumeaux. Pour une orbite circulaire en Schwarzschild,
-// dτ/dt = √(1 − 3M/r) : la dilatation gravitationnelle et celle de la vitesse
-// s'y combinent. À l'ISCO, r = 3 r_s, elle vaut √½ — et c'est le plancher.
-// Sans rotation, on ne peut pas ralentir son temps de plus d'un facteur √2.
-const R_MERE = 20;
-const horloge = { bord: 0, mere: 0 };
+   L'horloge vit dans `temps.js`. On relie ici ce qui se relie — les objets et
+   les constantes gardent leurs anciens noms — mais l'ancien `tempsGeo` ne
+   revient PAS : il n'existe plus qu'en lecture, sous `TEMPS.geo`.
+
+   C'est tout l'intérêt de l'avoir sortie. Le disque tournait 622 fois trop vite
+   parce que deux mécanismes incrémentaient la même horloge ; la correction
+   d'alors — n'écrire qu'à un seul endroit — était juste et fragile, puisque rien
+   n'empêchait le prochain de recommencer. Le second écrivain n'est plus
+   interdit, il est devenu indicible. */
+const { VITESSES, EPOQUE, R_MERE, horloge } = TEMPS;
 const { cadence } = PHYSIQUE;
 
-// ---- horloge ----
-// En mode direct, le temps simulé se DÉDUIT d'une horloge absolue au lieu de
-// s'accumuler. Deux personnes qui ouvrent la page à la même seconde voient
-// alors rigoureusement le même ciel, sans rien synchroniser : il suffit qu'elles
-// partagent l'origine. C'est ce qui rendra un salon commun possible.
-const EPOQUE = Date.UTC(2026, 0, 1) / 1000;     // origine fixe, en secondes
-let modeDirect = false;
-let decalageHorloge = 0;                        // écart avec l'horloge de référence
-
-const maintenant = () => Date.now()/1000 + decalageHorloge;
-const tempsGeoDirect = () => (maintenant() - EPOQUE) / SEC_PAR_UNITE;
+const maintenant = () => TEMPS.maintenant();
 
 /* LE FACTEUR DE TEMPS DÉPEND DU LIEU, et il n'y en a qu'un.
 
@@ -3038,7 +3028,7 @@ const tempsGeoDirect = () => (maintenant() - EPOQUE) / SEC_PAR_UNITE;
    panneau quand on a une manette sous la main dans la pièce.
 
    Mais il ne doit y avoir qu'un seul ENDROIT où le temps avance. Il y en avait
-   deux : `avance()` incrémentait `tempsGeo` avec le réglage de la vue libre, et
+   deux : `avance()` incrémentait l'horloge avec le réglage de la vue libre, et
    la branche du salon rajoutait le sien par-dessus. Régler le mur sur « temps
    réel » laissait donc le disque tourner à six cents fois la vitesse réelle —
    mesuré à 622 fois. Hugo l'a vu tout de suite : « ça tourne à une vitesse
@@ -3048,35 +3038,16 @@ const tempsGeoDirect = () => (maintenant() - EPOQUE) / SEC_PAR_UNITE;
    qui ne suivait pas la commande du mur, j'ai AJOUTÉ un écrivain au lieu
    d'aiguiller celui qui existait. Deux écrivains pour une valeur, c'est la même
    maladie que la soupe de drapeaux — et elle se soigne pareil. */
-const facteurTemps = () => lieu === "salon" ? salon.facteur : VITESSES[iVitesse].mult;
-
-// Le pas géométrique de l'image en cours. La branche du salon le relit pour
-// déplacer le vaisseau : une seule valeur, donc le gaz et la coque ne peuvent
-// plus diverger.
-let dtGeoCourant = 0;
+const facteurTemps = () => lieu === "salon" ? salon.facteur : VITESSES[TEMPS.cran].mult;
 
 function avance(dtSec){
-  if(modeDirect){
-    // temps réel strict : on ne triche pas, on regarde ce qui se passe
-    const cible = tempsGeoDirect();
-    const dtGeo = cible - tempsGeo;
-    tempsGeo = cible;
-    dtGeoCourant = dtGeo;
-    return avanceCorps(dtGeo, dtSec);
-  }
-  const dtGeo = dtSec * facteurTemps() / SEC_PAR_UNITE;
-  tempsGeo += dtGeo;
-  dtGeoCourant = dtGeo;
-  return avanceCorps(dtGeo, dtSec);
+  return avanceCorps(TEMPS.avance(dtSec, facteurTemps()), dtSec);
 }
 
 function avanceCorps(dtGeo, dtSec){
 
-  if(sondeSuivie !== null && sondes[sondeSuivie]){
-    const s = sondes[sondeSuivie];
-    horloge.bord += dtGeo * SEC_PAR_UNITE * cadence(len(s.p));
-    horloge.mere += dtGeo * SEC_PAR_UNITE * cadence(R_MERE);
-  }
+  if(sondeSuivie !== null && sondes[sondeSuivie])
+    TEMPS.bat(dtGeo, len(sondes[sondeSuivie].p));
 
   /* Le vol lui-même est dans `vol.js`. Il ne parle pas : il rend la liste de ce
      qui vient d'arriver, et c'est ICI qu'on décide d'en faire un éclair ou une
@@ -3794,7 +3765,7 @@ VITESSES.forEach((v, i) => {
   const b = document.createElement("button");
   b.textContent = T(v.nom);
   b.onclick = () => {
-    iVitesse = i;
+    TEMPS.cran = i;
     [...boitierV.children].forEach((c, j) => c.classList.toggle("actif", j === i));
     $("tp-val").textContent = T(v.nom);
     $("tp-note").textContent = T(CONSEQUENCE[i]);
@@ -3810,12 +3781,12 @@ $("b-temps").onclick = () => {
     $("spectre").classList.remove("vu");
     $("b-spectre").classList.remove("actif");
     spectreActif = false;
-    $("tp-val").textContent = T(VITESSES[iVitesse].nom);
-    $("tp-note").textContent = T(CONSEQUENCE[iVitesse]);
-    [...boitierV.children].forEach((c, j) => c.classList.toggle("actif", j === iVitesse));
+    $("tp-val").textContent = T(VITESSES[TEMPS.cran].nom);
+    $("tp-note").textContent = T(CONSEQUENCE[TEMPS.cran]);
+    [...boitierV.children].forEach((c, j) => c.classList.toggle("actif", j === TEMPS.cran));
   }
 };
-boitierV.children[iVitesse].classList.add("actif");
+boitierV.children[TEMPS.cran].classList.add("actif");
 
 // ---- souris ----
 const K_GLISSE = 1.6;   // hauteurs d'écran par unité de vitesse
@@ -4809,7 +4780,7 @@ const VERIFS = {
   "m-orbite": () => sondes.some(s => s.sort === "orbite" && !s.gel && s.age > 4),
   "m-pluie":  () => sondes.length >= 50,
   "m-limite": () => compte.essaisPres >= 1,
-  "m-photon": () => photons.length > 0 && iVitesse === 0,
+  "m-photon": () => photons.length > 0 && TEMPS.cran === 0,
   "m-reel":   () => reelCible > 0.5,
   "m-bord":   () => sondeSuivie !== null,
   "m-jumeaux":() => horloge.mere - horloge.bord > 1800,
@@ -5086,7 +5057,7 @@ const MISE_EN_PLACE = {
 };
 
 function reglerVitesse(i){
-  iVitesse = i;
+  TEMPS.cran = i;
   [...boitierV.children].forEach((c, j) => c.classList.toggle("actif", j === i));
 }
 
@@ -6218,7 +6189,7 @@ function boucle(now){
        Le gaz et la coque partagent ainsi rigoureusement la même horloge : au
        temps réel, le disque devient immobile comme le reste, et à six cents fois
        les deux accélèrent ensemble. C'était le but ; le moyen était mauvais. */
-    const dtGeo = dtGeoCourant;
+    const dtGeo = TEMPS.pas;
     if(TELESCOPE.trajet){
       /* On ne suit plus l'orbite : on s'en va. Continuer à l'intégrer ferait
          tourner le vaisseau autour d'un astre qu'il est en train de quitter, et
@@ -6283,7 +6254,7 @@ function boucle(now){
   gl.depthFunc(gl.LEQUAL);        // le fond passe là où la profondeur est restée au maximum
 
   gl.uniform2f(uRes, cv.width, cv.height);
-  gl.uniform1f(uTemps, tempsGeo);
+  gl.uniform1f(uTemps, TEMPS.geo);
   gl.uniform3fv(uCam, camPos);
   gl.uniformMatrix3fv(uBasis, false, new Float32Array([...basis.d, ...basis.h, ...basis.a]));
   gl.uniform1f(uFocal, FOCAL);

@@ -239,9 +239,9 @@ function tempsJuste(){
       salon.facteur = f;
       let t = performance.now();
       images = 0; cumul = 0; t += 16.7; boucle(t);       // une image d'amorce
-      const av = tempsGeo;
+      const av = TEMPS.geo;
       images = 0; cumul = 0; t += 16.7; boucle(t);       // celle qu'on mesure
-      return tempsGeo - av;
+      return TEMPS.geo - av;
     };
     const DT = 0.0167, SPU = 42.34;
 
@@ -254,9 +254,9 @@ function tempsJuste(){
     }
 
     // Et en vue libre, où c'est l'autre commande qui décide.
-    const d = pas(VITESSES[iVitesse].mult, "libre");
-    const attendu = VITESSES[iVitesse].mult*DT/SPU;
-    point("en vue libre, cran " + iVitesse, proche(d/attendu, 1, 0.02),
+    const d = pas(VITESSES[TEMPS.cran].mult, "libre");
+    const attendu = VITESSES[TEMPS.cran].mult*DT/SPU;
+    point("en vue libre, cran " + TEMPS.cran, proche(d/attendu, 1, 0.02),
           +attendu.toFixed(6), +d.toFixed(6), "rapport " + (d/attendu).toFixed(3));
 
     /* Le disque tourne-t-il à la vitesse képlérienne ? C'est le nuanceur qui le
@@ -273,6 +273,38 @@ function tempsJuste(){
     const periode = 2*Math.PI / (theorie(3) / SPU);
     point("une révolution à l'ISCO, au temps réel",
           periode > 1800 && periode < 2100, "≈ 1955 s", Math.round(periode) + " s");
+
+    /* L'INVARIANT EST-IL IMPOSSIBLE À VIOLER, ou seulement interdit ?
+
+       Ce n'est pas la même chose, et c'est toute la valeur du chantier. La
+       première correction du disque à 622× consistait à n'écrire qu'à un seul
+       endroit : juste, et fragile — rien n'empêchait le prochain de recommencer.
+       Depuis que l'horloge vit dans `temps.js`, elle n'a qu'un accesseur en
+       lecture, et le second écrivain n'est plus interdit : il est indicible.
+
+       On le vérifie en ESSAYANT vraiment. Un contrôle qui se contenterait de
+       lire la valeur ne dirait rien de ce qui la protège. */
+    const avGeo = TEMPS.geo;
+    let jete = null;
+    try { (new Function('"use strict"; window.TEMPS.geo = 1e9;'))(); }
+    catch(e){ jete = e.constructor.name; }
+    point("l'horloge refuse d'être écrite du dehors",
+          jete === "TypeError" && TEMPS.geo === avGeo,
+          "TypeError, valeur inchangée",
+          (jete || "rien de jeté") + ", " + (TEMPS.geo === avGeo ? "inchangée" : "CHANGÉE"),
+          "un seul écrivain, garanti par la structure et non par la mémoire de qui relit");
+
+    /* Le pas de l'image est protégé de la même façon. Et l'écrire depuis ce
+       fichier-ci lève AUSSI — `verif.js` est en mode strict, où affecter un
+       accesseur en lecture seule est une erreur et non un silence. Il faut donc
+       l'attraper, sans quoi le contrôle se casse sur sa propre démonstration.
+       C'est arrivé du premier coup, et c'était bon signe. */
+    const avPas = TEMPS.pas;
+    let jete2 = null;
+    try { TEMPS.pas = 12345; } catch(e){ jete2 = e.constructor.name; }
+    point("le pas de l'image aussi", jete2 === "TypeError" && TEMPS.pas === avPas,
+          "TypeError, valeur inchangée",
+          (jete2 || "rien de jeté") + ", " + (TEMPS.pas === avPas ? "inchangé" : "CHANGÉ"));
   } finally {
     salon.facteur = avF;
     vaAu(avLieu);
