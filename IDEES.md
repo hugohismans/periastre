@@ -584,6 +584,64 @@ que coûterait le trajet à 1 g ; de l'autre ce qu'il coûterait avec ce qu'on a
 réellement lancé. Deux colonnes, et la leçon se lit sans être écrite.
 
 
+## Nommer les sondes, et le registre de ce qui vole — *5 août 2026*
+
+Idée d'Hugo : donner un nom aux sondes, avec une petite étiquette à côté — mais
+pas quand on en lâche quatre-vingts, sinon l'écran se couvre. Et surtout, tenir
+un **registre de tout ce qui vole**, cherchable : si quelqu'un a mis une sonde
+en orbite autour de Jupiter, ça doit se savoir. Probablement partagé, par
+Firebase.
+
+### La règle qui résout le problème des quatre-vingts étiquettes
+
+Elle s'écrit en une ligne : **un lancer délibéré mérite un nom, une pluie n'en
+mérite pas.**
+
+Lâcher quatre-vingts sondes est une démonstration statistique — on regarde une
+population, pas des individus. Tirer une sonde en visant, en réglant sa vitesse,
+c'est un acte. Les deux gestes n'appellent pas le même traitement, et la
+distinction existe déjà dans le code : `pluie(80)` d'un côté, `lance(p, v)` de
+l'autre.
+
+L'étiquette ne s'affiche par ailleurs que pour celle qu'on vise ou qu'on a
+sélectionnée. Tout afficher revient à ne rien montrer.
+
+### Le registre local — facile et honnête
+
+Nom, corps autour duquel elle tourne, éléments de son orbite, date du lancer.
+Un simple relevé, sur le modèle du carnet de bord temporel qui existe déjà :
+on enregistre ce qui s'est passé, on ne recalcule pas le passé.
+
+### Le registre partagé — deux obstacles, et ils sont réels
+
+**Le premier est une contrainte qu'on s'est donnée et qu'il ne faut pas
+lâcher.** Les règles Firestore interdisent aujourd'hui *tout texte libre* en
+base : un nom du panthéon est formé de trois entiers pointant dans des
+vocabulaires embarqués. Ce n'était pas de la paresse — c'est ce qui rend la
+modération inutile sur un site public destiné à des inconnus, dont des enfants.
+
+Si l'on partage des noms de sondes, ils doivent passer par **le même
+mécanisme** : composés depuis des vocabulaires, jamais saisis. On y perd la
+fantaisie d'un nom choisi, on y gagne de n'avoir jamais à surveiller la base.
+Le compromis a déjà été tranché une fois dans ce sens.
+
+**Le second est une question de sens, et elle n'est pas tranchée.** Chaque
+joueur a sa propre instance : une sonde autour de Jupiter chez lui n'existe pas
+chez le voisin. Un registre partagé ne dit donc pas « il y a une sonde autour de
+Jupiter » — il dit « quelqu'un en a mis une là, une fois ». C'est un **journal
+d'actes**, pas un état du monde.
+
+Ce n'est pas moins intéressant, mais c'est autre chose, et le vocabulaire doit
+le dire. Prétendre à un monde partagé sans en avoir un serait le premier
+mensonge du site.
+
+Un vrai monde partagé — où la sonde du voisin est réellement là — est un tout
+autre engagement : il faut une simulation commune faisant autorité, donc du
+calcul côté serveur. À ne pas confondre avec ce qui est proposé ici, et à ne pas
+promettre par accident.
+
+---
+
 ## La salle de tir balistique, et le mémorial — *5 août 2026*
 
 Idée d'Hugo, et elle referme d'un coup trois choses qui traînaient séparément :
