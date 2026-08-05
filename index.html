@@ -3295,6 +3295,21 @@ function repartVoyage(){
    par-dessus. */
 function dessineVoyage(dt){
   const T = TELESCOPE;
+
+  /* Le retrait vit ICI, et non dans `majVoyage`.
+
+     Il y était, et `majVoyage` cesse d'être appelé dès que le trajet se
+     termine : la carte restait donc figée par-dessus le salon, à jamais. On
+     rentrait chez soi et l'on voyait encore les orbites. Ce qui doit s'éteindre
+     ne peut pas dépendre de ce qui vient de s'arrêter. */
+  if(!T.trajet){
+    const k = Math.min(1, dt*1.6);
+    T.carte  -= T.carte  * k;
+    T.grille -= T.grille * k;
+    if(T.carte < 0.005)  T.carte  = 0;
+    if(T.grille < 0.005) T.grille = 0;
+  }
+
   if(T.carte < 0.005 && T.grille < 0.005) return;
   const W = vueW || cv.clientWidth, H = vueH || cv.clientHeight;
 
