@@ -1041,3 +1041,51 @@ Voir où l'on se situe dans la Voie lactée pendant le trajet. Elle sert deux
 choses à la fois : donner un repère au voyage, et préparer le dézoom vers la
 galaxie déjà prévu. C'est le même moteur d'échelle logarithmique, et le même
 quadrillage.
+
+## Ce qu'on sait vraiment faire — le contrepoids du vaisseau magique
+
+Idée d'Hugo : montrer les vraies sondes, leurs vitesses réelles, et l'assistance
+gravitationnelle. À rattacher au **premier voyage**, au moment précis où l'on
+vient d'accepter la fiction du moteur à 1 g.
+
+C'est le bon endroit. On vient de dire « on t'accorde le moteur » ; on montre
+alors ce qu'on sait faire sans lui, et l'aveu prend tout son poids.
+
+### La comparaison qui porte
+
+À vérifier — calcul de ma part : les sondes qui quittent le système solaire
+filent autour de **17 kilomètres par seconde**. À cette vitesse, les
+27 000 années-lumière jusqu'au centre galactique demanderaient de l'ordre de
+**cinq cents millions d'années**.
+
+Le vaisseau magique met dix-neuf ans et dix mois. Le rapport est de vingt-cinq
+millions. Aucune phrase ne dit mieux ce que « hors d'atteinte » signifie.
+
+### L'assistance gravitationnelle, et le contresens qu'elle permet de lever
+
+C'est le morceau le plus pédagogique, parce que presque tout le monde s'en fait
+une idée fausse. Une sonde ne « gagne » pas d'énergie en frôlant une planète :
+vue de la planète, elle repart exactement aussi vite qu'elle est arrivée. C'est
+vu **du Soleil** qu'elle a changé de vitesse — elle a échangé de la quantité de
+mouvement avec la planète, qui a ralenti d'une quantité rigoureusement
+inobservable.
+
+Rien n'est créé. On emprunte, à quelque chose d'assez gros pour ne pas s'en
+apercevoir. Et ça se démontre en une figure : la même vitesse dans un repère,
+une autre dans le second.
+
+### Ce qu'il faudrait avant de le construire
+
+Tout est à sourcer : vitesses des sondes, dates, enchaînements de survols,
+gains obtenus. Rien de tout cela ne doit être écrit de mémoire — la leçon de la
+formule fausse d'aujourd'hui vaut ici aussi.
+
+Et une réserve de portée : simuler des trajectoires interplanétaires réelles
+est un autre métier que ce que fait le site. Le raisonnable est de **montrer et
+d'expliquer** des trajectoires connues, pas de proposer d'en calculer.
+
+### Où ça se place
+
+Dans l'explication du premier voyage, en regard du chronomètre. D'un côté ce
+que coûterait le trajet à 1 g ; de l'autre ce qu'il coûterait avec ce qu'on a
+réellement lancé. Deux colonnes, et la leçon se lit sans être écrite.
