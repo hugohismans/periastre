@@ -3093,16 +3093,42 @@ let decalageHorloge = 0;                        // écart avec l'horloge de réf
 const maintenant = () => Date.now()/1000 + decalageHorloge;
 const tempsGeoDirect = () => (maintenant() - EPOQUE) / SEC_PAR_UNITE;
 
+/* LE FACTEUR DE TEMPS DÉPEND DU LIEU, et il n'y en a qu'un.
+
+   Au salon, c'est la commande du mur ; ailleurs, le réglage de la barre. Ce sont
+   deux commandes pour un seul réglage, et c'est voulu : on ne va pas chercher un
+   panneau quand on a une manette sous la main dans la pièce.
+
+   Mais il ne doit y avoir qu'un seul ENDROIT où le temps avance. Il y en avait
+   deux : `avance()` incrémentait `tempsGeo` avec le réglage de la vue libre, et
+   la branche du salon rajoutait le sien par-dessus. Régler le mur sur « temps
+   réel » laissait donc le disque tourner à six cents fois la vitesse réelle —
+   mesuré à 622 fois. Hugo l'a vu tout de suite : « ça tourne à une vitesse
+   complètement abusée, plus vite que les photons ».
+
+   C'était ma faute, et elle est instructive. En corrigeant, la veille, un disque
+   qui ne suivait pas la commande du mur, j'ai AJOUTÉ un écrivain au lieu
+   d'aiguiller celui qui existait. Deux écrivains pour une valeur, c'est la même
+   maladie que la soupe de drapeaux — et elle se soigne pareil. */
+const facteurTemps = () => lieu === "salon" ? salon.facteur : VITESSES[iVitesse].mult;
+
+// Le pas géométrique de l'image en cours. La branche du salon le relit pour
+// déplacer le vaisseau : une seule valeur, donc le gaz et la coque ne peuvent
+// plus diverger.
+let dtGeoCourant = 0;
+
 function avance(dtSec){
   if(modeDirect){
     // temps réel strict : on ne triche pas, on regarde ce qui se passe
     const cible = tempsGeoDirect();
     const dtGeo = cible - tempsGeo;
     tempsGeo = cible;
+    dtGeoCourant = dtGeo;
     return avanceCorps(dtGeo, dtSec);
   }
-  const dtGeo = dtSec * VITESSES[iVitesse].mult / SEC_PAR_UNITE;
+  const dtGeo = dtSec * facteurTemps() / SEC_PAR_UNITE;
   tempsGeo += dtGeo;
+  dtGeoCourant = dtGeo;
   return avanceCorps(dtGeo, dtSec);
 }
 
@@ -6277,15 +6303,12 @@ function boucle(now){
     majJoueur(dt);
     // Le vaisseau suit la même géodésique que les sondes, accélérée pour
     // qu'on la voie. À l'échelle réelle, un tour dure des heures.
-    const dtGeo = dt * salon.facteur / SEC_PAR_UNITE;
-    /* La MÊME horloge fait tourner le disque et déplace le vaisseau.
+    /* On RELIT le pas que `avance()` vient d'appliquer, on n'en refait pas un.
 
-       Elles étaient distinctes : le salon intégrait son orbite avec son propre
-       facteur, tandis que le gaz continuait de tourner au rythme de la vue
-       libre. On voyait donc le vaisseau accélérer sans que le disque suive, ce
-       qui est incohérent — au temps réel, le gaz doit devenir immobile comme
-       le reste. Une seule horloge, et l'incohérence disparaît. */
-    tempsGeo += dtGeo;
+       Le gaz et la coque partagent ainsi rigoureusement la même horloge : au
+       temps réel, le disque devient immobile comme le reste, et à six cents fois
+       les deux accélèrent ensemble. C'était le but ; le moyen était mauvais. */
+    const dtGeo = dtGeoCourant;
     if(TELESCOPE.trajet){
       /* On ne suit plus l'orbite : on s'en va. Continuer à l'intégrer ferait
          tourner le vaisseau autour d'un astre qu'il est en train de quitter, et
