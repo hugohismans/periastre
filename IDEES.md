@@ -584,6 +584,57 @@ que coûterait le trajet à 1 g ; de l'autre ce qu'il coûterait avec ce qu'on a
 réellement lancé. Deux colonnes, et la leçon se lit sans être écrite.
 
 
+## La salle de tir balistique, et le mémorial — *5 août 2026*
+
+Idée d'Hugo, et elle referme d'un coup trois choses qui traînaient séparément :
+la chute derrière l'horizon (`CHUTE.md`), le panthéon des pseudonymes
+(`pantheon.js`, déjà branché sur Firestore) et la mission suicide.
+
+> Une salle du vaisseau d'où l'on tire — comme une sonde, mais **avec son
+> personnage dedans**. Destinée aux trajets sans retour : s'écraser sur
+> Jupiter, franchir l'horizon. On voit la planète grossir, grossir, puis une
+> animation de fin. On choisit alors un nouveau pseudonyme, qui ne doit pas
+> déjà exister, et l'ancien rejoint la liste des astronautes morts en mission —
+> avec la circonstance : perdu dans l'espace, écrasé sur telle planète, ou
+> passé l'horizon d'un trou noir.
+
+### Pourquoi c'est la bonne forme
+
+Le panthéon existait déjà, mais comme une paroi de noms sans histoire. Ici
+chaque nom arrive **par un acte**, et il porte sa cause. C'est ce qui sépare un
+tableau de scores d'un mémorial : on n'y lit pas qui a gagné, on y lit comment
+chacun est mort. Et ça donne enfin une raison d'exister au changement de
+pseudonyme — franchir l'horizon coûte son identité, ce qui était l'intention
+d'origine.
+
+Le tir depuis une salle règle aussi un problème d'unité : on ne quitte pas le
+jeu pour lancer une simulation, on va dans une pièce du vaisseau. Même règle
+que le télescope.
+
+### Ce qui est déjà là
+
+- Le lancer de sondes et son intégrateur.
+- Le panthéon, ses règles Firestore, et les noms formés de trois entiers dans
+  des vocabulaires embarqués — donc **aucun texte libre en base**, ce qui reste
+  non négociable.
+- `CHUTE.md`, écrit et jamais branché.
+
+### Ce qu'il faut ajouter, et la frontière
+
+Le champ « circonstance » est un **entier**, pas une phrase : un code de cause,
+rendu en texte à l'affichage. C'est la même discipline que pour les noms, et
+elle vaut aussi pour la modération.
+
+Ce qui se simule honnêtement : la trajectoire, l'approche, la croissance
+apparente de la planète, et la chute derrière l'horizon — cette dernière est
+déjà décrite dans `CHUTE.md`.
+
+Ce qui ne se simule pas : l'impact lui-même. Voir « La forme que ça doit
+prendre au bout ». La fin doit donc se jouer **avant** le contact, ou se
+déclarer comme une mise en scène.
+
+---
+
 ## Depuis la Terre, remplacer la Lune — *5 août 2026*
 
 Idée d'Hugo. Un point de vue nouveau : **debout sur Terre**, la nuit, on regarde
