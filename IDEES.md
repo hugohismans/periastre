@@ -672,3 +672,372 @@ une vue extérieure, un curseur de temps en années, et de quoi désigner une
 
 **C'est la tête d'affiche de la version suivante**, pas de la bêta : elle mérite
 d'être faite proprement, et rien ne doit bouger pendant que les amis testent.
+
+## Discipline de branches — *à partir du 4 août 2026*
+
+Dès que les amis reçoivent le lien, `main` cesse d'être un brouillon : c'est ce
+que des gens utilisent. Hugo l'a posé au bon moment, et ça change la façon de
+travailler.
+
+**La règle :**
+
+- `main` est en production. On n'y pousse que ce qui est fini et vérifié.
+- `dev` est l'endroit où l'on travaille. Toute nouveauté y naît.
+- On fusionne dans `main` quand ça marche, pas quand ça compile.
+
+**Pourquoi ça compte ici en particulier.** Cette session a montré deux fois le
+même piège : une modification de nuanceur qui casse la compilation tue tout le
+bloc de script, et le symptôme est **muet** — la page se charge, le trou noir
+s'affiche, et seule la moitié des fonctions manque. Sur un site que personne
+n'utilise, on s'en aperçoit à l'essai suivant. Sur un site que dix personnes
+ouvrent, on ne s'en aperçoit pas du tout.
+
+**Le contrôle minimal avant toute fusion**, tiré de ces deux incidents : après
+une modification de nuanceur ou de script, vérifier qu'une variable déclarée
+*tard* dans le fichier existe encore. Si `salon` ou `$` a disparu, le bloc est
+mort quelque part au-dessus.
+
+`kerr` reste comme témoin de la branche d'exploration qui a servi au moteur de
+Kerr. Elle n'a plus d'usage courant.
+
+## Le recul — comment la scène des étoiles doit vraiment se faire
+
+Idée d'Hugo, et elle remplace celle que j'avais commencée : plutôt qu'une scène
+séparée, **le vaisseau s'éloigne**. On voit le trou noir rétrécir par la baie
+jusqu'à ce qu'il ne soit plus rien, et à ce moment-là les orbites des étoiles
+apparaissent.
+
+C'est bien meilleur, pour une raison qui n'est pas d'esthétique : **le disque
+d'accrétion devient invisible à cette distance**, et c'est précisément le
+propos. On ne voit plus le trou noir. On voit des étoiles tourner autour de
+rien — et c'est comme ça qu'on l'a découvert, trente ans avant d'en avoir une
+image.
+
+Un changement d'échelle raconte donc l'argument tout seul, là où deux scènes
+juxtaposées auraient demandé de l'expliquer.
+
+### Ce que ça implique
+
+- **Le recul est continu**, pas une coupure. On garde la baie, on garde le
+  lieu, et la seule chose qui change est la distance. Il faut donc que le
+  lanceur de géodésiques et la scène des orbites cohabitent dans la même image
+  pendant la transition — le premier s'éteint quand l'astre passe sous le
+  pixel, la seconde s'allume.
+- **Le temps s'adapte à l'échelle.** À dix rayons on compte en minutes, à mille
+  unités astronomiques en années. L'accélération doit suivre le recul, sinon
+  l'un des deux est illisible.
+- **Le module `etoiles.js` sur `dev` reste valable** pour le calcul des orbites
+  — Kepler, les trois rotations, les tracés. C'est son mode d'affichage séparé
+  qui tombe.
+
+### Le rapport d'échelle, qui est le vrai obstacle
+
+Le rayon de Schwarzschild vaut 1,3 × 10^10 m ; le demi-grand axe de S2 environ
+1,5 × 10^14 m. Quatre décades. Un recul linéaire passerait l'essentiel du
+trajet dans le vide : il faut une progression **logarithmique**, ce qui est
+exactement le moteur de zoom décrit dans `OBJECTIFS.md` et jamais construit.
+C'est l'occasion de le faire, et il resservira pour le dézoom vers la Voie
+lactée.
+
+### Le quadrillage — sans quoi le recul ne se voit pas
+
+Hugo, en réponse au recul logarithmique : *« on ne va pas se rendre compte
+qu'on dézoome à ce point, mets un petit quadrillage temporaire. »*
+
+C'est le problème central de toute visualisation d'échelle, et il est plus
+sérieux qu'il n'en a l'air : **dans le vide, rien ne prouve qu'on bouge.** Pas
+de parallaxe, pas de bord qui défile. Quatre décades de recul ressemblent alors
+à un écran figé qui s'assombrit — et le spectateur conclut que ça a planté,
+pas qu'il s'éloigne. C'est ce qui fait rater la plupart des animations de ce
+genre.
+
+**La solution est un étalon qui défile.** Un quadrillage dans le plan de
+l'orbite, dont la maille vaut une puissance de dix ronde, avec sa valeur
+écrite dessus.
+
+Trois détails qui font toute la différence, et qu'il ne faut pas rater :
+
+- **Il se renumérote en franchissant chaque décade.** La maille reste de la
+  même taille à l'écran, mais son étiquette passe de « 100 rayons » à « 1 000 »
+  puis à « 10 000 ». C'est ce saut d'étiquette, répété quatre fois, qui fait
+  *sentir* la distance — bien plus qu'un compteur continu qu'on ne lit pas.
+- **Il n'apparaît que pendant le mouvement**, et s'efface à l'arrivée. C'est un
+  instrument de mesure, pas un décor : une fois qu'on est là, il n'a plus rien
+  à dire et il encombrerait les orbites.
+- **Il est déclaré comme une fiction.** Rien ne quadrille l'espace. Le site
+  affirme partout que ce qu'on voit est calculé, donc cet ajout-là doit être
+  nommé pour ce qu'il est — un instrument posé sur l'image, comme la règle
+  qu'on met à côté d'un fossile sur une photographie.
+
+Et l'arrivée dit le reste toute seule : le trou noir a disparu sous le pixel,
+les orbites emplissent l'écran, et il ne reste que des étoiles tournant autour
+de rien. C'est exactement ce qu'ont vu les astronomes pendant trente ans.
+
+### Aucune étoile inventée
+
+Hugo, sans détour : *« je n'aimerais pas trop que tu mettes des fausses
+étoiles. »* C'est la règle du site et elle ne souffre pas d'exception ici.
+
+**On ne montre que les étoiles dont l'orbite est publiée**, avec leur
+référence. S'il n'y en a que six ou huit bien contraintes, on en montre six ou
+huit. Le champ paraîtra clairsemé, et ce sera juste : ce sont exactement celles
+qu'on sait suivre. La rareté fait partie du propos — elle dit le prix qu'a
+coûté cette mesure.
+
+Ce qui serait tentant et qu'il faut refuser : peupler l'arrière-plan de points
+« plausibles » pour faire riche. Ils ne prouveraient rien, ils ne seraient
+sourçables nulle part, et un seul lecteur averti qui les compte aurait raison
+de douter du reste.
+
+Le champ d'étoiles du fond, dans le rendu actuel, est déjà une texture
+procédurale — c'est admis dans la fiche « ce qui n'est pas vrai ». Il ne doit
+pas servir d'alibi : décorer un fond lointain n'est pas prétendre suivre un
+astre nommé sur une orbite mesurée.
+
+C'est d'ailleurs pourquoi le quadrillage est la bonne réponse à l'échelle. Il
+ne fait semblant de rien : il se déclare comme un instrument, alors qu'une
+étoile ajoutée se ferait passer pour une observation.
+
+## Deux vaisseaux, et le voyage comme mécanique
+
+Idée d'Hugo, en trois morceaux qui n'ont pas du tout le même coût.
+
+### Le morceau qui vaut le plus, et qui coûte le moins : voyager
+
+Se déplacer ne serait pas une téléportation mais **un voyage**, poussé à 1 g,
+avec un chronomètre annonçant la durée réelle. La coque tremble, l'astre
+s'éloigne, et l'on arrive.
+
+C'est la meilleure idée de l'ensemble parce qu'elle transforme **chaque
+déplacement en leçon**, sans rien ajouter de pédagogique : la formule de la
+fusée relativiste est déjà dans le site, et elle s'applique à n'importe quelle
+distance.
+
+Le fait qui rend la mécanique jouable, et que j'ai calculé ici — **à vérifier** :
+
+$$\tau = \tfrac{4c}{g}\,\operatorname{arccosh}\!\left(\tfrac{gd}{4c^{2}}+1\right)$$
+
+- du salon jusqu'à la distance d'observation des étoiles S (mille unités
+  astronomiques, soit 0,016 année-lumière) : **environ trois mois** de temps
+  propre ;
+- jusqu'au système solaire (27 000 années-lumière) : **une vingtaine d'années**.
+
+Le rapport est énorme alors que les distances vont de un à un million : c'est
+la signature logarithmique de l'accélération constante, et c'est exactement ce
+qu'il faut faire sentir. Les déplacements locaux coûtent des mois, les
+interstellaires des décennies. La mécanique enseigne donc toute seule pourquoi
+la galaxie est hors de portée.
+
+### Le morceau structurant : deux vaisseaux
+
+Un **vaisseau commun**, le lobby, en orbite autour de l'objet du moment,
+partagé par tout le monde et honnête sur le temps. Et un **vaisseau personnel**
+qu'on déplace où l'on veut, qui est son instance.
+
+C'est la bonne réponse à une tension déjà écrite dans `OBJECTIFS.md` : le salon
+doit être partagé et en temps réel, le simulateur personnel et permissif. Deux
+vaisseaux au lieu d'un règlent la contradiction au lieu de la contourner.
+
+**Mais le partage n'existe pas encore.** Les règles Firestore ne sont toujours
+pas publiées, le panthéon tourne en mémoire locale. Tant que ce n'est pas fait,
+« vaisseau commun » et « vaisseau personnel » désignent la même chose, et la
+distinction ne se voit pas.
+
+### Le morceau que je repousserais : la carte des vaisseaux
+
+Voir où sont les autres sur une carte de l'univers est séduisant et c'est le
+plus cher au bénéfice rendu : il faut l'état partagé, une carte à dix-sept
+décades, et une position par joueur tenue à jour. Ça pose aussi une question
+qu'on n'a pas eue jusqu'ici — afficher la position de quelqu'un, même sous un
+pseudonyme composé, est une information sur lui.
+
+Rien d'insurmontable, mais c'est la troisième étape, pas la première.
+
+### L'ordre que je propose
+
+1. **Le voyage** sur le vaisseau actuel : animation, chronomètre, distance
+   choisie. Aucun partage requis, et ça donne immédiatement le dézoom vers les
+   étoiles S que réclame la scène des orbites.
+2. **Les règles Firestore**, qui débloquent tout le reste.
+3. **La séparation des deux vaisseaux**, une fois qu'il y a vraiment quelque
+   chose à partager.
+4. **La carte**, si elle se justifie encore à ce moment-là.
+
+## La baie est honnête, la surcouche est déclarée
+
+C'est le principe qui se dégage de trois idées d'Hugo arrivées séparément — le
+quadrillage du dézoom, la vitre en réalité augmentée, et le refus des fausses
+étoiles. Elles disent toutes la même chose, et il vaut mieux l'écrire une fois :
+
+> **Ce qu'on voit par la vitre est ce qu'on verrait.** Tout le reste — repères,
+> noms, trajectoires, quadrillages — est un instrument posé par-dessus, qui se
+> nomme comme tel et qu'on peut éteindre.
+
+La force de cette règle est qu'elle autorise beaucoup au lieu d'interdire. On
+peut afficher l'orbite d'une lune, nommer un anneau, tracer une trajectoire —
+à condition que ce soit visiblement une surimpression et non une prétention
+d'observation. C'est la différence entre une règle posée à côté d'un fossile et
+un fossile repeint.
+
+Un réglage unique commande donc l'ensemble : **surcouche visible ou non**. Et
+la vue nue reste toujours atteignable, parce que c'est elle l'argument du site.
+
+## Le système solaire, planète par planète — *le long terme*
+
+Hugo : aller au système solaire, se mettre en orbite autour de chaque planète,
+et lire ce qu'il y a à voir — les anneaux, les lunes, leurs trajectoires.
+
+### Ce qui est déjà en place sans qu'on l'ait fait exprès
+
+Le **contrat de destination** d'`OBJECTIFS.md` dit qu'une destination est une
+donnée et non du code : une scène avec sa plage d'échelles, ses fiches et son
+rendu. Jupiter est donc, architecturalement, la même chose que Sagittarius A*.
+Et le **voyage à 1 g** donne le moyen d'y aller en disant ce qu'il en coûte.
+
+### Ce qui coûte vraiment
+
+Pas le code — le **contenu**. Chaque destination réclame ses faits sourcés en
+trois niveaux, et c'est là que part le temps. Une planète bâclée vaut moins que
+pas de planète : elle transformerait un site rigoureux en encyclopédie tiède.
+
+Donc peu de destinations, très bien faites. Jupiter et Saturne d'abord, qui
+ont de quoi remplir une visite — et qui donnent chacune une leçon que le trou
+noir ne donne pas : la mécanique des résonances pour les lunes de l'une, la
+dynamique des anneaux pour l'autre.
+
+### La personnalisation du vaisseau
+
+Décorer, meubler, en avoir plusieurs. C'est cohérent avec la garde-robe déjà
+prévue et avec la règle qui la gouverne — **on ne débloque qu'en comprenant**.
+Un objet rapporté d'une destination visitée est un souvenir de voyage, pas un
+achat : il dit où l'on est allé.
+
+Réserve technique : tout le mobilier est calculé, donc chaque élément est du
+code à écrire. Ça plaide pour un petit catalogue de pièces combinables plutôt
+qu'un long catalogue d'objets uniques.
+
+### L'ordre, encore
+
+Rien de tout cela avant le voyage et le dézoom vers les étoiles S. Ce sont eux
+qui prouvent que le changement d'échelle fonctionne — et si ça ne fonctionne
+pas, le reste ne tient pas debout.
+
+## Le carnet de bord temporel — la meilleure mécanique proposée
+
+Idée d'Hugo : chaque joueur accumule son **décalage propre** avec la Terre.
+Tout ce qu'il fait y contribue — le temps passé en orbite, les voyages à 1 g,
+les allers-retours. Le décalage persiste, et il peut en consulter le détail :
+chaque entrée, sa formule, ce qu'elle a coûté.
+
+### Pourquoi c'est la meilleure
+
+Le paradoxe des jumeaux cesse d'être un chapitre qu'on lit pour devenir
+**quelque chose qui vous est arrivé**. On ne comprend pas la dilatation du
+temps en la lisant ; on la comprend en découvrant qu'on a soi-même trois cents
+ans de retard et en cherchant d'où ils viennent.
+
+Elle unifie aussi les deux relativités dans un seul nombre, ce qui est
+exactement la formulation profonde déjà notée plus haut : **le temps propre est
+la longueur de la ligne d'univers**. Rester au fond d'un puits de gravité et
+partir vite sont deux façons de raccourcir le même chemin.
+
+Et elle est **auditable**, ce qui la rend cohérente avec tout le reste du site :
+chaque entrée porte sa formule et son calcul. C'est le bouton « d'où ça sort ? »
+appliqué à la progression du joueur.
+
+### La forme : un registre, pas une simulation
+
+Chaque action ajoute une ligne — la date, ce qui a été fait, la formule
+employée, le décalage produit. On n'intègre rien en continu, on **enregistre**.
+C'est plus simple, c'est vérifiable, et ça se relit.
+
+Deux régimes s'y côtoient, et leur écart est en soi une leçon :
+
+- **Rester en orbite.** À seize rayons, l'horloge tourne à √(1 − 1/16) = 0,968
+  de celle du loin, soit 3,2 % de moins. Une heure de jeu coûte deux minutes.
+- **Voyager à 1 g.** L'aller au système solaire coûte une vingtaine d'années
+  vécues contre vingt-sept mille écoulées.
+
+Le registre montre donc de lui-même que **le voyage écrase le séjour** — et
+qu'il faut descendre très près de l'horizon pour que rester devienne
+comparable. Personne n'a besoin de l'expliquer : les deux colonnes le disent.
+
+### Hors connexion, le temps se fige — *tranché*
+
+Hugo penchait pour que le décalage continue de courir même déconnecté, puis a
+retenu l'inverse. La raison vient de ses propres règles.
+
+Faire courir le compteur en l'absence du joueur reviendrait à **récompenser
+l'attente** : il suffirait de laisser son vaisseau en orbite basse pour
+accumuler. Or la règle posée depuis le début est qu'on ne débloque qu'en
+comprenant. Un décalage qui grandit tout seul est le contraire.
+
+Le registre enregistre donc **ce qu'on a vécu**, et se fige quand on part. Ce
+qui se défend aussi en fiction : le vaisseau est amarré, on n'y est pas.
+
+### Le lobby comme lieu hors du temps
+
+Hugo l'a bien vu : si chacun a sa temporalité, un lieu commun devient
+impossible — sauf à le déclarer magique. C'est cohérent avec la seule autre
+triche du site, la pesanteur du salon, et il faut le dire de la même façon,
+franchement et avec humour.
+
+Le lobby est donc l'endroit où toutes les lignes d'univers se rejoignent, ce
+qui n'a aucun sens physique et qu'on assume. Le prix à payer est faible et le
+gain est net : on peut s'y retrouver et comparer ses registres.
+
+### Ce que ça demande
+
+Peu de choses, en réalité : une liste d'entrées dans le profil, une formule par
+type d'action, et un écran qui les affiche. La persistance existe déjà en
+mémoire locale, et passera au partagé quand Firestore le sera.
+
+C'est donc une mécanique à fort rendement — beaucoup de sens pédagogique pour
+peu de code. Elle mérite de venir juste après le voyage, dont elle est la
+conséquence naturelle.
+
+## Le vaisseau magique — la deuxième fiction, et la seule
+
+Hugo pose le présupposé des voyages : **le vaisseau tient 1 g indéfiniment.** On
+n'explique pas comment. On l'accorde, on le dit, et on n'en parle plus.
+
+C'est le même contrat que pour la pesanteur du salon, et c'est ce qui rend
+l'aveu solide : **une fiction déclarée, et tout ce qui en découle rigoureux.**
+Le moteur est accordé ; les durées de trajet, elles, ne sont pas négociables —
+elles sortent de la formule.
+
+### Ce que le voyage doit montrer
+
+Trois temps, et le deuxième est le plus beau :
+
+1. On accélère à 1 g pendant la moitié du trajet. À bord, on a un poids normal.
+2. **On retourne le vaisseau.** Le bas devient le haut, et l'on freine. C'est un
+   moment réel, physiquement obligatoire, et personne ne le raconte jamais —
+   il mérite sa seconde d'animation.
+3. On décélère jusqu'à l'arrêt.
+
+Avec le chronomètre qui donne les deux durées côte à côte : celle vécue à bord
+et celle écoulée au loin. Elles ne se ressemblent pas, et c'est tout le propos.
+
+L'explication du calcul est **proposée, jamais imposée** — la règle vaut ici
+comme partout : un bouton, pas un passage obligé.
+
+### L'honnêteté qui rend la fiction acceptable
+
+Accorder le moteur sans dire ce qu'il coûterait serait de la magie molle. Or le
+site a déjà le chiffre, et il est vertigineux : à 1 g jusqu'au centre
+galactique, le rapport de masses d'une fusée idéale atteint **e^20,47**, soit
+de l'ordre de **780 000 tonnes de carburant par kilogramme arrivé** — et cela
+en supposant une conversion parfaite en énergie, ce qu'aucune technologie
+connue n'approche.
+
+Le bon ton est donc : *on t'accorde le moteur, et voici pourquoi personne ne le
+construira jamais.* La fiction assumée devient alors elle-même une leçon, au
+lieu d'un trou dans le raisonnement.
+
+### La carte
+
+Voir où l'on se situe dans la Voie lactée pendant le trajet. Elle sert deux
+choses à la fois : donner un repère au voyage, et préparer le dézoom vers la
+galaxie déjà prévu. C'est le même moteur d'échelle logarithmique, et le même
+quadrillage.

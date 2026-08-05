@@ -145,12 +145,44 @@ const rotZ = a => { const c=Math.cos(a), s=Math.sin(a);
    Une ronde lente au-dessus de la fosse, sur un huit couché : deux périodes
    incommensurables, donc le trajet ne se referme jamais tout à fait et l'on ne
    surprend pas la boucle. Il flotte, et il respire un peu en flottant. */
+let attente = 0;          // 0 : il vaque ; 1 : il vient se placer et se tient là
+
+/* Quand on lui demande de venir, il vient.
+
+   Il patrouillait pendant qu'on essayait de l'atteindre, ce qui rendait la
+   consigne « clique dessus » pénible au doigt : la cible se dérobait. Il glisse
+   donc vers un point stable, à hauteur d'yeux et à portée, et n'y garde qu'une
+   respiration — assez pour rester vivant, assez peu pour se laisser toucher.
+
+   C'est aussi plus juste : on l'appelle, il répond. Un guide qui continue sa
+   ronde pendant qu'on lui parle n'écoute pas. */
+let posteAttente = [0.75, 1.46, -1.35];
+
+/* Il vient À VOUS, pas à un endroit de la pièce.
+
+   Un point fixe le laissait à quatre mètres, où un drone de vingt-sept
+   centimètres n'est qu'une tache. On lui donne donc la place à tenir, calculée
+   depuis l'observateur : une longueur de bras et demie devant, un peu de côté
+   pour ne pas masquer la baie, à hauteur d'yeux. */
+function veutAttendre(v, ou){
+  if(ou) posteAttente = ou;
+  attente += (v - attente) * 0.035;
+}
+
 function pose(t){
-  return [
+  const libre = [
     Math.sin(t*0.21)*2.25 + Math.sin(t*0.083)*0.55,
     1.34 + Math.sin(t*0.47)*0.085 + Math.sin(t*0.19)*0.11,
     -1.95 + Math.sin(t*0.42 + 1.1)*0.72,
   ];
+  if(attente < 0.01) return libre;
+  const tenu = [ posteAttente[0],
+                 posteAttente[1] + Math.sin(t*0.9)*0.030,   // il respire encore
+                 posteAttente[2] ];
+  const k = attente;
+  return [ libre[0]*(1-k) + tenu[0]*k,
+           libre[1]*(1-k) + tenu[1]*k,
+           libre[2]*(1-k) + tenu[2]*k ];
 }
 
 /**
@@ -194,11 +226,15 @@ function dessine(gl, envoie, t, vers, eveil){
 }
 
 // La boîte à viser. Généreuse : on interpelle quelqu'un, on ne le chirurgie pas.
+// La boîte à viser. Généreuse, et davantage encore quand il attend qu'on
+// vienne lui parler : à ce moment-là, le manquer est un échec de la consigne.
 function boiteVisee(t){
-  return { c: pose(t), d: [R*1.7, R*1.7, R*1.7] };
+  // Il grossit peu en attendant : il s'est rapproché, c'est déjà l'essentiel.
+  const g = R * (1.7 + attente*0.5);
+  return { c: pose(t), d: [g, g, g] };
 }
 
-global.ROBOT = { construit, dessine, pose, boiteVisee, R,
+global.ROBOT = { construit, dessine, pose, boiteVisee, veutAttendre, R,
                  get pieces(){ return Object.keys(gpu).length; } };
 
 })(window);

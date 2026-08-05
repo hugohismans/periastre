@@ -2055,9 +2055,18 @@ function posteVise(ev){
   const oeil = oeilSalon();
   const b = ROBOT.boiteVisee(salon.horloge);
   POSTE_LUMEN.c = b.c; POSTE_LUMEN.d = b.d;
+  /* Quatre centimètres et demi de tolérance conviennent à un curseur, qui se
+     pose exactement où l'œil regarde. Un pouce couvre un centimètre d'écran et
+     ne voit pas ce qu'il cache : il lui faut une cible bien plus large, sans
+     quoi viser devient un exercice d'adresse au lieu d'une intention. */
+  /* Neuf centimètres, pas trente. La marge s'exprime en mètres du décor, donc
+     son effet à l'écran dépend de la distance : trente centimètres étaient
+     raisonnables sur un drone à quatre mètres, et couvraient la moitié de
+     l'image une fois qu'il venait à portée de bras. */
+  const marge = (ev && ev.pointerType === "touch") ? 0.09 : 0.045;
   let meilleur = null, dmin = 1e9;
   for(const p of VAISSEAU.POSTES.concat(POSTE_LUMEN)){
-    const t = toucheBoite(oeil, d, p.c, p.d, 0.045);
+    const t = toucheBoite(oeil, d, p.c, p.d, marge);
     if(t !== null && t < dmin){ dmin = t; meilleur = p; }
   }
   return meilleur;
@@ -2851,7 +2860,18 @@ cv.addEventListener("pointerup", e => {
   if(pouceMarche && e.pointerId === pouceMarche.id) return;   // celui-là marchait
   const d = posteDepart; posteDepart = null;
   if(!salon.actif || !d) return;
-  const bref = Math.hypot(e.clientX - d.x, e.clientY - d.y) <= 6;
+  /* Le seuil qui sépare un contact d'un glissé dépend de ce qui touche.
+
+     Six pixels convient à une souris, qui ne bouge pas quand on clique. Un
+     pouce sur du verre dérive de dix à quinze pixels dans une tape ordinaire —
+     le contact était donc lu comme un glissé, et rien ne s'activait. C'est ce
+     qui empêchait Hugo d'interroger le drone sur son téléphone, alors que le
+     même geste fonctionnait à la souris.
+
+     Le risque inverse est faible : dix-huit pixels restent loin du geste qu'on
+     fait pour tourner la tête, lequel parcourt l'écran. */
+  const seuil = e.pointerType === "touch" ? 18 : 6;
+  const bref = Math.hypot(e.clientX - d.x, e.clientY - d.y) <= seuil;
   if(!bref) return;                                    // c'était un glissé du regard
 
   if(!d.p){
@@ -4715,6 +4735,7 @@ function dessineCockpit(){
 
 // ============ boucle ============
 let echelle = 1.0, tPrec = performance.now(), images = 0, cumul = 0;
+let tCalme = 0;   // dernier moment où la résolution a bougé ou où ça a ramé
 
 /* Une seule mesure pour les deux toiles.
 
@@ -4767,8 +4788,25 @@ function boucle(now){
   images++; cumul += dt*1000;
   if(images === 90){
     const moy = cumul/images;
-    if(moy > 26 && echelle > 0.55){ echelle = 0.62; reechelonne(); }
-    else if(moy < 11 && echelle < 1.0){ echelle = 1.0; reechelonne(); }
+    /* La bascule de résolution est volontairement COLLANTE.
+
+       Elle change la taille du tampon, donc elle se voit : l'image devient
+       nette ou floue d'un coup. Or la charge varie avec l'orbite — au
+       périastre l'astre emplit le champ et le lancer de rayons coûte plus
+       cher qu'à l'apoastre. Sur une machine juste, la moyenne peut donc
+       traverser les deux seuils une fois par tour, et l'on voit sauter
+       l'image à chaque passage.
+
+       On descend vite, parce qu'une image molle vaut mieux qu'une image
+       saccadée. Mais on ne remonte qu'après une longue accalmie : mieux vaut
+       rester en basse résolution tout du long que clignoter deux fois par
+       orbite. */
+    if(moy > 26 && echelle > 0.55){
+      echelle = 0.62; reechelonne(); tCalme = now;
+    } else if(moy < 9 && echelle < 1.0 && now - tCalme > 30000){
+      echelle = 1.0; reechelonne(); tCalme = now;
+    }
+    if(moy > 14) tCalme = now;      // toute lenteur repousse le retour au piqué
     images = 0; cumul = 0;
   }
 
@@ -4938,7 +4976,16 @@ function boucle(now){
         salon.horloge, 0);
     }
 
-    // Lumen, qui fait sa ronde. Il s'éveille quand on le vise ou qu'il parle.
+    // Lumen. Il fait sa ronde, sauf quand l'étape demande qu'on lui parle :
+    // il vient alors se placer à portée, et cesse de se dérober au doigt.
+    if(attendu === "a-lumen"){
+      // une longueur de bras et demie devant, décalé pour ne pas masquer la baie
+      const { av, dr } = regardSalon();
+      const oe = oeilSalon();
+      ROBOT.veutAttendre(1, [ oe[0] + av[0]*1.45 + dr[0]*0.42,
+                              oe[1] + av[1]*1.45 - 0.06,
+                              oe[2] + av[2]*1.45 + dr[2]*0.42 ]);
+    } else ROBOT.veutAttendre(0);
     ROBOT.dessine(gl, envoie, salon.horloge, oeilSalon(),
       (salon.vise === POSTE_LUMEN || questionsOuvertes) ? 1
       : (attendu === "a-lumen" ? 0.55 : 0));
