@@ -25,6 +25,63 @@ Mis à jour le 5 août 2026.
 | 6 | **Le bilingue** | Sélecteur fait, contenu traduit, unités et ponctuation des nombres suivent la langue. **Restent environ cent quarante chaînes en dur**, toutes inventoriées dans `CHAINES-UI.md` avec leur clé et leur traduction — c'est du travail mécanique, pas de la conception. |
 | 2 | **Chemin de progression** | Menu en index, base posée. Rien de plus. |
 
+## Le prochain, et il est important
+
+### 15 — Deux rendus au choix : simulation ou cinéma
+
+Idée d'Hugo, le 5 août 2026, en découvrant que la nébuleuse du fond est un
+décor. Elle règle un problème de fond plutôt qu'un défaut ponctuel.
+
+Le site promet que tout est calculé. C'est vrai de la géométrie, des orbites,
+des durées, de la déviation de la lumière — et faux du fond de ciel, de
+l'exposition, de l'éclat du disque. Aujourd'hui les deux sont mêlés sans qu'on
+puisse les séparer, et c'est ce mélange qui abîme la promesse : le visiteur ne
+peut pas savoir ce qu'il regarde.
+
+**Le choix se pose au premier passage, à côté de celui de la langue**, et se
+change ensuite dans les réglages. Formulation à tenir : les deux sont exacts
+là où ça compte ; l'un ajoute ce qu'un film ajouterait, l'autre s'en prive.
+
+#### Le principe qui commande tout le reste
+
+Précision d'Hugo, et elle est plus exigeante que la note de la rédaction :
+
+> même le mode simulation gardera des compromis — et **chaque compromis doit se
+> déclarer là où on le rencontre**, pas seulement dans une liste rangée
+> ailleurs.
+
+Un aveu global dans un dossier qu'on ouvre rarement ne vaut pas un aveu au
+moment où l'on regarde la chose. Le fond de ciel doit se dénoncer quand on le
+fixe ; la gravité du vaisseau, quand on marche dedans ; l'éclat du disque,
+quand on le règle.
+
+Ce qui reste à concevoir, c'est la **forme** de cet aveu : assez présente pour
+qu'on la voie, assez discrète pour ne pas hacher la contemplation. Une piste :
+la même que le bouton « d'où ça sort ? », qui existe déjà et que les gens
+comprennent — un signe sobre qu'on peut ignorer, et qui répond si on le presse.
+
+Premier cas déjà traité en attendant : le panneau d'arrivée du télescope
+déclare, sur place, que le fond du ciel est un décor.
+
+Ce que chaque mode commanderait :
+
+| | simulation | cinéma |
+|---|---|---|
+| fond de ciel | champ d'étoiles dense, sans nébuleuse inventée | nébuleuse et bandes colorées |
+| exposition | mesurée, sans halo | halo et éclat |
+| disque | son éclat réel selon la bande observée | rehaussé pour qu'on le voie |
+| étoiles | densité de l'amas nucléaire, ordre de grandeur réel | densité choisie pour la lisibilité |
+
+À vérifier avant de coder : la densité réelle du champ d'étoiles vu depuis
+l'orbite du salon, qui est à l'intérieur de l'amas nucléaire. C'est le seul
+chiffre du tableau qui demande une source, et il décide de tout le mode
+simulation.
+
+Recouvrement à trancher : le bouton **« Lumière réelle »** existe déjà et fait
+une partie du travail. Soit il devient le mode, soit il en devient un cran.
+
+---
+
 ## Ensuite
 
 | | chantier | dépend de |

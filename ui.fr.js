@@ -66,7 +66,10 @@ window.UI = {
     "Le trou noir est là, au centre, et vous ne le voyez pas : à cette distance " +
     "il tient très loin sous le pixel. Ce que vous voyez sont dix orbites " +
     "mesurées, et elles tournent toutes autour du même point vide. C'est ainsi " +
-    "qu'on a su qu'il existait — trente ans avant d'en avoir une image.",
+    "qu'on a su qu'il existait — trente ans avant d'en avoir une image. " +
+    "En revanche, le fond du ciel derrière elles est un décor : ses étoiles sont " +
+    "posées au hasard et sa nébuleuse est inventée. Ce qui est exact ici, ce sont " +
+    "les orbites et la façon dont la gravité dévie la lumière.",
   "tele.retour.etiq":      "retour",
   "tele.retour.titre":     "Revenir près du trou noir",
   "tele.retour.quoi":      "Le même trajet dans l'autre sens, et le même prix en temps.",

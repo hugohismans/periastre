@@ -3242,8 +3242,13 @@ function ecartRegistre(){
    Et cette carte est une RECONSTRUCTION, pas une vue. Ces orbites durent de
    seize à trois cent trente et un ans ; personne ne les a jamais vues tourner.
    On les a mesurées pendant trente ans, et c'est précisément le sujet. */
-const SEUIL_CARTE  = 260;      // rayons de Schwarzschild : au-delà, le lanceur ment
-const DUREE_VOYAGE = 17;       // secondes d'écran, sans rapport avec la durée vraie
+/* Vingt-deux secondes, et non dix-sept.
+
+   Quatre décades en dix-sept secondes, avec l'accélération au milieu, faisaient
+   défiler les mailles trop vite pour qu'on suive : « on va à une vitesse
+   tellement grande que les grilles défilent trop vite ». On étale, et le
+   resserrement des nœuds redevient lisible. */
+const DUREE_VOYAGE = 22;       // secondes d'écran, sans rapport avec la durée vraie
 
 function lanceVoyage(d, v){
   TELESCOPE.trajet = { dest:d, calcul:v, depart:distanceVaisseau(), arrive:false };
@@ -3294,13 +3299,28 @@ function majVoyage(dt){
     salon.tangage += dt_ * k;
   }
 
-  // Le quadrillage ne paraît que pendant le mouvement : rien ne quadrille
-  // l'espace, et une grille qui resterait serait un mensonge de décor.
-  const veut = RECUL.actif ? 1 : 0;
+  /* Le quadrillage ne paraît que pendant le mouvement — rien ne quadrille
+     l'espace — et seulement quand l'astre est DANS LE CHAMP.
+
+     Sans cette seconde condition il se levait alors qu'on regardait encore
+     ailleurs : centré sur le trou noir, il était hors écran, puis il entrait
+     brutalement quand la visée pivotait. Hugo l'a vu comme une apparition
+     buguée, et c'en était une. */
+  const av = regardSalon().av;
+  const enVue = va ? (av[0]*va[0] + av[1]*va[1] + av[2]*va[2] > 0 ?
+                      av[0]*va[0] + av[1]*va[1] + av[2]*va[2] : 0) : 1;
+  const veut = (RECUL.actif && enVue > 0.55) ? 1 : 0;
   TELESCOPE.grille += (veut - TELESCOPE.grille) * Math.min(1, dt*2.2);
-  // La bascule vers la carte, franchie bien avant que le lanceur ne fatigue.
-  const carte = r > SEUIL_CARTE ? 1 : 0;
-  TELESCOPE.carte += (carte - TELESCOPE.carte) * Math.min(1, dt*1.1);
+
+  /* La carte ne paraît qu'à L'ARRIVÉE, plus à mi-parcours.
+
+     Elle se levait passé une distance seuil, en plein trajet, et se substituait
+     au ciel — ce qui coupait le recul en deux et effaçait le fond étoilé au
+     moment le plus intéressant. Or l'ordre juste est celui du récit : on
+     s'éloigne, le trou noir disparaît, ET ALORS le télescope montre ce qui
+     tourne autour de ce vide. D'abord le constat, ensuite l'explication. */
+  const carte = (!RECUL.actif && !TELESCOPE.retour) ? 1 : 0;
+  TELESCOPE.carte += (carte - TELESCOPE.carte) * Math.min(1, dt*0.85);
 
   majChrono();
 
@@ -3390,19 +3410,19 @@ function dessineVoyage(dt){
   if(E.carte < 0.005 && E.grille < 0.005) return;
   const W = vueW || cv.clientWidth, H = vueH || cv.clientHeight;
 
-  /* Un vrai fondu enchaîné, en trois temps qui ne se chevauchent pas.
+  /* Le voile de la carte est TRANSLUCIDE, et c'est tout le sujet.
 
-     Ils se chevauchaient, et les deux légendes s'écrivaient au même coin de
-     l'écran, l'une par-dessus l'autre — « une case = 0,85 UA » et « 2 000
-     unités astronomiques » superposées, illisibles. Le quadrillage s'efface
-     donc AVANT que la carte ne paraisse, et le noir couvre entre les deux :
+     Il était opaque, et il effaçait le fond étoilé d'un coup — la nébuleuse
+     mauve s'éteignait au moment précis où l'on venait de traverser dix-sept
+     secondes pour la voir. Elle reste donc visible dessous, simplement assombrie
+     de ce qu'il faut pour que les orbites se lisent.
 
-       le fond noir monte vite, et cache la pièce ;
-       le quadrillage s'éteint sur ce noir, à 0,35 ;
-       les orbites se lèvent ensuite, sur du noir franc. */
-  const fond   = Math.min(1, E.carte * 2.4);
-  const trame  = Math.max(0, (0.35 - E.carte) / 0.35);
-  const orbite = Math.max(0, (E.carte - 0.35) / 0.65);
+     Le quadrillage, lui, s'efface avant que la carte ne monte : sans ce
+     décalage leurs deux légendes s'écrivaient au même coin de l'écran, l'une
+     par-dessus l'autre. */
+  const fond   = E.carte * 0.62;
+  const trame  = Math.max(0, (0.30 - E.carte) / 0.30);
+  const orbite = Math.max(0, (E.carte - 0.30) / 0.70);
 
   if(E.carte > 0.005){
     ctx.save();
@@ -5832,18 +5852,20 @@ function boucle(now){
     gl.uniform3fv(uTeinte, COUL_BANDE[bandeA(lgLambda).id] || [1,1,1]);
     gl.uniform1f(uEclat, eclatA(lgLambda));
   }
-  /* Passé la bascule, le lanceur de géodésiques ne sert plus à rien — et pire,
-     il ment. À cette distance son budget de pas ne suffit plus à atteindre
-     l'astre, et son repli de capture déclare alors le rayon avalé : l'écran
-     devient NOIR au lieu de montrer un ciel vide.
+  /* Le lancer de géodésiques tourne TOUT LE TEMPS, y compris à cent mille
+     rayons.
 
-     On l'éteint donc, et l'on nettoie explicitement. Cette passe ne nettoie
-     jamais d'elle-même : son triangle plein écran recouvre tout, si bien que la
-     sauter sans effacer laisserait la dernière image figée à l'écran. */
-  if(TELESCOPE.carte > 0.995){
-    gl.clearColor(0, 0, 0, 1);
-    gl.clear(gl.COLOR_BUFFER_BIT);
-  } else gl.drawArrays(gl.TRIANGLES, 0, 3);
+     Je l'éteignais au-delà d'un seuil, en croyant qu'il rendrait du noir une
+     fois son budget de pas épuisé. Mesuré, c'est faux : à 117 886 rayons il
+     rend toujours le ciel, (68, 52, 111) au centre, exactement comme à trois
+     mille. Les rayons qui n'atteignent pas l'astre ne sont pas déclarés avalés
+     — ils sortent simplement sur le fond étoilé, ce qui est juste.
+
+     Je jetais donc une nébuleuse parfaitement calculée pour la remplacer par du
+     noir plat, et cela se voyait : Hugo a vu le fond mauve s'éteindre d'un
+     coup. Le trou noir, lui, se réduit tout seul jusqu'à disparaître — ce qui
+     est précisément ce qu'on est venu montrer. */
+  gl.drawArrays(gl.TRIANGLES, 0, 3);
 
   // Seconde passe : l'habitacle par-dessus. Le tampon de profondeur part
   // vierge, donc tout ce qui a de la géométrie recouvre le fond — et la baie,

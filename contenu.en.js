@@ -1373,7 +1373,8 @@ notes: {
         "<b>The texture of the disc at radio wavelengths.</b> That is an appearance effect, not a radiative transfer calculation. The sizes are measured, though: at three centimetres, the emitting region really does reach thirty-seven radii.",
         "<b>The grid during the retreat.</b> Nothing grids space. It exists only while moving, because in true emptiness nothing proves you are travelling — and without it, four decades look like a frozen screen.",
         "<b>The chart of the S stars.</b> It is a reconstruction, not a view. These orbits last from sixteen to three hundred and thirty-one years: nobody has ever watched them go round. They were measured over thirty years, and that is precisely the point.",
-        "<b>The set and the people.</b> Everything is computed and nothing is imported — but a ship and its crew are not measurements. Only what you see through the bay claims to be.",
+        "<b>The set and the people.</b> Everything is computed and nothing is imported — but a ship and its crew are not measurements.",
+        "<b>The background sky.</b> Its stars are scattered at random, and the purple nebula is scenery: neither surveyed positions nor computed emission. What you would actually see from out there would be more impressive still — you are inside the nuclear star cluster, millions of stars within a few light years. What is exact in this image is the way gravity bends that light: the background is invented, its distortion is not.",
       ],
     },
     {

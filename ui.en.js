@@ -54,7 +54,10 @@ Object.assign(window.UI, {
     "The black hole is right there, at the centre, and you cannot see it: at " +
     "this distance it falls far below a single pixel. What you can see are ten " +
     "measured orbits, and every one of them turns around the same empty point. " +
-    "That is how we knew it was there — thirty years before we had a picture.",
+    "That is how we knew it was there — thirty years before we had a picture. " +
+    "The sky behind them, on the other hand, is scenery: its stars are scattered " +
+    "at random and its nebula is invented. What is exact here are the orbits, and " +
+    "the way gravity bends light.",
   "tele.retour.etiq":      "return",
   "tele.retour.titre":     "Back towards the black hole",
   "tele.retour.quoi":      "The same trip the other way, at the same price in time.",

@@ -1376,7 +1376,8 @@ notes: {
         "<b>La texture du disque en ondes radio.</b> C'est un effet d'apparence, pas un calcul de transfert radiatif. Les tailles, elles, viennent des mesures : à trois centimètres de longueur d'onde, la région qui émet atteint bien trente-sept rayons.",
         "<b>Le quadrillage pendant le recul.</b> Rien ne quadrille l'espace. Il n'existe que pendant le mouvement, parce que dans le vide absolu rien ne prouve qu'on avance — et sans lui, quatre décades ressemblent à un écran figé.",
         "<b>La carte des étoiles S.</b> C'est une reconstruction, pas une vue. Ces orbites durent de seize à trois cent trente et un ans : personne ne les a jamais vues tourner. On les a mesurées pendant trente ans, et c'est justement le sujet.",
-        "<b>Le décor et les personnages.</b> Tout est calculé, rien n'est importé — mais un vaisseau et des gens ne sont pas des mesures. Seul ce qu'on voit par la baie prétend l'être.",
+        "<b>Le décor et les personnages.</b> Tout est calculé, rien n'est importé — mais un vaisseau et des gens ne sont pas des mesures.",
+        "<b>Le fond du ciel.</b> Les étoiles y sont posées au hasard, et la nébuleuse mauve est un décor : ce ne sont ni des positions relevées ni un rayonnement calculé. Ce qu'on verrait vraiment depuis là-bas serait d'ailleurs plus impressionnant — on est à l'intérieur de l'amas nucléaire, des millions d'étoiles en quelques années-lumière. Ce qui est exact dans cette image, c'est la façon dont la gravité en dévie la lumière : le fond est faux, sa déformation est juste.",
       ],
     },
     {
