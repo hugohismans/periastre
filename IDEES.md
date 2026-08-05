@@ -738,3 +738,37 @@ trajet dans le vide : il faut une progression **logarithmique**, ce qui est
 exactement le moteur de zoom décrit dans `OBJECTIFS.md` et jamais construit.
 C'est l'occasion de le faire, et il resservira pour le dézoom vers la Voie
 lactée.
+
+### Le quadrillage — sans quoi le recul ne se voit pas
+
+Hugo, en réponse au recul logarithmique : *« on ne va pas se rendre compte
+qu'on dézoome à ce point, mets un petit quadrillage temporaire. »*
+
+C'est le problème central de toute visualisation d'échelle, et il est plus
+sérieux qu'il n'en a l'air : **dans le vide, rien ne prouve qu'on bouge.** Pas
+de parallaxe, pas de bord qui défile. Quatre décades de recul ressemblent alors
+à un écran figé qui s'assombrit — et le spectateur conclut que ça a planté,
+pas qu'il s'éloigne. C'est ce qui fait rater la plupart des animations de ce
+genre.
+
+**La solution est un étalon qui défile.** Un quadrillage dans le plan de
+l'orbite, dont la maille vaut une puissance de dix ronde, avec sa valeur
+écrite dessus.
+
+Trois détails qui font toute la différence, et qu'il ne faut pas rater :
+
+- **Il se renumérote en franchissant chaque décade.** La maille reste de la
+  même taille à l'écran, mais son étiquette passe de « 100 rayons » à « 1 000 »
+  puis à « 10 000 ». C'est ce saut d'étiquette, répété quatre fois, qui fait
+  *sentir* la distance — bien plus qu'un compteur continu qu'on ne lit pas.
+- **Il n'apparaît que pendant le mouvement**, et s'efface à l'arrivée. C'est un
+  instrument de mesure, pas un décor : une fois qu'on est là, il n'a plus rien
+  à dire et il encombrerait les orbites.
+- **Il est déclaré comme une fiction.** Rien ne quadrille l'espace. Le site
+  affirme partout que ce qu'on voit est calculé, donc cet ajout-là doit être
+  nommé pour ce qu'il est — un instrument posé sur l'image, comme la règle
+  qu'on met à côté d'un fossile sur une photographie.
+
+Et l'arrivée dit le reste toute seule : le trou noir a disparu sous le pixel,
+les orbites emplissent l'écran, et il ne reste que des étoiles tournant autour
+de rien. C'est exactement ce qu'ont vu les astronomes pendant trente ans.
