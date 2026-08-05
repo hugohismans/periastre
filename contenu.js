@@ -13,6 +13,11 @@
 
 window.CONTENU = {
 
+// La langue de ce fichier. Elle sert au chemin des voix, et elle dira un jour
+// à la page quel jeu de textes elle a chargé.
+langue: "fr",
+
+
 // ---------------------------------------------------------------- références
 sources: {
   gravity2021: {
@@ -419,6 +424,23 @@ reactions: {
     { id:"inactif-4", t:`Ce trou noir-là tourne sur lui-même et entraîne l'espace avec lui. Monte le curseur de rotation : l'ombre se décentre, et un bord se rapproche. <i>Fiche 8.</i>`,
       dire:`Ce trou noir-là tourne sur lui-même, et il entraîne l'espace avec lui. Monte le curseur de rotation : l'ombre se décentre, et un bord se rapproche. Va voir la fiche huit.`,
       sources:["eht2022","bardeen1972"] },
+    { id:"inactif-11", t:`Second avis aux passagers, dans le même esprit. Notre moteur tient <b>1 g</b> indéfiniment, ce qui est très commode et parfaitement invraisemblable. Le service technique n'a jamais voulu expliquer comment il fonctionne, et je crois que c'est parce qu'il ne le sait pas non plus.`,
+      dire:`Second avis aux passagers, dans le même esprit. Notre moteur tient un g indéfiniment, ce qui est très commode et parfaitement invraisemblable. Le service technique n'a jamais voulu expliquer comment il fonctionne, et je crois que c'est parce qu'il ne le sait pas non plus.`,
+      pourquoi:`La difficulté n'est pas la poussée, c'est de l'entretenir. Une fusée qui
+                veut changer sa rapidité de $\Delta\eta$ doit emporter un rapport de
+                masses $M_i/M_f = e^{\Delta\eta / (v_e/c)}$ : le carburant doit pousser
+                le carburant, et la note grimpe de façon <b>exponentielle</b>.
+                <br><br>Pour rejoindre le centre galactique à 1 g, la rapidité accumulée
+                vaut 20,47. Même avec le moteur le plus efficace que la physique autorise
+                — conversion totale de la masse en énergie, éjectée exactement à
+                l'arrière — il faudrait environ <b>780 000 tonnes de carburant par
+                kilogramme arrivé</b>. Avec des ergols chimiques, dont la vitesse
+                d'éjection est cent-millième de celle de la lumière, l'exposant devient si
+                grand que la masse requise dépasse celle de l'univers observable.
+                <br><br>Ce n'est donc pas une question d'ingénierie à perfectionner :
+                c'est l'équation de Tsiolkovski qui interdit le voyage, pas la
+                technologie.`,
+      sources:["misner1973"] },
     { id:"inactif-10", t:`Avis aux passagers. Nous orbitons, donc nous sommes en chute libre, donc vous devriez tous flotter. <b>Pour des raisons de confort et de scénario, la direction a décrété que la gravité serait magique à bord.</b> C'est le seul mensonge de ce vaisseau. Tout le reste est calculé.`,
       dire:`Avis aux passagers. Nous orbitons, donc nous sommes en chute libre, donc vous devriez tous flotter. Pour des raisons de confort et de scénario, la direction a décrété que la gravité serait magique à bord. C'est le seul mensonge de ce vaisseau. Tout le reste est calculé.`,
       pourquoi:`Rien ne plaque un corps au plancher d'un vaisseau en orbite : l'habitacle et son
@@ -638,7 +660,7 @@ accueilQuete: [
     dire:`Merci. À cette vitesse, plus rien ne bouge, et c'est la vérité : un tour d'orbite dure quatre heures quarante-quatre. L'accélération est un choix de confort, et c'est le seul endroit du site où l'on te ment. Remets ce que tu veux. Tant qu'on parle du temps, tu devrais savoir comment nous sommes arrivés ici. Ce vaisseau a poussé à un g, la pesanteur terrestre, la moitié du trajet en accélérant et l'autre en freinant. Une vingtaine d'années de vie à bord. Sur Terre, il s'en est écoulé vingt-sept mille. Personne de ceux qui nous ont regardés partir n'était là pour nous voir arriver. Ce n'est pas une licence de scénario : c'est ce que donnent les équations.`,
     pourquoi:`Fusée relativiste à accélération propre constante. Le temps propre d'un trajet
               où l'on accélère puis freine vaut
-              $\tau = \tfrac{4c}{a}\,\operatorname{arccosh}\!\left(\tfrac{ad}{4c^{2}}+1\right)$.
+              $\tau = \tfrac{2c}{a}\,\operatorname{arccosh}\!\left(\tfrac{ad}{2c^{2}}+1\right)$.
               Pour $a = g$ et $d = 8\,277$ pc, il vient une vingtaine d'années propres,
               tandis que le temps mesuré depuis la Terre reste à peine supérieur à $d/c$,
               soit environ 27 000 ans : à ces vitesses le vaisseau suit la lumière de très

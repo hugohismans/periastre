@@ -3067,6 +3067,11 @@ const resous = x =>
   Array.isArray(x) ? resous(tire(x)) :
   (x && x.niv)     ? resous(x.niv[iNiveau]) : x;
 
+/* La langue du contenu chargé. Une seule pour l'instant, mais le chemin des
+   voix la traverse déjà : ajouter l'anglais ne demandera pas de retoucher la
+   lecture audio, seulement de charger l'autre fichier de contenu. */
+const LANGUE = CONTENU.langue || "fr";
+
 const REACTIONS = CONTENU.reactions;
 const QUESTIONS = CONTENU.questions;
 
@@ -3114,7 +3119,7 @@ function parle(o, prioritaire){
      répare rien, puisqu'on ne le cherche qu'après avoir sursauté une fois.
      Deux brèves notes montantes, puis la parole. */
   const delai = MUSIQUE.annonce();
-  const chemin = `voix/${CONTENU.voix[iVoix].id}/${o.id}.mp3`;
+  const chemin = `voix/${LANGUE}/${CONTENU.voix[iVoix].id}/${o.id}.mp3`;
   attenteVoix = setTimeout(() => {
     attenteVoix = null;
     audio = new Audio(chemin);
