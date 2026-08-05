@@ -764,9 +764,9 @@ body.au-salon:not(.mode-boutons) #dock { opacity:0; pointer-events:none; }
     <div class="grille" id="voix-choix"></div>
   </div>
   <div class="bloc">
-    <div class="etiq">Rotation du trou noir</div>
+    <div class="etiq">Rotation — non mesurée</div>
     <div class="grille" id="spin-choix"></div>
-    <div id="spin-note"></div>
+    <div id="spin-note">On ne connaît pas le spin de Sagittarius A*. Ces quatre valeurs sont des hypothèses, pas des mesures.</div>
   </div>
   <div class="bloc">
     <div class="etiq">Volume de la voix</div>
@@ -3245,17 +3245,30 @@ CONTENU.voix.forEach((v, i) => {
 // tournante, pas un défaut réparable.
 // Borné à 0,95 : au-delà, l'orbite photonique prograde se colle à l'horizon et
 // la mesure montre que l'intégrateur décroche.
+/* Aucune de ces quatre valeurs n'est mesurée.
+
+   La masse de Sgr A* est connue à un pour cent près, sa distance aussi. Son
+   spin, non : les méthodes ne s'accordent pas. Présenter zéro comme le défaut
+   laissait croire qu'il ne tourne pas et que le reste serait une fantaisie ;
+   c'est l'inverse. Aucun trou noir réel n'est immobile — ils naissent d'étoiles
+   qui tournaient — mais nous ignorons de combien celui-ci tourne.
+
+   L'honnêteté n'est donc pas de choisir la bonne valeur, puisqu'on ne la
+   connaît pas : c'est de montrer l'éventail et de dire qu'on l'ignore. Zéro
+   reste le point de départ parce que c'est le cas de RÉFÉRENCE — le seul où
+   l'image n'a aucun artefact de coordonnées — et non parce qu'il serait vrai. */
 const boitierSpin = $("spin-choix");
-[["aucune", 0, "Schwarzschild. L'ombre est un cercle parfait."],
- ["modérée", 0.6, "L'ombre s'aplatit du côté où la rotation vient vers toi."],
- ["rapide", 0.9, "Asymétrie mesurée 2,30 contre 2,40 en théorie."],
- ["extrême", 0.95, "Proche de la limite de Thorne. C'est la forme de Gargantua."],
+[["aucune", 0, "Cas de référence, non une mesure : l'ombre est un cercle parfait et l'image est sans défaut."],
+ ["modérée", 0.6, "Hypothèse. L'ombre se décentre du côté où la rotation vient vers toi."],
+ ["rapide", 0.9, "Hypothèse. Asymétrie mesurée dans notre calcul : 2,30 contre 2,40 en théorie."],
+ ["extrême", 0.95, "Hypothèse haute, proche de la limite de Thorne. C'est la forme de Gargantua."],
 ].forEach(([nom, v, note], i) => {
   const b = document.createElement("button");
   b.textContent = nom;
   b.onclick = () => {
     spin = v;
-    $("spin-note").textContent = note + (v > 0 ? " Une fine couture apparaît sur l'axe : c'est la singularité de coordonnées." : "");
+    $("spin-note").textContent = note
+      + (v > 0 ? " Une fine couture apparaît sur l'axe : c'est la singularité de coordonnées, pas un défaut de calcul." : "");
     [...boitierSpin.children].forEach((c, j) => c.classList.toggle("actif", j === i));
     sauve();
   };
