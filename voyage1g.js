@@ -70,6 +70,12 @@ function trajet(d_m, a){
    qu'elle sort exactement à l'arrière. */
 function rapportDeMasses(eta){ return Math.exp(2*eta); }
 
+// Un exposant en vrais chiffres supérieurs : « 10^8 » est une notation de
+// clavier, pas de typographie, et le site en affiche partout ailleurs.
+const CHIFFRES_HAUT = "⁰¹²³⁴⁵⁶⁷⁸⁹";
+const exposant = n => String(n).split("")
+  .map(c => c === "-" ? "⁻" : (CHIFFRES_HAUT[+c] || c)).join("");
+
 const joli = {
   duree(s){
     const an = s/AN;
@@ -81,14 +87,19 @@ const joli = {
     return Math.round(s/60) + " min";
   },
   distance(m){
-    if(m >= 0.05*AL) return (m/AL).toFixed(m < AL ? 3 : 0) + " années-lumière";
+    if(m >= 0.05*AL){
+      const al = m/AL;
+      return (al < 1 ? al.toFixed(3).replace(".", ",")
+                     : Math.round(al).toLocaleString("fr-FR")) + " années-lumière";
+    }
     if(m >= 100*UA)  return Math.round(m/UA).toLocaleString("fr-FR") + " unités astronomiques";
-    return (m/UA).toFixed(1) + " unités astronomiques";
+    return (m/UA).toFixed(1).replace(".", ",") + " unités astronomiques";
   },
   masses(r){
     if(r < 1e4) return Math.round(r).toLocaleString("fr-FR") + " kg par kg arrivé";
     const e = Math.floor(Math.log10(r));
-    return (r/Math.pow(10, e)).toFixed(1) + " × 10^" + e + " kg par kg arrivé";
+    return (r/Math.pow(10, e)).toFixed(1).replace(".", ",")
+           + " × 10" + exposant(e) + " kg par kg arrivé";
   },
 };
 
@@ -111,6 +122,40 @@ const DESTINATIONS = [
     quoi:"La maison. Vingt-sept mille années-lumière." },
 ];
 
+/* Où en est-on EN COURS DE ROUTE.
+
+   Le chronomètre du bord ne peut pas interpoler linéairement : le temps propre
+   ne croît pas comme la distance, c'est tout le sujet. On le calcule donc
+   exactement à mi-chemin près.
+
+   Pour une phase d'accélération seule, depuis l'arrêt, sur une distance s :
+
+       τ(s) = (c/a) · arcosh( a·s/c² + 1 )
+       t(s) = (c/a) · sinh( a·τ/c )
+
+   La seconde moitié est le miroir de la première : freiner sur les derniers s
+   coûte exactement ce qu'a coûté d'accélérer sur les premiers s. On calcule
+   donc la première moitié directement, et la seconde par différence.
+
+   @param d_m  longueur totale du trajet
+   @param s_m  distance déjà parcourue
+   Rend les deux durées écoulées, en secondes. */
+function enChemin(d_m, s_m, a){
+  a = a || G_N;
+  const phase = s => {                       // accélération seule sur s
+    const tau = (C/a) * Math.acosh(a*s/(C*C) + 1);
+    return { tau, t: (C/a) * Math.sinh(a*tau/C) };
+  };
+  const s = Math.max(0, Math.min(d_m, s_m));
+  const moitie = phase(d_m/2), total = { tau: 2*moitie.tau, t: 2*moitie.t };
+  if(s <= d_m/2){
+    const p = phase(s);
+    return { tau: p.tau, t: p.t };
+  }
+  const reste = phase(d_m - s);              // ce qu'il reste à freiner
+  return { tau: total.tau - reste.tau, t: total.t - reste.t };
+}
+
 /* La distance parcourue est la DIFFÉRENCE entre deux rayons, pas le rayon de
    l'arrivée : on part d'où l'on est. */
 function entre(depuis_m, vers_m, a){
@@ -121,7 +166,7 @@ function entre(depuis_m, vers_m, a){
   return r;
 }
 
-global.VOYAGE = { trajet, entre, rapportDeMasses, joli, DESTINATIONS,
+global.VOYAGE = { trajet, entre, enChemin, rapportDeMasses, joli, DESTINATIONS,
                   C, G_N, AL, AN, UA };
 
 })(window);

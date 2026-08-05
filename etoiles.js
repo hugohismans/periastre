@@ -54,8 +54,36 @@ const DEG = Math.PI/180;
    signale que ce point n'est pas écrit noir sur blanc dans l'article.
 
    ATTENTION, piège relevé à la lecture : Ω y désigne le nœud où l'astre
-   S'APPROCHE, l'inverse de l'usage en binaires visuelles. Une erreur de signe
-   ici retourne l'orbite. À vérifier par un essai numérique avant publication. */
+   S'APPROCHE, l'inverse de l'usage en binaires visuelles.
+
+   ---------------------------------------------------------------------------
+   CE QUI A ÉTÉ VÉRIFIÉ, ET CE QUI RESTE OUVERT
+
+   Vérifié, et solide : la troisième loi de Kepler appliquée aux dix étoiles
+   rend 4,33 à 4,38 millions de masses solaires, soit 1 % de dispersion sur des
+   demi-grands axes allant de 892 à 7 813 unités astronomiques. Le périastre de
+   S2 tombe à 120,6 UA contre 120 publiées, sa vitesse à 7 790 km/s contre
+   7 650, et S55 — la ligne autrefois corrompue par un rendu HTML — est
+   désormais la plus proche de la moyenne. Aucune ligne n'est suspecte.
+
+   OUVERT, et assumé comme tel : le signe de la troisième composante. La
+   formule ci-dessous reproduit exactement les constantes de Thiele-Innes de
+   Wright & Howard 2009, que Gillessen cite pour son ajustement ; dans cette
+   convention le nœud ascendant est le nœud d'approche, donc cette composante
+   pointe VERS l'observateur. Dans la convention usuelle des binaires
+   visuelles, elle pointerait à l'opposé.
+
+   Départager les deux demande le signe de la vitesse radiale de S2 à une date
+   connue. Il ne figure dans le texte d'aucun des articles consultés — seulement
+   sur une figure. La géométrie impose que les deux extrêmes soient dans un
+   rapport de 2,16 (soit environ 4 050 et 1 880 km/s), mais pas lequel vient
+   avant le périastre.
+
+   Conséquence pratique, et c'est pourquoi on peut publier ainsi : la vue est
+   une reconstruction libre, orientable, qui n'indique aucune direction vers la
+   Terre et ne marque aucun côté proche. L'ambiguïté n'est donc pas observable,
+   et le site n'affirme rien à son sujet. Ne pas ajouter d'axe « vers la Terre »
+   sans avoir tranché. Voir ETOILES-S.md, § 4. */
 const R0_UA = 8277;      // une seconde d'arc, en unités astronomiques
 
 const ETOILES = [
@@ -116,16 +144,36 @@ function trace(s){
 // Une caméra qui tourne autour de l'origine. Projection orthographique : à
 // cette distance la perspective n'apporte rien et fausserait la lecture des
 // ellipses, qu'on veut pouvoir comparer.
-const vue = { azim: 0.6, elev: 0.5, echelle: 1, annee: 2026.6, vitesse: 1.2 };
+/* L'échelle d'ouverture : huit mille unités astronomiques de demi-étendue.
+
+   Neuf des dix orbites y tiennent en entier — la plus large, S1, culmine à
+   7 662. Seule S24 balaye au-delà, avec son apoastre à 14 823, et l'on va la
+   chercher en dézoomant. Cadrer sur elle rapetissait tout le reste jusqu'à
+   rendre l'essaim illisible, alors que c'est l'essaim le sujet : dix étoiles
+   qui tournent autour du même point vide. */
+const vue = { azim: 0.6, elev: 0.5, echelle: 1, annee: 1992, vitesse: 3.2 };
+
+// La campagne d'observation va de 1992 à aujourd'hui. Au-delà, on ne mesure
+// plus : on prédit. Kepler y a droit, mais il faut le dire.
+const FIN_MESURES = 2026.6;
 
 function projette(p, W, H){
   const ca = Math.cos(vue.azim), sa = Math.sin(vue.azim);
   const ce = Math.cos(vue.elev), se = Math.sin(vue.elev);
   const x =  p[0]*ca + p[1]*sa;
   const y = -p[0]*sa + p[1]*ca;
-  const k = Math.min(W, H) / (2600 / vue.echelle);
+  /* Le champ vaut seize mille unités astronomiques de large, soit huit mille de
+     demi-étendue. Il valait deux mille six cents, ce qui ne contenait même pas
+     l'orbite de S2 : son apoastre est à 1 957 UA, donc elle sortait de l'écran
+     alors que c'est elle la vedette. À huit mille, tout l'essaim tient sauf la
+     partie externe de S24, qu'on va chercher en dézoomant. */
+  const k = Math.min(W, H) / (16000 / vue.echelle);
   return [ W/2 + x*k, H/2 - (y*se + p[2]*ce)*k ];
 }
+
+// La demi-étendue visible, en unités astronomiques. C'est elle que l'échelle
+// affiche : un diagramme sans étalon ne se lit pas.
+function demiEtendue(){ return 8000 / vue.echelle; }
 
 // ------------------------------------------------------------------ dessin
 const TEINTES = ["#ffd08a","#7fd8ff","#a8ffc9","#ff9bb0","#c9b4ff",
@@ -134,7 +182,10 @@ const TEINTES = ["#ffd08a","#7fd8ff","#a8ffc9","#ff9bb0","#c9b4ff",
 function dessine(ctx, W, H, dt){
   vue.annee += dt * vue.vitesse;
 
-  ctx.clearRect(0, 0, W, H);
+  /* Pas de clearRect ici : le calque est partagé avec le reste du site, et
+     l'effacer interdirait tout fondu — la carte apparaîtrait d'un coup au lieu
+     de se substituer à la baie. Le fond opaque suffit, et son alpha est ce qui
+     porte la transition. */
   ctx.fillStyle = "#05050a";
   ctx.fillRect(0, 0, W, H);
 
@@ -155,7 +206,11 @@ function dessine(ctx, W, H, dt){
     const t = TEINTES[k % TEINTES.length];
     const pts = trace(s);
 
-    ctx.strokeStyle = t; ctx.globalAlpha = 0.22; ctx.lineWidth = 1;
+    // S2 se détache : c'est sur elle qu'on a mesuré le décalage vers le rouge
+    // et la précession, et c'est elle que le texte suit.
+    ctx.strokeStyle = t;
+    ctx.globalAlpha = s.nom === "S2" ? 0.46 : 0.22;
+    ctx.lineWidth   = s.nom === "S2" ? 1.4  : 1;
     ctx.beginPath();
     pts.forEach((p, j) => {
       const q = projette(p, W, H);
@@ -168,9 +223,17 @@ function dessine(ctx, W, H, dt){
     ctx.fillStyle = t;
     ctx.beginPath(); ctx.arc(q[0], q[1], s.nom === "S2" ? 4.5 : 3, 0, 6.2832); ctx.fill();
 
-    ctx.globalAlpha = 0.8;
-    ctx.font = (s.nom === "S2" ? "600 " : "") + "11px ui-monospace, monospace";
-    ctx.fillText(s.nom, q[0] + 8, q[1] + 4);
+    /* L'étiquette se tait près du centre.
+
+       Toutes les orbites y passent, et au périastre les dix noms se
+       superposaient en un pâté illisible. Une étoile trop près du trou noir se
+       reconnaît de toute façon à sa couleur et à l'ellipse qu'elle suit ; c'est
+       en s'écartant qu'elle a besoin d'être nommée. */
+    if(Math.hypot(q[0] - c[0], q[1] - c[1]) > 26){
+      ctx.globalAlpha = 0.8;
+      ctx.font = (s.nom === "S2" ? "600 " : "") + "11px ui-monospace, monospace";
+      ctx.fillText(s.nom, q[0] + 8, q[1] + 4);
+    }
   });
   ctx.globalAlpha = 1;
 
@@ -179,14 +242,59 @@ function dessine(ctx, W, H, dt){
   ctx.fillStyle = "#000";
   ctx.beginPath(); ctx.arc(c[0], c[1], 5, 0, 6.2832); ctx.fill();
   ctx.strokeStyle = "rgba(255,190,120,0.75)"; ctx.lineWidth = 1.2; ctx.stroke();
+
+  etalon(ctx, W, H);
+}
+
+/* L'étalon et la date.
+
+   Un diagramme sans échelle n'est qu'un dessin, et celui-ci prétend prouver
+   quelque chose. La barre vaut une puissance de dix ronde d'unités
+   astronomiques, choisie pour occuper un bon quart de l'écran.
+
+   La date compte autant : ces orbites durent de seize à trois cent trente et un
+   ans. Personne ne les a vues tourner. On les a mesurées pendant trente ans, et
+   ce qui défile ici est une RECONSTRUCTION — la dire est la même règle que pour
+   le quadrillage du recul. */
+function etalon(ctx, W, H){
+  const k = Math.min(W, H) / (16000 / vue.echelle);
+  const brut = demiEtendue() * 0.5;
+  const rond = Math.pow(10, Math.floor(Math.log10(brut)));
+  const val  = rond * (brut/rond >= 5 ? 5 : brut/rond >= 2 ? 2 : 1);
+  const px   = val * k;
+  const x0 = 20, y0 = H - 26;
+
+  ctx.save();
+  ctx.strokeStyle = "rgba(200,214,255,0.62)"; ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(x0, y0 - 4); ctx.lineTo(x0, y0 + 4);
+  ctx.moveTo(x0, y0);     ctx.lineTo(x0 + px, y0);
+  ctx.moveTo(x0 + px, y0 - 4); ctx.lineTo(x0 + px, y0 + 4);
+  ctx.stroke();
+
+  ctx.fillStyle = "rgba(200,214,255,0.78)";
+  ctx.font = "11px ui-monospace, monospace";
+  ctx.textAlign = "left";
+  ctx.fillText(val.toLocaleString("fr-FR") + " unités astronomiques", x0, y0 - 10);
+
+  const mesure = vue.annee <= FIN_MESURES;
+  ctx.fillStyle = mesure ? "rgba(255,208,138,0.85)" : "rgba(143,182,255,0.85)";
+  ctx.fillText("année " + Math.floor(vue.annee) + (mesure ? " — mesuré" : " — prédit"), x0, y0 + 20);
+
+  ctx.fillStyle = "rgba(160,166,190,0.72)";
+  ctx.font = "10px ui-monospace, monospace";
+  ctx.fillText("reconstruction — ces orbites durent de 16 à 331 ans", x0, y0 + 36);
+  ctx.restore();
 }
 
 function tourne(dx, dy){
   vue.azim += dx*0.006;
   vue.elev = Math.max(-1.45, Math.min(1.45, vue.elev + dy*0.006));
 }
-function zoome(f){ vue.echelle = Math.max(0.25, Math.min(6, vue.echelle*f)); }
+// De 0,2 — où S24 tient tout entière — à 10, où l'on descend jusqu'au périastre
+// de S2, à cent vingt unités astronomiques du trou noir.
+function zoome(f){ vue.echelle = Math.max(0.2, Math.min(10, vue.echelle*f)); }
 
-global.ETOILES_S = { ETOILES, position, dessine, tourne, zoome, vue };
+global.ETOILES_S = { ETOILES, position, dessine, tourne, zoome, vue, demiEtendue };
 
 })(window);

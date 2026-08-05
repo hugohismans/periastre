@@ -273,6 +273,65 @@
     #sp-note { min-height:0; }
   }
 
+  /* ---- le télescope ----
+
+     Un instrument, pas un menu. Il se pose au centre parce qu'on s'y met : on a
+     traversé le salon pour venir là, et l'écran doit le reconnaître. Les
+     destinations reprennent l'index de l'accueil — même filets, même durée en
+     capitales fines à gauche — pour qu'on lise le voyage comme on lit une
+     table des matières. */
+  #instrument {
+    position:fixed; z-index:6; top:50%; left:50%; transform:translate(-50%,-50%);
+    width:min(580px, 94vw); max-height:86vh; overflow-y:auto; pointer-events:auto;
+    background:color-mix(in srgb, var(--nuit) 95%, transparent); backdrop-filter:blur(18px);
+    border:1px solid var(--filet); border-radius:5px; padding:20px 22px 18px;
+    opacity:0; visibility:hidden; transition:opacity .22s;
+    overscroll-behavior:contain; -webkit-overflow-scrolling:touch;
+  }
+  #instrument.vu { opacity:1; visibility:visible; }
+  /* À l'arrivée, l'instrument descend. Centré, il masquait exactement ce qu'on
+     venait de traverser dix-sept secondes pour voir. */
+  #instrument.arrivee {
+    top:auto; bottom:18px; transform:translateX(-50%);
+    width:min(640px, 94vw); max-height:44vh;
+  }
+  #in-tete { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; }
+  #in-titre { font-family:var(--serif); font-size:19px; color:#fff; }
+  #in-sous { font-size:11px; color:var(--sourd); letter-spacing:.03em; margin-top:3px; }
+  #in-fermer { flex:none; }
+  #in-liste { margin-top:15px; }
+  #in-liste .carte .chiffre {
+    grid-column:2; font-family:var(--chiffre); font-size:10.5px; color:var(--braise);
+    font-variant-numeric:tabular-nums; margin-top:6px; letter-spacing:.02em;
+  }
+  #in-pied {
+    margin-top:15px; padding-top:12px; border-top:1px solid var(--filet);
+    font-size:10.5px; line-height:1.65; color:var(--sourd);
+  }
+
+  /* Le chronomètre du trajet. Il double la grille du recul : la grille dit la
+     distance, lui dit le prix en temps. Coin bas-droit, hors du champ du
+     regard, parce qu'on veut d'abord voir l'astre rétrécir. */
+  #chrono {
+    right:28px; bottom:96px; width:min(238px, 46vw); pointer-events:none;
+    background:color-mix(in srgb, var(--nuit) 88%, transparent); backdrop-filter:blur(14px);
+    border:1px solid var(--filet); border-radius:4px; padding:12px 14px;
+    opacity:0; transition:opacity .35s; font-variant-numeric:tabular-nums;
+  }
+  #chrono.vu { opacity:1; }
+  #ch-quoi { font-family:var(--serif); font-size:13.5px; color:#fff; margin-bottom:9px; }
+  .ch-ligne { display:flex; align-items:baseline; justify-content:space-between; gap:10px; margin-top:4px; }
+  .ch-etiq { font-family:var(--chiffre); font-size:8.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--sourd); }
+  #ch-bord, #ch-loin { font-family:var(--chiffre); font-size:12px; color:var(--braise); }
+  #ch-loin { color:#8fb6ff; }
+  #ch-note { font-size:10px; line-height:1.55; color:var(--sourd); margin-top:9px; }
+
+  @media (max-width:760px){
+    #instrument { padding:16px 15px 14px; width:auto; left:10px; right:10px; transform:translateY(-50%); }
+    #in-titre { font-size:17px; }
+    #chrono { right:10px; bottom:auto; top:56px; width:min(200px, 54vw); padding:10px 11px; }
+  }
+
   /* ---- barre d'actions ---- */
   /* La barre parle enfin la même langue que les écrans du vaisseau : filets
      fins, capitales espacées, aucun aplat. Un bouton n'est plus une boîte mais
@@ -911,6 +970,30 @@ body.au-salon:not(.mode-boutons) #dock { opacity:0; pointer-events:none; }
   <canvas id="sp-graphe"></canvas>
   <input type="range" id="sp-regle" min="-13" max="0.5" step="0.02" value="-6.22">
   <div id="sp-reperes"></div>
+</div>
+
+<!-- Le télescope. On n'y arrive pas par un onglet mais par un lieu : on traverse
+     le salon et l'on se met à l'instrument. C'est la règle du vaisseau — ce qui
+     se manipule est dans le décor, pas autour. -->
+<div id="instrument">
+  <div id="in-tete">
+    <div>
+      <div id="in-titre">Le télescope</div>
+      <div id="in-sous">Où allons-nous ?</div>
+    </div>
+    <button id="in-fermer">Revenir au salon</button>
+  </div>
+  <div id="in-liste"></div>
+  <div id="in-pied"></div>
+</div>
+
+<!-- Le chronomètre du trajet. Il ne dit pas la durée de l'animation : il dit ce
+     que le voyage coûterait vraiment, aux deux horloges. -->
+<div class="hud" id="chrono">
+  <div id="ch-quoi"></div>
+  <div class="ch-ligne"><span class="ch-etiq">à bord</span><span id="ch-bord"></span></div>
+  <div class="ch-ligne"><span class="ch-etiq">au loin</span><span id="ch-loin"></span></div>
+  <div id="ch-note"></div>
 </div>
 
 <div class="hud" id="lecture-flottant"><div id="lecture"></div></div>
@@ -1733,6 +1816,12 @@ void main(){
 <script src="pantheon.js"></script>
 <script src="robot.js"></script>
 <script src="musique.js"></script>
+
+<!-- Le voyage. L'ordre compte : recul.js appelle VOYAGE.entre au chargement de
+     ses propres constantes, donc voyage1g.js doit être passé avant lui. -->
+<script src="voyage1g.js"></script>
+<script src="recul.js"></script>
+<script src="etoiles.js"></script>
 <script>
 "use strict";
 
@@ -2715,6 +2804,25 @@ let spin = 0;
 // Plan d'ouverture. Toute intervention du visiteur y coupe court : on ne lui
 // impose pas d'attendre la fin d'une animation.
 const cinema = { actif:true, t:0 };
+
+/* Le télescope, et le voyage qu'on y engage.
+
+   L'état se déclare ici, tout en haut, parce que la boucle de rendu le lit et
+   que le script est un seul bloc : une déclaration plus bas le mettrait en zone
+   morte au moment où les gestionnaires se branchent, ce qui tue le bloc entier
+   sans un mot. Deux fois suffisent.
+
+   `carte` est le fondu vers la carte des étoiles. Il ne suit pas la distance
+   mais la franchit : au-delà de quelques centaines de rayons, le lanceur de
+   géodésiques n'a plus assez de pas pour atteindre l'astre et rend du noir au
+   lieu du vide. On l'éteint donc avant qu'il ne mente. */
+const TELESCOPE = {
+  ouvert: false,     // le panneau est devant nous
+  trajet: null,      // la destination en cours, pendant le voyage
+  carte:  0,         // 0 : on regarde par la baie ; 1 : la carte des étoiles
+  grille: 0,         // apparition du quadrillage
+  retour: false,     // on rentre
+};
 // Réglages d'intégration, mesurables : on arbitre coût contre justesse avec
 // des chiffres, pas au jugé.
 let nbPas = 400, finesse = 0.010, seuilCapture = 1.2;
@@ -2779,6 +2887,278 @@ $("b-sonde").onclick = () => {
   }
   embarque(i);
 };
+
+/* ---- le télescope ----
+
+   Il ne quitte pas le salon : on reste dans la pièce, debout devant
+   l'instrument, et le panneau se pose par-dessus. C'est ce qui distingue un
+   lieu d'un onglet — on ne va nulle part, on se met à quelque chose.
+
+   La capture du pointeur se relâche en revanche, sans quoi le curseur reste
+   prisonnier et le panneau est inatteignable. */
+function distanceVaisseau(){ return len(salon.p) * KM_PAR_UNITE * 1000; }   // en mètres
+
+function ouvreTelescope(){
+  if(TELESCOPE.ouvert || TELESCOPE.trajet) return;
+  TELESCOPE.ouvert = true;
+  if(document.exitPointerLock) document.exitPointerLock();
+  cinema.actif = false;
+  RECUL.etat.distance = distanceVaisseau();
+  $("in-titre").textContent = "Le télescope";
+  $("in-sous").textContent  = "Où allons-nous ?";
+  poseDestinations();
+  $("instrument").classList.remove("arrivee");
+  $("instrument").classList.add("vu");
+}
+
+function fermeTelescope(){
+  TELESCOPE.ouvert = false;
+  $("instrument").classList.remove("vu");
+}
+
+/* Les destinations, avec leur prix en temps.
+
+   Chacune est calculée à l'instant où l'on ouvre, depuis la position réelle du
+   vaisseau : la distance parcourue est une DIFFÉRENCE de rayons, pas le rayon
+   d'arrivée. On part d'où l'on est. */
+function poseDestinations(){
+  const liste = $("in-liste");
+  liste.innerHTML = "";
+  const ici = distanceVaisseau();
+
+  DESTINATIONS.forEach(d => {
+    const v = VOYAGE.entre(ici, d.d_m);
+    const b = document.createElement("button");
+    b.className = "carte";
+    b.innerHTML =
+      '<span class="duree">' + VOYAGE.joli.distance(v.d_m) + '</span>' +
+      '<h2></h2>' +
+      '<p></p>' +
+      '<div class="chiffre"></div>';
+    b.querySelector("h2").textContent = d.nom;
+    b.querySelector("p").textContent  = d.quoi;
+    b.querySelector(".chiffre").textContent = d.atteignable
+      ? VOYAGE.joli.duree(v.tau) + " à bord  ·  " + VOYAGE.joli.duree(v.t) + " au loin"
+      : VOYAGE.joli.duree(v.tau) + " à bord, mais " + VOYAGE.joli.masses(v.masses);
+    b.onclick = () => choisitDestination(d, v);
+    liste.appendChild(b);
+  });
+
+  $("in-pied").textContent = PIED_TELESCOPE;
+}
+
+const PIED_TELESCOPE =
+  "Le vaisseau tient une accélération d'un g aussi longtemps qu'il faut : c'est " +
+  "la seule chose qu'on vous accorde, et personne ne sait la construire. Les " +
+  "durées, elles, sortent des équations et ne se négocient pas.";
+
+/* Deux destinations, et elles ne se valent pas.
+
+   La première s'atteint. La seconde ne s'atteint pas, et c'est tout son
+   intérêt : le trajet jusqu'au Soleil tient dans une vie humaine — vingt ans
+   vécus à bord — mais demande un rapport de masses que rien ne peut porter.
+   C'est la façon la plus courte de faire sentir pourquoi la galaxie est hors
+   d'atteinte, et elle est plus honnête qu'un voyage qu'on offrirait sans son
+   prix. */
+const PARSEC_M = 3.0856775814913673e16;
+const DESTINATIONS = [
+  /* Dix mille unités astronomiques, et non mille : à mille on serait encore AU
+     MILIEU de l'essaim, puisque l'apoastre de S2 seul est à 1 957. À dix mille
+     on est dehors, et tout l'essaim tient dans le champ sauf la partie externe
+     de S24. */
+  { id:"etoiles", nom:"Voir les étoiles tourner", d_m: 10000*VOYAGE.UA, atteignable:true,
+    quoi:"Assez loin pour que le trou noir disparaisse — et pour que les orbites " +
+         "des étoiles S tiennent dans le champ. C'est ainsi qu'on l'a découvert, " +
+         "trente ans avant d'en avoir une image." },
+  { id:"soleil", nom:"Le système solaire", d_m: 8277*PARSEC_M, atteignable:false,
+    quoi:"La maison, à vingt-sept mille années-lumière. Le trajet tiendrait dans " +
+         "une vie — mais regardez ce qu'il faudrait emporter." },
+];
+
+function choisitDestination(d, v){
+  if(!d.atteignable){
+    // On ne part pas. On dit pourquoi, chiffres à l'appui : c'est la leçon.
+    $("in-pied").textContent =
+      "Vingt ans à bord, vingt-sept mille au loin — et une fusée idéale, qui " +
+      "convertirait toute sa masse en énergie sans rien perdre, devrait emporter " +
+      VOYAGE.joli.masses(v.masses) + ". Aucune technologie connue n'en approche. " +
+      "Le vaisseau reste ici.";
+    return;
+  }
+  fermeTelescope();
+  lanceVoyage(d, v);
+}
+
+$("in-fermer").onclick = fermeTelescope;
+
+/* ---- le registre temporel ----
+
+   Chaque trajet inscrit sa ligne : ce qu'on a fait, et ce que ça a coûté aux
+   deux horloges. C'est un REGISTRE, pas une simulation — on enregistre ce qui
+   s'est passé, on n'intègre rien en continu.
+
+   Et il se fige quand on s'en va. C'était tranché : un compteur qui courrait en
+   l'absence du joueur récompenserait l'attente au lieu du voyage, ce qui est
+   l'inverse de ce qu'on veut enseigner. */
+const CLE_REGISTRE = "periastre.registre";
+let registre = [];
+
+try { registre = JSON.parse(localStorage.getItem(CLE_REGISTRE)) || []; }
+catch(e){ registre = []; }
+
+function inscritRegistre(quoi, v){
+  if(!v || !isFinite(v.tau) || !isFinite(v.t)) return;
+  registre.push({ q:quoi, tau:v.tau, t:v.t, d:v.d_m, quand:Date.now() });
+  if(registre.length > 40) registre.shift();
+  try { localStorage.setItem(CLE_REGISTRE, JSON.stringify(registre)); } catch(e){}
+}
+
+// L'écart accumulé entre les deux horloges, en secondes. C'est le seul chiffre
+// qui compte vraiment : le temps qu'on a gagné sur ceux qui sont restés.
+function ecartRegistre(){
+  return registre.reduce((s, e) => s + (e.t - e.tau), 0);
+}
+
+/* ---- le voyage ----
+
+   Il se déroule DEPUIS le salon. On ne change pas de décor : on reste dans la
+   pièce et l'on regarde l'astre rétrécir par la baie. C'est l'idée d'Hugo, et
+   elle vaut mieux qu'une scène séparée — le recul est vécu, pas raconté. La
+   pièce s'assombrit d'ailleurs toute seule, puisque son unique source de
+   lumière est le disque qu'on abandonne.
+
+   Deux choses se relaient. Tant que le trou noir tient dans le champ, c'est le
+   lanceur de géodésiques qui le montre, avec le quadrillage pour prouver qu'on
+   bouge. Passé quelques centaines de rayons, son budget de pas ne suffit plus
+   à l'atteindre et il rendrait du noir au lieu du vide : la carte des étoiles
+   prend alors la main.
+
+   Et cette carte est une RECONSTRUCTION, pas une vue. Ces orbites durent de
+   seize à trois cent trente et un ans ; personne ne les a jamais vues tourner.
+   On les a mesurées pendant trente ans, et c'est précisément le sujet. */
+const SEUIL_CARTE  = 260;      // rayons de Schwarzschild : au-delà, le lanceur ment
+const DUREE_VOYAGE = 17;       // secondes d'écran, sans rapport avec la durée vraie
+
+function lanceVoyage(d, v){
+  TELESCOPE.trajet = { dest:d, calcul:v, depart:distanceVaisseau(), arrive:false };
+  TELESCOPE.retour = false;
+  RECUL.etat.distance = TELESCOPE.trajet.depart;
+  RECUL.lance(d.d_m, DUREE_VOYAGE);
+  // La carte rejoue la campagne d'observation : trente ans, depuis le début.
+  ETOILES_S.vue.annee = 1992;
+  ETOILES_S.vue.vitesse = 3.2;
+  $("chrono").classList.add("vu");
+  $("ch-quoi").textContent = d.nom;
+  $("ch-note").textContent = "Le vaisseau tient un g. Ces durées sont celles qu'il faudrait vraiment.";
+  MUSIQUE.frappe(0.75);
+}
+
+function majVoyage(dt){
+  const T = TELESCOPE.trajet;
+  RECUL.avance(dt);
+
+  /* Le vaisseau s'écarte radialement en gardant sa direction : on ne le
+     téléporte pas, on l'éloigne. Sa vitesse orbitale n'a plus cours — on ne
+     tourne plus, on part. */
+  const r = RECUL.etat.distance / (KM_PAR_UNITE*1000);
+  const u = norm(salon.p);
+  salon.p = [u[0]*r, u[1]*r, u[2]*r];
+
+  // Le quadrillage ne paraît que pendant le mouvement : rien ne quadrille
+  // l'espace, et une grille qui resterait serait un mensonge de décor.
+  const veut = RECUL.actif ? 1 : 0;
+  TELESCOPE.grille += (veut - TELESCOPE.grille) * Math.min(1, dt*2.2);
+  // La bascule vers la carte, franchie bien avant que le lanceur ne fatigue.
+  const carte = r > SEUIL_CARTE ? 1 : 0;
+  TELESCOPE.carte += (carte - TELESCOPE.carte) * Math.min(1, dt*1.1);
+
+  majChrono();
+
+  if(!RECUL.actif && !T.arrive){ T.arrive = true; arriveVoyage(); }
+}
+
+/* Le chronomètre dit la vérité, et il ne l'interpole pas.
+
+   Le temps propre ne croît pas comme la distance — c'est tout l'objet du
+   voyage. On le calcule donc exactement pour la distance déjà parcourue, au
+   lieu d'étaler le total sur la barre d'avancement. */
+function majChrono(){
+  const T = TELESCOPE.trajet;
+  const parcouru = Math.abs(RECUL.etat.distance - T.depart);
+  const e = VOYAGE.enChemin(T.calcul.d_m, parcouru);
+  $("ch-bord").textContent = VOYAGE.joli.duree(e.tau);
+  $("ch-loin").textContent = VOYAGE.joli.duree(e.t);
+}
+
+function arriveVoyage(){
+  MUSIQUE.frappe(0.5);
+  const T = TELESCOPE.trajet, v = T.calcul;
+  inscritRegistre(TELESCOPE.retour ? "Retour au trou noir" : T.dest.nom, v);
+  if(TELESCOPE.retour){
+    // On rentre : la carte s'efface, l'orbite se rétablit.
+    TELESCOPE.trajet = null;
+    $("chrono").classList.remove("vu");
+    poseSalon();
+    return;
+  }
+  poseArrivee(T, v);
+}
+
+/* À l'arrivée, l'instrument reprend la main — puisque c'est lui qui montre.
+   Le panneau dit ce qu'on regarde, ce que ça a coûté, et propose de rentrer. */
+function poseArrivee(T, v){
+  $("in-titre").textContent = "Le télescope";
+  $("in-sous").textContent  = "Nous y sommes.";
+  const liste = $("in-liste");
+  liste.innerHTML = "";
+  const b = document.createElement("button");
+  b.className = "carte";
+  b.innerHTML = '<span class="duree">retour</span><h2></h2><p></p>';
+  b.querySelector("h2").textContent = "Revenir près du trou noir";
+  b.querySelector("p").textContent =
+    "Le même trajet dans l'autre sens, et le même prix en temps.";
+  b.onclick = () => { fermeTelescope(); repartVoyage(); };
+  liste.appendChild(b);
+  $("in-pied").textContent =
+    "Le trou noir est là, au centre, et vous ne le voyez pas : à cette distance " +
+    "il tient très loin sous le pixel. Ce que vous voyez sont dix orbites " +
+    "mesurées, et elles tournent toutes autour du même point vide. C'est ainsi " +
+    "qu'on a su qu'il existait — trente ans avant d'en avoir une image.";
+  TELESCOPE.ouvert = true;
+  $("instrument").classList.add("vu", "arrivee");
+}
+
+function repartVoyage(){
+  const retour = TELESCOPE.trajet.depart;
+  TELESCOPE.retour = true;
+  TELESCOPE.trajet = { dest:{ nom:"Retour" }, arrive:false, depart:RECUL.etat.distance,
+                       calcul: VOYAGE.entre(RECUL.etat.distance, retour) };
+  RECUL.lance(retour, DUREE_VOYAGE);
+  $("chrono").classList.add("vu");
+  $("ch-quoi").textContent = "Retour";
+  MUSIQUE.frappe(0.75);
+}
+
+/* La surcouche du voyage, sur le calque à deux dimensions.
+
+   Elle passe APRÈS `dessine()`, qui efface le calque à chaque image et se
+   court-circuite dans le salon. On ne touche donc pas à sa logique : on se pose
+   par-dessus. */
+function dessineVoyage(dt){
+  const T = TELESCOPE;
+  if(T.carte < 0.005 && T.grille < 0.005) return;
+  const W = vueW || cv.clientWidth, H = vueH || cv.clientHeight;
+
+  if(T.carte > 0.005){
+    ctx.save();
+    ctx.globalAlpha = T.carte;          // c'est l'alpha du fond qui porte le fondu
+    ETOILES_S.vue.azim += dt * 0.05;    // une dérive lente, pour que le volume se lise
+    ETOILES_S.dessine(ctx, W, H, dt);
+    ctx.restore();
+  }
+  if(T.grille > 0.005 && T.carte < 0.995)
+    RECUL.dessineQuadrillage(ctx, W, H, projette, T.grille * (1 - T.carte));
+}
 
 let reel = 0, reelCible = 0;
 $("b-reel").onclick = () => {
@@ -2950,6 +3330,10 @@ const SENS = 0.0032;
 const TANGAGE_MAX = 1.15;      // on ne se casse pas la nuque
 
 function tourne(dx, dy){
+  // Devant la carte des étoiles, le même geste tourne la carte. C'est elle
+  // qu'on regarde, et une reconstruction en volume ne se lit que si l'on peut
+  // en faire le tour — sans quoi on ne voit que dix ellipses plates.
+  if(TELESCOPE.carte > 0.5){ ETOILES_S.tourne(dx, dy); return; }
   salon.lacet += dx*SENS;
   salon.tangage = Math.max(-TANGAGE_MAX, Math.min(TANGAGE_MAX, salon.tangage - dy*SENS));
 }
@@ -3061,10 +3445,10 @@ cv.addEventListener("pointerup", e => {
   queteVues.add(d.p.id);
   if(d.p.id === "lumen"){ ouvreQuestions(); return; }
   if(d.p.id === "telescope"){
-    // On ne quitte pas « le salon » : on se met à l'instrument, et l'instrument
-    // donne la main sur le temps, les sondes et la rotation. C'est le même
-    // écran qu'avant — mais on y arrive par un lieu, pas par un onglet.
-    $("b-salon").click();
+    // On ne quitte pas le salon : on se met à l'instrument, debout dans la
+    // pièce, et le panneau se pose par-dessus. C'est ce qui distingue un lieu
+    // d'un onglet — on ne va nulle part, on se met à quelque chose.
+    ouvreTelescope();
     return;
   }
   salon.facteur = d.p.valeur;
@@ -3073,6 +3457,9 @@ cv.addEventListener("pointerup", e => {
 
 cv.addEventListener("wheel", e => {
   e.preventDefault();
+  // Sur la carte des étoiles, la molette change l'échelle du diagramme : de
+  // l'essaim entier jusqu'au périastre de S2, à cent vingt unités du trou noir.
+  if(TELESCOPE.carte > 0.5){ ETOILES_S.zoome(e.deltaY > 0 ? 0.91 : 1.099); return; }
   cinema.actif = false;
   cam.dist = Math.max(6, Math.min(46, cam.dist * (1 + Math.sign(e.deltaY)*0.09)));
 }, { passive:false });
@@ -5061,24 +5448,31 @@ function boucle(now){
        qui est incohérent — au temps réel, le gaz doit devenir immobile comme
        le reste. Une seule horloge, et l'incohérence disparaît. */
     tempsGeo += dtGeo;
-    const n = Math.max(1, Math.min(Math.ceil(dtGeo/0.02), 24));
-    for(let i = 0; i < n; i++){
-      const [np, nv] = integre(salon.p, salon.v, dtGeo/n);
-      salon.p = np; salon.v = nv;
+    if(TELESCOPE.trajet){
+      /* On ne suit plus l'orbite : on s'en va. Continuer à l'intégrer ferait
+         tourner le vaisseau autour d'un astre qu'il est en train de quitter, et
+         ferait exploser rmin/rmax dont la musique se sert comme d'une étendue. */
+      majVoyage(dt);
+    } else {
+      const n = Math.max(1, Math.min(Math.ceil(dtGeo/0.02), 24));
+      for(let i = 0; i < n; i++){
+        const [np, nv] = integre(salon.p, salon.v, dtGeo/n);
+        salon.p = np; salon.v = nv;
+      }
+      const r = len(salon.p);
+      // Le temps loin d'ici avance au rythme choisi ; celui du bord au même
+      // rythme, ralenti par la gravité. L'écart s'accumule donc tout seul.
+      salon.tTerre += dt * salon.facteur;
+      salon.tBord  += dt * salon.facteur * cadence(r);
+      salon.rmin = Math.min(salon.rmin, r);
+      salon.rmax = Math.max(salon.rmax, r);
+      // La musique suit l'orbite plutôt qu'une horloge : elle monte quand on
+      // plonge et retombe quand on s'éloigne, donc elle ne se répète jamais.
+      const etendue = Math.max(0.5, salon.rmax - salon.rmin);
+      MUSIQUE.regle((salon.rmax - r)/etendue);
+      salon.trace.push([salon.p[0], salon.p[2]]);
+      if(salon.trace.length > 420) salon.trace.shift();
     }
-    const r = len(salon.p);
-    // Le temps loin d'ici avance au rythme choisi ; celui du bord au même
-    // rythme, ralenti par la gravité. L'écart s'accumule donc tout seul.
-    salon.tTerre += dt * salon.facteur;
-    salon.tBord  += dt * salon.facteur * cadence(r);
-    salon.rmin = Math.min(salon.rmin, r);
-    salon.rmax = Math.max(salon.rmax, r);
-    // La musique suit l'orbite plutôt qu'une horloge : elle monte quand on
-    // plonge et retombe quand on s'éloigne, donc elle ne se répète jamais.
-    const etendue = Math.max(0.5, salon.rmax - salon.rmin);
-    MUSIQUE.regle((salon.rmax - r)/etendue);
-    salon.trace.push([salon.p[0], salon.p[2]]);
-    if(salon.trace.length > 420) salon.trace.shift();
   }
   else if(sondeSuivie === null) cam.azim += dt*0.012;   // dérive lente, pour que la lentille vive
   majCamera();
@@ -5120,7 +5514,18 @@ function boucle(now){
     gl.uniform3fv(uTeinte, COUL_BANDE[bandeA(lgLambda).id] || [1,1,1]);
     gl.uniform1f(uEclat, eclatA(lgLambda));
   }
-  gl.drawArrays(gl.TRIANGLES, 0, 3);
+  /* Passé la bascule, le lanceur de géodésiques ne sert plus à rien — et pire,
+     il ment. À cette distance son budget de pas ne suffit plus à atteindre
+     l'astre, et son repli de capture déclare alors le rayon avalé : l'écran
+     devient NOIR au lieu de montrer un ciel vide.
+
+     On l'éteint donc, et l'on nettoie explicitement. Cette passe ne nettoie
+     jamais d'elle-même : son triangle plein écran recouvre tout, si bien que la
+     sauter sans effacer laisserait la dernière image figée à l'écran. */
+  if(TELESCOPE.carte > 0.995){
+    gl.clearColor(0, 0, 0, 1);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+  } else gl.drawArrays(gl.TRIANGLES, 0, 3);
 
   // Seconde passe : l'habitacle par-dessus. Le tampon de profondeur part
   // vierge, donc tout ce qui a de la géométrie recouvre le fond — et la baie,
@@ -5228,6 +5633,7 @@ function boucle(now){
   }
 
   dessine();
+  dessineVoyage(dt);
 
   $("lecture-flottant").style.opacity = sondeSuivie !== null ? "0" : "";
   $("s-orbite").textContent = sondes.length;

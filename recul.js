@@ -123,7 +123,16 @@ function dessineQuadrillage(ctx, W, H, projette, force){
   ctx.strokeStyle = "#8fb6ff";
   ctx.lineWidth = 1;
   const echelle = etat.distance / RS_M;
-  const k = 1 / echelle * 26;               // la grille suit le recul
+  /* La maille se donne en rayons, et c'est TOUT : aucun facteur d'échelle.
+
+     Il y en avait un, `26/echelle`, et il annulait précisément l'effet
+     recherché. La maille vaut le dixième de la distance en début de décade et
+     le centième en fin ; à distance `echelle`, sa taille apparente passe donc
+     de six degrés à un demi-degré, puis l'étiquette saute et tout repart. C'est
+     ce battement, quatre fois répété, qui fait sentir le recul. Multiplier par
+     l'inverse de la distance figeait la grille dans le monde, et elle
+     rétrécissait sans jamais se renuméroter. */
+  const k = 1;
 
   ctx.beginPath();
   for(let i = -n; i <= n; i++){
