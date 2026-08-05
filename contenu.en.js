@@ -530,14 +530,18 @@ reactions: {
                 faster than you can cross it — those galaxies are out of reach for good,
                 whatever your acceleration. That is 4.5 % of the observable volume.`,
       sources:["misner1973"] },
-    { id:"inactif-8", t:`The fuel, then. Even a <b>perfect photon rocket</b> — all its mass turned into light — would have to annihilate <i>758,000 tonnes</i> of it for a single kilogram to arrive here. With fusion, the ratio exceeds the mass of the observable universe.`,
-      dire:`The fuel, then. Even a perfect photon rocket, all its mass turned into light, would have to annihilate seven hundred and fifty-eight thousand tonnes of it for a single kilogram to arrive here. With fusion, the ratio exceeds the mass of the observable universe.`,
+    /* 780,000 tonnes, not 758,000 — see the French file for the full story: the
+       old figure was the same formula applied to an older distance, the 8,178
+       parsecs of GRAVITY 2019, which the site abandoned for the 8,277 of the
+       2022 measurement. Two figures for one journey. */
+    { id:"inactif-8", t:`The fuel, then. Even a <b>perfect photon rocket</b> — all its mass turned into light — would have to annihilate <i>780,000 tonnes</i> of it for a single kilogram to arrive here. With fusion, the ratio exceeds the mass of the observable universe.`,
+      dire:`The fuel, then. Even a perfect photon rocket, all its mass turned into light, would have to annihilate seven hundred and eighty thousand tonnes of it for a single kilogram to arrive here. With fusion, the ratio exceeds the mass of the observable universe.`,
       pourquoi:`Relativistic rocket equation: the mass ratio is
                 $e^{\\Delta\\eta/(v_e/c)}$, where $\\eta = \\operatorname{arccosh}\\gamma$ is
                 the rapidity. Accelerating then braking all the way to the galactic center
-                accumulates <b>20.45</b>.
+                accumulates <b>20.47</b>.
                 <br><br>With a photon rocket — the best conceivable, 100 % of the mass
-                converted — that gives $e^{20.45} = 7.6\\times10^{8}$: 758,000 tonnes
+                converted — that gives $e^{20.47} = 7.8\\times10^{8}$: 780,000 tonnes
                 annihilated per kilogram delivered. With deuterium-helium-3 fusion
                 ($v_e \\approx 0.12c$), the ratio reaches $10^{75}$.`,
       sources:["misner1973","dyson1968"] },

@@ -526,14 +526,25 @@ reactions: {
                 plus vite qu'on ne le franchit — ces galaxies-là sont hors d'atteinte pour
                 toujours, quelle que soit l'accélération. Soit 4,5 % du volume observable.`,
       sources:["misner1973"] },
-    { id:"inactif-8", t:`Le carburant, justement. Même une fusée <b>à photons parfaite</b> — toute sa masse changée en lumière — devrait en annihiler <i>758 000 tonnes</i> pour qu'un seul kilo arrive ici. Avec de la fusion, le rapport dépasse la masse de l'univers observable.`,
-      dire:`Le carburant, justement. Même une fusée à photons parfaite, toute sa masse changée en lumière, devrait en annihiler sept cent cinquante-huit mille tonnes pour qu'un seul kilo arrive ici. Avec de la fusion, le rapport dépasse la masse de l'univers observable.`,
+    /* 780 000 tonnes, et non 758 000.
+
+       L'ancien chiffre n'était pas un autre calcul : c'était la MÊME formule
+       appliquée à une AUTRE distance — les 8 178 parsecs de GRAVITY 2019, que le
+       site a cessé d'employer en passant aux 8 277 de la mesure de 2022. La
+       fiche voisine disait donc 780 000 et celle-ci 758 000, pour un seul et
+       même trajet.
+
+       Recalculé : k = a·d/2c² = 13 934, η = arcosh(k+1) = 10,2353,
+       e^(2η) = 7,77 × 10⁸, soit 777 000 tonnes — que l'on arrondit à 780 000
+       comme partout ailleurs. */
+    { id:"inactif-8", t:`Le carburant, justement. Même une fusée <b>à photons parfaite</b> — toute sa masse changée en lumière — devrait en annihiler <i>780 000 tonnes</i> pour qu'un seul kilo arrive ici. Avec de la fusion, le rapport dépasse la masse de l'univers observable.`,
+      dire:`Le carburant, justement. Même une fusée à photons parfaite, toute sa masse changée en lumière, devrait en annihiler sept cent quatre-vingt mille tonnes pour qu'un seul kilo arrive ici. Avec de la fusion, le rapport dépasse la masse de l'univers observable.`,
       pourquoi:`Équation de la fusée relativiste : le rapport de masses vaut
                 $e^{\\Delta\\eta/(v_e/c)}$, où $\\eta = \\operatorname{arccosh}\\gamma$ est la
                 rapidité. Accélérer puis freiner jusqu'au centre galactique en accumule
-                <b>20,45</b>.
+                <b>20,47</b>.
                 <br><br>Avec une fusée à photons — le meilleur concevable, 100 % de la masse
-                convertie — cela donne $e^{20{,}45} = 7{,}6\\times10^{8}$ : 758 000 tonnes
+                convertie — cela donne $e^{20{,}47} = 7{,}8\\times10^{8}$ : 780 000 tonnes
                 annihilées par kilo arrivé. Avec de la fusion deutérium-hélium 3
                 ($v_e \\approx 0{,}12c$), le rapport atteint $10^{75}$.`,
       sources:["misner1973","dyson1968"] },
