@@ -76,32 +76,54 @@ const CHIFFRES_HAUT = "⁰¹²³⁴⁵⁶⁷⁸⁹";
 const exposant = n => String(n).split("")
   .map(c => c === "-" ? "⁻" : (CHIFFRES_HAUT[+c] || c)).join("");
 
+/* Les unités et la ponctuation des nombres suivent la langue.
+
+   Le français met une virgule décimale et sépare les milliers d'une espace ;
+   l'anglais fait l'inverse. Une durée affichée « 7.7 jours » ou « 7,7 days »
+   est fautive des deux côtés, et cela se voit tout de suite.
+
+   Les mots sont pris dans `window.UI` s'il est là, avec le français en repli —
+   le module reste donc utilisable seul, y compris dans le banc d'essai qui
+   n'ouvre aucune page. */
+function mot(cle, repli){
+  return (typeof window !== "undefined" && window.UI && window.UI["u." + cle]) || repli;
+}
+function enAnglais(){
+  return typeof window !== "undefined" && window.UI && window.UI["u.langue"] === "en";
+}
+function nombre(x, d){
+  const s = x.toFixed(d);
+  return enAnglais() ? s : s.replace(".", ",");
+}
+function millier(x){
+  return Math.round(x).toLocaleString(enAnglais() ? "en-US" : "fr-FR");
+}
+// Le pluriel part de deux en français comme en anglais pour ces unités-ci.
+const pluriel = (n, s) => n >= 2 ? s + mot("pluriel", "s") : s;
+
 const joli = {
   duree(s){
-    // Virgule décimale : c'est un site français, et « 7.7 jours » se voit.
-    const nb = (x, d) => x.toFixed(d).replace(".", ",");
     const an = s/AN;
-    if(an >= 1)      return nb(an, an < 10 ? 1 : 0) + " an" + (an >= 2 ? "s" : "");
+    if(an >= 1) return nombre(an, an < 10 ? 1 : 0) + " " + pluriel(an, mot("an", "an"));
     const j = s/86400;
-    if(j >= 1)       return nb(j, j < 10 ? 1 : 0) + " jour" + (j >= 2 ? "s" : "");
+    if(j >= 1)  return nombre(j, j < 10 ? 1 : 0) + " " + pluriel(j, mot("jour", "jour"));
     const h = s/3600;
-    if(h >= 1)       return nb(h, 1) + " h";
-    return Math.round(s/60) + " min";
+    if(h >= 1)  return nombre(h, 1) + " " + mot("heure", "h");
+    return Math.round(s/60) + " " + mot("minute", "min");
   },
   distance(m){
     if(m >= 0.05*AL){
       const al = m/AL;
-      return (al < 1 ? al.toFixed(3).replace(".", ",")
-                     : Math.round(al).toLocaleString("fr-FR")) + " années-lumière";
+      return (al < 1 ? nombre(al, 3) : millier(al)) + " " + mot("al", "années-lumière");
     }
-    if(m >= 100*UA)  return Math.round(m/UA).toLocaleString("fr-FR") + " unités astronomiques";
-    return (m/UA).toFixed(1).replace(".", ",") + " unités astronomiques";
+    if(m >= 100*UA) return millier(m/UA) + " " + mot("ua", "unités astronomiques");
+    return nombre(m/UA, 1) + " " + mot("ua", "unités astronomiques");
   },
   masses(r){
-    if(r < 1e4) return Math.round(r).toLocaleString("fr-FR") + " kg par kg arrivé";
+    const suffixe = " " + mot("masses", "kg par kg arrivé");
+    if(r < 1e4) return millier(r) + suffixe;
     const e = Math.floor(Math.log10(r));
-    return (r/Math.pow(10, e)).toFixed(1).replace(".", ",")
-           + " × 10" + exposant(e) + " kg par kg arrivé";
+    return nombre(r/Math.pow(10, e), 1) + " × 10" + exposant(e) + suffixe;
   },
 };
 

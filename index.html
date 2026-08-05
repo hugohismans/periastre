@@ -1121,9 +1121,12 @@ body.au-salon:not(.mode-boutons) #dock { opacity:0; pointer-events:none; }
 
 <div id="accueil">
   <div id="acc-boite">
-    <h1>Trou noir</h1>
-    <p>Tout ce que tu vas voir est calculé à partir des équations d'Einstein,
-       pas dessiné. Choisis par quoi commencer.</p>
+    <!-- Ces deux lignes sont écrasées par `intro()` avant le premier rendu, mais
+         elles restent ce qu'on voit si le script ne part pas — et elles
+         portaient encore l'ancien nom du site. -->
+    <h1>Périastre</h1>
+    <p>Le point d'une orbite où l'on passe au plus près. Tout ce que tu vas voir
+       est calculé à partir des équations d'Einstein, pas dessiné.</p>
     <div id="acc-cartes"></div>
   </div>
 </div>
@@ -1857,6 +1860,10 @@ void main(){
   window.LANGUE = l;
   document.documentElement.lang = l;
   document.write('<script src="' + (l === "en" ? "contenu.en.js" : "contenu.js") + '"><\/script>');
+  // Les chaînes d'interface : le français TOUJOURS, l'anglais par-dessus. Une
+  // clé oubliée retombe ainsi sur une phrase, jamais sur un identifiant nu.
+  document.write('<script src="ui.fr.js"><\/script>');
+  if(l === "en") document.write('<script src="ui.en.js"><\/script>');
 })();
 </script>
 <script src="kerr.js"></script>
@@ -2528,7 +2535,9 @@ function embarque(i){
   else { sondeSuivie = i; regard.lacet = 0; regard.tangage = 0; }
   $("b-sonde").classList.toggle("actif", sondeSuivie !== null);
   document.body.classList.toggle("a-bord", sondeSuivie !== null);
-  $("b-sonde").textContent = sondeSuivie !== null ? "Redescendre" : "Monter dans une sonde";
+  // Une seule clé pour « monter » : le bouton portait deux noms selon qu'on en
+  // était déjà redescendu, et les consignes de mission en désignent un seul.
+  $("b-sonde").textContent = T(sondeSuivie !== null ? "dock.sonde.redescendre" : "dock.sonde");
   majCamera();
   if(sondeSuivie !== null) reagit("embarque");
 }
@@ -2834,6 +2843,12 @@ function avanceCorps(dtGeo, dtSec){
 const ui  = document.getElementById("ui");
 const ctx = ui.getContext("2d");
 const $ = id => document.getElementById(id);
+
+/* Une chaîne d'interface. Le repli français est déjà chargé, donc une clé
+   absente rend du texte lisible ; une clé INVENTÉE, elle, rend son propre nom,
+   ce qui se voit immédiatement à l'écran — et c'est voulu, une faute muette
+   étant pire qu'une faute visible. */
+const T = k => (window.UI && window.UI[k]) || k;
 const elFlash = $("flash"), elMsg = $("msg");
 
 let tFlash = 0, tMsg = 0, dernierFlash = 0;
@@ -2893,6 +2908,24 @@ const boitierT = $("taille-sondes");
 });
 boitierT.children[1].classList.add("actif");
 
+/* Les libellés se posent depuis les chaînes, pas depuis le balisage.
+
+   Le balisage garde le français : c'est ce qu'on voit si un fichier manque, et
+   c'est plus utile qu'un écran de boutons vides. Mais la source d'autorité est
+   ici, et les bascules plus bas y puisent aussi — sans quoi un bouton
+   retrouverait le français dès qu'on le presse. */
+[["b-pluie","dock.pluie"], ["b-photon","dock.photon"], ["b-vide","dock.effacer"],
+ ["b-reel","dock.reel"], ["b-spectre","dock.spectre"], ["b-temps","dock.temps"],
+ ["b-salon","dock.salon"], ["b-sonde","dock.sonde"], ["b-traj","panneau.traj"],
+].forEach(([id, cle]) => { const e = $(id); if(e) e.textContent = T(cle); });
+$("langue-choix").previousElementSibling.textContent = T("panneau.langue");
+$("in-titre").textContent  = T("tele.titre");
+$("in-sous").textContent   = T("tele.sous");
+$("in-fermer").textContent = T("tele.fermer");
+$("ch-note").textContent   = T("chrono.note");
+document.querySelectorAll("#chrono .ch-etiq")[0].textContent = T("chrono.abord");
+document.querySelectorAll("#chrono .ch-etiq")[1].textContent = T("chrono.auloin");
+
 // ---- boutons ----
 $("b-pluie").onclick  = () => { pluie(80); reagit("pluie"); };
 $("b-photon").onclick = () => { lancePhoton(); reagit("photon"); };
@@ -2912,7 +2945,7 @@ $("b-salon").onclick = () => {
   salon.actif = !salon.actif;
   if(!salon.actif && document.exitPointerLock) document.exitPointerLock();
   $("b-salon").classList.toggle("actif", salon.actif);
-  $("b-salon").textContent = salon.actif ? "Quitter le salon" : "Le salon";
+  $("b-salon").textContent = T(salon.actif ? "dock.salon.quitter" : "dock.salon");
   document.body.classList.toggle("au-salon", salon.actif);
   if(salon.actif){
     if(sondeSuivie !== null) embarque(null);
@@ -2953,8 +2986,8 @@ function ouvreTelescope(){
   if(document.exitPointerLock) document.exitPointerLock();
   cinema.actif = false;
   RECUL.etat.distance = distanceVaisseau();
-  $("in-titre").textContent = "Le télescope";
-  $("in-sous").textContent  = "Où allons-nous ?";
+  $("in-titre").textContent = T("tele.titre");
+  $("in-sous").textContent  = T("tele.sous");
   poseDestinations();
   $("instrument").classList.remove("arrivee");
   $("instrument").classList.add("vu");
@@ -2984,11 +3017,13 @@ function poseDestinations(){
       '<h2></h2>' +
       '<p></p>' +
       '<div class="chiffre"></div>';
-    b.querySelector("h2").textContent = d.nom;
-    b.querySelector("p").textContent  = d.quoi;
+    b.querySelector("h2").textContent = T(d.nom);
+    b.querySelector("p").textContent  = T(d.quoi);
     b.querySelector(".chiffre").textContent = d.atteignable
-      ? VOYAGE.joli.duree(v.tau) + " à bord  ·  " + VOYAGE.joli.duree(v.t) + " au loin"
-      : VOYAGE.joli.duree(v.tau) + " à bord, mais " + VOYAGE.joli.masses(v.masses);
+      ? VOYAGE.joli.duree(v.tau) + " " + T("dest.abord") + "  ·  " +
+        VOYAGE.joli.duree(v.t) + " " + T("dest.auloin")
+      : VOYAGE.joli.duree(v.tau) + " " + T("dest.abord") + T("dest.mais") +
+        VOYAGE.joli.masses(v.masses);
     b.onclick = () => choisitDestination(d, v);
     liste.appendChild(b);
   });
@@ -2997,11 +3032,10 @@ function poseDestinations(){
      La ligne se détache des destinations — on n'y va pas, on l'observe. */
   const e = document.createElement("button");
   e.className = "carte";
-  e.innerHTML = '<span class="duree">hypothèse</span><h2></h2><p></p>';
-  e.querySelector("h2").textContent = "Le trou noir d'étude";
-  e.querySelector("p").textContent =
-    "Un autre objet, aux paramètres libres. Ce n'est pas Sagittarius A* — c'est " +
-    "là qu'on essaie ce que la physique autorise.";
+  e.innerHTML = '<span class="duree"></span><h2></h2><p></p>';
+  e.querySelector(".duree").textContent = T("etude.etiq");
+  e.querySelector("h2").textContent = T("etude.nom");
+  e.querySelector("p").textContent  = T("etude.quoi");
   e.onclick = poseEtude;
   liste.appendChild(e);
 
@@ -3021,14 +3055,14 @@ function blocRegistre(){
   const lignes = registre.slice(-4).reverse().map(e =>
     '<div class="reg-ligne"><span class="reg-quoi"></span>' +
     '<span class="reg-val">+' + VOYAGE.joli.duree(e.t - e.tau) + '</span></div>').join("");
-  d.innerHTML = '<div class="reg-titre">Votre carnet de bord</div>' + lignes +
-    '<div class="reg-total"></div>';
+  d.innerHTML = '<div class="reg-titre"></div>' + lignes + '<div class="reg-total"></div>';
+  d.querySelector(".reg-titre").textContent = T("carnet.titre");
   // le nom du trajet passe par textContent : il ne doit jamais être interprété
   [...d.querySelectorAll(".reg-quoi")].forEach((s, i) => {
     s.textContent = registre.slice(-4).reverse()[i].q;
   });
   d.querySelector(".reg-total").textContent =
-    VOYAGE.joli.duree(ecartRegistre()) + " d'avance sur ceux qui sont restés";
+    VOYAGE.joli.duree(ecartRegistre()) + " " + T("carnet.total");
   return d;
 }
 
@@ -3046,15 +3080,16 @@ function blocRegistre(){
    rigoureusement identique — seule l'échelle bouge. C'est exactement pourquoi
    le site travaille dans ces unités. */
 function poseEtude(){
-  $("in-titre").textContent = "Le trou noir d'étude";
-  $("in-sous").textContent  = "Ce n'est pas Sagittarius A*.";
+  $("in-titre").textContent = T("etude.nom");
+  $("in-sous").textContent  = T("etude.sous");
   const liste = $("in-liste");
   liste.innerHTML = "";
 
   const bloc = document.createElement("div");
   bloc.className = "bloc";
-  bloc.innerHTML = '<div class="etiq">Rotation</div><div class="grille" id="etude-spin"></div>' +
+  bloc.innerHTML = '<div class="etiq"></div><div class="grille" id="etude-spin"></div>' +
                    '<div id="etude-note"></div>';
+  bloc.querySelector(".etiq").textContent = T("etude.rotation");
   liste.appendChild(bloc);
 
   const boitier = $("etude-spin");
@@ -3078,20 +3113,15 @@ function poseEtude(){
 
   const retour = document.createElement("button");
   retour.className = "carte";
-  retour.innerHTML = '<span class="duree">retour</span><h2></h2>';
-  retour.querySelector("h2").textContent = "Revenir aux destinations";
-  retour.onclick = () => { poseDestinations(); $("in-titre").textContent = "Le télescope";
-                           $("in-sous").textContent = "Où allons-nous ?";
+  retour.innerHTML = '<span class="duree"></span><h2></h2>';
+  retour.querySelector(".duree").textContent = T("tele.retour.etiq");
+  retour.querySelector("h2").textContent = T("etude.retour");
+  retour.onclick = () => { poseDestinations(); $("in-titre").textContent = T("tele.titre");
+                           $("in-sous").textContent = T("tele.sous");
                            $("instrument").classList.remove("arrivee"); };
   liste.appendChild(retour);
 
-  $("in-pied").textContent =
-    "La masse n'est pas réglable, et c'est ce qu'il y a de plus instructif ici : " +
-    "elle ne changerait rien à l'image. Tout se mesure en rayons de Schwarzschild, " +
-    "et doubler la masse double le rayon — la figure resterait identique au trait " +
-    "près, seule l'échelle bougerait. Un trou noir de dix masses solaires et " +
-    "Sagittarius A* se ressemblent exactement, à ceci près que l'un est quatre " +
-    "cent mille fois plus petit.";
+  $("in-pied").textContent = T("etude.pied");
   // Il descend, pour qu'on voie l'astre changer par la baie en réglant.
   $("instrument").classList.add("arrivee");
 }
@@ -3115,23 +3145,19 @@ const DESTINATIONS = [
      MILIEU de l'essaim, puisque l'apoastre de S2 seul est à 1 957. À dix mille
      on est dehors, et tout l'essaim tient dans le champ sauf la partie externe
      de S24. */
-  { id:"etoiles", nom:"Voir les étoiles tourner", d_m: 10000*VOYAGE.UA, atteignable:true,
-    quoi:"Assez loin pour que le trou noir disparaisse — et pour que les orbites " +
-         "des étoiles S tiennent dans le champ. C'est ainsi qu'on l'a découvert, " +
-         "trente ans avant d'en avoir une image." },
-  { id:"soleil", nom:"Le système solaire", d_m: 8277*PARSEC_M, atteignable:false,
-    quoi:"La maison, à vingt-sept mille années-lumière. Le trajet tiendrait dans " +
-         "une vie — mais regardez ce qu'il faudrait emporter." },
+  // Les libellés sont des CLÉS, résolues au moment de l'affichage : figer le
+  // texte ici le figerait dans une langue.
+  { id:"etoiles", nom:"dest.etoiles.nom", quoi:"dest.etoiles.quoi",
+    d_m: 10000*VOYAGE.UA, atteignable:true },
+  { id:"soleil",  nom:"dest.soleil.nom",  quoi:"dest.soleil.quoi",
+    d_m: 8277*PARSEC_M,  atteignable:false },
 ];
 
 function choisitDestination(d, v){
   if(!d.atteignable){
     // On ne part pas. On dit pourquoi, chiffres à l'appui : c'est la leçon.
     $("in-pied").textContent =
-      "Vingt ans à bord, vingt-sept mille au loin — et une fusée idéale, qui " +
-      "convertirait toute sa masse en énergie sans rien perdre, devrait emporter " +
-      VOYAGE.joli.masses(v.masses) + ". Aucune technologie connue n'en approche. " +
-      "Le vaisseau reste ici.";
+      T("dest.soleil.refus.a") + VOYAGE.joli.masses(v.masses) + T("dest.soleil.refus.b");
     return;
   }
   fermeTelescope();
@@ -3197,13 +3223,15 @@ function lanceVoyage(d, v){
   ETOILES_S.vue.annee = 1992;
   ETOILES_S.vue.vitesse = 3.2;
   $("chrono").classList.add("vu");
-  $("ch-quoi").textContent = d.nom;
-  $("ch-note").textContent = "Le vaisseau tient un g. Ces durées sont celles qu'il faudrait vraiment.";
+  $("ch-quoi").textContent = T(d.nom);
+  $("ch-note").textContent = T("chrono.note");
   MUSIQUE.frappe(0.75);
 }
 
+// `tr` et non `T` : `T` est la fonction des chaînes d'interface, et une locale
+// du même nom la masquerait silencieusement dans toute la fonction.
 function majVoyage(dt){
-  const T = TELESCOPE.trajet;
+  const tr = TELESCOPE.trajet;
   RECUL.avance(dt);
 
   /* Le vaisseau s'écarte radialement en gardant sa direction : on ne le
@@ -3223,7 +3251,7 @@ function majVoyage(dt){
 
   majChrono();
 
-  if(!RECUL.actif && !T.arrive){ T.arrive = true; arriveVoyage(); }
+  if(!RECUL.actif && !tr.arrive){ tr.arrive = true; arriveVoyage(); }
 }
 
 /* Le chronomètre dit la vérité, et il ne l'interpole pas.
@@ -3232,17 +3260,17 @@ function majVoyage(dt){
    voyage. On le calcule donc exactement pour la distance déjà parcourue, au
    lieu d'étaler le total sur la barre d'avancement. */
 function majChrono(){
-  const T = TELESCOPE.trajet;
-  const parcouru = Math.abs(RECUL.etat.distance - T.depart);
-  const e = VOYAGE.enChemin(T.calcul.d_m, parcouru);
+  const tr = TELESCOPE.trajet;
+  const parcouru = Math.abs(RECUL.etat.distance - tr.depart);
+  const e = VOYAGE.enChemin(tr.calcul.d_m, parcouru);
   $("ch-bord").textContent = VOYAGE.joli.duree(e.tau);
   $("ch-loin").textContent = VOYAGE.joli.duree(e.t);
 }
 
 function arriveVoyage(){
   MUSIQUE.frappe(0.5);
-  const T = TELESCOPE.trajet, v = T.calcul;
-  inscritRegistre(TELESCOPE.retour ? "Retour au trou noir" : T.dest.nom, v);
+  const tr = TELESCOPE.trajet, v = tr.calcul;
+  inscritRegistre(TELESCOPE.retour ? T("chrono.retourRegistre") : T(tr.dest.nom), v);
   if(TELESCOPE.retour){
     // On rentre : la carte s'efface, l'orbite se rétablit.
     TELESCOPE.trajet = null;
@@ -3256,23 +3284,19 @@ function arriveVoyage(){
 /* À l'arrivée, l'instrument reprend la main — puisque c'est lui qui montre.
    Le panneau dit ce qu'on regarde, ce que ça a coûté, et propose de rentrer. */
 function poseArrivee(T, v){
-  $("in-titre").textContent = "Le télescope";
-  $("in-sous").textContent  = "Nous y sommes.";
+  $("in-titre").textContent = T("tele.titre");
+  $("in-sous").textContent  = T("tele.arrive.sous");
   const liste = $("in-liste");
   liste.innerHTML = "";
   const b = document.createElement("button");
   b.className = "carte";
-  b.innerHTML = '<span class="duree">retour</span><h2></h2><p></p>';
-  b.querySelector("h2").textContent = "Revenir près du trou noir";
-  b.querySelector("p").textContent =
-    "Le même trajet dans l'autre sens, et le même prix en temps.";
+  b.innerHTML = '<span class="duree"></span><h2></h2><p></p>';
+  b.querySelector(".duree").textContent = T("tele.retour.etiq");
+  b.querySelector("h2").textContent = T("tele.retour.titre");
+  b.querySelector("p").textContent  = T("tele.retour.quoi");
   b.onclick = () => { fermeTelescope(); repartVoyage(); };
   liste.appendChild(b);
-  $("in-pied").textContent =
-    "Le trou noir est là, au centre, et vous ne le voyez pas : à cette distance " +
-    "il tient très loin sous le pixel. Ce que vous voyez sont dix orbites " +
-    "mesurées, et elles tournent toutes autour du même point vide. C'est ainsi " +
-    "qu'on a su qu'il existait — trente ans avant d'en avoir une image.";
+  $("in-pied").textContent = T("tele.arrive.pied");
   TELESCOPE.ouvert = true;
   $("instrument").classList.add("vu", "arrivee");
 }
@@ -3280,11 +3304,11 @@ function poseArrivee(T, v){
 function repartVoyage(){
   const retour = TELESCOPE.trajet.depart;
   TELESCOPE.retour = true;
-  TELESCOPE.trajet = { dest:{ nom:"Retour" }, arrive:false, depart:RECUL.etat.distance,
+  TELESCOPE.trajet = { dest:{ nom:"chrono.retour" }, arrive:false, depart:RECUL.etat.distance,
                        calcul: VOYAGE.entre(RECUL.etat.distance, retour) };
   RECUL.lance(retour, DUREE_VOYAGE);
   $("chrono").classList.add("vu");
-  $("ch-quoi").textContent = "Retour";
+  $("ch-quoi").textContent = T("chrono.retour");
   MUSIQUE.frappe(0.75);
 }
 
@@ -3294,7 +3318,7 @@ function repartVoyage(){
    court-circuite dans le salon. On ne touche donc pas à sa logique : on se pose
    par-dessus. */
 function dessineVoyage(dt){
-  const T = TELESCOPE;
+  const E = TELESCOPE;      // pas `T` : ce nom est celui des chaînes d'interface
 
   /* Le retrait vit ICI, et non dans `majVoyage`.
 
@@ -3302,26 +3326,26 @@ function dessineVoyage(dt){
      termine : la carte restait donc figée par-dessus le salon, à jamais. On
      rentrait chez soi et l'on voyait encore les orbites. Ce qui doit s'éteindre
      ne peut pas dépendre de ce qui vient de s'arrêter. */
-  if(!T.trajet){
+  if(!E.trajet){
     const k = Math.min(1, dt*1.6);
-    T.carte  -= T.carte  * k;
-    T.grille -= T.grille * k;
-    if(T.carte < 0.005)  T.carte  = 0;
-    if(T.grille < 0.005) T.grille = 0;
+    E.carte  -= E.carte  * k;
+    E.grille -= E.grille * k;
+    if(E.carte < 0.005)  E.carte  = 0;
+    if(E.grille < 0.005) E.grille = 0;
   }
 
-  if(T.carte < 0.005 && T.grille < 0.005) return;
+  if(E.carte < 0.005 && E.grille < 0.005) return;
   const W = vueW || cv.clientWidth, H = vueH || cv.clientHeight;
 
-  if(T.carte > 0.005){
+  if(E.carte > 0.005){
     ctx.save();
-    ctx.globalAlpha = T.carte;          // c'est l'alpha du fond qui porte le fondu
+    ctx.globalAlpha = E.carte;          // c'est l'alpha du fond qui porte le fondu
     ETOILES_S.vue.azim += dt * 0.05;    // une dérive lente, pour que le volume se lise
     ETOILES_S.dessine(ctx, W, H, dt);
     ctx.restore();
   }
-  if(T.grille > 0.005 && T.carte < 0.995)
-    RECUL.dessineQuadrillage(ctx, W, H, projette, T.grille * (1 - T.carte));
+  if(E.grille > 0.005 && E.carte < 0.995)
+    RECUL.dessineQuadrillage(ctx, W, H, projette, E.grille * (1 - E.carte));
 }
 
 let reel = 0, reelCible = 0;
@@ -3331,7 +3355,7 @@ $("b-reel").onclick = () => {
   $("b-reel").classList.toggle("actif", actif);
   // le libellé dit ce que le bouton VA faire : sinon on se retrouve coincé
   // en noir et blanc sans savoir comment revenir
-  $("b-reel").textContent = actif ? "Rallumer les couleurs" : "Lumière réelle";
+  $("b-reel").textContent = T(actif ? "dock.reel.rallumer" : "dock.reel");
   if(actif) reagit("reel");
 };
 
@@ -3678,6 +3702,11 @@ function tempsFr(s){
   const h = Math.floor(m/60);
   return h + " h " + String(m%60).padStart(2,"0") + " min";
 }
+// Le pluriel français part de deux : « 1,80 tour », mais « 2,00 tours ».
+function tours(n){
+  return n.toFixed(2).replace(".", ",") + " tour" + (n >= 2 ? "s" : "");
+}
+
 function majLecture(){
   const el = $("lecture");
   const f = photons[0];
@@ -3685,7 +3714,9 @@ function majLecture(){
     const sec = f.temps * SEC_PAR_UNITE;
     const km  = f.temps * KM_PAR_UNITE;
     el.innerHTML =
-      `<span class="gros">${tempsFr(sec)}</span> de vol · ${(f.angle/6.2832).toFixed(2)} tour` +
+      // Le pluriel s'accorde, et la décimale est une virgule : le bandeau
+      // affichait « 2.31 tour », fautif deux fois.
+      `<span class="gros">${tempsFr(sec)}</span> de vol · ${tours(f.angle/6.2832)}` +
       `<span class="note">${(km/1e6).toFixed(1)} millions de km parcourus à la vitesse de la lumière.</span>`;
   } else {
     el.innerHTML =
