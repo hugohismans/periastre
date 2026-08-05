@@ -268,6 +268,15 @@
   body.au-salon #mission,
   body.au-salon #lecture-flottant,
   body.au-salon #stats { opacity:0; pointer-events:none; }
+  /* Le drone du vaisseau EST Lumen. Garder en plus son avatar dans le coin
+     donnait deux fois le même personnage à l'écran, dont l'un contredisait le
+     principe du lieu — on parle à quelqu'un qu'on va voir, pas à une vignette. */
+  body.au-salon #lumen-corps { display:none; }
+  /* Et l'on peut le renvoyer tout à fait, ce qui manquait : le réglage des
+     anecdotes ne coupait que ses prises de parole spontanées, jamais sa
+     présence. */
+  body.sans-mascotte #lumen,
+  body.sans-mascotte #bulle { display:none; }
   #lumen { bottom:26px; left:28px; display:flex; align-items:flex-end; gap:11px; pointer-events:none; }
   #lumen-corps {
     width:54px; height:54px; flex:none; cursor:pointer; pointer-events:auto;
@@ -290,6 +299,28 @@
     opacity:0; transform:translateY(7px); transition:opacity .28s, transform .28s;
   }
   #bulle.vu { opacity:1; transform:translateY(0); }
+
+  /* Au salon, la bulle suit le drone.
+
+     Elle s'affichait dans le coin opposé de l'écran pendant qu'on venait de
+     toucher un objet au milieu : rien ne disait que c'était lui qui parlait.
+     On la place donc à sa hauteur, et la petite pointe désigne l'endroit d'où
+     vient la voix. */
+  body.au-salon #bulle {
+    position:fixed; z-index:6; max-width:min(320px, 76vw);
+    left:var(--bulle-x, 50%); top:var(--bulle-y, 60%);
+    transform:translate(-50%, 0);
+  }
+  body.au-salon #bulle.vu { transform:translate(-50%, 0); }
+  body.au-salon #bulle::before {
+    left:50%; bottom:auto; top:-5px; margin-left:-4px;
+    border:0; border-top:1px solid var(--filet); border-left:1px solid var(--filet);
+  }
+  #b-bulle-fermer {
+    position:absolute; top:6px; right:6px; width:20px; height:20px; padding:0;
+    border-radius:3px; font-size:10px; display:grid; place-items:center;
+  }
+  #bulle { padding-right:30px; }
   #bulle::before {
     content:""; position:absolute; left:-5px; bottom:17px; width:9px; height:9px;
     background:inherit; border-left:1px solid var(--filet);
@@ -781,7 +812,7 @@ body.au-salon:not(.mode-boutons) #dock { opacity:0; pointer-events:none; }
     <div class="grille" id="mode-acces"></div>
   </div>
   <div class="bloc">
-    <div class="etiq">Anecdotes spontanées</div>
+    <div class="etiq">Lumen, le guide</div>
     <div class="grille" id="anecdotes"></div>
   </div>
   <div class="bloc">
@@ -836,6 +867,10 @@ body.au-salon:not(.mode-boutons) #dock { opacity:0; pointer-events:none; }
   </button>
   <div id="bulle">
     <button id="b-voix" title="Lire à voix haute">🔇</button>
+    <!-- Il n'y avait aucun moyen de refermer : on attendait que la bulle
+         s'efface d'elle-même, ce qui est intenable quand on vient d'ouvrir six
+         questions par erreur. -->
+    <button id="b-bulle-fermer" title="Fermer" aria-label="Fermer">✕</button>
     <div id="bulle-texte"></div>
   </div>
 </div>
@@ -1528,8 +1563,17 @@ void main(){
   col = (col*(2.51*col + 0.03)) / (col*(2.43*col + 0.59) + 0.14);
   col = pow(clamp(col, 0.0, 1.0), vec3(1.0/2.2));
 
-  // tramage : sans ça le dégradé du fond se casse en anneaux sur 8 bits
-  col += (hash12(gl_FragCoord.xy + fract(uTemps)*137.0) - 0.5) / 220.0;
+  /* Tramage : sans lui le dégradé du fond se casse en anneaux sur huit bits.
+
+     Mais il était REDESSINÉ à chaque image, puisqu'il dépendait du temps. Sur
+     les grandes plages sombres — le fond du ciel, l'intérieur de l'ombre — cela
+     donne un grain qui bout, et l'œil le lit comme un scintillement des étoiles
+     alors que ce n'est que du bruit qui bouge sous elles.
+
+     Un tramage figé remplit exactement le même office : il casse les anneaux
+     de quantification. Il n'a aucune raison de changer d'une image à l'autre,
+     et il ne doit pas. */
+  col += (hash12(gl_FragCoord.xy) - 0.5) / 220.0;
 
   // Vision scotopique : à ces niveaux de lumière seuls les bâtonnets répondent,
   // et ils ne distinguent pas les couleurs. Tout vire au gris légèrement bleuté.
@@ -3086,6 +3130,7 @@ let modeBoutons = false;    // à bord, on interagit avec le lieu, pas avec une 
    qui la veut l'y trouve — c'est déjà le sens du volume de la voix, réglé
    volontairement trop bas. */
 let volumeMusique = 0;
+let mascotte = true;   // faux quand on l'a renvoyé tout à fait
 let tMasque = 0, tDernier = performance.now(), questionsOuvertes = false;
 
 // Les répliques étant scriptées, la voix est pré-synthétisée hors ligne
@@ -3329,18 +3374,27 @@ const boitierAcces = $("mode-acces");
 boitierAcces.children[modeBoutons ? 1 : 0].classList.add("actif");
 document.body.classList.toggle("mode-boutons", modeBoutons);
 
+/* Le dernier cran le renvoie vraiment.
+
+   Le réglage ne coupait jusqu'ici que ses prises de parole spontanées : son
+   avatar restait dans le coin, et l'on ne pouvait plus s'en défaire. Un
+   compagnon dont on ne peut pas se débarrasser cesse d'être un compagnon. */
 const boitierA = $("anecdotes");
-[["30 s", 30000], ["1 min", 60000], ["3 min", 180000], ["jamais", 0]].forEach(([nom, ms], i) => {
+[["bavard", 30000], ["mesuré", 60000], ["discret", 180000],
+ ["silencieux", 0], ["absent", -1]].forEach(([nom, ms], i) => {
   const b = document.createElement("button");
   b.textContent = nom;
   b.onclick = () => {
-    intervalleAnecdote = ms; tDernier = performance.now();
+    mascotte = ms >= 0;
+    intervalleAnecdote = Math.max(0, ms);
+    tDernier = performance.now();
+    document.body.classList.toggle("sans-mascotte", !mascotte);
+    if(!mascotte) tais();
     [...boitierA.children].forEach((c, j) => c.classList.toggle("actif", j === i));
     sauve();
   };
   boitierA.appendChild(b);
 });
-boitierA.children[2].classList.add("actif");
 
 function majBoutonVoix(){
   [...boitierVoix.children].forEach((c, i) => c.classList.toggle("actif", voixActive && i === iVoix));
@@ -3348,7 +3402,15 @@ function majBoutonVoix(){
   $("b-voix").title = voixActive ? "Couper la voix" : "Activer la voix";
 }
 
-$("lumen-corps").onclick = () => questionsOuvertes ? (tMasque = 0) : ouvreQuestions();
+$("lumen-corps").onclick = () => questionsOuvertes ? fermeBulle() : ouvreQuestions();
+
+function fermeBulle(){
+  tais();
+  questionsOuvertes = false;
+  tMasque = 0;
+  elBulle.classList.remove("vu");
+}
+$("b-bulle-fermer").onclick = fermeBulle;
 
 $("b-voix").onclick = e => {
   e.stopPropagation();
@@ -3567,7 +3629,7 @@ function sauve(){
   try {
     localStorage.setItem(CLE, JSON.stringify({
       niveau: iNiveau, acquis: [...acquis], voix: voixActive,
-      anecdotes: intervalleAnecdote, taille: zoomSonde, volume: volumeVoix, spin, musique: volumeMusique, boutons: modeBoutons, deja: true,
+      anecdotes: intervalleAnecdote, taille: zoomSonde, volume: volumeVoix, spin, musique: volumeMusique, boutons: modeBoutons, mascotte, deja: true,
     }));
   } catch(e){ /* navigation privée : on continue sans mémoire */ }
 }
@@ -3584,6 +3646,7 @@ function charge(){
     if(typeof d.spin === "number") spin = d.spin;
     if(typeof d.musique === "number") volumeMusique = d.musique;
     if(typeof d.boutons === "boolean") modeBoutons = d.boutons;
+    if(typeof d.mascotte === "boolean") mascotte = d.mascotte;
     return d;
   } catch(e){ return null; }
 }
@@ -4858,6 +4921,14 @@ function boucle(now){
     // Le vaisseau suit la même géodésique que les sondes, accélérée pour
     // qu'on la voie. À l'échelle réelle, un tour dure des heures.
     const dtGeo = dt * salon.facteur / SEC_PAR_UNITE;
+    /* La MÊME horloge fait tourner le disque et déplace le vaisseau.
+
+       Elles étaient distinctes : le salon intégrait son orbite avec son propre
+       facteur, tandis que le gaz continuait de tourner au rythme de la vue
+       libre. On voyait donc le vaisseau accélérer sans que le disque suive, ce
+       qui est incohérent — au temps réel, le gaz doit devenir immobile comme
+       le reste. Une seule horloge, et l'incohérence disparaît. */
+    tempsGeo += dtGeo;
     const n = Math.max(1, Math.min(Math.ceil(dtGeo/0.02), 24));
     for(let i = 0; i < n; i++){
       const [np, nv] = integre(salon.p, salon.v, dtGeo/n);
@@ -4992,6 +5063,20 @@ function boucle(now){
       PERSONNAGE.dessine(gl, envoie,
         [c,0,-si,0, 0,1,0,0, si,0,c,0, joueur.p[0],joueur.p[1],joueur.p[2],1],
         salon.horloge, 0);
+    }
+
+    /* La bulle suit le drone à l'écran. On la place sous lui, bornée aux
+       marges : sinon elle sort du cadre dès qu'il passe près d'un bord, et
+       l'on perd le lien qu'on cherchait justement à établir. */
+    if(elBulle.classList.contains("vu")){
+      const q = projetteSalon(ROBOT.pose(salon.horloge), mvpSalon());
+      if(q){
+        const marge = 170;
+        const x = Math.max(marge, Math.min(vueW - marge, q[0]));
+        const y = Math.max(60, Math.min(vueH - 210, q[1] + 34));
+        elBulle.style.setProperty("--bulle-x", x + "px");
+        elBulle.style.setProperty("--bulle-y", y + "px");
+      }
     }
 
     // Lumen. Il fait sa ronde, sauf quand l'étape demande qu'on lui parle :
