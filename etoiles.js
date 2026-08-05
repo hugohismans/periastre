@@ -26,9 +26,10 @@
    une lente rotation du grand axe, on ne réintègre pas.
    ---------------------------------------------------------------------------
 
-   ATTENTION : les éléments ci-dessous sont posés de mémoire et attendent leur
-   vérification. Ils portent tous `verif:false` tant qu'une source ne les a pas
-   confirmés, et le site l'affiche. Voir ETOILES-S.md.
+   Les éléments viennent de Gillessen et al. 2017, recopiés depuis la source
+   LaTeX de la soumission arXiv — et non d'un rendu HTML, dont une lecture
+   automatique s'était révélée corrompue : la ligne de S55 y était une copie
+   déformée de celle de S2. Voir ETOILES-S.md.
    ============================================================================ */
 
 (function(global){
@@ -41,22 +42,42 @@ const DEG = Math.PI/180;
    `a` en unités astronomiques, `P` en années, `t0` en année décimale du
    passage au périastre. Les trois angles sont ceux d'usage : inclinaison,
    argument du périastre, longitude du nœud ascendant. */
+/* Éléments orbitaux, recopiés de Gillessen et al. 2017, table des 40 étoiles.
+
+   Le demi-grand axe y est donné en secondes d'arc ; on le convertit en unités
+   astronomiques par la distance adoptée — à 8 277 pc, une seconde d'arc vaut
+   8 277 UA. Les angles et l'époque du périastre sont repris tels quels.
+
+   Convention, déduite du chaînage de références de l'article (il ajuste avec
+   les éléments de Thiele-Innes en citant Wright & Howard 2009) : rotations
+   dans l'ordre ω, puis i, puis Ω. Voir ETOILES-S.md, qui la détaille et
+   signale que ce point n'est pas écrit noir sur blanc dans l'article.
+
+   ATTENTION, piège relevé à la lecture : Ω y désigne le nœud où l'astre
+   S'APPROCHE, l'inverse de l'usage en binaires visuelles. Une erreur de signe
+   ici retourne l'orbite. À vérifier par un essai numérique avant publication. */
+const R0_UA = 8277;      // une seconde d'arc, en unités astronomiques
+
 const ETOILES = [
-  { nom:"S2",  a:1020, e:0.885, P:16.05, t0:2018.38, i:134.7, w:66.3,  O:228.2,
-    note:"La mieux mesurée. Son périastre a valu le Nobel 2020." },
-  { nom:"S38", a: 700, e:0.818, P:19.2,  t0:2003.30, i:166.2, w:17.9,  O:101.1 },
-  { nom:"S55", a: 550, e:0.727, P:12.8,  t0:2009.34, i:150.1, w:331.5, O:325.5,
-    note:"Aussi appelée S0-102 : la plus courte période longtemps connue." },
-  { nom:"S12", a:2350, e:0.888, P:58.9,  t0:1995.59, i:33.6,  w:317.9, O:230.1 },
-  { nom:"S13", a:2100, e:0.425, P:49.0,  t0:2004.86, i:24.7,  w:245.2, O:74.5  },
-  { nom:"S14", a:2250, e:0.963, P:55.3,  t0:2000.12, i:100.6, w:339.0, O:226.4,
+  // nom,     a["],    e,      T[an],  t_P[an],  i[°],    Ω[°],    ω[°]
+  { nom:"S2",  as:0.1255, e:0.8839, P:16.00, t0:2002.33, i:134.18, O:226.94, w:65.51,
+    note:"La mieux mesurée. Son périastre de 2018 a valu le Nobel 2020." },
+  { nom:"S55", as:0.1078, e:0.7209, P:12.80, t0:2009.34, i:150.1,  O:325.5,  w:331.5,
+    note:"La plus courte période solidement établie." },
+  { nom:"S38", as:0.1416, e:0.8201, P:19.20, t0:2003.19, i:171.1,  O:101.06, w:17.99 },
+  { nom:"S13", as:0.2641, e:0.4250, P:49.00, t0:2004.86, i:24.70,  O:74.5,   w:245.2 },
+  { nom:"S9",  as:0.2724, e:0.6440, P:51.30, t0:1976.71, i:82.41,  O:156.60, w:150.6 },
+  { nom:"S14", as:0.2863, e:0.9761, P:55.30, t0:2000.12, i:100.59, O:226.38, w:334.59,
     note:"L'orbite la plus allongée de l'essaim." },
-  { nom:"S1",  a:4900, e:0.556, P:166,   t0:2001.80, i:119.1, w:122.3, O:342.0 },
-  { nom:"S8",  a:3300, e:0.808, P:92.9,  t0:1983.64, i:74.4,  w:346.7, O:315.4 },
-  { nom:"S9",  a:2700, e:0.644, P:51.3,  t0:1976.71, i:82.4,  w:150.6, O:156.1 },
-  { nom:"S24", a:9000, e:0.933, P:398,   t0:2024.90, i:106.3, w:291.5, O:7.3   },
+  { nom:"S12", as:0.2987, e:0.8883, P:58.90, t0:1995.59, i:33.56,  O:230.1,  w:317.9 },
+  { nom:"S8",  as:0.4047, e:0.8031, P:92.90, t0:1983.64, i:74.37,  O:315.43, w:346.70 },
+  { nom:"S1",  as:0.5950, e:0.5560, P:166.0, t0:2001.80, i:119.14, O:342.04, w:122.3 },
+  { nom:"S24", as:0.9440, e:0.8970, P:331.0, t0:2024.50, i:103.67, O:7.93,   w:290 },
 ];
-ETOILES.forEach(s => { s.verif = false; });   // aucun n'est encore sourcé
+
+// Toutes viennent du même tableau publié : elles sont sourcées, et l'écart
+// avec mes valeurs de mémoire allait jusqu'à soixante pour cent sur S55.
+ETOILES.forEach(s => { s.a = s.as * R0_UA; s.verif = "gillessen2017"; });
 
 /* Position sur l'orbite, en unités astronomiques.
 
