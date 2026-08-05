@@ -196,7 +196,16 @@ function coherence(){
         [lieu === "libre", lieu === "salon", lieu === "sonde"].filter(Boolean).length === 1,
         1, [lieu === "libre", lieu === "salon", lieu === "sonde"].filter(Boolean).length);
 
-  if(av === "salon" && !salon.actif) b("b-salon").click();   // on rend l'état d'avant
+  /* On REND l'état exactement comme on l'a trouvé.
+
+     Ce contrôle déplace le joueur, c'est son travail. Mais il le rendait mal —
+     seul le cas du salon était restauré — et les contrôles suivants mesuraient
+     alors une page qui n'était plus celle qu'on croyait. `mesurePage` a ainsi
+     rapporté un échec qui n'appartenait pas au moment mesuré.
+
+     Un test qui laisse le monde différent de comme il l'a pris fausse tous ceux
+     qui le suivent. */
+  if(typeof vaAu === "function") vaAu(av);
   return enCours;
 }
 

@@ -573,7 +573,21 @@
 
        Elle ne prend pas les touchers, donc sa taille ne gêne rien : elle
        recouvre l'image, on lit, et l'on continue de viser à travers. */
-    max-height:calc(100vh - 190px); overflow:hidden;
+    /* `clip` plutôt que `hidden`, avec une marge.
+
+       Les petits boutons de la bulle portent une zone sensible qui déborde de
+       neuf pixels — et `overflow:hidden` la ROGNAIT, puisqu'ils sont collés au
+       bord. Le harnais l'a mesuré : 23 pixels utiles pour le bouton de coupure
+       du son, sur les 33 qu'il croyait avoir.
+
+       `overflow-clip-margin` laisse déborder ce qu'il faut sans rendre la boîte
+       défilable. Là où il n'est pas connu, on retombe sur l'ancien
+       comportement : c'est une amélioration, jamais une régression. */
+    /* Vingt-quatre pixels de marge, et le chiffre n'est pas au hasard : le
+       bouton du son est posé à −9 du bord, et sa zone sensible déborde encore
+       de 9. Dix-huit au total, donc douze ne suffisaient pas — le harnais
+       mesurait 24 pixels utiles là où il en faut 28. */
+    max-height:calc(100vh - 190px); overflow:clip; overflow-clip-margin:24px;
     left:var(--bulle-x, 50%); top:var(--bulle-y, 60%);
     transform:translate(-50%, 0);
     /* ELLE NE PREND PAS LES TOUCHERS.
@@ -644,8 +658,15 @@
     font-size:11px; line-height:1.45; border-radius:3px;
   }
   #bulle .q:first-of-type { margin-top:8px; }
+  /* Trente pixels, et non vingt-quatre.
+
+     Il porte une zone élargie comme les autres petits boutons, mais elle ne lui
+     sert à rien : posé À CHEVAL sur le bord de la bulle, il est rogné par son
+     `overflow`. J'ai essayé d'élargir la marge de rognage — elle étend le
+     DESSIN, pas la détection du toucher. Le navigateur a raison, et la bonne
+     réponse est de faire le bouton à la taille qu'il doit avoir. */
   #b-voix {
-    position:absolute; top:-9px; right:-9px; width:24px; height:24px; padding:0;
+    position:absolute; top:-9px; right:-9px; width:30px; height:30px; padding:0;
     border-radius:50%; font-size:11px; line-height:1; display:grid; place-items:center;
     background:rgba(20,16,34,.95);
   }
@@ -6544,6 +6565,16 @@ if(/[?&]verif\b/.test(location.search)){
   var s = document.createElement("script");
   s.src = "verif.js";
   document.body.appendChild(s);
+}
+/* Et le protocole d'essai joué : `?test`. Il pose ses questions au moment où la
+   chose vient d'être vécue, au lieu de les rassembler dans un formulaire qu'on
+   remplit de mémoire. Avec `?verif&test`, il joint au rapport ce que la machine
+   a vérifié seule — on ne fait pas travailler quelqu'un à contrôler ce qu'un
+   script contrôle mieux. */
+if(/[?&]test\b/.test(location.search)){
+  var e = document.createElement("script");
+  e.src = "essai.js";
+  document.body.appendChild(e);
 }
 </script>
 </body>
