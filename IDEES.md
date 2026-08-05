@@ -1126,3 +1126,71 @@ singulier dans les coordonnées employées, d'où une couture fine. La corriger
 demande de passer en coordonnées de Kerr-Schild, soit une réécriture du moteur.
 Tant que ce n'est pas fait, le cas de référence reste le seul sans artefact —
 ce qui justifie qu'il ouvre le site, mais ne le rend pas plus vrai.
+
+## Le carnet d'apprentissage, et le questionnaire qui n'est pas une note
+
+Idée d'Hugo : une barre de progression de ce qu'on a appris, un relevé de ce
+qu'on a lu, un résumé en quelques points, et un questionnaire à choix multiple
+sur les notions vues — avec, en cas d'erreur, de quoi aller comprendre.
+
+### Le substrat existe déjà
+
+C'est ce qui rend l'idée peu coûteuse. `acquis` retient les missions
+comprises ; chaque affirmation porte ses clés de sources ; chaque réplique a un
+identifiant. « Ce que tu as appris » et « où le relire » sont donc déjà des
+données — il manque leur présentation.
+
+Ce qu'il faut ajouter : retenir aussi **ce qui a été lu**, pas seulement ce qui
+a été validé. Une fiche ouverte, une justification dépliée, un niveau consulté.
+C'est ce relevé qui permet de bâtir un questionnaire sur ce qu'on a vu plutôt
+que sur un catalogue général.
+
+### Le questionnaire diagnostique, il ne note pas
+
+C'est le point où l'on peut tout gâcher. Un questionnaire qui donne une note
+transforme la compréhension en performance, et l'on se met à jouer contre le
+test au lieu d'apprendre. Or la règle du site est qu'**on ne débloque qu'en
+comprenant**.
+
+Donc : pas de score, pas d'échec, pas de pourcentage. Une erreur ne dit pas
+« tu as faux » mais **« voici ce qui n'est pas encore clair, et voilà par où le
+prendre »**. C'est un instrument de diagnostic, comme le banc d'essai l'est
+pour le calcul.
+
+Et il ne porte que sur ce que la personne a réellement vu. Interroger sur une
+fiche jamais ouverte n'apprend rien à personne.
+
+### En cas d'erreur : une porte, pas une correction
+
+C'est la meilleure part de l'idée, et c'est le prolongement naturel du bouton
+« d'où ça sort ? ». Se tromper doit ouvrir quelque chose : le passage exact de
+la fiche, la justification, et une lecture pour aller plus loin.
+
+### La distinction qui commande la traduction
+
+Hugo demande que les références suivent la langue. Il faut ici séparer deux
+objets qu'on confond souvent :
+
+- **La source** prouve. C'est un article, il a un titre, une revue, un
+  identifiant. Elle **ne se traduit pas** — Gillessen 2017 s'appelle Gillessen
+  2017 en toutes langues, et la littérature primaire est presque entièrement
+  en anglais. Prétendre l'inverse serait mentir sur ce qui existe.
+- **La lecture pour aller plus loin** explique. Une page d'encyclopédie, un
+  cours, une vidéo. Celle-là **doit** suivre la langue, et c'est elle qu'on
+  propose après une erreur.
+
+Chaque notion porterait donc deux champs distincts : sa source, commune à
+toutes les langues, et son renvoi de lecture, propre à chacune. Confondre les
+deux donnerait soit des sources traduites qui n'existent pas, soit des
+explications en anglais devant un lecteur francophone qui vient justement de
+buter.
+
+Réserve à porter : un renvoi vers un site tiers peut mourir. Il faut le dater,
+et accepter qu'un lien cassé vaut mieux qu'une explication inventée.
+
+### Le résumé de fin
+
+Quelques points, écrits comme la personne les dirait — pas comme un bulletin.
+« Tu sais maintenant pourquoi rien ne franchit l'horizon vu de loin. » C'est le
+leitmotiv appliqué à la sortie : on ressort grandi, donc on doit pouvoir dire
+de combien.
