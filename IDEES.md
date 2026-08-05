@@ -862,3 +862,62 @@ Rien d'insurmontable, mais c'est la troisième étape, pas la première.
 3. **La séparation des deux vaisseaux**, une fois qu'il y a vraiment quelque
    chose à partager.
 4. **La carte**, si elle se justifie encore à ce moment-là.
+
+## La baie est honnête, la surcouche est déclarée
+
+C'est le principe qui se dégage de trois idées d'Hugo arrivées séparément — le
+quadrillage du dézoom, la vitre en réalité augmentée, et le refus des fausses
+étoiles. Elles disent toutes la même chose, et il vaut mieux l'écrire une fois :
+
+> **Ce qu'on voit par la vitre est ce qu'on verrait.** Tout le reste — repères,
+> noms, trajectoires, quadrillages — est un instrument posé par-dessus, qui se
+> nomme comme tel et qu'on peut éteindre.
+
+La force de cette règle est qu'elle autorise beaucoup au lieu d'interdire. On
+peut afficher l'orbite d'une lune, nommer un anneau, tracer une trajectoire —
+à condition que ce soit visiblement une surimpression et non une prétention
+d'observation. C'est la différence entre une règle posée à côté d'un fossile et
+un fossile repeint.
+
+Un réglage unique commande donc l'ensemble : **surcouche visible ou non**. Et
+la vue nue reste toujours atteignable, parce que c'est elle l'argument du site.
+
+## Le système solaire, planète par planète — *le long terme*
+
+Hugo : aller au système solaire, se mettre en orbite autour de chaque planète,
+et lire ce qu'il y a à voir — les anneaux, les lunes, leurs trajectoires.
+
+### Ce qui est déjà en place sans qu'on l'ait fait exprès
+
+Le **contrat de destination** d'`OBJECTIFS.md` dit qu'une destination est une
+donnée et non du code : une scène avec sa plage d'échelles, ses fiches et son
+rendu. Jupiter est donc, architecturalement, la même chose que Sagittarius A*.
+Et le **voyage à 1 g** donne le moyen d'y aller en disant ce qu'il en coûte.
+
+### Ce qui coûte vraiment
+
+Pas le code — le **contenu**. Chaque destination réclame ses faits sourcés en
+trois niveaux, et c'est là que part le temps. Une planète bâclée vaut moins que
+pas de planète : elle transformerait un site rigoureux en encyclopédie tiède.
+
+Donc peu de destinations, très bien faites. Jupiter et Saturne d'abord, qui
+ont de quoi remplir une visite — et qui donnent chacune une leçon que le trou
+noir ne donne pas : la mécanique des résonances pour les lunes de l'une, la
+dynamique des anneaux pour l'autre.
+
+### La personnalisation du vaisseau
+
+Décorer, meubler, en avoir plusieurs. C'est cohérent avec la garde-robe déjà
+prévue et avec la règle qui la gouverne — **on ne débloque qu'en comprenant**.
+Un objet rapporté d'une destination visitée est un souvenir de voyage, pas un
+achat : il dit où l'on est allé.
+
+Réserve technique : tout le mobilier est calculé, donc chaque élément est du
+code à écrire. Ça plaide pour un petit catalogue de pièces combinables plutôt
+qu'un long catalogue d'objets uniques.
+
+### L'ordre, encore
+
+Rien de tout cela avant le voyage et le dézoom vers les étoiles S. Ce sont eux
+qui prouvent que le changement d'échelle fonctionne — et si ça ne fonctionne
+pas, le reste ne tient pas debout.
