@@ -103,49 +103,80 @@ function arrondi(x){
   return x.toFixed(2).replace(".", ",");
 }
 
+/* Un seul étage du quadrillage, à une maille donnée.
+
+   Trois nappes parallèles plutôt qu'une seule : le repère doit se lire comme un
+   VOLUME. Une nappe unique, vue de biais, ressemble à un tapis posé dans le
+   vide avec le trou noir posé dessus — on croit voir un objet là où il n'y a
+   qu'une aide de lecture. Trois nappes espacées, dont deux plus pâles, donnent
+   l'épaisseur, et le point de fuite se lit alors dans les trois.
+
+   Chaque ligne porte en outre son propre alpha, décroissant vers le bord, pour
+   que la grille se dissolve au lieu de s'arrêter net sur un rectangle. */
+function nappe(ctx, projette, maille, force){
+  if(force <= 0.004) return;
+  const n = 7;                              // lignes de part et d'autre
+  const etages = [[0, 1], [-3, 0.42], [3, 0.42]];   // hauteur en mailles, opacité
+
+  for(const [h, poids] of etages){
+    const y = h * maille;
+    for(let i = -n; i <= n; i++){
+      ctx.globalAlpha = 0.22 * force * poids * (1 - Math.abs(i)/(n + 1));
+      if(ctx.globalAlpha < 0.004) continue;
+      ctx.beginPath();
+      const a = projette([i*maille, y, -n*maille]);
+      const b = projette([i*maille, y,  n*maille]);
+      if(a && b){ ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); }
+      const c = projette([-n*maille, y, i*maille]);
+      const e = projette([ n*maille, y, i*maille]);
+      if(c && e){ ctx.moveTo(c[0], c[1]); ctx.lineTo(e[0], e[1]); }
+      ctx.stroke();
+    }
+  }
+}
+
 /* Dessine le quadrillage sur le calque à deux dimensions.
 
-   Il est tracé en perspective au sol, dans le plan du disque, ce qui lui donne
-   un point de fuite — c'est ce point de fuite qui fait qu'on sent le
-   mouvement, bien plus qu'une grille plate.
+   La maille se donne en rayons, sans aucun facteur d'échelle : elle vaut le
+   dixième de la distance en début de décade et le centième en fin, si bien que
+   sa taille apparente décroît de six degrés à un demi-degré. C'est ce
+   resserrement, répété quatre fois, qui fait sentir le recul.
+
+   ---------------------------------------------------------------------------
+   POURQUOI DEUX MAILLES À LA FOIS
+
+   Avec une seule, la grille SAUTE à chaque décade : dix lignes sur onze
+   disparaissent d'un coup et l'on voit un à-coup au lieu d'un éloignement.
+   C'est le défaut qu'Hugo a relevé, et il est juste.
+
+   On en dessine donc deux en permanence, distantes d'un facteur dix, fondues
+   l'une dans l'autre par la position dans la décade. La fine se resserre et
+   s'éteint ; la grossière, d'abord trop lâche pour être lue, s'allume à mesure
+   qu'elle devient la bonne. À aucun instant la densité apparente ne change
+   brutalement — les nœuds se rapprochent, et d'autres naissent entre eux.
 
    @param projette  fonction monde → écran, celle du salon
    @param force     0 à 1, pour l'apparition et l'effacement */
 function dessineQuadrillage(ctx, W, H, projette, force){
   if(force <= 0.01) return;
   const d = decade();
-  // la maille vaut la puissance de dix immédiatement inférieure à la distance
-  const maille = Math.pow(10, d.entiere - 1);
-  const n = 7;                              // lignes de part et d'autre
+  const echelle = etat.distance / RS_M;
 
   ctx.save();
-  ctx.globalAlpha = 0.20 * force;
   ctx.strokeStyle = "#8fb6ff";
   ctx.lineWidth = 1;
-  const echelle = etat.distance / RS_M;
-  /* La maille se donne en rayons, et c'est TOUT : aucun facteur d'échelle.
 
-     Il y en avait un, `26/echelle`, et il annulait précisément l'effet
-     recherché. La maille vaut le dixième de la distance en début de décade et
-     le centième en fin ; à distance `echelle`, sa taille apparente passe donc
-     de six degrés à un demi-degré, puis l'étiquette saute et tout repart. C'est
-     ce battement, quatre fois répété, qui fait sentir le recul. Multiplier par
-     l'inverse de la distance figeait la grille dans le monde, et elle
-     rétrécissait sans jamais se renuméroter. */
-  const k = 1;
+  // Un fondu adouci aux deux bouts : au milieu de la décade les deux nappes
+  // coexistent franchement, ce qui est exactement le moment où l'œil a besoin
+  // des deux pour ne pas perdre le fil.
+  const f = d.fraction * d.fraction * (3 - 2*d.fraction);
+  const fine = Math.pow(10, d.entiere - 1);
+  nappe(ctx, projette, fine,      force * (1 - f));
+  nappe(ctx, projette, fine * 10, force * f);
 
-  ctx.beginPath();
-  for(let i = -n; i <= n; i++){
-    const a = projette([i*maille*k, 0, -n*maille*k]);
-    const b = projette([i*maille*k, 0,  n*maille*k]);
-    if(a && b){ ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); }
-    const c = projette([-n*maille*k, 0, i*maille*k]);
-    const e = projette([ n*maille*k, 0, i*maille*k]);
-    if(c && e){ ctx.moveTo(c[0], c[1]); ctx.lineTo(e[0], e[1]); }
-  }
-  ctx.stroke();
-
-  // L'étiquette : c'est elle qui fait sentir les décades, pas la grille.
+  // L'étiquette suit la maille DOMINANTE, et c'est elle qui fait sentir les
+  // décades — un chiffre qui saute une fois, quand la grille, elle, coule.
+  const maille = f < 0.5 ? fine : fine * 10;
   ctx.globalAlpha = 0.85 * force;
   ctx.fillStyle = "#a9c6ff";
   ctx.font = "11px ui-monospace, monospace";

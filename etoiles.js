@@ -179,15 +179,26 @@ function demiEtendue(){ return 8000 / vue.echelle; }
 const TEINTES = ["#ffd08a","#7fd8ff","#a8ffc9","#ff9bb0","#c9b4ff",
                  "#ffe3a0","#9ad9d0","#ffb8d9","#b9d6ff","#e8c48a"];
 
-function dessine(ctx, W, H, dt){
+/**
+ * @param fond  opacité du FOND seul, indépendante de celle du contenu.
+ *
+ * Les deux sont séparées, et c'est ce qui rend la transition lisible. Avec un
+ * seul alpha, on voyait le plancher du vaisseau par transparence pendant tout
+ * le fondu : un diagramme d'orbites à demi effacé par-dessus une pièce éclairée
+ * ne ressemble pas à une transition, ça ressemble à une panne. Le noir couvre
+ * donc vite, et les orbites se dessinent ensuite sur du noir franc.
+ */
+function dessine(ctx, W, H, dt, fond){
   vue.annee += dt * vue.vitesse;
 
   /* Pas de clearRect ici : le calque est partagé avec le reste du site, et
      l'effacer interdirait tout fondu — la carte apparaîtrait d'un coup au lieu
-     de se substituer à la baie. Le fond opaque suffit, et son alpha est ce qui
-     porte la transition. */
+     de se substituer à la baie. */
+  ctx.save();
+  if(fond !== undefined) ctx.globalAlpha = fond;
   ctx.fillStyle = "#05050a";
   ctx.fillRect(0, 0, W, H);
+  ctx.restore();
 
   const c = projette([0,0,0], W, H);
 
@@ -262,7 +273,10 @@ function etalon(ctx, W, H){
   const rond = Math.pow(10, Math.floor(Math.log10(brut)));
   const val  = rond * (brut/rond >= 5 ? 5 : brut/rond >= 2 ? 2 : 1);
   const px   = val * k;
-  const x0 = 20, y0 = H - 26;
+  /* Quatre lignes à placer, et la dernière tombait SOUS le bord de l'écran :
+     l'ancre était à 26 pixels du bas, alors que le bloc en fait 62. On ancre
+     donc sur la hauteur réelle du bloc, pas sur celle de sa première ligne. */
+  const x0 = 20, y0 = H - 64;
 
   ctx.save();
   ctx.strokeStyle = "rgba(200,214,255,0.62)"; ctx.lineWidth = 1;
