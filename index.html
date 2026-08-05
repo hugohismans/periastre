@@ -778,6 +778,32 @@
     padding:24px; overflow-y:auto; transition:opacity .35s;
   }
   #accueil.parti { opacity:0; pointer-events:none; }
+
+  /* Le choix de la langue, en haut à droite de l'accueil.
+
+     Discret — deux lettres, un filet — parce que la plupart des gens n'y
+     toucheront jamais : la langue du navigateur est détectée d'office. Mais
+     atteignable dès la première seconde par ceux qui en ont besoin.
+
+     Trente-deux pixels de haut, et non vingt : c'est la mesure au-dessous de
+     laquelle un pouce rate sa cible, apprise en trouvant cinq boutons de vingt
+     pixels dont trois croix de fermeture. */
+  #acc-langue {
+    position:absolute; top:max(14px, env(safe-area-inset-top)); right:14px;
+    display:flex; gap:6px; z-index:1;
+    animation:monte .8s both; animation-delay:.2s;
+  }
+  #acc-langue button {
+    font-family:var(--mono); font-size:10.5px; letter-spacing:.14em;
+    min-width:38px; height:32px; padding:0 9px; cursor:pointer;
+    border:1px solid rgba(255,255,255,.16); border-radius:3px;
+    background:rgba(0,0,0,.28); color:#8f8aa6;
+  }
+  #acc-langue button:hover { color:#fff; border-color:rgba(255,255,255,.34); }
+  #acc-langue button.actif {
+    color:#fff; border-color:color-mix(in srgb, var(--ambre) 55%, transparent);
+    background:color-mix(in srgb, var(--ambre) 14%, transparent);
+  }
   /* tant qu'on est dans le menu, l'interface du jeu s'efface : sinon
      l'image d'accueil est mangée par des panneaux */
   body.au-menu .hud, body.au-menu #mission { opacity:0; pointer-events:none; }
@@ -1310,6 +1336,18 @@ body.au-salon:not(.mode-boutons) #dock { opacity:0; pointer-events:none; }
 
 
 <div id="accueil">
+  <!-- Le choix de la langue, SUR L'ACCUEIL et pas seulement dans les réglages.
+
+       Il n'existait que dans le panneau de réglages — lequel est masqué tant
+       qu'on est au menu. Autrement dit : pour changer de langue, il fallait
+       d'abord entrer dans un menu en français, puis ouvrir un panneau. Hugo
+       s'est cassé les dents dessus, et un anglophone qui arrive n'aurait eu
+       aucun moyen de basculer.
+
+       La langue du navigateur est bien détectée d'office ; c'est la CORRECTION
+       manuelle qui était hors d'atteinte. Deux lettres en haut à droite, avant
+       tout le reste. -->
+  <div id="acc-langue" role="group" aria-label="Langue — Language"></div>
   <div id="acc-boite">
     <!-- Ces deux lignes sont écrasées par `intro()` avant le premier rendu, mais
          elles restent ce qu'on voit si le script ne part pas — et elles
@@ -4449,18 +4487,27 @@ CONTENU.voix.forEach((v, i) => {
    recharger : tout le texte du site en vient, y compris ce qui a déjà été
    écrit à l'écran. Un rechargement est honnête et instantané ; reconstruire
    l'interface en place ferait la même chose en plus fragile. */
-const boitierLangue = $("langue-choix");
-[["Français", "fr"], ["English", "en"]].forEach(([nom, code]) => {
-  const b = document.createElement("button");
-  b.textContent = nom;
-  b.classList.toggle("actif", window.LANGUE === code);
-  b.onclick = () => {
-    if(window.LANGUE === code) return;
-    try { localStorage.setItem("periastre.langue", code); } catch(e){}
-    location.reload();
-  };
-  boitierLangue.appendChild(b);
-});
+/* Les DEUX sélecteurs sortent de la même fonction. C'est délibéré : deux
+   fabriques de boutons pour un seul réglage, c'est la garantie qu'un jour l'un
+   des deux oubliera d'enregistrer, ou affichera l'actif au mauvais endroit. */
+function poseChoixLangue(hote, court){
+  if(!hote) return;
+  [["Français", "fr"], ["English", "en"]].forEach(([nom, code]) => {
+    const b = document.createElement("button");
+    b.textContent = court ? code.toUpperCase() : nom;
+    b.lang = code;
+    if(court) b.title = nom;
+    b.classList.toggle("actif", window.LANGUE === code);
+    b.onclick = () => {
+      if(window.LANGUE === code) return;
+      try { localStorage.setItem("periastre.langue", code); } catch(e){}
+      location.reload();
+    };
+    hote.appendChild(b);
+  });
+}
+poseChoixLangue($("langue-choix"), false);
+poseChoixLangue($("acc-langue"), true);
 
 /* Les quatre hypothèses de rotation. La grille porte des CLÉS, pas des mots :
    les mêmes quatre lignes servent aux réglages et au trou noir d'étude, et
