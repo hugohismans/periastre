@@ -921,3 +921,77 @@ qu'un long catalogue d'objets uniques.
 Rien de tout cela avant le voyage et le dézoom vers les étoiles S. Ce sont eux
 qui prouvent que le changement d'échelle fonctionne — et si ça ne fonctionne
 pas, le reste ne tient pas debout.
+
+## Le carnet de bord temporel — la meilleure mécanique proposée
+
+Idée d'Hugo : chaque joueur accumule son **décalage propre** avec la Terre.
+Tout ce qu'il fait y contribue — le temps passé en orbite, les voyages à 1 g,
+les allers-retours. Le décalage persiste, et il peut en consulter le détail :
+chaque entrée, sa formule, ce qu'elle a coûté.
+
+### Pourquoi c'est la meilleure
+
+Le paradoxe des jumeaux cesse d'être un chapitre qu'on lit pour devenir
+**quelque chose qui vous est arrivé**. On ne comprend pas la dilatation du
+temps en la lisant ; on la comprend en découvrant qu'on a soi-même trois cents
+ans de retard et en cherchant d'où ils viennent.
+
+Elle unifie aussi les deux relativités dans un seul nombre, ce qui est
+exactement la formulation profonde déjà notée plus haut : **le temps propre est
+la longueur de la ligne d'univers**. Rester au fond d'un puits de gravité et
+partir vite sont deux façons de raccourcir le même chemin.
+
+Et elle est **auditable**, ce qui la rend cohérente avec tout le reste du site :
+chaque entrée porte sa formule et son calcul. C'est le bouton « d'où ça sort ? »
+appliqué à la progression du joueur.
+
+### La forme : un registre, pas une simulation
+
+Chaque action ajoute une ligne — la date, ce qui a été fait, la formule
+employée, le décalage produit. On n'intègre rien en continu, on **enregistre**.
+C'est plus simple, c'est vérifiable, et ça se relit.
+
+Deux régimes s'y côtoient, et leur écart est en soi une leçon :
+
+- **Rester en orbite.** À seize rayons, l'horloge tourne à √(1 − 1/16) = 0,968
+  de celle du loin, soit 3,2 % de moins. Une heure de jeu coûte deux minutes.
+- **Voyager à 1 g.** L'aller au système solaire coûte une vingtaine d'années
+  vécues contre vingt-sept mille écoulées.
+
+Le registre montre donc de lui-même que **le voyage écrase le séjour** — et
+qu'il faut descendre très près de l'horizon pour que rester devienne
+comparable. Personne n'a besoin de l'expliquer : les deux colonnes le disent.
+
+### Le point à trancher : que se passe-t-il hors connexion ?
+
+Hugo penche pour que le décalage continue de courir même déconnecté. Je
+recommande l'inverse, et pour une raison qui vient de ses propres règles.
+
+Faire courir le compteur en l'absence du joueur reviendrait à **récompenser
+l'attente** : il suffirait de laisser son vaisseau en orbite basse pour
+accumuler. Or la règle posée depuis le début est qu'on ne débloque qu'en
+comprenant. Un décalage qui grandit tout seul est le contraire.
+
+Le registre enregistre donc **ce qu'on a vécu**, et se fige quand on part. Ce
+qui se défend aussi en fiction : le vaisseau est amarré, on n'y est pas.
+
+### Le lobby comme lieu hors du temps
+
+Hugo l'a bien vu : si chacun a sa temporalité, un lieu commun devient
+impossible — sauf à le déclarer magique. C'est cohérent avec la seule autre
+triche du site, la pesanteur du salon, et il faut le dire de la même façon,
+franchement et avec humour.
+
+Le lobby est donc l'endroit où toutes les lignes d'univers se rejoignent, ce
+qui n'a aucun sens physique et qu'on assume. Le prix à payer est faible et le
+gain est net : on peut s'y retrouver et comparer ses registres.
+
+### Ce que ça demande
+
+Peu de choses, en réalité : une liste d'entrées dans le profil, une formule par
+type d'action, et un écran qui les affiche. La persistance existe déjà en
+mémoire locale, et passera au partagé quand Firestore le sera.
+
+C'est donc une mécanique à fort rendement — beaucoup de sens pédagogique pour
+peu de code. Elle mérite de venir juste après le voyage, dont elle est la
+conséquence naturelle.
