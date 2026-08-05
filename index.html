@@ -564,7 +564,16 @@
        cent soixante-dix appliquée à `--bulle-x` garantit qu'à cette largeur elle
        reste dans le cadre. */
     width:min(320px, 76vw); max-width:none; right:auto;
-    max-height:42vh; overflow:hidden;
+    /* Assez haute pour ne rien couper.
+
+       À 42vh elle tronquait la fin des répliques — cinquante-neuf pixels
+       perdus sur téléphone, et avec eux le bouton « d'où ça sort ? », qui est
+       précisément ce qui permet de vérifier ce qu'on vient de lire. Une bulle
+       qui mange sa propre justification est pire qu'une bulle encombrante.
+
+       Elle ne prend pas les touchers, donc sa taille ne gêne rien : elle
+       recouvre l'image, on lit, et l'on continue de viser à travers. */
+    max-height:calc(100vh - 190px); overflow:hidden;
     left:var(--bulle-x, 50%); top:var(--bulle-y, 60%);
     transform:translate(-50%, 0);
     /* ELLE NE PREND PAS LES TOUCHERS.
