@@ -611,13 +611,103 @@ Le tir depuis une salle règle aussi un problème d'unité : on ne quitte pas le
 jeu pour lancer une simulation, on va dans une pièce du vaisseau. Même règle
 que le télescope.
 
+### Le tir lui-même — *précisé le 5 août*
+
+Hugo : tirer **depuis la vue du vaisseau**, en emportant sa vitesse initiale, à
+la vitesse et dans la direction qu'on choisit — et **voir la trajectoire** que
+ça donnera avant de lâcher.
+
+Et pouvoir cliquer sur n'importe quel objet pour passer à sa vue : une sonde,
+un vaisseau parti au tir, ce qu'on veut.
+
+#### Le tir à zéro, qui doit être le premier
+
+Hugo, et c'est la démonstration la plus pure de toute l'idée :
+
+> si tu tires à zéro mètre par seconde depuis une station en orbite, tu restes
+> à côté d'elle, toujours en orbite. Il faut bien faire comprendre ça.
+
+C'est le réglage par défaut, et le premier geste que tout le monde fera. On
+pousse le curseur à zéro, on tire — et **il ne se passe rien**. On flotte à
+côté du vaisseau, à la même vitesse, sur la même trajectoire, pour toujours.
+
+Le mot « zéro » y ment d'ailleurs, et c'est tout le sujet : cette sonde file à
+plusieurs dizaines de milliers de kilomètres par heure. Le chiffre sur le
+cadran n'est pas une vitesse, c'est un **écart** de vitesse. Comprendre ça,
+c'est avoir compris la mécanique orbitale ; ne pas l'avoir compris, c'est
+croire qu'on tombe quand on lâche quelque chose dans l'espace.
+
+Le curseur commence donc à zéro, et l'aperçu de trajectoire montre une orbite
+identique à celle du vaisseau. C'est ennuyeux, et c'est exactement pour ça que
+c'est la bonne première image.
+
+#### Pourquoi la vitesse initiale est tout l'intérêt
+
+C'est là que ça cesse d'être un jouet et que ça devient un cours.
+
+Le vaisseau est en orbite : il file déjà à une vitesse considérable, de côté.
+Quelqu'un qui vise le trou noir et tire s'attend à tomber dedans. **Il n'en
+fera rien.** Il gardera la vitesse latérale du vaisseau, et le tir entrera
+simplement sur une nouvelle orbite — plus basse, plus allongée, mais une orbite.
+
+C'est la chose la plus contre-intuitive de la mécanique céleste, et l'aperçu de
+trajectoire la montre **gratuitement** : on vise le centre, on voit la courbe
+manquer, on comprend en une seconde ce qu'aucun paragraphe n'explique bien.
+
+Et la suite est du même bois. Pour franchir vraiment l'horizon, il faut annuler
+presque tout son moment cinétique, donc tirer **contre** le sens de l'orbite, et
+fort. Ce qui coûte cher — et rejoint la leçon du carburant, déjà en place au
+télescope. On ne tombe pas dans un trou noir en le visant. C'est encore le même
+anticlimax, et c'est encore le bon.
+
+#### Ce que ça demande vraiment
+
+L'aperçu s'obtient en intégrant la géodésique en avant sur quelques centaines
+de pas et en traçant le résultat : exactement ce que `integre()` fait déjà, et
+ce que `montreTraj` sait déjà dessiner. Rien de neuf, donc — sauf le fait de le
+calculer **avant** le tir et de le remettre à jour pendant qu'on vise.
+
+La bascule de point de vue rejoint la fondation F1 : c'est un choix de LIEU, et
+il n'y a pas de raison d'en faire un mécanisme séparé. Une sonde, un tir, le
+salon, le télescope — un seul état, une seule liste.
+
+#### Deux vues, et ce ne sont pas les mêmes
+
+Précision d'Hugo : cliquer une sonde peut vouloir dire deux choses, et il les
+veut toutes les deux.
+
+**Être dedans.** Existe déjà : `embarque()` et son cockpit, avec l'aberration
+relativiste que donne la vitesse locale. Retiré de la bêta, pas supprimé.
+
+**La voir de dehors** — comme un objet, rendu en volume, qui tourne près du trou
+noir ou autour de Jupiter. **Cela n'existe pas.** Aujourd'hui une sonde est un
+point et une traînée sur le calque à deux dimensions ; il n'y a pas de modèle.
+
+C'est un module à écrire, sur le patron de `robot.js` et `personnage.js` : tout
+calculé, rien d'importé. Et c'est de loin la vue la plus spectaculaire qu'on
+puisse tirer du moteur existant — une sonde près de la sphère des photons est
+vue **plusieurs fois à la fois**, l'objet et ses images secondaires, ce que le
+lancer de géodésiques produit tout seul et qu'aucune illustration ne montre.
+
+Une réserve, déjà couverte : à l'échelle réelle une sonde ferait quelques
+millionièmes de pixel. Le site la grossit, le réglage laisse le choix, et
+l'écart est **déjà déclaré** dans la note de la rédaction. Lui donner un corps
+visible ne crée donc pas une nouvelle entorse — ça rend visible celle qui est
+assumée depuis le début.
+
 ### Ce qui est déjà là
 
-- Le lancer de sondes et son intégrateur.
+- Le lancer de sondes avec position et vitesse initiales, et son intégrateur.
+- La vue embarquée sur une sonde, avec son cockpit — retirée de la bêta, jamais
+  supprimée.
+- L'affichage des trajectoires complètes.
 - Le panthéon, ses règles Firestore, et les noms formés de trois entiers dans
   des vocabulaires embarqués — donc **aucun texte libre en base**, ce qui reste
   non négociable.
 - `CHUTE.md`, écrit et jamais branché.
+
+Autrement dit : l'essentiel du tir balistique est déjà écrit et éprouvé. Ce qui
+manque est l'aperçu de trajectoire, la salle qui l'abrite, et le mémorial.
 
 ### Ce qu'il faut ajouter, et la frontière
 
