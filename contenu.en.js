@@ -1345,6 +1345,57 @@ methodeSources: [
   ["chandrasekhar1983", "bardeen1972", "bardeen1973", "yuan2014", "eht2022", "luminet1979"],
 ],
 
+/* The editor's note.
+
+   The dossier promised "and what, inside it, is not" from the very beginning,
+   and never delivered. Here is the list, sorted into three — because "it's
+   wrong" covers three very different things, and conflating them is exactly
+   what makes a site impossible to check:
+
+   what we CHOSE to bend so it would be playable;
+   what science does not yet KNOW;
+   what our own code does badly.
+
+   It shows at all three reading levels: this is not advanced material, it is
+   the contract. */
+notes: {
+  titre: "Editor's note",
+  chapeau: "Everything else on this site is computed. Here are the places where it is not, or not entirely.",
+  groupes: [
+    {
+      titre: "What we bent on purpose",
+      chapeau: "Deliberate choices, so that it stays playable and legible.",
+      points: [
+        "<b>Gravity inside the ship.</b> We are in orbit: we should be floating, and so should everything not bolted down. Since a weightless lounge is unplayable, we decided gravity here is magic. It is the one thing about the ship that plainly breaks physics, and it is on purpose.",
+        "<b>Sped-up time.</b> At true scale one orbit takes hours and nothing happens on screen. Every setting states its factor, and the first one is real time — where almost everything stops moving.",
+        "<b>The size of the probes.</b> A real spacecraft would be a few millionths of a pixel across. We enlarge them so they exist at all, and the setting offers a choice rather than imposing one size.",
+        "<b>The one-g engine.</b> Nobody knows how to build it, and nothing comes close. We grant it so that travel is possible — but the telescope shows what it would actually cost in fuel, and the figure is crushing.",
+        "<b>The texture of the disc at radio wavelengths.</b> That is an appearance effect, not a radiative transfer calculation. The sizes are measured, though: at three centimetres, the emitting region really does reach thirty-seven radii.",
+        "<b>The grid during the retreat.</b> Nothing grids space. It exists only while moving, because in true emptiness nothing proves you are travelling — and without it, four decades look like a frozen screen.",
+        "<b>The chart of the S stars.</b> It is a reconstruction, not a view. These orbits last from sixteen to three hundred and thirty-one years: nobody has ever watched them go round. They were measured over thirty years, and that is precisely the point.",
+        "<b>The set and the people.</b> Everything is computed and nothing is imported — but a ship and its crew are not measurements. Only what you see through the bay claims to be.",
+      ],
+    },
+    {
+      titre: "What nobody knows",
+      chapeau: "Real unknowns, and none of them our doing.",
+      points: [
+        "<b>The spin of Sagittarius A*.</b> It has not been measured. The four values offered in the settings are hypotheses, not observations, and the panel says so every time. That is why a separate study black hole exists, where hypotheses belong.",
+        "<b>The depth orientation of the star swarm.</b> Their positions on the sky are solid. The direction of depth depends on a convention the papers cite without restating, and telling the two readings apart would need a figure we could not recover. So the view marks no direction towards Earth and no near side: the discrepancy, if there is one, cannot be seen.",
+      ],
+    },
+    {
+      titre: "What our own code does badly",
+      chapeau: "Our limits, not physics'.",
+      points: [
+        "<b>A thin seam on the axis when the black hole spins.</b> The coordinates we use are singular there. The physics stays correct at that spot; it is the description that breaks. Fixing it would mean rewriting the engine in another system.",
+        "<b>The onboard screens are drawn flat.</b> They have no true perspective, and nothing passes in front of them.",
+        "<b>The disc stops at eleven radii.</b> A real accretion flow reaches much further, but its outer part is cold and dark; cutting it there costs the image little and saves a great deal of computation.",
+      ],
+    },
+  ],
+},
+
 methode: [
 // ----------------------------------------------------------------- Newcomer
 `<h3>First, what a fake looks like</h3>

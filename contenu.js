@@ -1348,6 +1348,57 @@ methodeSources: [
   ["chandrasekhar1983", "bardeen1972", "bardeen1973", "yuan2014", "eht2022", "luminet1979"],
 ],
 
+/* La note de la rédaction.
+
+   Le dossier promettait depuis le début « et ce qui, dedans, ne l'est pas »,
+   sans jamais le dire. Voici la liste, et elle est classée en trois — parce que
+   « c'est faux » recouvre trois choses très différentes, et que les confondre
+   est précisément ce qui rend un site invérifiable :
+
+   ce qu'on a CHOISI d'écarter pour que ce soit jouable ;
+   ce que la science IGNORE encore ;
+   ce que notre calcul, lui, ne fait pas bien.
+
+   Elle s'affiche aux trois niveaux de lecture : ce n'est pas du contenu
+   avancé, c'est le contrat. */
+notes: {
+  titre: "Note de la rédaction",
+  chapeau: "Tout le reste du site est calculé. Voici les endroits où il ne l'est pas, ou pas complètement.",
+  groupes: [
+    {
+      titre: "Ce qu'on a écarté exprès",
+      chapeau: "Des choix assumés, pour que ce soit jouable ou lisible.",
+      points: [
+        "<b>La gravité dans le vaisseau.</b> On est en orbite : on devrait flotter, et tout ce qui n'est pas fixé aussi. Un salon en apesanteur étant injouable, nous avons décidé que la gravité y était magique. C'est la seule chose du vaisseau qui viole franchement la physique, et c'est volontaire.",
+        "<b>Le temps accéléré.</b> À l'échelle réelle, un tour d'orbite dure des heures et il ne se passe rien à l'écran. Chaque cran du réglage annonce son facteur, et le premier est le temps réel — celui où presque tout s'immobilise.",
+        "<b>La taille des sondes.</b> Un vaisseau réel ferait quelques millionièmes de pixel. On les grossit pour qu'elles existent, et le réglage laisse le choix plutôt que d'imposer une taille.",
+        "<b>Le moteur à un g.</b> Personne ne sait le construire, et rien ne s'en approche. On l'accorde pour pouvoir voyager — mais le télescope affiche ce qu'il coûterait vraiment en carburant, et le chiffre est écrasant.",
+        "<b>La texture du disque en ondes radio.</b> C'est un effet d'apparence, pas un calcul de transfert radiatif. Les tailles, elles, viennent des mesures : à trois centimètres de longueur d'onde, la région qui émet atteint bien trente-sept rayons.",
+        "<b>Le quadrillage pendant le recul.</b> Rien ne quadrille l'espace. Il n'existe que pendant le mouvement, parce que dans le vide absolu rien ne prouve qu'on avance — et sans lui, quatre décades ressemblent à un écran figé.",
+        "<b>La carte des étoiles S.</b> C'est une reconstruction, pas une vue. Ces orbites durent de seize à trois cent trente et un ans : personne ne les a jamais vues tourner. On les a mesurées pendant trente ans, et c'est justement le sujet.",
+        "<b>Le décor et les personnages.</b> Tout est calculé, rien n'est importé — mais un vaisseau et des gens ne sont pas des mesures. Seul ce qu'on voit par la baie prétend l'être.",
+      ],
+    },
+    {
+      titre: "Ce que personne ne sait",
+      chapeau: "Des inconnues réelles, qui ne tiennent pas à nous.",
+      points: [
+        "<b>La rotation de Sagittarius A*.</b> Elle n'est pas mesurée. Les quatre valeurs proposées dans les réglages sont des hypothèses, pas des observations, et le panneau le dit à chaque fois. C'est pourquoi il existe à côté un trou noir d'étude, où les hypothèses sont chez elles.",
+        "<b>L'orientation en profondeur de l'essaim d'étoiles.</b> Leurs positions sur le ciel sont solides. Le sens de la profondeur, lui, dépend d'une convention que les articles citent sans la réécrire, et départager les deux lectures demanderait une donnée que nous n'avons pas su retrouver. La vue n'indique donc aucune direction vers la Terre et ne marque aucun côté proche : l'écart, s'il existe, n'est pas visible.",
+      ],
+    },
+    {
+      titre: "Ce que notre calcul fait mal",
+      chapeau: "Nos limites à nous, pas celles de la physique.",
+      points: [
+        "<b>Une fine couture sur l'axe, quand le trou noir tourne.</b> Les coordonnées employées y sont singulières. La physique reste juste à cet endroit ; c'est sa description qui s'y casse. Corriger demanderait de réécrire le moteur dans un autre système.",
+        "<b>Les écrans du bord sont dessinés à plat.</b> Ils n'ont pas de perspective véritable, et rien ne passe devant eux.",
+        "<b>Le disque s'arrête à onze rayons.</b> Un vrai flot d'accrétion s'étend beaucoup plus loin, mais sa partie externe est froide et sombre ; la couper là coûte peu à l'image et beaucoup moins cher à calculer.",
+      ],
+    },
+  ],
+},
+
 methode: [
 // ---------------------------------------------------------------- Découverte
 `<h3>D'abord, à quoi ressemble un faux</h3>

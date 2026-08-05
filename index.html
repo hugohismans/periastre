@@ -569,6 +569,33 @@
   }
   #d-texte pre .cm { color:#6f6a86; }
 
+  /* note de la rédaction
+
+     Elle se donne l'air d'un errata, pas d'un encadré publicitaire : filets
+     fins, capitales espacées pour les intitulés de groupe, aucune couleur
+     d'alerte. Ce qu'on avoue ne se met pas en avant, ça se pose. */
+  #d-notes { margin-top:30px; border-top:1px solid var(--filet); padding-top:22px; }
+  #d-notes > h3 {
+    font-family:var(--serif); font-size:17px; font-weight:400; color:#fff; margin:0 0 5px;
+  }
+  #d-notes > p.n-chapeau { font-size:12px; line-height:1.65; color:var(--pale); margin:0 0 4px; }
+  .n-groupe { margin-top:20px; }
+  .n-groupe h4 {
+    font-family:var(--chiffre); font-size:9px; letter-spacing:.17em; text-transform:uppercase;
+    font-weight:400; color:var(--braise); margin:0 0 3px;
+  }
+  .n-groupe .n-sous { font-size:11.5px; line-height:1.6; color:var(--sourd); margin:0 0 10px; }
+  .n-groupe ul { list-style:none; margin:0; padding:0; }
+  .n-groupe li {
+    position:relative; font-size:12.5px; line-height:1.72; color:var(--pale);
+    padding:9px 0 9px 15px; border-top:1px solid var(--filet);
+  }
+  .n-groupe li::before {
+    content:""; position:absolute; left:0; top:17px; width:5px; height:1px;
+    background:var(--sourd);
+  }
+  .n-groupe li b { color:#e4e0f0; font-weight:500; }
+
   /* banc d'essai */
   #banc { margin-top:28px; border-top:1px solid var(--filet); padding-top:22px; }
   #b-lancer { background:rgba(110,255,180,.13); border-color:rgba(110,255,180,.34); color:#c8ffe4; }
@@ -1140,6 +1167,10 @@ body.au-salon:not(.mode-boutons) #dock { opacity:0; pointer-events:none; }
     <div class="chapeau">Et ce qui, dedans, ne l'est pas.</div>
     <div id="d-niveaux"></div>
     <div id="d-texte"></div>
+    <!-- La note de la rédaction : elle tient la promesse du chapeau ci-dessus,
+         et elle ne dépend pas du niveau de lecture — ce n'est pas du contenu
+         avancé, c'est le contrat. -->
+    <div id="d-notes"></div>
     <div id="banc">
       <button id="b-lancer">Vérifier le moteur maintenant</button>
       <div id="essais"></div>
@@ -4876,6 +4907,42 @@ function majDossier(){
   composeMaths(elDTexte);
   [...boitierD.children].forEach((c, i) => c.classList.toggle("actif", i === iDNiveau));
 }
+
+/* La note de la rédaction, posée une fois pour toutes.
+
+   Elle ne change pas avec le niveau de lecture : un écart assumé l'est pour
+   tout le monde, et le réserver au niveau technique reviendrait à le cacher à
+   ceux qui en ont le plus besoin. */
+function poseNotes(){
+  const N = CONTENU.notes;
+  if(!N) return;                       // le fichier de contenu peut être plus ancien
+  const el = $("d-notes");
+  const h = document.createElement("h3");
+  h.textContent = N.titre;
+  const c = document.createElement("p");
+  c.className = "n-chapeau";
+  c.textContent = N.chapeau;
+  el.appendChild(h); el.appendChild(c);
+
+  N.groupes.forEach(g => {
+    const d = document.createElement("div");
+    d.className = "n-groupe";
+    const t = document.createElement("h4");
+    t.textContent = g.titre;
+    const s = document.createElement("p");
+    s.className = "n-sous";
+    s.textContent = g.chapeau;
+    const ul = document.createElement("ul");
+    g.points.forEach(p => {
+      const li = document.createElement("li");
+      li.innerHTML = p;              // les points portent du gras, et rien d'autre
+      ul.appendChild(li);
+    });
+    d.appendChild(t); d.appendChild(s); d.appendChild(ul);
+    el.appendChild(d);
+  });
+}
+poseNotes();
 $("b-methode").onclick = () => { iDNiveau = iNiveau; majDossier(); elVoile.classList.add("vu"); };
 $("d-fermer").onclick  = () => elVoile.classList.remove("vu");
 elVoile.onclick = e => { if(e.target === elVoile) elVoile.classList.remove("vu"); };
