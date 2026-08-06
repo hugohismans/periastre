@@ -345,8 +345,43 @@ function tourne(dx, dy){
 }
 // De 0,2 — où S24 tient tout entière — à 10, où l'on descend jusqu'au périastre
 // de S2, à cent vingt unités astronomiques du trou noir.
-function zoome(f){ vue.echelle = Math.max(0.2, Math.min(10, vue.echelle*f)); }
+function zoome(f){
+  vue.pilotee = false;          // dès qu'on zoome soi-même, l'entrée lâche la barre
+  vue.echelle = Math.max(0.2, Math.min(10, vue.echelle*f));
+}
 
-global.ETOILES_S = { ETOILES, position, dessine, tourne, zoome, vue, demiEtendue };
+/* ------------------------------------------------- L'ENTRÉE SE DÉZOOME
+
+   Hugo, séance du 6 août au soir : « il faudrait qu'on voie les orbites
+   dézoomer, là la taille est fixe dans l'espace et apparaît d'un coup à la fin
+   du voyage. »
+
+   Il a raison, et c'est un diagnostic, pas une plainte : `vue.echelle` valait 1
+   en permanence. La carte se contentait donc de monter en opacité, à taille
+   constante, sans que rien ne la relie aux vingt-deux secondes d'éloignement
+   qu'on venait de vivre. On arrivait, et un diagramme se posait devant.
+
+   Elle s'ouvre maintenant serrée — six fois trop près, si près que l'apoastre de
+   S2 à 1 957 UA ne tient pas dans le champ — et s'écarte jusqu'à sa cadre final
+   à mesure qu'elle apparaît. Les orbites entrent donc en rétrécissant, ce qui
+   est le geste du recul et non celui d'une fenêtre qui s'ouvre.
+
+   CE QUE ÇA N'EST PAS : une perspective. La carte reste une reconstruction, le
+   site le dit, et à l'arrivée le vaisseau est DANS l'essaim — il ne pourrait
+   physiquement pas le voir de l'extérieur. C'est de la mise en scène assumée sur
+   un diagramme assumé, pas une prétention de vue.
+
+   `t` est l'avancement de l'apparition, de 0 à 1. */
+const ZOOM_ENTREE = 6;
+function entree(t){
+  if(t < 0.01) vue.pilotee = true;        // carte refermée : la prochaine entrée reprend la barre
+  if(!vue.pilotee) return;                // quelqu'un a zoomé : on ne lui reprend pas
+  const k = Math.max(0, Math.min(1, t));
+  const doux = k*k*(3 - 2*k);             // adouci aux deux bouts, sans à-coup à l'arrivée
+  vue.echelle = ZOOM_ENTREE + (1 - ZOOM_ENTREE)*doux;
+}
+
+global.ETOILES_S = { ETOILES, position, dessine, tourne, zoome, entree, vue,
+                     demiEtendue, ZOOM_ENTREE };
 
 })(window);

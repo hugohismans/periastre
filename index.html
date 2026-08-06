@@ -3831,6 +3831,7 @@ function dessineVoyage(dt){
     ctx.save();
     ctx.globalAlpha = orbite;
     ETOILES_S.vue.azim += dt * 0.05;    // une dérive lente, pour que le volume se lise
+    ETOILES_S.entree(orbite);           // elle entre en se dézoomant — voir etoiles.js
     ETOILES_S.dessine(ctx, W, H, dt, fond);
     ctx.restore();
   }

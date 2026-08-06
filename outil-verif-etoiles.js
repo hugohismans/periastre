@@ -197,6 +197,62 @@ dit(`Marge : jusqu'à e = 0,9999 l'écart reste sous **${pireReste.toExponential
       Math.max(...ETOILES.map(s => s.e)).toFixed(3)}.`);
 dit("");
 
+/* ------------------------------------------------- L'ENTRÉE DE LA CARTE
+
+   Hugo, 6 août au soir : « il faudrait qu'on voie les orbites dézoomer, là la
+   taille est fixe dans l'espace et apparaît d'un coup à la fin du voyage. »
+
+   `vue.echelle` valait 1 en permanence : la carte montait en opacité, à taille
+   constante. Elle s'ouvre maintenant serrée et s'écarte à mesure qu'elle
+   apparaît. Ce contrôle garde les trois choses qui comptent — qu'elle parte
+   bien serrée, qu'elle finisse au cadre nominal, et qu'elle n'aille jamais à
+   rebours en chemin, ce qui se verrait comme un à-coup. */
+let entreeOk = true, pire = "";
+{
+  const ETOILES_S = faux.ETOILES_S;
+  const V = ETOILES_S ? ETOILES_S.vue : null;
+  if(!V){ entreeOk = false; pire = "module non chargé"; }
+  else {
+    ETOILES_S.entree(0);
+    const debut = V.echelle;
+    ETOILES_S.entree(1);
+    const fin = V.echelle;
+
+    // monotone : l'échelle ne doit que décroître, sinon l'œil voit un rebond
+    let prec = Infinity, monotone = true;
+    for(let i = 0; i <= 60; i++){
+      ETOILES_S.entree(i/60);
+      if(V.echelle > prec + 1e-9) monotone = false;
+      prec = V.echelle;
+    }
+    /* CRITÈRE ABSOLU, ET C'EST LE POINT.
+
+       La première version comparait `debut` à `ZOOM_ENTREE` — donc mettre cette
+       constante à 1 supprimait tout dézoom ET faisait passer le contrôle, qui
+       annonçait fièrement << de 1× à 1× >>. Il mesurait sa propre hypothèse.
+
+       On exige donc un dézoom RÉEL : au moins un facteur trois, sans quoi le
+       geste ne se voit pas et la question d'Hugo reviendrait. */
+    if(!(debut >= 3*fin)){ entreeOk = false; pire = "le dézoom est trop faible pour se voir : " + debut.toFixed(2) + "× → " + fin.toFixed(2) + "×"; }
+    else if(Math.abs(fin - 1) > 1e-9){ entreeOk = false; pire = "elle ne finit pas au cadre nominal : " + fin; }
+    else if(!monotone){ entreeOk = false; pire = "l'échelle remonte en chemin — l'œil y verrait un à-coup"; }
+
+    // et la main de l'utilisateur doit l'emporter
+    ETOILES_S.entree(0.5);
+    ETOILES_S.zoome(1.2);
+    const apresZoom = V.echelle;
+    ETOILES_S.entree(0.9);
+    if(Math.abs(V.echelle - apresZoom) > 1e-9){
+      entreeOk = false; pire = "l'entrée reprend la barre après un zoom manuel";
+    }
+    ETOILES_S.entree(0);            // on rend l'état comme on l'a pris
+  }
+}
+dit(`Entrée de la carte : ${entreeOk
+  ? `**elle se dézoome** — de ${faux.ETOILES_S.ZOOM_ENTREE}× à 1×, sans rebond, et un zoom manuel lui reprend la barre. ✅`
+  : `❌ ${pire}`}`);
+dit("");
+
 // Le constat rédigé est dans VERIF-ETOILES.md ; ici on ne fait que l'imprimer.
 void lignes;
-process.exit(kepplerOk ? 0 : 1);
+process.exit(kepplerOk && entreeOk ? 0 : 1);
