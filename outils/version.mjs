@@ -31,17 +31,32 @@ import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
 const racine = join(dirname(fileURLToPath(import.meta.url)), "..");
-const page = join(racine, "index.html");
+
+/* TOUTES les pages, pas seulement le simulateur.
+
+   Le journal a été publié avec un `journal.js` sans estampille, et GitHub Pages
+   l'aurait servi périmé pendant dix minutes — exactement le piège que ce fichier
+   existe pour éviter. Une page oubliée ici est une page dont les corrections
+   restent invisibles, et l'on conclut qu'elles n'ont pas été poussées. */
+const PAGES = ["index.html", "journal.html"];
 
 const v = execSync("git rev-parse --short HEAD", { cwd: racine }).toString().trim();
-const avant = readFileSync(page, "utf8");
-const apres = avant.replace(/\?v=[0-9a-f]{6,12}/g, "?v=" + v);
+let total = 0, changees = 0;
 
-const n = (avant.match(/\?v=[0-9a-f]{6,12}/g) || []).length;
-if(apres === avant){
-  console.log("\n  Déjà à la version " + v + " — " + n + " scripts estampillés, rien à faire.\n");
+for(const nom of PAGES){
+  const chemin = join(racine, nom);
+  const avant = readFileSync(chemin, "utf8");
+  const apres = avant.replace(/\?v=[0-9a-f]{6,12}/g, "?v=" + v);
+  const n = (avant.match(/\?v=[0-9a-f]{6,12}/g) || []).length;
+  total += n;
+  if(apres !== avant){ writeFileSync(chemin, apres); changees++; }
+  if(n === 0) console.log("\n  ⚠  " + nom + " ne porte AUCUNE estampille — ses scripts seront mis en cache.");
+}
+
+if(!changees){
+  console.log("\n  Déjà à la version " + v + " — " + total + " scripts estampillés, rien à faire.\n");
 } else {
-  writeFileSync(page, apres);
-  console.log("\n  " + n + " scripts estampillés à la version " + v + ".\n");
-  console.log("  Pense à committer `index.html` avec le reste.\n");
+  console.log("\n  " + total + " scripts estampillés à la version " + v
+              + ", sur " + changees + " page(s).\n");
+  console.log("  Pense à committer les pages avec le reste.\n");
 }
