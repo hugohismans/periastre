@@ -68,7 +68,35 @@ const PLANCHERS = {
      Le plancher les gèle : si quelqu'un ajoute un texte factuel sans source, le
      compte tombe et le contrôle échoue. */
   textesSources: 228,
+
+  /* LES COMPROMIS DÉCLARÉS.
+
+     Le site promet que tout est calculé. C'est vrai de la géométrie, des
+     orbites, des durées, de la déviation de la lumière — et faux du fond de
+     ciel, de l'éclat du disque, de la gravité du salon. Ces écarts étaient
+     écrits, bien écrits même, mais en prose et dans un panneau qu'on ouvre
+     rarement.
+
+     Hugo, le 5 août 2026 : « chaque compromis doit se déclarer LÀ OÙ ON LE
+     RENCONTRE, pas seulement dans une liste rangée ailleurs. » Un aveu global
+     dans un dossier qu'on n'ouvre pas ne vaut rien.
+
+     Un compromis déclaré porte donc quatre choses : un `id` stable, un `ou` qui
+     nomme l'endroit où on le croise, un `aveu` court destiné à être posé là-bas,
+     et le texte long qui reste dans le dossier.
+
+     Neuf le 6 août 2026. Le plancher garantit qu'aucun ne disparaît en silence —
+     et disparaître en silence est exactement ce qu'un compromis gênant aimerait
+     faire. */
+  compromisDeclares: 9,
 };
+
+// Les endroits du site où l'on peut rencontrer un compromis. Fermé exprès : un
+// `ou` inventé ne serait jamais affiché nulle part, et personne ne le saurait.
+const LIEUX_COMPROMIS = new Set([
+  "salon", "reglages", "reglage-temps", "telescope", "spectre",
+  "recul", "arrivee", "etude", "partout",
+]);
 
 const TYPES_PLUS = new Set(["cours", "video", "article", "livre", "outil", "musee"]);
 const LANGUES = new Set(["fr", "en"]);
@@ -156,7 +184,14 @@ function controle(FR, EN, options){
               total: orphelins.total, plancher: PLANCHERS.textesSources,
               liste: orphelins.liste });
 
-  return bilan(durs, doux, { sources: kf.length, avecLien, avecPlus });
+  // ---- 4. la frontière du simulable : les compromis déclarés ----
+  const nDeclares = compromis(FR, EN, dur);
+  doux.push({ nom: "compromis déclarés, avec leur lieu et leur aveu",
+              valeur: nDeclares.n, total: nDeclares.total,
+              plancher: PLANCHERS.compromisDeclares });
+
+  return bilan(durs, doux, { sources: kf.length, avecLien, avecPlus,
+                             compromis: nDeclares.n });
 }
 
 /* Parcourt un contenu et ramasse les clés de sources citées. La forme du
@@ -195,6 +230,65 @@ function ramasse(C, langue, citees, orphelins, S, dur){
       if(k !== "sources" && k !== "plus" && v && typeof v === "object") descend(v, chemin + "." + k);
   })({ reactions: C.reactions, questions: C.questions, experiences: C.experiences,
        missions: C.missions, spectre: C.spectre, notes: C.notes, accueil: C.accueil }, "");
+}
+
+/* LES COMPROMIS, ET CE QU'ILS DOIVENT PORTER POUR AVOIR LE DROIT D'EXISTER.
+
+   Même esprit que le reste du contrat : on ne recommande pas, on refuse. Un
+   compromis sans lieu de rencontre est un compromis qu'on ne pourra jamais
+   avouer sur place, donc un compromis qui restera caché dans un panneau.
+
+   Le `ou` n'est pas traduit, et c'est voulu : c'est une clé de machine, pas une
+   phrase. Elle doit être IDENTIQUE dans les deux langues, sinon l'aveu se
+   poserait à un endroit en français et à un autre en anglais. */
+function compromis(FR, EN, dur){
+  const listeDe = C => {
+    const g = ((C.notes || {}).groupes || [])
+      .map(x => x.points || []).reduce((a, b) => a.concat(b), []);
+    return g.filter(p => p && typeof p === "object" && p.id);
+  };
+  const f = listeDe(FR), e = listeDe(EN);
+  const totalF = ((FR.notes || {}).groupes || [])
+    .map(x => (x.points || []).length).reduce((a, b) => a + b, 0);
+
+  const parId = l => new Map(l.map(p => [p.id, p]));
+  const mf = parId(f), me = parId(e);
+
+  if(f.length !== new Set(mf.keys()).size)
+    dur("compromis", "deux compromis portent le même identifiant en français");
+
+  for(const [id, p] of mf){
+    const ou = "compromis." + id;
+    const q = me.get(id);
+
+    if(!q){ dur(ou, "déclaré en français, pas en anglais"); continue; }
+
+    if(!p.aveu || !String(p.aveu).trim()) dur(ou, "pas d'aveu court en français");
+    if(!q.aveu || !String(q.aveu).trim()) dur(ou, "pas d'aveu court en anglais");
+
+    /* L'aveu se pose À CÔTÉ de la chose, pas dans un dossier. Au-delà de deux
+       cents signes il ne tient plus nulle part, et l'on retombe sur le panneau
+       qu'on voulait quitter. */
+    for(const [langue, txt] of [["français", p.aveu], ["anglais", q.aveu]])
+      if(txt && String(txt).length > 200)
+        dur(ou, "l'aveu " + langue + " fait " + String(txt).length
+                + " signes — au-delà de 200 il ne se pose plus sur place");
+
+    if(!p.ou) dur(ou, "ne dit pas où on le rencontre");
+    else if(!LIEUX_COMPROMIS.has(p.ou))
+      dur(ou, "lieu inconnu « " + p.ou + " » — attendus : " + [...LIEUX_COMPROMIS].join(", "));
+
+    if(p.ou !== q.ou)
+      dur(ou, "le lieu diffère entre les langues : « " + p.ou + " » contre « " + q.ou + " »");
+
+    if(!p.t || !String(p.t).trim()) dur(ou, "pas de texte long en français");
+    if(!q || !q.t || !String(q.t).trim()) dur(ou, "pas de texte long en anglais");
+  }
+
+  for(const id of me.keys())
+    if(!mf.has(id)) dur("compromis." + id, "déclaré en anglais, pas en français");
+
+  return { n: f.length, total: totalF };
 }
 
 function bilan(durs, doux, chiffres){
