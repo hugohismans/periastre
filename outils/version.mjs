@@ -25,20 +25,22 @@
    le code change — c'est exactement la condition qu'on veut.
    ============================================================================ */
 
-import { readFileSync, writeFileSync } from "node:fs";
+import { readFileSync, writeFileSync, readdirSync } from "node:fs";
 import { execSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { dirname, join } from "node:path";
 
 const racine = join(dirname(fileURLToPath(import.meta.url)), "..");
 
-/* TOUTES les pages, pas seulement le simulateur.
+/* TOUTES les pages, et on les DÉCOUVRE.
 
    Le journal a été publié avec un `journal.js` sans estampille, et GitHub Pages
    l'aurait servi périmé pendant dix minutes — exactement le piège que ce fichier
-   existe pour éviter. Une page oubliée ici est une page dont les corrections
-   restent invisibles, et l'on conclut qu'elles n'ont pas été poussées. */
-const PAGES = ["index.html", "journal.html"];
+   existe pour éviter. J'ai alors écrit la liste à la main, ce qui a tenu une
+   heure : `lune.html` existait depuis des jours et n'y était pas.
+
+   Une liste tenue à la main est une liste qu'on oublie de tenir. */
+const PAGES = readdirSync(racine).filter(f => f.endsWith(".html")).sort();
 
 const v = execSync("git rev-parse --short HEAD", { cwd: racine }).toString().trim();
 let total = 0, changees = 0;
@@ -50,7 +52,20 @@ for(const nom of PAGES){
   const n = (avant.match(/\?v=[0-9a-f]{6,12}/g) || []).length;
   total += n;
   if(apres !== avant){ writeFileSync(chemin, apres); changees++; }
-  if(n === 0) console.log("\n  ⚠  " + nom + " ne porte AUCUNE estampille — ses scripts seront mis en cache.");
+  /* On ne crie que si la page charge VRAIMENT un script local sans estampille.
+     `bienvenue.html` et `carnet.html` n'en chargent aucun : les accuser aurait
+     appris à ignorer l'avertissement, et il aurait alors cessé de servir le
+     jour où il aurait eu raison. */
+  /* `vendor/` est exclu, et c'est un choix. Ces fichiers ne changent jamais
+     entre deux commits : les estampiller ferait retélécharger trois cents
+     kilo-octets de KaTeX à chaque publication, pour rien. Le cache est un
+     ennemi quand il sert du périmé, un allié quand il sert de l'immuable. */
+  const locaux = (avant.match(/src="(?!https?:)[^"]+\.js[^"]*"/g) || [])
+                   .filter(s => s.indexOf("vendor/") < 0);
+  const nus = locaux.filter(s => !/\?v=/.test(s));
+  if(nus.length)
+    console.log("\n  ⚠  " + nom + " charge " + nus.length + " script(s) SANS estampille"
+                + " — ils seront servis depuis le cache : " + nus.join(", "));
 }
 
 if(!changees){

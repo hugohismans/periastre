@@ -82,7 +82,14 @@ const modules = fs.readdirSync(ici)
 
 const sourceVerif = fs.readFileSync(path.join(ici, "verif.js"), "utf8");
 const sourcesOutils = outils.map(o => fs.readFileSync(path.join(ici, o), "utf8")).join("\n");
-const page = fs.readFileSync(path.join(ici, "index.html"), "utf8");
+/* TOUTES les pages, pas seulement le simulateur.
+
+   La première version ne lisait qu'`index.html` et accusait donc `journal.js`
+   d'être branché à rien — il est dans `journal.html`. Même angle mort que
+   `outils/version.mjs`, corrigé le même jour : dès qu'une seconde page existe,
+   tout outil qui n'en connaît qu'une ment. */
+const PAGES = fs.readdirSync(ici).filter(f => f.endsWith(".html"));
+const page = PAGES.map(f => fs.readFileSync(path.join(ici, f), "utf8")).join("\n");
 
 /* UN MODULE PEUT ÊTRE GARDÉ DE DEUX FAÇONS, ET LA PREMIÈRE VERSION N'EN VOYAIT
    QU'UNE. Elle cherchait le nom de FICHIER dans les outils, et déclarait donc
@@ -135,7 +142,7 @@ if(horsPage.length){
     const n = fs.readFileSync(path.join(ici, m), "utf8").split("\n").length;
     console.log("  " + c("⚠", "jaune") + "   " + m.padEnd(18)
                 + String(n).padStart(5) + " lignes   "
-                + c("absent d'index.html", "gris"));
+                + c("chargé par aucune page", "gris"));
   }
   console.log("  " + c("      Ni acquis ni dette : le troisième état, celui qu'on ne veut pas.", "gris"));
 }
