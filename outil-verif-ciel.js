@@ -66,17 +66,36 @@ const ATTENDU = [
   ["le seuil de présence", "if(h.x > seuil) return vec3(0.0);"],
   ["le pixel en cellules", "float px = (2.0/(uFocal*uRes.y)) * ech;"],
   ["la largeur du cœur",   "float w  = max(0.16, px*0.62);"],
-  ["la gigue rétractée",   "max(0.0, 2.0*(0.46 - w)/1.7320508)"],
-  ["l'ancienne gigue",     "(uCiel == 0) ? 0.72"],
+  ["la gigue rétractée",   "float gigue = max(0.0, 2.0*(0.46 - w)/1.7320508);"],
   ["le profil",            "float b  = pow(smoothstep(w, 0.0, dist), 3.0);"],
   ["la conservation du flux", "float flux = (0.16*0.16)/(w*w);"],
-  ["l'extinction du mode 2",  "smoothstep(0.74, 0.40, px)"],
+  ["l'extinction de la couche illisible", "float lisible = smoothstep(0.74, 0.40, px);"],
+];
+
+/* ET CE QUI NE DOIT PLUS Y ÊTRE.
+
+   Les trois ciels ont été comparés en direct le 6 août, Hugo a gardé le corrigé,
+   et l'uniforme qui permettait de basculer est parti avec les deux autres. Un
+   réglage qu'on garde « au cas où » après que le choix est fait devient un
+   chemin que personne n'emprunte et que personne ne teste.
+
+   On cherche l'EXPRESSION, pas le nombre. Chercher « 0.72 » tout court trouvait
+   la teinte bleutée des étoiles, `vec3(0.62,0.72,1.0)`, et déclarait présente
+   une gigue retirée depuis dix minutes. C'est la troisième fois de la journée
+   qu'un motif trop large accuse du code sain, et à chaque fois le contrôle avait
+   tort et le code raison. */
+const PARTI = [
+  ["l'uniforme de bascule", "uCiel"],
+  ["l'ancienne gigue fixe", "(h-0.5)*0.72"],
 ];
 if(corps){
   const propre = corps.replace(/\/\*[\s\S]*?\*\//g, "").replace(/\/\/.*$/gm, "");
   for(const [nom, bout] of ATTENDU)
     ok("le nuanceur porte encore " + nom, propre.includes(bout), "présent",
        propre.includes(bout) ? "présent" : "INTROUVABLE — le modèle a dérivé");
+  for(const [nom, bout] of PARTI)
+    ok("et " + nom + " a bien disparu", !propre.includes(bout), "absent",
+       propre.includes(bout) ? "ENCORE LÀ" : "absent");
 }
 
 // ─────────────────────────────────────────────────────── le modèle, à l'identique
@@ -93,7 +112,14 @@ const lisse = (e0, e1, x) => {
   return t*t*(3-2*t);
 };
 
-// `p` est déjà en cellules : on veut maîtriser où l'on est par rapport aux faces.
+/* `p` est déjà en cellules : on veut maîtriser où l'on est par rapport aux faces.
+
+   `mode` N'EXISTE PLUS DANS LE NUANCEUR — il n'existe que dans ce fichier, et
+   pour une seule raison : rejouer l'ancienne gigue fixe afin de prouver que le
+   contrôle sait tomber. Sans ce levier, « zéro coupure » serait une affirmation
+   qu'on ne peut pas mettre en doute, donc une affirmation sans valeur.
+
+   Le nuanceur, lui, ne connaît que le mode 2. */
 function couche(p, seuil, px, mode){
   const id = p.map(Math.floor);
   const f = p.map((v, i) => v - id[i] - 0.5);
@@ -155,7 +181,7 @@ function balayeTout(mode){
   });
 }
 
-groupe("Le mode employé (2) ne tranche aucune étoile, à aucune hauteur");
+groupe("Aucune étoile n'est tranchée par sa cellule, à aucune hauteur");
 for(const r of balayeTout(2)){
   ok("hauteur " + r.H + " px — zéro coupure sur les trois couches",
      r.francs === 0 && r.pire < 1e-9, "saut nul",
@@ -173,7 +199,7 @@ for(const r of balayeTout(2)){
 
    On le CONSTATE ici plutôt que de l'oublier, pour que personne ne remette le
    mode 1 par défaut en croyant qu'il est propre. */
-groupe("Le mode 1 seul ne suffit pas en dessous de 600 pixels — c'est constaté, pas oublié");
+groupe("Et pourquoi la rétraction seule ne suffisait pas — constaté, pas oublié");
 {
   const r = balayeTout(1);
   const petit = r.find(x => x.H === 390), grand = r.find(x => x.H === 1440);
@@ -247,7 +273,7 @@ groupe("Le ciel ne devient pas laiteux quand les cœurs s'élargissent");
 }
 
 // ══════════════════════════════════ 4. le mode 2 éteint ce qui est illisible
-groupe("Le mode 2 éteint la couche qu'on ne peut plus échantillonner");
+groupe("La couche qu'on ne peut plus échantillonner s'éteint");
 {
   const px = h => (2.0/(FOCAL*h)) * 410;
   const part = h => lisse(0.62, 0.34, px(h));
@@ -256,7 +282,7 @@ groupe("Le mode 2 éteint la couche qu'on ne peut plus échantillonner");
      "sa cellule vaut " + px(595).toFixed(2) + " pixel : elle ne peut produire que du bruit");
   ok("à 1440 px de haut, elle revient", part(1440) > 0.5, "> 0,5", part(1440).toFixed(4),
      "sa cellule vaut " + px(1440).toFixed(2) + " pixel : elle est de nouveau lisible");
-  ok("le mode 1 ne touche à aucune couche", couche([0.3,0.3,0.3], 1.0, px(595), 1) >= 0,
+  ok("et rien n'est touché quand elle est lisible", couche([0.3,0.3,0.3], 1.0, px(595), 1) >= 0,
      "intact", "intact",
      "le mode 1 corrige un défaut mesuré ; retirer des étoiles est un choix d'œil");
 }

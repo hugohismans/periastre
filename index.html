@@ -1607,7 +1607,6 @@ uniform float uReel;         // 0 = image travaillée, 1 = ce que verrait un œi
 uniform float uSpectre;      // 1 = on observe dans une bande précise
 uniform float uRphoto;       // rayon où le flux devient opaque à cette longueur d'onde
 uniform vec3  uTeinte;       // fausse couleur de la bande
-uniform int   uCiel;         // 0 = l'ancien ciel, 1 = sans coupure, 2 = et la couche fine fondue
 uniform float uEclat;        // luminosité relative, tirée de la SED mesurée
 uniform float uSpin;         // moment cinétique a, dans [0, M] — 0 = Schwarzschild
 uniform int   uSteps;        // pas réellement exécutés, pour arbitrer coût/justesse
@@ -1674,11 +1673,18 @@ float fbm3(vec3 p){ float s=0.0,a=0.5; for(int i=0;i<5;i++){ s+=a*noise3(p); p*=
    éclairées — une sur six. Couche moyenne, 76 sur 878. Couche large, aucune,
    ce qui confirme au passage que le commentaire ci-dessus disait vrai pour elle.
 
-   LE REMÈDE : la gigue se rétracte à mesure que le cœur s'élargit, de sorte que
-   l'étoile tienne toujours dans sa boîte. Zéro discontinuité sur les trois
-   couches. Le prix, c'est que la couche fine perd toute sa gigue à cette
-   résolution — ses étoiles se posent sur un réseau régulier. D'où le mode 2, qui
-   l'éteint plutôt que de la laisser devenir un quadrillage.
+   LE REMÈDE, en deux temps :
+
+   La gigue se rétracte à mesure que le cœur s'élargit, de sorte que l'étoile
+   tienne toujours dans sa boîte. Et sous 600 pixels de haut ça ne suffit pas —
+   à 390, le cœur vaut 0,84 CELLULE, plus gros que la cellule entière, et il
+   déborde même sans aucune gigue. La couche qu'on ne peut plus échantillonner
+   s'éteint donc au lieu de virer au réseau régulier.
+
+   Les trois ciels ont été comparés en direct, séance du 6 août. Hugo : « très
+   peu de changement entre les trois ciels, le bruit est très léger, ce n'est pas
+   bloquant ». Il a gardé celui-ci, et les deux autres sont partis avec l'uniforme
+   qui permettait de basculer. Il reste un bruit léger, noté dans `A-REGARDER.md`.
 
    `outil-verif-ciel.js` garde tout ça. */
 vec3 couche(vec3 d, float ech, float seuil){
@@ -1693,25 +1699,17 @@ vec3 couche(vec3 d, float ech, float seuil){
      de place une fois le cœur posé : demi-cellule moins le rayon, ramené sur
      l'axe le plus défavorable — la diagonale du cube, d'où le √3. La marge à
      0,46 plutôt que 0,50 laisse la queue du profil s'éteindre avant le bord. */
-  float gigue = (uCiel == 0) ? 0.72 : max(0.0, 2.0*(0.46 - w)/1.7320508);
+  float gigue = max(0.0, 2.0*(0.46 - w)/1.7320508);
   float dist = length(f - (h-0.5)*gigue);
 
   float b  = pow(smoothstep(w, 0.0, dist), 3.0);
   float flux = (0.16*0.16)/(w*w);              // ce qu'on a gagné en largeur
 
-  /* Mode 2 : on éteint la couche qu'on ne peut plus échantillonner.
-
-     Ce n'est pas un raffinement, c'est le seul mode propre sur petit écran. À
-     390 pixels de haut, la couche fine porte un cœur de 0,84 CELLULE de rayon :
-     il est plus gros que la cellule entière, et la gigue a beau se rétracter à
-     zéro, l'étoile déborde toujours. Mesuré : un saut résiduel de 2,2·10⁻³ au
-     passage des faces, là où les grands écrans sont à zéro exact.
-
-     Les deux seuils ne sont pas décoratifs. L'extinction doit être TOTALE avant
+  /* Les deux seuils ne sont pas décoratifs. L'extinction doit être TOTALE avant
      que le cœur ne dépasse ce que la cellule peut contenir — soit w > 0,46, soit
      px > 0,74. D'où 0,74. En deçà de 0,40 la couche est parfaitement lisible et
      garde toute sa force. */
-  float lisible = (uCiel == 2) ? smoothstep(0.74, 0.40, px) : 1.0;
+  float lisible = smoothstep(0.74, 0.40, px);
 
   vec3 teinte = mix(vec3(0.62,0.72,1.0), vec3(1.0,0.84,0.60), h.y);
   return teinte * b * (0.35 + h.z) * flux * lisible;
@@ -2382,22 +2380,8 @@ const uRes = U("uRes"), uTemps = U("uTemps"), uCam = U("uCam"), uBasis = U("uBas
       uSpectre = U("uSpectre"), uRphoto = U("uRphoto"),
       uTeinte = U("uTeinte"), uEclat = U("uEclat"), uSpin = U("uSpin"),
       uSteps = U("uSteps"), uPas = U("uPas"), uSeuilCapture = U("uSeuilCapture"),
-      uRin = U("uRin"), uCiel = U("uCiel");
+      uRin = U("uRin");
 
-/* Le champ d'étoiles, et le seul réglage qui décide s'il grouille.
-
-   0 — l'ancien ciel, gigue fixe à 0,72. Gardé pour se comparer en direct pendant
-       une séance de jugement, pas pour être employé.
-   1 — la gigue se rétracte : l'étoile tient dans sa cellule. Propre sur grand
-       écran, il reste un saut résiduel en dessous de 600 pixels de haut.
-   2 — et la couche qu'on ne peut plus échantillonner s'éteint. **Le seul mode
-       propre à toutes les hauteurs**, mesuré de 390 à 1440 pixels.
-
-   Par défaut le 2, parce qu'un défaut qui ne se voit que sur téléphone reste un
-   défaut, et que la moitié des visites se font là. Ce qu'il coûte — un ciel plus
-   clairsemé sur petit écran — attend l'œil d'Hugo, qui peut basculer les trois
-   en direct dans la séance de jugement. */
-const CIEL = { mode: 2 };
 
 // ============ le salon ============
 // Deux passes : le lancer de géodésiques d'abord, l'habitacle par-dessus avec
@@ -6388,7 +6372,6 @@ function boucle(now){
   gl.uniform3fv(uCam, camPos);
   gl.uniformMatrix3fv(uBasis, false, new Float32Array([...basis.d, ...basis.h, ...basis.a]));
   gl.uniform1f(uFocal, FOCAL);
-  gl.uniform1i(uCiel, CIEL.mode);
   gl.uniform3fv(uPhotons, tampon);
   gl.uniform1i(uNbPhotons, Math.min(photons.length, 4));
   gl.uniform3fv(uVitesse, vitesseLocale);

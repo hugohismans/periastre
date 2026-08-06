@@ -40,24 +40,33 @@ enfler. **Les verdicts de la troisième séance sont à relire avec ça en tête
 
 | quoi | où | état |
 |---|---|---|
+| **L'arrivée du voyage** | fin du recul | ❗ **Neuf, 6 août au soir.** « L'apparition du cercle d'orbite des étoiles autour du trou noir n'est pas fluide, ça *pop* d'un coup à la fin. » Relevé au passage, pas en réponse à une question — c'est le quatrième défaut trouvé par ce champ libre. |
+| **La rotation du trou noir d'étude** | télescope | ❌ **Ça coince deux fois de suite, et deux fois par ma faute.** Le matin, le verdict portait sur ma fenêtre qui mangeait l'écran. Le soir : « je ne vois pas où modifier la rotation » — la question l'envoyait en vue libre alors que les quatre boutons sont dans le panneau du télescope. Corrigé, et gardé par `montre` : la séance refuse désormais de poser une question dont l'objet n'est pas à l'écran. **À rejouer.** |
 | **La carte des étoiles S** | arrivée du voyage | ❌ **Ça coince** aux trois séances. Le 6 août : « à discuter dans Claude Code avec Hugo ». Ce n'est plus une question à poser devant un écran — elle sort de la séance et devient une conversation. |
-| **Le scintillement des étoiles** | partout | ❌ **Ça coince** aux trois séances, jamais de précision. Les cœurs font au moins un pixel, mesuré : la cause est ailleurs, et personne ne l'a cherchée. |
-| **La rotation du trou noir d'étude** | trou noir d'étude | ❌ Verdict du 6 août, mais rendu à travers une fenêtre deux fois et demie trop haute — voir plus haut. **À rejouer, la question n'a pas vraiment été posée.** |
 | **La console de tir** | fosse du salon | Sortie de la séance. « Quand je dis agrandir, je veux dire agrandir LE VAISSEAU, et mettre le canon dans une nouvelle salle. » C'est une aile de plus, pas un choix de taille. |
 | **Les lampes du bord** | dans le salon | Question posée avec le mauvais bouton. L'interrupteur existe maintenant vraiment. À rejouer un jour. |
 
+### Le bruit de fond du ciel — à revoir plus tard, sans urgence
+
+Verdict du 6 août au soir, après comparaison des trois ciels en direct : « très
+peu de changement entre les trois, le bruit est très léger, ce n'est pas
+bloquant, donc on regardera ça plus tard ». Le ciel corrigé est gardé, les deux
+autres sont partis du code. **Il reste un bruit léger, et il n'est pas
+diagnostiqué** — ce n'est plus la coupure aux cellules, qui est mesurée à zéro.
+
 ### Tranché — plus besoin de personne
 
+- **Le quadrillage pendant le recul** → **ça va** (6 août au soir). Demandé
+  trois fois en volume, fait, et validé à la quatrième. `outil-verif-recul.js`
+  garde la forme du repère *et* la visibilité des arêtes — le premier jet les
+  avait posées sous le seuil du visible, et la demande serait revenue une
+  cinquième fois.
+- **Le scintillement des étoiles** → **tranché** (6 août au soir). Les étoiles
+  étaient tranchées par la frontière de leur cellule ; mesuré, corrigé, gardé à
+  zéro discontinuité de 390 à 1440 pixels de haut. Voir ci-dessus pour le bruit
+  résiduel, qui est autre chose.
 - **La présentation d'entrée** → ça va (6 août, troisième séance).
 - **La bulle de Lumen** → ça va.
-- **Le quadrillage pendant le recul** → ça allait à plat, mais Hugo a demandé
-  trois fois qu'il se lise en volume, la dernière le 6 août : « j'aimerai que le
-  quadrillage soit 3d, vertival aussi, la on a qune grille horizontale ».
-  **Fait** — des arêtes verticales relient désormais les trois nappes.
-  `outil-verif-recul.js` les surveille, ainsi que leur visibilité : le premier
-  jet les avait posées à 0,081 d'opacité contre 0,217 aux horizontales,
-  c'est-à-dire sous le seuil du visible, et la demande serait revenue une
-  quatrième fois. À confirmer d'un coup d'œil à la prochaine séance.
 
 ---
 

@@ -41,6 +41,33 @@ const $$ = id => document.getElementById(id);
    les huit autres, et le testeur repartirait sans rien avoir jugé. */
 function sur(f){ try { f(); return null; } catch(e){ return e.message; } }
 
+/* Un élément d'interface est-il réellement sous les yeux ?
+
+   Rend `null` si tout va bien, sinon la raison, en clair. On remonte les
+   ancêtres pour l'opacité : un panneau parfaitement opaque posé dans un conteneur
+   à zéro est invisible, et c'est très exactement l'état d'`#instrument` tant
+   qu'il n'a pas sa classe `vu`. */
+function introuvable(quoi){
+  let el;
+  try { el = quoi(); } catch(e){ return "l'élément à regarder est introuvable : " + e.message; }
+  if(!el) return "l'élément à regarder n'existe pas";
+  if(!el.isConnected) return "l'élément à regarder n'est pas dans la page";
+
+  const r = el.getBoundingClientRect();
+  if(r.width < 1 || r.height < 1) return "l'élément à regarder ne fait aucune taille";
+  if(r.right < 0 || r.bottom < 0 || r.left > innerWidth || r.top > innerHeight)
+    return "l'élément à regarder est hors de l'écran";
+
+  for(let n = el; n && n !== document.body; n = n.parentElement){
+    const s = getComputedStyle(n);
+    if(s.display === "none")      return "l'élément à regarder est masqué";
+    if(s.visibility === "hidden") return "l'élément à regarder est caché";
+    if(parseFloat(s.opacity) < 0.05)
+      return "l'élément à regarder est transparent — le panneau qui le porte n'est pas ouvert";
+  }
+  return null;
+}
+
 // Se placer dans le salon, debout, à un endroit donné, en regardant où il faut.
 function auSalon(x, z, lacet, tangage){
   cinema.actif = false;
@@ -79,55 +106,46 @@ const DECISIONS = [
      sinon il l'aurait dit — donc l'écran n'est pas le bon endroit pour en
      parler. Elle sort de la séance et devient une conversation.
 
-     Ce qui reste : trois questions. */
+     QUATRIÈME SÉANCE, 6 AOÛT AU SOIR — DEUX DE PLUS.
 
-  { id: "quadrillage",
-    titre: "Le quadrillage pendant le recul",
-    libre: true,
-    /* La question a changé, et c'est le point. « Tu sens qu'on s'éloigne ? »
-       avait déjà reçu son « ça va » — la reposer telle quelle aurait rendu le
-       même oui, sur une chose qui n'était pas celle en cause. Ce qu'il faut
-       savoir maintenant, c'est si les arêtes verticales font leur travail. */
-    quoi: "Le quadrillage a des arêtes verticales maintenant. Tu vois un volume, ou encore un tapis ?",
-    pose: () => {
-      auSalon(0, 0.6, 0, -0.05);
-      const d = DESTINATIONS[0];
-      lanceVoyage(d, VOYAGE.entre(distanceVaisseau(), d.d_m));
-    },
-    rend: () => {
-      if(TELESCOPE.trajet){ TELESCOPE.trajet = null; TELESCOPE.retour = false;
-                            RECUL.etat.actif = false; $$("chrono").classList.remove("vu"); }
-    },
-  },
+     Le quadrillage : « ça va ». Les arêtes verticales font leur travail, après
+     trois demandes. Rayé.
 
-  /* Trois séances, trois « ça coince », zéro précision — et c'est normal : la
-     cause n'était pas regardable. Les étoiles étaient tranchées par la frontière
-     de leur propre cellule, et le trait de coupe se déplaçait sur elles.
+     Le scintillement : « je garde celui d'aujourd'hui ». Et la phrase qui compte
+     est celle d'à côté — « très peu de changement entre les trois ciels, le
+     bruit est très léger, ce n'est pas bloquant ». Les deux autres ciels sont
+     partis du code avec l'uniforme qui permettait de basculer.
 
-     Maintenant qu'elle est trouvée et corrigée, la question change de nature.
-     Elle ne demande plus « est-ce que ça grouille » — on sait que non, c'est
-     mesuré. Elle demande ce que le remède COÛTE : le ciel propre à toutes les
-     hauteurs éteint la couche la plus fine, donc il y a moins d'étoiles. Ça,
-     aucun calcul ne le tranche. */
-  { id: "scintillement",
-    titre: "Le scintillement des étoiles",
-    libre: true,
-    quoi: "Trois ciels. Bascule entre eux, tourne lentement, regarde le fond. "
-        + "Le premier ne grouille plus mais a moins d'étoiles fines — est-ce que ça vaut l'échange ?",
-    pose: () => { vaAu("libre"); cinema.actif = false; cam.dist = 26; cam.elev = 0.5; },
-    options: [
-      { nom: "celui d'aujourd'hui", fait: () => { CIEL.mode = 2; } },
-      { nom: "l'ancien, qui grouille", fait: () => { CIEL.mode = 0; } },
-      { nom: "toutes les étoiles, un peu de grouillement", fait: () => { CIEL.mode = 1; } },
-    ],
-    rend: () => { CIEL.mode = 2; },
-  },
+     Ce qui reste : une question, et c'est celle que j'avais mal posée. */
 
   { id: "trou-noir-etude",
     titre: "La rotation du trou noir d'étude",
     libre: true,
-    quoi: "Passe les quatre rotations. L'effet se voit, ou pas ?",
-    pose: () => { vaAu("libre"); cinema.actif = false; if(typeof poseEtude === "function") poseEtude(); },
+
+    /* CETTE QUESTION A ÉTÉ POSÉE DEUX FOIS, ET RATÉE DEUX FOIS.
+
+       Le 6 août au matin, le verdict portait sur ma fenêtre qui mangeait
+       l'écran. Le soir, sur autre chose encore : « je ne vois pas où modifier la
+       rotation du trou noir ».
+
+       Il avait raison, et c'était grossier. `poseEtude()` remplit le panneau du
+       TÉLESCOPE — quatre boutons de rotation, bien là — et ma `pose()` l'envoyait
+       en vue libre, où ce panneau n'existe pas. Je construisais le réglage puis
+       je le posais ailleurs, et je lui demandais de juger ce qu'il ne pouvait
+       pas voir. C'est exactement le défaut du drone, repayé.
+
+       On l'emmène donc au télescope, panneau ouvert, réglages sous les yeux. */
+    quoi: "Les quatre rotations sont dans le panneau, en bas. Passe-les une à une "
+        + "et regarde l'astre par la baie : l'effet se voit, ou pas ?",
+    pose: () => {
+      auSalon(0, 0.6, 0, -0.05);
+      ouvreTelescope();
+      poseEtude();
+    },
+    // Ce qu'il DOIT avoir sous les yeux. La séance refuse de poser la question
+    // si ce n'est pas le cas — voir `visible()`.
+    montre: () => $$("etude-spin"),
+    rend: () => { fermeTelescope(); },
   },
 ];
 
@@ -429,6 +447,28 @@ function montre(){
       const devant = (versCible[0]*av[0] + versCible[1]*av[1] + versCible[2]*av[2]) / dist;
       if(devant < 0.55) avertissement = "⚠ la cible n'est pas dans le champ (cos = " + devant.toFixed(2) + ")";
     } catch(e){ avertissement = "⚠ cible introuvable : " + e.message; }
+  }
+
+  /* ET CE QU'ON DOIT AVOIR SOUS LES YEUX, quand c'est un élément d'interface.
+
+     `cible` garde les points du MONDE — un drone, un meuble. Il ne dit rien d'un
+     panneau : le 6 août au soir, la question sur la rotation a été posée avec
+     ses quatre boutons construits dans un panneau resté fermé, et la réponse a
+     été « je ne vois pas où modifier la rotation ». Deux fois le même défaut, sur
+     deux natures de choses différentes, parce que la garde ne couvrait qu'une
+     des deux.
+
+     On vérifie APRÈS le fondu. `#instrument` s'ouvre en trois dixièmes de
+     seconde, et mesurer pendant l'animation rendrait « invisible » sur un
+     panneau qui s'ouvre très bien — le piège des transitions CSS est déjà écrit
+     deux fois dans ce dépôt. */
+  if(!erreur && d.montre){
+    const monTour = i;
+    setTimeout(() => {
+      if(i !== monTour) return;                 // on a changé de question entre-temps
+      const mal = introuvable(d.montre);
+      if(mal) ditEtat(erreur, "⚠ " + mal);
+    }, 450);
   }
 
   /* Ce qu'on a à dire sur l'état des choses s'écrit À LA FIN de `montre()` :
