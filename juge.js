@@ -100,11 +100,27 @@ const DECISIONS = [
     },
   },
 
+  /* Trois séances, trois « ça coince », zéro précision — et c'est normal : la
+     cause n'était pas regardable. Les étoiles étaient tranchées par la frontière
+     de leur propre cellule, et le trait de coupe se déplaçait sur elles.
+
+     Maintenant qu'elle est trouvée et corrigée, la question change de nature.
+     Elle ne demande plus « est-ce que ça grouille » — on sait que non, c'est
+     mesuré. Elle demande ce que le remède COÛTE : le ciel propre à toutes les
+     hauteurs éteint la couche la plus fine, donc il y a moins d'étoiles. Ça,
+     aucun calcul ne le tranche. */
   { id: "scintillement",
     titre: "Le scintillement des étoiles",
     libre: true,
-    quoi: "Tourne lentement et regarde le fond. Ça grouille encore ?",
+    quoi: "Trois ciels. Bascule entre eux, tourne lentement, regarde le fond. "
+        + "Le premier ne grouille plus mais a moins d'étoiles fines — est-ce que ça vaut l'échange ?",
     pose: () => { vaAu("libre"); cinema.actif = false; cam.dist = 26; cam.elev = 0.5; },
+    options: [
+      { nom: "celui d'aujourd'hui", fait: () => { CIEL.mode = 2; } },
+      { nom: "l'ancien, qui grouille", fait: () => { CIEL.mode = 0; } },
+      { nom: "toutes les étoiles, un peu de grouillement", fait: () => { CIEL.mode = 1; } },
+    ],
+    rend: () => { CIEL.mode = 2; },
   },
 
   { id: "trou-noir-etude",
