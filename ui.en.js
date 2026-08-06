@@ -197,6 +197,7 @@ Object.assign(window.UI, {
   "panneau.missions":      "Missions",
   "panneau.quete":         "Replay the introduction",
   "panneau.methode":       "Why is this accurate?",
+  "panneau.journal":      "The journal: who wrote this site, and how →",
 
   "panneau.spin.note":
     "We don't know the spin of Sagittarius A*. These four values are " +

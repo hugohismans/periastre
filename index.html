@@ -1398,6 +1398,10 @@ body.au-salon:not(.mode-boutons) #dock { opacity:0; pointer-events:none; }
          et elle ne dépend pas du niveau de lecture — ce n'est pas du contenu
          avancé, c'est le contrat. -->
     <div id="d-notes"></div>
+    <!-- Le journal : comment ce site est fait, et par qui. Il vit sur une page à
+         part et s'ouvre dans un autre onglet — le simulateur parle du trou noir,
+         le journal parle de nous, et mêler les deux brouillerait la promesse. -->
+    <p id="d-journal"><a href="journal.html" target="_blank" rel="noopener"></a></p>
     <div id="banc">
       <button id="b-lancer">Vérifier le moteur maintenant</button>
       <div id="essais"></div>
@@ -3216,6 +3220,7 @@ boitierT.children[1].classList.add("actif");
  ["b-cours","titre.cours"], ["b-menu","stats.menu"], ["tp-titre","temps.titre"],
  ["b-missions","panneau.missions"], ["b-quete","panneau.quete"],
  ["b-methode","panneau.methode"], ["spin-note","panneau.spin.note"],
+ ["d-journal","panneau.journal"],
  ["couche","salon.tourne"], ["t-saut","salon.manette.saut"],
  ["b-lancer","banc.lancer"],
 ].forEach(([id, cle]) => { const e = $(id); if(e) e.textContent = T(cle); });

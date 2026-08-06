@@ -195,6 +195,7 @@ window.UI = {
   "panneau.missions":      "Missions",
   "panneau.quete":         "Refaire l'introduction",
   "panneau.methode":       "Pourquoi c'est exact ?",
+  "panneau.journal":      "Le journal : qui a écrit ce site, et comment →",
 
   "panneau.spin.note":
     "On ne connaît pas le spin de Sagittarius A*. Ces quatre valeurs sont des " +
