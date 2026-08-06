@@ -335,6 +335,19 @@ function eprouve(){
   const garde = place ? { x: place.x, y: place.y } : null;
   const dep = boite.getBoundingClientRect();
 
+  /* UN PANNEAU NON COMPOSÉ NE SE MESURE PAS, ET NE SE JUGE DONC PAS.
+
+     Avant `demarre()`, la fenêtre est en `display:none` : sa boîte fait zéro sur
+     zéro, aucun déplacement ne s'y lit, et le contrôle rendait « la poignée ne
+     la déplace pas » sur un instrument parfaitement sain. C'est une fausse
+     alerte dans l'outil même qui existe pour n'en produire aucune — et je l'ai
+     vue en l'appelant à la main sur le site en ligne.
+
+     Le seul appelant réel est `demarre()`, qui affiche la fenêtre juste avant.
+     Ce garde-fou ne masque donc rien : il refuse de conclure là où il n'y a
+     rien à mesurer, au lieu d'inventer un verdict. */
+  if(dep.width < 1 || dep.height < 1) return ecarts;
+
   const envoie = (cible, type, x, y) => cible.dispatchEvent(new PointerEvent(type,
     { clientX:x, clientY:y, bubbles:true, cancelable:true, pointerId:1 }));
 
