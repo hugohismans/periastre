@@ -67,19 +67,28 @@ const DECISIONS = [
      salle. » Ce n'est plus une question de taille de meuble, c'est une aile de
      plus — et ça ne se tranche pas en trois secondes devant un écran.
 
-     Ce qui reste : cinq questions, toutes signalées « ça coince ». */
+     TROISIÈME SÉANCE, 6 AOÛT — DEUX DE PLUS S'EN VONT.
 
-  { id: "presentation",
-    titre: "La présentation d'entrée",
-    libre: true,
-    quoi: "Trois écrans. Le rythme est-il bon ? Le dernier atteint-il ?",
-    pose: () => { cinema.actif = true; cinema.t = 0; vaAu("libre"); jouePresentation(() => {}); },
-  },
+     La présentation d'entrée : « ça va ». Trois écrans, le rythme est bon, on
+     ne la repose plus.
+
+     La carte des étoiles S s'en va autrement. Trois séances, trois « ça
+     coince », et cette fois la raison : « à discuter dans Claude Code avec
+     Hugo ». Une question qu'on repose à l'identique après trois refus n'est pas
+     une question, c'est une insistance. Ce qui coince n'est pas dans l'image —
+     sinon il l'aurait dit — donc l'écran n'est pas le bon endroit pour en
+     parler. Elle sort de la séance et devient une conversation.
+
+     Ce qui reste : trois questions. */
 
   { id: "quadrillage",
     titre: "Le quadrillage pendant le recul",
     libre: true,
-    quoi: "On part. Tu sens qu'on s'éloigne, ou c'est du désordre ?",
+    /* La question a changé, et c'est le point. « Tu sens qu'on s'éloigne ? »
+       avait déjà reçu son « ça va » — la reposer telle quelle aurait rendu le
+       même oui, sur une chose qui n'était pas celle en cause. Ce qu'il faut
+       savoir maintenant, c'est si les arêtes verticales font leur travail. */
+    quoi: "Le quadrillage a des arêtes verticales maintenant. Tu vois un volume, ou encore un tapis ?",
     pose: () => {
       auSalon(0, 0.6, 0, -0.05);
       const d = DESTINATIONS[0];
@@ -89,14 +98,6 @@ const DECISIONS = [
       if(TELESCOPE.trajet){ TELESCOPE.trajet = null; TELESCOPE.retour = false;
                             RECUL.etat.actif = false; $$("chrono").classList.remove("vu"); }
     },
-  },
-
-  { id: "carte-etoiles",
-    titre: "La carte des étoiles S",
-    libre: true,
-    quoi: "Dix orbites autour d'un point vide. On comprend, sans lire ?",
-    pose: () => { auSalon(0, 0.6, 0, -0.05); TELESCOPE.carte = 1; ETOILES_S.vue.annee = 1992; },
-    rend: () => { TELESCOPE.carte = 0; },
   },
 
   { id: "scintillement",
@@ -187,6 +188,20 @@ style.textContent = `
   #juge.replie .pas { display:none; }
   #juge.replie .sur { margin-bottom:0; color:#a8d8ee; }
   #juge .rangee.replie-visible { margin-top:6px; }
+
+  /* LA FENÊTRE SE DÉPLACE, ET C'EST LA BARRE DU HAUT QUI SERT DE POIGNÉE.
+
+     Elle est le seul élément qui survit au repli — le panneau reste donc
+     saisissable dans les deux états, ce qui est exactement le moment où l'on
+     en a besoin : replié pour regarder, et toujours au mauvais endroit. */
+  #juge .sur { cursor:grab; touch-action:none; padding-bottom:3px; }
+  #juge .sur::before { content:"⠿"; margin-right:7px; letter-spacing:0; color:#565270; }
+  #juge.bouge { cursor:grabbing; }
+  #juge.bouge .sur { cursor:grabbing; }
+  #juge.bouge::after {
+    content:""; position:absolute; inset:0; border-radius:5px;
+    border:1px solid rgba(127,216,255,.45); pointer-events:none;
+  }
 `;
 document.head.appendChild(style);
 
@@ -203,6 +218,147 @@ boite.innerHTML =
 document.body.appendChild(boite);
 
 const q = s => boite.querySelector(s);
+
+/* ======================================================= la fenêtre se déplace
+
+   Le panneau était cloué en bas au centre. Deux séances de suite, Hugo a jugé
+   une scène qu'il ne voyait qu'à moitié : « le champ du test est devant la
+   présentation », puis « l'interface de test bloque encore l'interface ».
+
+   Le repli avait été ma première réponse, et il ne suffit pas : replié, le
+   bandeau reste posé au même endroit, et il y a toujours une question pour
+   demander de regarder précisément ce coin-là. Tant que la fenêtre ne bouge
+   pas, c'est MOI qui décide de ce qu'il a le droit de voir — et je décide mal,
+   puisque je ne vois pas son écran.
+
+   La place choisie est gardée d'une question à l'autre : la déplacer une fois
+   par séance doit suffire. */
+
+const MARGE = 8;              // ce qui doit toujours rester à l'écran, en pixels
+let place = null;             // {x, y} une fois qu'on a bougé ; null tant qu'on n'a pas
+
+/* Ramener la fenêtre dans l'écran.
+
+   Appelée après chaque déplacement, mais aussi après chaque repli et chaque
+   dépli — parce que ces deux-là CHANGENT SA TAILLE. Une fenêtre posée tout en
+   bas alors qu'elle était réduite à son bandeau redevient haute de trois cents
+   pixels en se dépliant, et sort par le bas en emportant les boutons de
+   réponse. C'est le même défaut que celui qu'on est en train de corriger, à
+   ceci près qu'il cacherait la réponse au lieu de la question. */
+function recadre(){
+  if(!place) return;
+  const r = boite.getBoundingClientRect();
+  const maxX = Math.max(MARGE, innerWidth  - r.width  - MARGE);
+  const maxY = Math.max(MARGE, innerHeight - r.height - MARGE);
+  place.x = Math.min(Math.max(place.x, MARGE), maxX);
+  place.y = Math.min(Math.max(place.y, MARGE), maxY);
+  boite.style.left      = place.x + "px";
+  boite.style.top       = place.y + "px";
+  boite.style.bottom    = "auto";
+  boite.style.transform = "none";
+}
+
+const poignee = q(".sur");
+poignee.title = "Attrape ici pour déplacer la fenêtre";
+
+poignee.addEventListener("pointerdown", e => {
+  /* La scène écoute le pointeur sur le CANEVAS, pas sur la page : empoigner la
+     fenêtre ne fait donc pivoter aucun ciel. On arrête quand même l'événement,
+     parce que « aucun autre écouteur aujourd'hui » n'est pas une propriété
+     qu'on peut laisser à la charge du prochain qui touchera au fichier. */
+  e.preventDefault();
+  e.stopPropagation();
+
+  const r = boite.getBoundingClientRect();
+  if(!place) place = { x: r.left, y: r.top };
+  const prise = { x: e.clientX - r.left, y: e.clientY - r.top };
+
+  boite.classList.add("bouge");
+
+  /* On suit le pointeur SUR LA FENÊTRE, pas sur la poignée.
+
+     `setPointerCapture` serait plus direct, mais il exige un pointeur réellement
+     actif : un contrôle qui rejoue un déplacement avec des événements
+     synthétiques se fait jeter, et le geste ne serait donc vérifiable que par
+     quelqu'un qui a une main. Écouter la fenêtre marche dans les deux cas, et
+     ne perd rien — le glissé s'arrête au relâchement d'où qu'il vienne. */
+  const suit = ev => {
+    place.x = ev.clientX - prise.x;
+    place.y = ev.clientY - prise.y;
+    recadre();
+  };
+  const lache = () => {
+    removeEventListener("pointermove", suit);
+    removeEventListener("pointerup",     lache);
+    removeEventListener("pointercancel", lache);
+    boite.classList.remove("bouge");
+  };
+  addEventListener("pointermove", suit);
+  addEventListener("pointerup",     lache);
+  addEventListener("pointercancel", lache);
+});
+
+addEventListener("resize", recadre);
+
+/* ------------------------------------- la fenêtre se contrôle elle-même
+
+   Règle du projet : tout défaut trouvé à l'œil devient un contrôle. Celui-ci
+   naît du verdict du 6 août — « l'interface de test bloque encore l'interface »
+   — et il a ceci de particulier qu'il ne protège pas le site mais l'INSTRUMENT.
+
+   Un outil de mesure qui masque ce qu'il mesure ne rend pas des résultats
+   faibles, il en rend des faux : ce jour-là le verdict portait sur la rotation
+   du trou noir d'étude, et il ne nous a rien appris d'elle. Une séance entière
+   peut se perdre comme ça, et on ne s'en aperçoit qu'à la lecture du rapport.
+
+   Il ne vit pas dans `verif.js` parce qu'il exige `?juge` pour avoir un objet à
+   contrôler. Il tourne donc ici, au démarrage de CHAQUE séance — c'est-à-dire
+   exactement quand il sert, et sans que personne ait à y penser. */
+function eprouve(){
+  const ecarts = [];
+  const garde = place ? { x: place.x, y: place.y } : null;
+  const dep = boite.getBoundingClientRect();
+
+  const envoie = (cible, type, x, y) => cible.dispatchEvent(new PointerEvent(type,
+    { clientX:x, clientY:y, bubbles:true, cancelable:true, pointerId:1 }));
+
+  // 1. La poignée déplace la fenêtre.
+  const vise = { x: Math.round(innerWidth * 0.42), y: Math.round(innerHeight * 0.3) };
+  envoie(poignee, "pointerdown", dep.left + 12, dep.top + 6);
+  envoie(window,  "pointermove", vise.x, vise.y);
+  const apres = boite.getBoundingClientRect();
+  if(Math.abs(apres.left - dep.left) < 1 && Math.abs(apres.top - dep.top) < 1)
+    ecarts.push("la poignée ne la déplace pas");
+
+  /* 2. On ne peut pas la perdre. Elle serait alors plus gênante qu'avant : on
+        ne la voit plus, et elle couvre toujours un coin de la scène. */
+  envoie(window, "pointermove", innerWidth + 4000, innerHeight + 4000);
+  const bd = boite.getBoundingClientRect();
+  if(bd.right > innerWidth + 1 || bd.bottom > innerHeight + 1)
+    ecarts.push("elle sort de l'écran en bas à droite");
+  envoie(window, "pointermove", -4000, -4000);
+  const hg = boite.getBoundingClientRect();
+  if(hg.left < -1 || hg.top < -1)
+    ecarts.push("elle sort de l'écran en haut à gauche");
+
+  // 3. Le relâchement arrête le glissé — sinon elle colle au pointeur à vie.
+  envoie(window, "pointerup", 0, 0);
+  const fixe = boite.getBoundingClientRect();
+  envoie(window, "pointermove", vise.x, vise.y);
+  if(Math.abs(boite.getBoundingClientRect().left - fixe.left) > 1)
+    ecarts.push("elle suit encore le pointeur après le relâchement");
+
+  // Un contrôle ne laisse pas de trace : on la remet exactement où on l'a prise.
+  if(garde){ place.x = garde.x; place.y = garde.y; recadre(); }
+  else {
+    place = null;
+    boite.style.left = boite.style.top = "";
+    boite.style.bottom = boite.style.transform = "";
+  }
+  return ecarts;
+}
+
+let instrumentCasse = [];
 
 // ================================================================== la séance
 const verdicts = [];
@@ -246,9 +402,9 @@ function montre(){
     } catch(e){ avertissement = "⚠ cible introuvable : " + e.message; }
   }
 
-  q(".pas").textContent = erreur
-    ? "⚠ la scène n'a pas pu se poser : " + erreur
-    : (avertissement || "Rien n'est envoyé. Écris autant que tu veux, le rapport se copie à la fin.");
+  /* Ce qu'on a à dire sur l'état des choses s'écrit À LA FIN de `montre()` :
+     la rangée de notes n'existe pas encore ici, et c'est elle qu'on doit
+     compter avant de se déclarer en bon état. Voir `ditEtat()`. */
 
   /* Les variantes. Le bouton de validation NOMME celle qui est sélectionnée, et
      il change quand on bascule.
@@ -313,6 +469,22 @@ function montre(){
 
   /* Et de quoi noter ce qui n'est la réponse à rien. On peut en poser autant
      qu'on veut, sans quitter la scène ni répondre. */
+  /* LA RANGÉE DE NOTES SE REMPLACE, ELLE NE S'AJOUTE PAS.
+
+     `rang.innerHTML = ""` plus haut ne vide que la PREMIÈRE rangée. Celle-ci est
+     un second élément, inséré à côté — et rien ne retirait le précédent. Le
+     panneau gagnait donc cinquante-six pixels par question : cent quarante-deux
+     à la première, trois cent dix à la quatrième, et ce en état REPLIÉ.
+
+     La cinquième question de la séance du 6 août était la rotation du trou noir
+     d'étude. Le verdict rendu ce jour-là est « ça coince », avec pour seul mot
+     « l'interface de test bloque encore l'interface ». Il ne portait pas sur la
+     rotation : il portait sur une fenêtre deux fois plus haute qu'à l'ouverture.
+
+     Un instrument qui grossit à mesure qu'on s'en sert fausse d'autant plus qu'on
+     avance — c'est-à-dire exactement quand on lui fait le plus confiance. */
+  boite.querySelectorAll(".rangee.replie-visible").forEach(n => n.remove());
+
   const notes = document.createElement("div");
   notes.className = "rangee";
   const bNote = document.createElement("button");
@@ -328,7 +500,7 @@ function montre(){
   const bCache = document.createElement("button");
   bCache.className = "note-libre";
   bCache.textContent = "👁  Replier pour regarder";
-  bCache.onclick = () => boite.classList.toggle("replie");
+  bCache.onclick = () => { boite.classList.toggle("replie"); recadre(); };
   notes.className = "rangee replie-visible";      // seul rang visible une fois replié
   notes.appendChild(bNote); notes.appendChild(bCache);
   rang.parentElement.insertBefore(notes, q(".pas"));
@@ -345,6 +517,35 @@ function montre(){
      Placé plus haut, il écrivait dans un bouton qui n'existait pas encore. */
   const premiere = boiteVar.querySelector("button");
   if(premiere) premiere.click();
+
+  ditEtat(erreur, avertissement);
+
+  // La question suivante n'a pas la même hauteur que la précédente : si la
+  // fenêtre a été déplacée, elle peut déborder sans qu'on ait rien touché.
+  recadre();
+}
+
+/* La ligne du bas, et le contrôle qu'elle porte.
+
+   Un instrument en panne se dit à CHAQUE question, jamais une seule fois au
+   début : le message d'ouverture d'une séance de dix minutes n'est plus lu à la
+   troisième, et c'est précisément là qu'on rendrait le verdict faussé.
+
+   Le compte des rangées est un contrôle vivant, pas un souvenir. Il doit y en
+   avoir deux : celle des verdicts, celle des notes. Trois veut dire que le
+   panneau s'est remis à empiler, donc à grandir, donc à cacher — le défaut du
+   6 août, qui a coûté un verdict. Il tourne à chaque question parce qu'il ne
+   coûte rien, et parce qu'un défaut qui grandit se voit mieux tard que tôt. */
+function ditEtat(erreur, avertissement){
+  const maux = instrumentCasse.slice();
+
+  const rangees = boite.querySelectorAll(".rangee").length;
+  if(rangees !== 2) maux.push("le panneau empile ses rangées (" + rangees + " au lieu de 2)");
+
+  const panne = maux.length ? "⚠ l'instrument déraille : " + maux.join(" ; ") + " — dis-le-moi.  ·  " : "";
+  q(".pas").textContent = panne + (erreur
+    ? "⚠ la scène n'a pas pu se poser : " + erreur
+    : (avertissement || "Attrape ⠿ en haut pour déplacer cette fenêtre. Rien n'est envoyé."));
 }
 
 function repond(verdict){
@@ -470,7 +671,9 @@ function termine(){
    d'un bout à l'autre sans qu'un doigt ne touche l'écran. Un protocole qu'on ne
    peut pas tester serait une plaisanterie — c'est déjà la règle d'`essai.js`. */
 global.JUGE = { DECISIONS, verdicts, montre, repond, termine, rapport: null,
-                get etape(){ return i; }, demarre };
+                get etape(){ return i; }, demarre,
+                // La fenêtre elle-même, pour que son déplacement soit contrôlable.
+                boite, poignee, recadre, eprouve, get place(){ return place; } };
 
 /* Elle attend qu'on soit ENTRÉ.
 
@@ -483,6 +686,7 @@ global.JUGE = { DECISIONS, verdicts, montre, repond, termine, rapport: null,
 function demarre(){
   boite.style.display = "";
   debut = Date.now();
+  instrumentCasse = eprouve();          // avant la première question, jamais après
   montre();
 }
 
