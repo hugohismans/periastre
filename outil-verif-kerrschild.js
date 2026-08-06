@@ -281,6 +281,63 @@ groupe("À rotation nulle, la déflexion classique est retrouvée");
      + " rad ici, soit trois millièmes — la loi en 4M/b est donc mesurable telle quelle");
 }
 
+/* ═══════════════ 7. LA TÉTRADE : l'ombre a-t-elle la bonne taille ?
+
+   La caméra du site est à neuf ou trente rayons, pas à l'infini. À cette
+   distance f vaut encore un dixième, et prendre bêtement p_i = direction
+   déformerait l'image d'autant. `momentDepuisVue` construit donc le moment à
+   partir de ce qu'un observateur VOIT — et cette construction, je l'ai dérivée,
+   ce qui suffit à la rendre suspecte.
+
+   L'oracle est une formule fermée de manuel : pour un observateur statique à la
+   distance r en Schwarzschild, le rayon angulaire de l'ombre vaut
+
+       sin α = 3√3 M √(1 − 2M/r) / r
+
+   On le mesure en cherchant par bissection l'angle qui sépare les rayons avalés
+   de ceux qui s'échappent. Si la tétrade était fausse, l'ombre aurait la
+   mauvaise taille — et ce serait exactement le genre d'erreur qui donne une
+   image plausible que personne ne conteste. */
+groupe("La tétrade tient : l'ombre a la taille que la théorie lui donne");
+for(const D of [9, 20, 60]){
+  // la caméra regarde le trou noir ; on ouvre l'angle jusqu'à rater la cible
+  const cam = [-D, 0, 0];
+  const avaleA = ang => {
+    const d = [Math.cos(ang), Math.sin(ang), 0];
+    return KS.photon(cam, d, 0, { observateur: true, pas: 0.02, rMax: 400, nMax: 40000 }).avale;
+  };
+  let lo = 0, hi = 0.9;                        // 0 = droit dessus, avalé
+  if(!avaleA(lo)) { ok("caméra à " + D + " M — mise en place", false, "rayon central avalé", "il ne l'est pas"); continue; }
+  for(let i = 0; i < 44; i++){
+    const mid = 0.5*(lo + hi);
+    if(avaleA(mid)) lo = mid; else hi = mid;
+  }
+  const mesure = 0.5*(lo + hi);
+  const attendu = Math.asin(3*Math.sqrt(3)*M*Math.sqrt(1 - 2*M/D)/D);
+  const ecart = Math.abs(mesure - attendu)/attendu;
+  ok("caméra à " + D + " M — rayon angulaire de l'ombre", ecart < 3e-3,
+     attendu.toFixed(6) + " rad", mesure.toFixed(6) + " rad  (écart "
+     + (100*ecart).toFixed(3) + " %)",
+     D === 9 ? "c'est la distance de travail du site, celle où l'erreur ferait le plus de dégâts" : undefined);
+}
+
+/* Et la preuve que cet oracle-là sait tomber : sans la tétrade, à neuf rayons,
+   l'ombre doit sortir visiblement fausse. */
+groupe("Et sans la tétrade, l'ombre est bien fausse");
+{
+  const D = 9, cam = [-D, 0, 0];
+  const avaleA = ang => KS.photon(cam, [Math.cos(ang), Math.sin(ang), 0], 0,
+                                  { pas: 0.02, rMax: 400, nMax: 40000 }).avale;
+  let lo = 0, hi = 0.9;
+  for(let i = 0; i < 44; i++){ const m = 0.5*(lo+hi); if(avaleA(m)) lo = m; else hi = m; }
+  const sans = 0.5*(lo + hi);
+  const attendu = Math.asin(3*Math.sqrt(3)*M*Math.sqrt(1 - 2*M/D)/D);
+  const ecart = Math.abs(sans - attendu)/attendu;
+  ok("l'écart sans tétrade est visible", ecart > 0.01, "> 1 %",
+     (100*ecart).toFixed(2) + " %",
+     "si ce contrôle passait au vert, c'est que la tétrade ne servirait à rien");
+}
+
 console.log("\n  " + (echecs ? "❌  " + echecs + " ÉCHECS sur " + n + " contrôles"
                              : "✅  TOUT PASSE — " + n + " contrôles") + "\n");
 process.exit(echecs ? 1 : 0);

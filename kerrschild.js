@@ -242,6 +242,72 @@ function ptNul(p, mom, a){
   return (f*A - Math.sqrt(disc)) / (1 + f);
 }
 
+/* ------------------------------- de la direction VISÉE au moment du photon
+
+   La caméra n'est pas à l'infini. À neuf rayons de Schwarzschild, f vaut encore
+   un dixième : prendre bêtement p_i = direction déformerait l'image d'autant, et
+   l'ombre changerait de taille. L'ancienne branche construisait pour ça une
+   tétrade de ZAMO ; il en faut l'équivalent ici.
+
+   PREMIÈRE VERSION, FAUSSE, ET CE QU'ELLE M'A APPRIS.
+
+   J'avais construit la tétrade de l'observateur NORMAL — celui du feuilletage
+   t = const, dont le 3+1 s'écrit joliment. Le contrôle a rendu 11,6 % d'écart
+   sur la taille de l'ombre, là où l'absence de tétrade n'en donnait que 6,2 % :
+   j'avais rendu les choses pires.
+
+   La raison est physique, pas algébrique. **En Kerr-Schild, l'observateur normal
+   TOMBE** — ces coordonnées traversent l'horizon, et leur feuilletage est celui
+   d'un observateur en chute libre radiale (β^i = f k_i/(1+f) ≠ 0). Ce qu'il voit
+   est aberré. Le site, lui, veut la vue d'une caméra qui ne tombe pas.
+
+   ---------------------------------------------------------------------------
+   L'OBSERVATEUR STATIQUE, QUI EST CELUI QU'ON VEUT
+
+   u^μ ∝ ∂_t, normalisé par g_tt (u^t)² = −1, donc u^t = 1/√(1−f). Il existe
+   tant que f < 1 — et f = 1 est exactement l'ergosurface, que la caméra
+   n'approche jamais.
+
+   Un vecteur spatial pour LUI n'a pas de composante temporelle nulle : la
+   condition u·v = 0 impose v^t = f (k·v⃗)/(1−f). En reportant, sa norme vaut
+
+       |v|² = v⃗·v⃗ + (f/(1−f)) (k·v⃗)²
+
+   soit la métrique spatiale h = δ + (f/(1−f)) k k. Contrôle de tête : dans la
+   direction radiale elle vaut 1/(1−f) = 1/(1−2M/r), qui est exactement le
+   facteur d'étirement radial de Schwarzschild. C'est bon signe.
+
+   |k⃗| valant 1, sa racine inverse est fermée :
+
+       h^{-1/2} = δ + (√(1−f) − 1) k k
+
+   d'où la direction contravariante v⃗ = h^{-1/2} · vue, puis
+
+       p_i = v⃗_i + k_i [ f/√(1−f) + f (k·v⃗)/(1−f) ]
+
+   le premier crochet venant de u_i, le second de la composante temporelle de v.
+
+   JE N'AI RIEN DÉRIVÉ SANS LE FAIRE JUGER. `outil-verif-kerrschild.js` compare
+   le rayon angulaire de l'ombre, vu d'une caméra à distance finie, à la formule
+   fermée sin α = 3√3 M √(1 − 2M/r) / r — qui suppose précisément un observateur
+   statique. */
+function momentDepuisVue(camera, vue, a){
+  const n = Math.hypot(vue[0], vue[1], vue[2]) || 1;
+  const v = [vue[0]/n, vue[1]/n, vue[2]/n];
+  const r = rayon(camera, a);
+  const f = Math.min(facteur(camera, a, r), 0.999999);   // hors ergosphère
+  const kv = vecteurK(camera, a, r);
+  const kdv = kv[0]*v[0] + kv[1]*v[1] + kv[2]*v[2];
+
+  // v⃗ = h^{-1/2} · vue, la direction contravariante h-unitaire
+  const c = Math.sqrt(1 - f) - 1;
+  const w = [ v[0] + c*kdv*kv[0], v[1] + c*kdv*kv[1], v[2] + c*kdv*kv[2] ];
+  const kdw = kv[0]*w[0] + kv[1]*w[1] + kv[2]*w[2];
+
+  const lambda = f/Math.sqrt(1 - f) + f*kdw/(1 - f);
+  return [ w[0] + lambda*kv[0], w[1] + lambda*kv[1], w[2] + lambda*kv[2] ];
+}
+
 /* --------------------------------------------------------------- le lanceur
 
    Un rayon part d'une origine avec une direction. Loin du trou noir l'espace
@@ -265,7 +331,16 @@ function photon(origine, direction, a, options){
   const garde  = !!o.trace;
 
   const n = Math.hypot(direction[0], direction[1], direction[2]) || 1;
-  const dir = [direction[0]/n, direction[1]/n, direction[2]/n];
+  let dir = [direction[0]/n, direction[1]/n, direction[2]/n];
+
+  /* `observateur` dit que la direction est celle qu'un observateur VOIT depuis
+     l'origine, et non un moment covariant tout fait. C'est ce qu'il faut pour
+     une caméra à distance finie ; le rendu s'en sert toujours.
+
+     Les contrôles de champ lointain, eux, s'en passent : à quarante-cinq rayons
+     f vaut deux centièmes et les deux lectures coïncident. */
+  if(o.observateur) dir = momentDepuisVue(origine, dir, a);
+
   const pt = ptNul(origine, dir, a);
 
   let e = [origine[0], origine[1], origine[2], dir[0], dir[1], dir[2]];
@@ -320,7 +395,7 @@ global.KERRSCHILD = {
   // géométrie
   rayon, gradRayon, facteur, gradFacteur, vecteurK, gradK,
   // dynamique
-  second, nullite, ptNul, contracteKP,
+  second, nullite, ptNul, contracteKP, momentDepuisVue,
   // usage
   photon, deviation,
 };
