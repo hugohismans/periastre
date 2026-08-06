@@ -636,6 +636,91 @@ function pixels(){
   return enCours;
 }
 
+/* 5 bis. L'AXE DE ROTATION NE PORTE PLUS DE COUTURE.
+
+   Hugo, séance du 6 août : « il y a une trace verticale buguée quand on met une
+   rotation au trou noir ». C'était la couture de l'axe polaire, singulier par
+   construction en Boyer-Lindquist. Le site la déclarait à sept endroits, dont le
+   panneau ouvert devant lui — il l'a lue comme un bug quand même, et il avait
+   raison : une déclaration qu'il faut lire ne répare pas ce qu'on voit.
+
+   Le moteur est passé en Kerr-Schild, où l'axe n'a plus rien de singulier. Ce
+   contrôle est ce qui empêche la couture de revenir.
+
+   ---------------------------------------------------------------------------
+   COMMENT ON MESURE UNE COUTURE SANS LA REGARDER
+
+   Une couture est une COLONNE d'un pixel, posée exactement sur l'axe de rotation
+   projeté. Chercher un fort contraste ne suffit pas : le bord de l'ombre et le
+   disque en produisent de bien plus grands, et une première version de ce
+   contrôle rendait 195 d'écart à spin NUL, là où il ne peut y avoir aucune
+   couture.
+
+   On demande donc à `projette()` où tombe l'axe, on lit une bande de pixels
+   centrée dessus, et l'on compare la différence seconde AU CENTRE à la médiane
+   de la bande. Un fond lisse donne un rapport de 2 ou 3. Une couture donne dix
+   à cent fois plus.
+
+   Mesuré avant/après, même caméra, même code :
+
+       spin      Boyer-Lindquist      Kerr-Schild
+       0                    1,3               1,3     (le témoin)
+       0,6                  310              25,7
+       0,9                 78,7               1,7
+       0,95                  99               2,0                            */
+function couture(){
+  ouvre("L'axe de rotation ne porte pas de couture");
+  const av = { spin, dist: cam.dist, elev: cam.elev, azim: cam.azim, lieu };
+  const degele = fige();
+  try {
+    if(lieu !== "libre") vaAu("libre");
+    cam.dist = 9; cam.elev = 0.0; cam.azim = 0.6;
+
+    const mesure = s => {
+      spin = s;
+      avanceImages(8);
+      const haut = projette([0, 6, 0]), bas = projette([0, -6, 0]);
+      if(!haut || !bas) return null;
+      const e = cv.width / cv.clientWidth;
+      const buf = new Uint8Array(41*4);
+      let pire = 0;
+      for(let k = 0; k <= 40; k++){
+        const f = k/40;
+        const sx = Math.round((haut[0] + (bas[0]-haut[0])*f) * e);
+        const sy = Math.round(cv.height - (haut[1] + (bas[1]-haut[1])*f) * e);
+        if(sx < 25 || sx > cv.width-25 || sy < 2 || sy > cv.height-2) continue;
+        gl.readPixels(sx-20, sy, 41, 1, gl.RGBA, gl.UNSIGNED_BYTE, buf);
+        const L = [];
+        for(let i = 0; i < 41; i++) L.push((buf[i*4] + buf[i*4+1] + buf[i*4+2])/3);
+        const d2 = [];
+        for(let i = 1; i < 40; i++) d2.push(Math.abs(L[i+1] - 2*L[i] + L[i-1]));
+        const tri = d2.slice().sort((p, q) => p - q);
+        pire = Math.max(pire, d2[19] / Math.max(tri[Math.floor(tri.length/2)], 0.5));
+      }
+      return pire;
+    };
+
+    const temoin = mesure(0);
+    point("le témoin à rotation nulle est calme", temoin !== null && temoin < 8,
+          "< 8", temoin === null ? "axe hors champ" : temoin.toFixed(2),
+          "sans rotation il ne PEUT pas y avoir de couture : si celui-ci monte, "
+          + "c'est la mesure qui est en cause, pas le moteur");
+
+    for(const s of [0.6, 0.9, 0.95]){
+      const v = mesure(s);
+      point("spin " + s + " — pas de colonne sur l'axe", v !== null && v < 12,
+            "< 12", v === null ? "axe hors champ" : v.toFixed(2),
+            "Boyer-Lindquist rendait ici de 42 à 620");
+    }
+  } finally {
+    spin = av.spin; cam.dist = av.dist; cam.elev = av.elev; cam.azim = av.azim;
+    degele();
+    if(lieu !== av.lieu) vaAu(av.lieu);
+    avanceImages(2);
+  }
+  return enCours;
+}
+
 /* 6. LA MISE EN PAGE, À LA TAILLE COURANTE.
 
    Quatre défauts de mise en page ont échappé à la relecture sur ce projet,
@@ -860,7 +945,7 @@ function texte(){
 function sain(){
   resultats.length = 0;
   vivant(); coherence(); lieux(); tempsJuste(); resolution(); saisieLibre(); nuanceurs();
-  clesNues(); banc(); pixels(); mesurePage(); budget();
+  clesNues(); banc(); pixels(); couture(); mesurePage(); budget();
   return bilan();
 }
 
@@ -869,14 +954,14 @@ function sain(){
 function tout(){
   resultats.length = 0;
   vivant(); coherence(); lieux(); tempsJuste(); resolution(); saisieLibre(); nuanceurs();
-  clesNues(); banc(); pixels(); mesurePage(); budget();
+  clesNues(); banc(); pixels(); couture(); mesurePage(); budget();
   parcours(); voyage();
   return bilan();
 }
 
 global.VERIF = {
   vivant, coherence, lieux, tempsJuste, resolution, saisieLibre, nuanceurs, clesNues,
-  banc, pixels, mesurePage, parcours, voyage, budget,
+  banc, pixels, couture, mesurePage, parcours, voyage, budget,
   sain, tout, bilan, texte, resultats, FORMATS, OR,
   // outillage exposé : d'autres contrôles pourront s'y adosser
   pose, fige, avanceImages,

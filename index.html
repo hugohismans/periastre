@@ -1791,99 +1791,129 @@ vec3 aberre(vec3 n, vec3 v){
 }
 
 /* ===========================================================================
-   GÉODÉSIQUES DE KERR
+   GÉODÉSIQUES DE KERR, EN COORDONNÉES DE KERR-SCHILD CARTÉSIENNES
 
-   En Kerr, la forme cartésienne compacte de Schwarzschild n'existe plus : la
-   métrique n'est plus sphérique, seulement axisymétrique. On intègre donc le
-   système hamiltonien complet en coordonnées de Boyer-Lindquist.
+   Ce bloc a longtemps intégré en Boyer-Lindquist, où l'axe polaire est singulier
+   PAR CONSTRUCTION : dφ/dλ ~ L/(Σ sin²θ) y diverge et φ doit basculer de π en un
+   point. Aucun pas fini ne résout ça, d'où la fine couture verticale que le site
+   déclarait comme limite assumée — et qu'Hugo a lue comme un bug malgré la
+   déclaration. Une déclaration qu'il faut lire ne répare pas ce qu'on voit.
 
-   p_t et p_φ sont conservés (stationnarité et axisymétrie), donc seuls
-   (r, θ, p_r, p_θ) évoluent — quatre équations au lieu de huit.
+   Kerr-Schild n'a aucune singularité de coordonnées hors de l'anneau, qui est
+   physique. Et ces coordonnées traversent l'horizon : la terminaison redevient
+   géométrique au lieu d'être une marge numérique.
 
-       2H = [P + Δ p_r² + p_θ²]/Σ − Q/(ΣΔ)
-       P(θ) = a² sin²θ E² + L²/sin²θ
-       Q(r) = (r²+a²)² E² − 4Mar EL + a² L²
+     g_μν = η_μν + f k_μ k_ν        g^μν = η^μν − f k^μ k^ν
+     f    = 2 M r³ / (r⁴ + a² z²)
+     k_μ  = ( 1, (rx+ay)/(r²+a²), (ry−ax)/(r²+a²), z/r )
 
-   Cette forme redonne l'équation radiale standard avec la constante de Carter.
-   Elle est transcrite de kerr.js, où le banc d'essai la valide : les huit
-   paramètres d'impact critiques tombent à 0,0000 % de Bardeen (1972), de
-   a* = 0 à 0,998, prograde comme rétrograde.
+   L'inverse est aussi simple que la métrique — c'est la propriété qui définit
+   cette forme, et elle tient à ce que k soit nul pour η comme pour g.
 
-   À a = 0, tout redevient Schwarzschild — c'est le contrôle permanent.
+   ---------------------------------------------------------------------------
+   TOUT CECI EST TRANSCRIT DE `kerrschild.js`, ET C'EST LÀ QUE C'EST PROUVÉ
+
+   `outil-verif-kerrschild.js` : 31 contrôles. Les dérivées analytiques
+   s'accordent aux différences finies à 1e-10, y compris À RAS DE L'AXE ; le
+   rayon critique de capture retrouve Bardeen 1972 à 1e-7 aux quatre spins,
+   prograde et rétrograde ; la déviation d'un rayon qui rase l'axe varie
+   continûment ; et le rayon angulaire de l'ombre tombe à 0,000 % de
+   sin α = 3√3 M √(1−2M/r)/r, à neuf, vingt et soixante rayons.
+
+   Le nuanceur ne s'éprouve pas. Ne modifier ce bloc qu'après avoir modifié le
+   module et fait tomber son contrôle.
+
+   ---------------------------------------------------------------------------
+   CONVENTION D'AXE
+
+   Les fonctions ci-dessous mettent l'axe de rotation en Z, comme la littérature.
+   Le site met le haut en Y. Le passage est le swizzle `.xzy`, qui est sa propre
+   réciproque — et c'est exactement la correspondance qu'employait déjà l'ancienne
+   branche, si bien que le sens de rotation à l'écran ne change pas.
    =========================================================================== */
 
-// Cartésien -> Boyer-Lindquist. L'immersion est sphéroïdale aplatie :
-//   x²+z² = (r²+a²) sin²θ,  y = r cosθ
-vec3 versBL(vec3 p, float a){
-  float rho2 = p.x*p.x + p.z*p.z, w = p.y;
-  float k = rho2 + w*w - a*a;
-  float r = sqrt(max(0.5*(k + sqrt(k*k + 4.0*a*a*w*w)), 1e-9));
-  return vec3(r, acos(clamp(w/max(r,1e-9), -1.0, 1.0)), atan(p.z, p.x));
+float rayonKS(vec3 q, float a){
+  float k = dot(q, q) - a*a;
+  return sqrt(max(0.5*(k + sqrt(k*k + 4.0*a*a*q.z*q.z)), 1e-12));
 }
-vec3 versCart(float r, float th, float ph, float a){
-  float sr = sqrt(r*r + a*a), s = sin(th);
-  return vec3(sr*s*cos(ph), r*cos(th), sr*s*sin(ph));
+vec3 gradRayonKS(vec3 q, float a, float r){
+  float N = max(r*r*r*r + a*a*q.z*q.z, 1e-12);
+  float r3 = r*r*r;
+  return vec3(q.x*r3, q.y*r3, q.z*r*(r*r + a*a)) / N;
 }
-
-// Second membre du système. y = (r, θ, p_r, p_θ). Dérivées analytiques : en
-// différences finies le pas devient trop mal conditionné près de l'horizon.
-vec4 deriveK(vec4 y, float E, float L, float a){
-  float r = y.x, pr = y.z, pt = y.w;
-  float s = sin(y.y), c = cos(y.y);
-  // Pas de borne physique ici : un rayon de moment cinétique L non nul ne peut
-  // PAS atteindre l'axe — la barrière centrifuge (Θ(θ) ≥ 0) lui impose un
-  // sin θ minimal. Brider sin θ sous-estimerait dφ/dλ d'un facteur cent et
-  // ferait sortir le rayon dans une direction fausse : c'était la cause de la
-  // colonne d'artefacts. Le seuil ci-dessous ne sert qu'à éviter une division
-  // par zéro exacte ; c'est au PAS de résoudre le pivot, pas à un plafond.
-  // Les étages de RK4 peuvent donner θ < 0 : la formule signée reste juste,
-  // P étant paire en θ et ∂P/∂θ impaire.
-  float sa = max(abs(s), 1e-7);
-  float s2 = sa*sa;
-  float s3 = (s < 0.0 ? -1.0 : 1.0) * sa*s2;
-  float S = r*r + a*a*c*c;
-  float D = r*r - 2.0*M_TN*r + a*a;
-  float Dp = abs(D) < 1e-7 ? 1e-7 : D;
-
-  float P = a*a*s2*E*E + L*L/s2;
-  float Q = (r*r + a*a)*(r*r + a*a)*E*E - 4.0*M_TN*a*r*E*L + a*a*L*L;
-  float U = P + Dp*pr*pr + pt*pt;
-  float V = Q/Dp;
-
-  float dD = 2.0*r - 2.0*M_TN;
-  float dQ = 4.0*r*(r*r + a*a)*E*E - 4.0*M_TN*a*E*L;
-  float dH_r = (dD*pr*pr - (dQ*Dp - Q*dD)/(Dp*Dp))/S - (U - V)*(2.0*r)/(S*S);
-
-  float dP_th = 2.0*a*a*s*c*E*E - 2.0*L*L*c/s3;
-  float dH_th = dP_th/S - (U - V)*(-2.0*a*a*c*s)/(S*S);
-
-  return vec4(Dp*pr/S, pt/S, -0.5*dH_r, -0.5*dH_th);
+float facteurKS(vec3 q, float a, float r){
+  return 2.0*M_TN*r*r*r / max(r*r*r*r + a*a*q.z*q.z, 1e-12);
+}
+vec3 gradFacteurKS(vec3 q, float a, float r, vec3 g){
+  float N = r*r*r*r + a*a*q.z*q.z;
+  float r2 = r*r, r3 = r2*r;
+  vec3 dN = 4.0*r3*g + vec3(0.0, 0.0, 2.0*a*a*q.z);
+  return 2.0*M_TN*(3.0*r2*g*N - r3*dN) / max(N*N, 1e-24);
+}
+vec3 vecteurKS(vec3 q, float a, float r){
+  float d = r*r + a*a;
+  return vec3((r*q.x + a*q.y)/d, (r*q.y - a*q.x)/d, q.z/max(r, 1e-9));
 }
 
-float dPhiK(vec4 y, float E, float L, float a){
-  float r = y.x, s = sin(y.y), c = cos(y.y);
-  float s2 = max(s*s, 1e-14);   // |sinθ| >= 0,01 : borne les termes singuliers sur l'axe
-  float S = r*r + a*a*c*c;
-  float D = r*r - 2.0*M_TN*r + a*a;
-  float Dp = abs(D) < 1e-7 ? 1e-7 : D;
-  return L/(S*s2) + (2.0*M_TN*a*r*E - a*a*L)/(S*Dp);
+/* ∂k/∂xⁱ pour un axe donné, choisi par `e` — un vecteur de base plutôt qu'un
+   indice, ce qui évite l'indexation dynamique. Le piège est de ne pas oublier
+   que r dépend de TOUTES les coordonnées : il y a partout un terme en ∂ᵢr. */
+vec3 dKS(vec3 q, float a, float r, float dr, vec3 e){
+  float d = r*r + a*a, d2 = d*d;
+  float kx = r*q.x + a*q.y, ky = r*q.y - a*q.x;
+  float dkx = dr*q.x + e.x*r + e.y*a;
+  float dky = dr*q.y + e.y*r - e.x*a;
+  return vec3((dkx*d - kx*2.0*r*dr)/d2,
+              (dky*d - ky*2.0*r*dr)/d2,
+              (e.z*r - q.z*dr)/max(r*r, 1e-12));
 }
 
-// Direction cartésienne du rayon, dérivée analytiquement de l'immersion
-// sphéroïdale. Une simple différence de positions successives suffit
-// d'ordinaire, mais elle devient fausse au franchissement du pôle, où φ saute
-// de π — et c'est exactement ce qu'on voyait comme colonne d'artefacts.
-vec3 dirCart(vec4 y, float ph, float E, float L, float a){
-  vec4 k = deriveK(y, E, L, a);
-  float dph = dPhiK(y, E, L, a);
-  float r = y.x, s = sin(y.y), c = cos(y.y), cp = cos(ph), sp = sin(ph);
-  float sr = sqrt(r*r + a*a);
-  float dsr = (sr > 1e-9) ? r*k.x/sr : 0.0;
-  return vec3(
-    dsr*s*cp + sr*(k.y*c*cp - dph*s*sp),
-    k.x*c - r*k.y*s,
-    dsr*s*sp + sr*(k.y*c*sp + dph*s*cp)
-  );
+/* Second membre. k_t = 1 donc k^t = −1, constant : c'est ce qui fait
+   disparaître un terme entier.
+
+     dxⁱ/dλ  = pᵢ − f (k·p) kᵢ
+     dpᵢ/dλ  = ½ (∂ᵢf)(k·p)² + f (k·p) Σⱼ (∂ᵢkⱼ) pⱼ                        */
+void secondKS(vec3 q, vec3 m, float a, float pt, out vec3 dx, out vec3 dp){
+  float r  = rayonKS(q, a);
+  vec3  g  = gradRayonKS(q, a, r);
+  float f  = facteurKS(q, a, r);
+  vec3  df = gradFacteurKS(q, a, r, g);
+  vec3  kv = vecteurKS(q, a, r);
+  float kp = -pt + dot(kv, m);
+
+  dx = m - f*kp*kv;
+
+  vec3 s = vec3(dot(dKS(q, a, r, g.x, vec3(1.0, 0.0, 0.0)), m),
+                dot(dKS(q, a, r, g.y, vec3(0.0, 1.0, 0.0)), m),
+                dot(dKS(q, a, r, g.z, vec3(0.0, 0.0, 1.0)), m));
+  dp = 0.5*df*kp*kp + f*kp*s;
+}
+
+// p_t tel que le rayon soit nul. Le discriminant est positif puisque |k⃗| = 1.
+float ptNulKS(vec3 q, vec3 m, float a){
+  float r = rayonKS(q, a);
+  float f = facteurKS(q, a, r);
+  vec3 kv = vecteurKS(q, a, r);
+  float A = dot(kv, m), p2 = dot(m, m);
+  return (f*A - sqrt(max(p2 + f*(p2 - A*A), 0.0))) / (1.0 + f);
+}
+
+/* De la direction VISÉE au moment covariant, pour un observateur STATIQUE.
+
+   La caméra est à neuf rayons, pas à l'infini : f y vaut encore un dixième, et
+   prendre pᵢ = direction déformerait l'image d'autant.
+
+   L'observateur doit être le statique et non le normal : en Kerr-Schild, le
+   normal TOMBE, et ce qu'il voit est aberré. Sa métrique spatiale est
+   h = δ + (f/(1−f)) k k, dont la composante radiale vaut 1/(1−2M/r) — le
+   facteur d'étirement de Schwarzschild, qui n'a pas été mis là à la main. */
+vec3 momentKS(vec3 q, vec3 v, float a){
+  float r = rayonKS(q, a);
+  float f = min(facteurKS(q, a, r), 0.999999);
+  vec3 kv = vecteurKS(q, a, r);
+  vec3 w  = v + (sqrt(1.0 - f) - 1.0)*dot(kv, v)*kv;
+  float lam = f/sqrt(1.0 - f) + f*dot(kv, w)/(1.0 - f);
+  return w + lam*kv;
 }
 
 void main(){
@@ -2025,42 +2055,24 @@ void main(){
     // en radio ou en X, ce ne sont pas les mêmes sources qui brillent.
     sortie = dir;
   } else {
-    // ---- Kerr, Boyer-Lindquist ----
-    // L'axe polaire y est singulier PAR CONSTRUCTION. C'est le prix de la
-    // métrique tournante : la forme cartésienne compacte n'existe plus.
+    // ---- Kerr, en coordonnées de Kerr-Schild cartésiennes ----
+    // L'axe polaire n'a plus rien de singulier ici. Voir l'en-tête du bloc de
+    // fonctions, et `kerrschild.js` où tout ceci est prouvé hors navigateur.
     float a  = uSpin;
-    float rh = M_TN + sqrt(max(M_TN*M_TN - a*a, 0.0));   // horizon externe
-  
-    vec3 bl = versBL(uCam, a);
-    float r0 = bl.x, th0 = bl.y, ph0 = bl.z;
-    float s0 = sin(th0), c0 = cos(th0);
-  
-    // Repère orthonormé local. On prend la base sphérique : l'aplatissement
-    // sphéroïdal vaut a²/r², soit moins de 0,1 % à la distance de la caméra.
-    vec3 er = vec3(s0*cos(ph0), c0, s0*sin(ph0));
-    vec3 et = vec3(c0*cos(ph0), -s0, c0*sin(ph0));
-    vec3 ep = vec3(-sin(ph0), 0.0, cos(ph0));
-    float nr = dot(vue, er), nt = dot(vue, et), np_ = dot(vue, ep);
-  
-    // Tétrade du ZAMO : le seul observateur défini partout hors de l'horizon.
-    // Le statique, lui, cesse d'exister dans l'ergosphère.
-    float S0 = r0*r0 + a*a*c0*c0;
-    float D0 = r0*r0 - 2.0*M_TN*r0 + a*a;
-    float A0 = (r0*r0 + a*a)*(r0*r0 + a*a) - a*a*D0*s0*s0;
-    float alpha = sqrt(max(S0*D0/A0, 1e-9));      // lapse
-    float omega = 2.0*M_TN*a*r0/A0;               // entraînement des repères
-    float L = np_ * s0 * sqrt(A0/S0);
-    float E = alpha + omega*L;
-  
-    vec4 y = vec4(r0, th0, nr*sqrt(S0/D0), nt*sqrt(S0));
-    float ph = ph0;
-  
-    vec3  pc    = uCam, pcPrec = uCam - vue;
-  
+    float rh = M_TN + sqrt(max(M_TN*M_TN - a*a, 0.0));
+
+    // L'état tient en six nombres : position et moment covariant spatial. p_t
+    // est constant — la métrique ne dépend pas de t — et se pose une fois.
+    vec3  pc  = uCam;
+    vec3  mom = momentKS(uCam.xzy, vue.xzy, a).xzy;
+    float pt  = ptNulKS(uCam.xzy, mom.xzy, a);
+    vec3  pcPrec = uCam - vue;
+    vec3  dsort  = vue;                 // la direction EST dx/dλ, plus rien à reconstruire
+
     for(int i = 0; i < STEPS; i++){
       if(i >= uSteps) break;
-      float r = y.x;
-  
+      float r = rayonKS(pc.xzy, a);
+
       // Photosphère : aux grandes longueurs d'onde le flux d'accrétion est
       // opaque. Le rayon s'y arrête bien avant l'horizon, et l'ombre disparaît
       // derrière une tache brillante. C'est la vraie raison pour laquelle on
@@ -2089,52 +2101,42 @@ void main(){
         col += reste * uTeinte * uEclat * (0.30 + 3.1*k*k) * tex;
         reste = 0.0; avale = true; break;
       }
-  
-      if(r < rh + 2e-4){ avale = true; break; }
-      if(r > 70.0 && y.z > 0.0) break;
-  
-      vec4 k1 = deriveK(y, E, L, a);
-      // Pas exprimé en longueur d'arc, converti en pas affine par la « vitesse ».
-      // Les TROIS composantes comptent : pour un rayon tangentiel dr/dλ et dθ/dλ
-      // sont nuls et seul dφ/dλ subsiste — l'oublier fait exploser le pas.
-      float dph0 = dPhiK(y, E, L, a);
-      float sth  = max(sin(y.y), 1e-2);      // même borne que dans les dérivées
-      float vit  = max(sqrt(k1.x*k1.x + r*r*k1.y*k1.y + r*r*sth*sth*dph0*dph0), 1e-5);
-      float dl = clamp(uPas*2.3*(r - rh) + uPas*r, uPas*0.55, 1.4) / vit;
-  
-      // L'axe polaire est une singularité de coordonnées : φ doit y basculer de π
-      // presque instantanément. Un pas qui saute par-dessus le pôle rate ce
-      // basculement, et le rayon ressort dans une direction fausse — c'était la
-      // colonne d'artefacts. On interdit donc d'y arriver en un seul pas.
-      float versPole = min(y.y, 3.14159265 - y.y);
-      if(versPole < 0.35 && abs(k1.y) > 1e-9)
-        dl = min(dl, max(0.25*versPole/abs(k1.y), 0.004));
-  
+
+      // Ces coordonnées traversent l'horizon : plus besoin de s'arrêter avant,
+      // ni de la marge numérique que Boyer-Lindquist imposait.
+      if(r < rh*0.98){ avale = true; break; }
+      if(r > 70.0 && dot(pc, dsort) > 0.0) break;
+
+      vec3 q1 = pc.xzy, m1 = mom.xzy;
+      vec3 d1x, d1p; secondKS(q1, m1, a, pt, d1x, d1p);
+      dsort = d1x.xzy;
+
+      float vit = max(length(d1x), 1e-5);
+      float dl  = clamp(uPas*2.3*(r - rh) + uPas*r, uPas*0.55, 1.4) / vit;
       for(int k = 0; k < 4; k++){
         if(k >= uNbPhotons) break;
         dl = min(dl, max(0.04, length(uPhotons[k]-pc)*0.40/vit));
       }
-  
-      vec4 k2 = deriveK(y + 0.5*dl*k1, E, L, a);
-      vec4 k3 = deriveK(y + 0.5*dl*k2, E, L, a);
-      vec4 k4 = deriveK(y + dl*k3, E, L, a);
-      vec4 yn = y + dl*(k1 + 2.0*k2 + 2.0*k3 + k4)/6.0;
-      float phn = ph + dl*(dph0 + 2.0*dPhiK(y+0.5*dl*k1,E,L,a)
-                         + 2.0*dPhiK(y+0.5*dl*k2,E,L,a) + dPhiK(y+dl*k3,E,L,a))/6.0;
-  
-      // Réflexion aux pôles : θ doit rester dans [0, π]. Un rayon qui franchit
-      // l'axe ressort de l'autre côté, avec p_θ inversé et φ décalé de π.
-      if(yn.y < 0.0)      { yn.y = -yn.y;              yn.w = -yn.w; phn += 3.14159265; }
-      else if(yn.y > 3.14159265) { yn.y = 6.28318531 - yn.y; yn.w = -yn.w; phn += 3.14159265; }
-  
-      // traversée du plan équatorial : le disque y vit
-      if(cos(y.y)*cos(yn.y) < 0.0 && reste > 0.004){
-        float f  = cos(y.y) / (cos(y.y) - cos(yn.y));
-        float rr = mix(y.x, yn.x, f);
+
+      vec3 d2x, d2p; secondKS(q1 + 0.5*dl*d1x, m1 + 0.5*dl*d1p, a, pt, d2x, d2p);
+      vec3 d3x, d3p; secondKS(q1 + 0.5*dl*d2x, m1 + 0.5*dl*d2p, a, pt, d3x, d3p);
+      vec3 d4x, d4p; secondKS(q1 + dl*d3x,     m1 + dl*d3p,     a, pt, d4x, d4p);
+      vec3 qn = q1 + dl*(d1x + 2.0*d2x + 2.0*d3x + d4x)/6.0;
+      vec3 mn = m1 + dl*(d1p + 2.0*d2p + 2.0*d3p + d4p)/6.0;
+      vec3 pcn = qn.xzy;
+
+      // Traversée du plan du disque. Il vit en y = 0 dans le repère du site, et
+      // le test est devenu un simple changement de signe — plus de cosinus.
+      if(pc.y*pcn.y < 0.0 && reste > 0.004){
+        float t  = pc.y / (pc.y - pcn.y);
+        vec3  cx = mix(pc, pcn, t);
+        float rho = length(cx.xz);
+        // `uRin` et `disque()` attendent le rayon de Boyer-Lindquist, qui vaut
+        // √(ρ²−a²) dans le plan équatorial. On le leur donne.
+        float rr = sqrt(max(rho*rho - a*a, 0.0));
         if(rr > uRin && rr < R_OUT){
-          float pf = mix(ph, phn, f);
-          vec3 cp = vec3(rr*cos(pf), 0.0, rr*sin(pf));
-          vec4 d = disque(cp, normalize(pc - pcPrec));
+          vec3 cp = vec3(cx.x, 0.0, cx.z) * (rr / max(rho, 1e-9));
+          vec4 d = disque(cp, normalize(pcn - pc));
           // En lumière visible, le flux d'accrétion de Sgr A* est presque muet :
           // il rayonne dans le submillimétrique, et il est sous-lumineux d'un
           // facteur ~10⁹ par rapport à sa limite d'Eddington.
@@ -2146,23 +2148,22 @@ void main(){
           reste *= 1.0 - d.a*0.86*(1.0 - uReel*0.97);
         }
       }
-  
+
       pcPrec = pc;
-      pc = versCart(yn.x, yn.y, phn, a);
-  
+      pc  = pcn;
+      mom = mn.xzy;
+
       for(int k = 0; k < 4; k++){
         if(k >= uNbPhotons) break;
         vec3 q = uPhotons[k] - pc;
         lueur += exp(-dot(q,q)*26.0) * dl*vit * reste;
       }
-  
-      y = yn; ph = phn;
     }
-  
+
     // Un rayon qui n'a pas fui après tous ces pas et se traîne encore au fond du
     // puits est capturé : lui attribuer le ciel remplirait l'ombre d'étoiles.
-    if(!avale && y.x < uSeuilCapture) avale = true;
-    sortie = dirCart(y, ph, E, L, a);
+    if(!avale && rayonKS(pc.xzy, a) < uSeuilCapture) avale = true;
+    sortie = dsort;
   }
 
   // Le ciel d'étoiles reste comme repère, mais il s'efface hors du visible :
