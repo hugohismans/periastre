@@ -5529,17 +5529,9 @@ function poseNotes(){
     s.className = "n-sous";
     s.textContent = g.chapeau;
     const ul = document.createElement("ul");
-    /* Un point est soit une chaîne, soit un compromis DÉCLARÉ : `{id, ou, aveu, t}`.
-       Les deux formes cohabitent le temps de la migration — et `contrat.js`
-       compte les déclarés avec un cliquet, de sorte que leur nombre ne puisse
-       que monter. Le `ou` nomme l'endroit où l'on rencontre le compromis : c'est
-       ce qui permettra de poser l'aveu là-bas, et pas seulement dans ce panneau
-       qu'on ouvre rarement. */
     g.points.forEach(p => {
       const li = document.createElement("li");
-      li.innerHTML = p.t || p;       // les points portent du gras, et rien d'autre
-      if(p.id) li.dataset.compromis = p.id;
-      if(p.ou) li.dataset.ou = p.ou;
+      li.innerHTML = p.t || p;       // chaîne, ou compromis déclaré — voir contrat.js
       ul.appendChild(li);
     });
     d.appendChild(t); d.appendChild(s); d.appendChild(ul);
