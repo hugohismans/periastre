@@ -43,8 +43,18 @@ const couleur = process.stdout.isTTY;
 const c = (t, k) => couleur ? C[k] + t + C.zero : t;
 
 // ─────────────────────────────────────────────────────── les outils à jouer
+/* `outil-verif-publication.js` est écarté À DESSEIN.
+
+   Il regarde si le site EN LIGNE correspond à ce qu'on a poussé. Or avoir des
+   commits non publiés est l'état normal du dépôt : l'inclure ici ferait échouer
+   `node tout.js` presque toujours, et un contrôle qui échoue en permanence se
+   fait désactiver dans la semaine.
+
+   Il se lance seul, après une publication. */
+const HORS_FILET = new Set(["outil-verif-publication.js"]);
+
 const outils = fs.readdirSync(ici)
-  .filter(f => /^outil-.*\.js$/.test(f))
+  .filter(f => /^outil-.*\.js$/.test(f) && !HORS_FILET.has(f))
   .sort();
 
 console.log("\n  " + c("PÉRIASTRE — LE FILET COMPLET", "gras"));
