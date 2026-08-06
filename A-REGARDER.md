@@ -41,10 +41,44 @@ enfler. **Les verdicts de la troisième séance sont à relire avec ça en tête
 | quoi | où | état |
 |---|---|---|
 | **L'arrivée du voyage** | fin du recul | ❗ **Neuf, 6 août au soir.** « L'apparition du cercle d'orbite des étoiles autour du trou noir n'est pas fluide, ça *pop* d'un coup à la fin. » Relevé au passage, pas en réponse à une question — c'est le quatrième défaut trouvé par ce champ libre. |
-| **La rotation du trou noir d'étude** | télescope | ❌ **Ça coince deux fois de suite, et deux fois par ma faute.** Le matin, le verdict portait sur ma fenêtre qui mangeait l'écran. Le soir : « je ne vois pas où modifier la rotation » — la question l'envoyait en vue libre alors que les quatre boutons sont dans le panneau du télescope. Corrigé, et gardé par `montre` : la séance refuse désormais de poser une question dont l'objet n'est pas à l'écran. **À rejouer.** |
+| **La couture de l'axe polaire** | trou noir d'étude, en rotation | ❗ **La question a enfin été posée, et la réponse n'est pas celle que j'attendais.** « Il y a une trace verticale buguée quand on met une rotation. » C'est la couture de l'axe polaire — une dette connue, déclarée à **sept endroits** du contenu, dont le panneau qu'il avait sous les yeux. **Il l'a lue comme un bug malgré la déclaration.** Décision à prendre, voir plus bas. |
 | **La carte des étoiles S** | arrivée du voyage | ❌ **Ça coince** aux trois séances. Le 6 août : « à discuter dans Claude Code avec Hugo ». Ce n'est plus une question à poser devant un écran — elle sort de la séance et devient une conversation. |
 | **La console de tir** | fosse du salon | Sortie de la séance. « Quand je dis agrandir, je veux dire agrandir LE VAISSEAU, et mettre le canon dans une nouvelle salle. » C'est une aile de plus, pas un choix de taille. |
 | **Les lampes du bord** | dans le salon | Question posée avec le mauvais bouton. L'interrupteur existe maintenant vraiment. À rejouer un jour. |
+
+### La couture de l'axe — la décision qu'Hugo doit prendre
+
+Le 6 août au soir, quatrième séance : « regarde le screenshot que je t'ai envoyé,
+il y a une trace verticale buguée quand on met une rotation au trou noir ».
+
+**Ce que c'est.** À rotation non nulle, le moteur passe en Boyer-Lindquist, où
+l'axe polaire est singulier *par construction*. Le code lutte déjà : il borne
+`sin θ` à 10⁻², interdit à un rayon de sauter par-dessus le pôle en un pas — ce
+qui avait supprimé une colonne d'artefacts bien plus large — et réfléchit
+correctement en inversant p_θ et en décalant φ de π. Ce qui reste vient de la
+borne : sous 0,01 radian de l'axe, les termes métriques sont bridés, donc faux.
+La physique est juste ; c'est sa **description** qui s'y casse.
+
+**Ce que ça nous apprend, et qui vaut plus que la couture.** Le site déclare ce
+défaut à sept endroits, dont le panneau ouvert devant lui au moment du verdict :
+« une fine couture apparaît sur l'axe : c'est la singularité de coordonnées, pas
+un défaut de calcul ». **Il a quand même écrit « buguée ».** Une déclaration
+qu'on doit lire ne répare pas ce qu'on voit — c'est exactement la règle du
+5 août, « chaque compromis se déclare là où on le rencontre », et cet aveu-là est
+dans un paragraphe, pas sur la couture.
+
+**Les trois routes, du plus cher au moins cher :**
+
+1. **Réécrire en Kerr-Schild.** La vraie correction : ces coordonnées ne sont pas
+   singulières sur l'axe, et la couture disparaît. C'est un chantier de moteur,
+   pas un correctif.
+2. **Resserrer la borne** de 10⁻² vers 10⁻³, avec le limiteur de pas qui suit.
+   La couture rétrécit sans mentir — on brida moins. Coût : des pas
+   supplémentaires près de l'axe, à mesurer.
+3. **Poser l'aveu sur la couture elle-même** plutôt que dans un paragraphe.
+   Ne change rien à l'image, change tout à sa lecture.
+
+Les routes 2 et 3 ne s'excluent pas, et aucune n'interdit la 1 plus tard.
 
 ### Le bruit de fond du ciel — à revoir plus tard, sans urgence
 
