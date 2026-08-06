@@ -3355,6 +3355,24 @@ function majBarreLieu(){
 
 function vaAu(nouveau){
   if(nouveau === lieu) return;
+
+  /* UN LIEU PEUT REFUSER QU'ON Y ENTRE.
+
+     `embarque()` pose `sondeSuivie` AVANT d'appeler `vaAu`, et c'est le seul
+     chemin légitime — mais rien ne l'imposait. `vaAu("sonde")` appelé seul
+     laissait `lieu === "sonde"` avec `sondeSuivie === null`, c'est-à-dire
+     exactement l'état que l'invariant de `coherence()` déclare impossible.
+
+     Le trou n'était atteignable que depuis la console, aujourd'hui. Il ne le
+     serait plus le jour où un quatrième lieu s'ajoute avec sa propre condition
+     d'entrée — et c'est ce jour-là qu'on ne veut pas avoir à y penser. La
+     précondition vit donc ici, à côté de l'unique écriture qu'elle protège. */
+  if(nouveau === "sonde" && sondeSuivie === null){
+    const i = (typeof meilleureSonde === "function") ? meilleureSonde() : null;
+    if(i === null) return;               // aucune sonde : on ne bouge pas
+    sondeSuivie = i;
+  }
+
   const ancien = lieu;
   quitteLieu(ancien);
   lieu = nouveau;                       // ← l'unique écriture de tout le fichier

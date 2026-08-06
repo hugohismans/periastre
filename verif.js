@@ -209,6 +209,106 @@ function coherence(){
   return enCours;
 }
 
+/* 1 quater. LA TABLE DES TRANSITIONS, DANS TOUS LES SENS.
+
+   `coherence()` juste au-dessus passe par les BOUTONS, et prouve que
+   l'interface et l'état disent la même chose. Celui-ci passe par `vaAu()`
+   directement, et balaie les NEUF transitions ordonnées au lieu du seul chemin
+   qu'un joueur emprunte le plus souvent.
+
+   Et il ne demande pas si le lieu est juste — l'autre le fait déjà. Il demande
+   ce qui SURVIT à un changement de lieu et ne devrait pas. C'est là que se
+   logent les états impossibles : un voyage encore armé après qu'on a quitté le
+   salon restait armé pour toujours, sans jamais avancer, et l'on ne pouvait
+   plus ni arriver ni revenir. Ce défaut-là a été payé une fois.
+
+   POURQUOI IL COMPTE MAINTENANT : la salle de tir sera un quatrième lieu. Le
+   commentaire d'index.html l'annonce — « ils coûteront un mot ici et deux `case`
+   plus bas ». Ce contrôle est ce qui rendra cette phrase vraie, parce qu'il
+   échouera si le nouveau lieu oublie d'éteindre quelque chose. */
+function lieux(){
+  ouvre("La table des transitions");
+  const LIEUX = ["libre", "salon", "sonde"];
+  const av = lieu;
+
+  if(!sondes.length){ pluie(12); avanceImages(30); }
+
+  // Ce qui ne doit JAMAIS être vrai en même temps que le lieu courant.
+  const invariants = () => [
+    ["un seul lieu à la fois",
+     LIEUX.filter(l => lieu === l).length === 1,
+     lieu],
+    ["`salon.actif` suit `lieu`",
+     salon.actif === (lieu === "salon"),
+     "salon.actif=" + salon.actif],
+    ["on n'est sur une sonde que si l'on en a une",
+     (sondeSuivie !== null) === (lieu === "sonde"),
+     "sondeSuivie=" + sondeSuivie],
+    ["aucun voyage ne survit hors du salon",
+     lieu === "salon" || !TELESCOPE.trajet,
+     "trajet=" + (TELESCOPE.trajet ? "armé" : "aucun")],
+    ["aucun recul ne survit hors du salon",
+     lieu === "salon" || !RECUL.etat.actif,
+     "recul=" + RECUL.etat.actif],
+    ["le plan d'ouverture ne survit pas à une prise de commande",
+     lieu === "libre" || !cinema.actif,
+     "cinema=" + cinema.actif],
+  ];
+
+  const juge = ou => {
+    for(const [nom, vrai, mesure] of invariants())
+      if(!vrai){ point(ou + " — " + nom, false, "vrai", mesure); return false; }
+    return true;
+  };
+
+  /* Les neuf transitions ordonnées, la diagonale comprise : `vaAu` sur le lieu
+     où l'on est déjà doit être un non-événement, et c'est aussi un invariant. */
+  let toutes = 0, bonnes = 0;
+  for(const de of LIEUX) for(const vers of LIEUX){
+    vaAu(de);
+    if(lieu !== de) continue;              // ce départ n'est pas atteignable ici
+    vaAu(vers);
+    toutes++;
+    if(juge(de + " → " + vers)) bonnes++;
+  }
+  point("les transitions tiennent leurs invariants", bonnes === toutes,
+        toutes + " sur " + toutes, bonnes + " sur " + toutes,
+        "six invariants vérifiés après chacune");
+
+  /* LE CAS QUI A COÛTÉ CHER, REJOUÉ EN ENTIER.
+
+     On arme un vrai voyage depuis le salon, on en sort, et l'on regarde s'il
+     est mort avec. C'est le seul invariant de la liste qui demande de METTRE le
+     monde dans l'état dangereux plutôt que d'espérer l'y trouver. */
+  vaAu("salon");
+  if(typeof lanceVoyage === "function" && typeof DESTINATIONS !== "undefined"){
+    const d = DESTINATIONS[0];
+    lanceVoyage(d, VOYAGE.entre(distanceVaisseau(), d.d_m));
+    point("un voyage s'arme bien depuis le salon", !!TELESCOPE.trajet,
+          "armé", TELESCOPE.trajet ? "armé" : "AUCUN — le reste du test ne prouve rien");
+    vaAu("libre");
+    point("et il meurt en quittant le salon",
+          !TELESCOPE.trajet && !RECUL.etat.actif, "éteint",
+          "trajet=" + (TELESCOPE.trajet ? "ARMÉ" : "éteint")
+          + " recul=" + RECUL.etat.actif,
+          "sinon il reste armé pour toujours sans jamais avancer");
+  }
+
+  // Entrer sur une sonde qu'on n'a pas doit être refusé, pas subi.
+  vaAu("libre");
+  const gardees = sondes.slice();
+  sondes.length = 0;
+  vaAu("sonde");
+  point("on n'entre pas sur une sonde quand il n'y en a aucune",
+        lieu !== "sonde" && sondeSuivie === null, "refusé",
+        lieu + " · sondeSuivie=" + sondeSuivie,
+        "`vaAu` porte la précondition, à côté de l'unique écriture de `lieu`");
+  sondes.push(...gardees);
+
+  vaAu(av);
+  return enCours;
+}
+
 /* 1 ter. LE TEMPS AVANCE À LA VITESSE QU'ON LUI DEMANDE.
 
    Ce contrôle existe parce qu'un défaut lui a échappé : en « temps réel », le
@@ -759,7 +859,7 @@ function texte(){
    C'est celle qu'on lance après une modification, en boucle. */
 function sain(){
   resultats.length = 0;
-  vivant(); coherence(); tempsJuste(); resolution(); saisieLibre(); nuanceurs();
+  vivant(); coherence(); lieux(); tempsJuste(); resolution(); saisieLibre(); nuanceurs();
   clesNues(); banc(); pixels(); mesurePage(); budget();
   return bilan();
 }
@@ -768,14 +868,14 @@ function sain(){
    on la lance sur une page fraîche. */
 function tout(){
   resultats.length = 0;
-  vivant(); coherence(); tempsJuste(); resolution(); saisieLibre(); nuanceurs();
+  vivant(); coherence(); lieux(); tempsJuste(); resolution(); saisieLibre(); nuanceurs();
   clesNues(); banc(); pixels(); mesurePage(); budget();
   parcours(); voyage();
   return bilan();
 }
 
 global.VERIF = {
-  vivant, coherence, tempsJuste, resolution, saisieLibre, nuanceurs, clesNues,
+  vivant, coherence, lieux, tempsJuste, resolution, saisieLibre, nuanceurs, clesNues,
   banc, pixels, mesurePage, parcours, voyage, budget,
   sain, tout, bilan, texte, resultats, FORMATS, OR,
   // outillage exposé : d'autres contrôles pourront s'y adosser
