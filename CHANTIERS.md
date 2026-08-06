@@ -3,7 +3,10 @@
 Liste courte et ordonnée. Le détail de chaque point est dans `IDEES.md`, qui
 sert d'archive ; ce fichier-ci sert à savoir quoi prendre ensuite.
 
-Mis à jour le 5 août 2026.
+Mis à jour le 6 août 2026, après la passe sur les fondations.
+
+**État en une ligne :** F1 fait et gardé · F2 sous cliquet · **F3 ouvert, et
+c'est le seul** · F4 fait · F5 fait. Les fonctionnalités attendent F3.
 
 ---
 
@@ -44,48 +47,83 @@ qui, dans l'état actuel, ouvre la porte — et ce qui la ferme.
   d'une caméra extérieure.
 - **Le contenu est source unique, à trois niveaux, sourcé, bilingue.**
 
-### F1 — La soupe de drapeaux doit devenir un lieu
+### F1 — La soupe de drapeaux doit devenir un lieu — ✅ **FAIT**
 
-`salon.actif`, `sondeSuivie`, `TELESCOPE.trajet`, `spectreActif`,
-`cinema.actif` s'excluent deux à deux, à la main, dans des `if` dispersés. Le
-commentaire « on ne peut pas être aux deux endroits » est déjà écrit deux fois
-dans le fichier.
+*Ce paragraphe a décrit l'état d'avant la refonte pendant plusieurs jours après
+qu'elle a eu lieu, et le 6 août il m'a fait afficher à Hugo une feuille de route
+où F1 était en rouge. Le document était périmé, pas le code. Corrigé ici.*
 
-**J'ai aggravé ce défaut aujourd'hui** en ajoutant le télescope comme troisième
-mode plutôt qu'en refondant le mécanisme. Ça marche à trois. À dix lieux —
-galaxie, système solaire, orbite de Jupiter, centre de contrôle — c'est
-ingérable, et les conflits y sont muets.
+`lieu` est l'unique autorité, avec **une seule écriture dans tout le fichier**
+(`vaAu`, index.html). `salon.actif` n'est plus une donnée mais un accesseur
+dérivé (`Object.defineProperty`). Les transitions sont énumérées à un seul
+endroit, `quitteLieu` / `entreLieu`.
 
-Il faut **un seul état `lieu`**, avec ses transitions explicites, et que la
-caméra, la boucle et l'interface le lisent au lieu de deviner.
+**Gardé** depuis le 6 août par `VERIF.lieux()` : les neuf transitions
+ordonnées, six invariants après chacune, et le cas du voyage encore armé après
+la sortie du salon rejoué en entier. Un lieu peut désormais **refuser** qu'on y
+entre — la précondition vit à côté de l'unique écriture qu'elle protège, ce qui
+est ce qui comptera quand la salle de tir ajoutera un quatrième endroit.
 
-### F2 — Le bloc de script unique est la vraie limite
+### F2 — Le bloc de script unique est la vraie limite — 🔒 **sous cliquet**
 
-Trois mille cinq cents lignes dans un seul `<script>`, en portée globale, avec
-des `const` non hissés. **Il est mort deux fois cette session** parce qu'une
-variable était employée avant sa ligne — et le symptôme est muet : le bloc
-s'arrête, la moitié du site disparaît sans un message.
+**4 310 lignes** le 6 août 2026, mesurées, dans un seul `<script>` en portée
+globale avec des `const` non hissés. Le document annonçait 3 500 : il a pris
+huit cents lignes sans que personne le décide.
 
-Chaque fonction ajoutée rend la découpe plus chère. C'est le chantier qui
-décide si le projet survit à sa propre ambition, et il n'a aucun effet visible :
-il ne se fera donc jamais « quand on aura le temps ». Il faut le décider.
+Il est mort deux fois parce qu'une variable était employée avant sa ligne — et
+le symptôme est muet : le bloc s'arrête, la moitié du site disparaît sans un
+message.
 
-### F3 — Il manque un intégrateur à N corps
+Il n'a aucun effet visible, donc il ne se fera jamais « quand on aura le
+temps ». D'où `outil-verif-taille.js` : on n'exige pas de découper aujourd'hui,
+on exige que **ça ne monte plus**, et le plafond descend tout seul dès que ça
+descend. Il a refusé sa première ligne le jour même de son écriture.
 
-`integre()` déplace une particule d'épreuve autour d'une masse **fixe**. Poser
-une planète et voir le système tenir ou s'effondrer demande la gravitation
-mutuelle entre corps — un module distinct, symplectique, éprouvable seul.
+### F3 — Il manque un intégrateur à N corps — ⚠️ **écrit, éprouvé, branché à rien**
 
-C'est aussi le plus agréable à écrire, et le plus vérifiable : la stabilité du
-système solaire sur un million d'années est un banc d'essai en soi.
+`ncorps.js`, 1 026 lignes, contrôlé par `outil-verif-ncorps.js` — énergie,
+moment cinétique, résonances, limite de Roche. **Absent d'`index.html`.**
 
-### F4 — La frontière du simulable, à écrire une fois pour toutes
+C'est la pire forme de dette parce qu'elle ne ressemble pas à une dette : au
+tableau ça compte comme un acquis, dans la page ça n'existe pas. `node tout.js`
+le signale à chaque exécution, avec `lune.js` (1 103 lignes) et `echelle.js`.
 
-La gravitation se simule entièrement. La physique des matériaux — l'instant
-d'un impact, les ondes de choc, la fusion — ne se simule pas, ni ici ni
-ailleurs sans grappe de calcul. On sait donc faire **l'avant et l'après** d'une
-collision, pas son instant. Voir `IDEES.md`, « La forme que ça doit prendre au
-bout ».
+Décision d'Hugo le 6 août : **brancher N corps, laisser la Lune de côté** — le
+carnet lui reproche de ne pas être sourçable, et le désaccord n'a jamais été
+tranché.
+
+Reste à décider **de quoi il sera l'usage visible**. Charger n'est pas brancher :
+un module chargé et inutilisé reste le troisième état. Proposition à faire
+juger : un compagnon au trou noir d'étude, qui existe déjà comme objet distinct
+et orientable.
+
+### F4 — La frontière du simulable, à écrire une fois pour toutes — ✅ **FAIT**
+
+`FRONTIERE.md` dit en un seul endroit ce qui est **calculé** (et par quel
+outil), ce qui est **approché** (et pourquoi), ce qui est **décor** (et où on le
+rencontre). Et ce qui ne se simule pas du tout : on sait faire l'avant et
+l'après d'une collision, jamais son instant.
+
+Les neuf compromis assumés portent maintenant un identifiant, un lieu de
+rencontre lisible par la machine, et un aveu court destiné à être posé là-bas —
+c'est la règle d'Hugo du 5 août, « chaque compromis se déclare là où on le
+rencontre ». `contrat.js` refuse un compromis sans lieu, sans aveu, présent dans
+une seule langue, dont l'aveu dépasse deux cents signes, ou dont le lieu diffère
+entre les langues.
+
+**Reste la forme visuelle de l'aveu**, qui est un choix d'œil et passera par une
+séance de jugement.
+
+### F5 — Le filet doit tenir en une commande — ✅ **FAIT**
+
+`node tout.js` joue les dix outils hors navigateur, agrège, sort en 0 ou 1, et
+**fabrique tout seul** la liste de ce qui n'est gardé par personne. C'était la
+vraie raison de l'écrire : `recul.js` a vécu un mois sans le moindre contrôle,
+et rien ne disait qu'il n'en avait pas.
+
+Il déclare aussi franchement les contrôles de `verif.js` qu'il ne joue pas,
+faute de navigateur, et donne l'adresse pour les jouer. Un outil qui prétend
+couvrir ce qu'il ne couvre pas endort au lieu de garder.
 
 ---
 
