@@ -3,7 +3,7 @@
 > ## 👉 Ne lis pas ce fichier. Ouvre ça :
 > ### **https://hugohismans.github.io/periastre/?juge**
 >
-> Les huit décisions ci-dessous s'y jouent une par une. La séance **va chercher
+> Les décisions ci-dessous s'y jouent une par une. La séance **va chercher
 > la chose et la pose sous tes yeux** — tu ne navigues pas, tu ne lis pas. Là où
 > il y a plusieurs options, elles se comparent en direct, sur la même vue, d'un
 > bouton à l'autre. À la fin, un bouton « Copier » : ce qui sort est un **message
@@ -15,7 +15,24 @@ Tout ce qui ne peut pas se vérifier par la mesure, et qui attend donc qu'un
 humain regarde. **Rien ici ne bloque quoi que ce soit** — c'est une file, pas
 une dette. Elle existe pour que ça ne se perde pas dans une conversation.
 
-Mise à jour le 5 août 2026.
+Mise à jour le 6 août 2026, après la troisième séance.
+
+---
+
+## D'abord : la séance elle-même faussait les verdicts
+
+À retenir avant de lire le reste. Le panneau de `?juge` **grandissait de
+cinquante-six pixels à chaque question** — il empilait une rangée de boutons
+sans retirer la précédente. Cent quarante-deux pixels de haut à la première
+question, trois cent dix à la quatrième, et ce en état replié.
+
+La cinquième question était la rotation du trou noir d'étude. Le « ça coince »
+rendu ce jour-là, avec pour seul mot « l'interface de test bloque encore
+l'interface », ne portait donc pas sur la rotation.
+
+Corrigé, et deux contrôles posés : la fenêtre se déplace maintenant à la souris
+et au doigt, et la séance vérifie à chaque question qu'elle n'a pas recommencé à
+enfler. **Les verdicts de la troisième séance sont à relire avec ça en tête.**
 
 ---
 
@@ -23,17 +40,24 @@ Mise à jour le 5 août 2026.
 
 | quoi | où | état |
 |---|---|---|
-| **La carte des étoiles S** | arrivée du voyage | ❌ **Ça coince** — verdict d'Hugo, séance du 6 août. Sans précision : à rejouer avec une question mieux posée. |
-| **Le scintillement des étoiles** | partout | ❌ **Ça coince** — verdict du 6 août. Les cœurs font pourtant au moins un pixel, mesuré. Autre chose grouille. |
-| **La présentation d'entrée** | premier chargement | Pas tranchée le 6 août. Trois écrans. Le rythme est-il bon ? Le dernier atteint-il ? |
-| **La rotation du trou noir d'étude** | trou noir d'étude | Pas tranchée le 6 août. L'effet est calculé et réel ; est-il visible ? |
-| **Les lampes du bord** | dans le salon | Question posée avec le mauvais bouton le 6 août. L'interrupteur existe maintenant vraiment. À rejouer. |
-| **La console de tir** | fosse du salon | « Aucune » aux trois emplacements, avec un mot : **agrandir**. Trois tailles à comparer désormais. |
+| **La carte des étoiles S** | arrivée du voyage | ❌ **Ça coince** aux trois séances. Le 6 août : « à discuter dans Claude Code avec Hugo ». Ce n'est plus une question à poser devant un écran — elle sort de la séance et devient une conversation. |
+| **Le scintillement des étoiles** | partout | ❌ **Ça coince** aux trois séances, jamais de précision. Les cœurs font au moins un pixel, mesuré : la cause est ailleurs, et personne ne l'a cherchée. |
+| **La rotation du trou noir d'étude** | trou noir d'étude | ❌ Verdict du 6 août, mais rendu à travers une fenêtre deux fois et demie trop haute — voir plus haut. **À rejouer, la question n'a pas vraiment été posée.** |
+| **La console de tir** | fosse du salon | Sortie de la séance. « Quand je dis agrandir, je veux dire agrandir LE VAISSEAU, et mettre le canon dans une nouvelle salle. » C'est une aile de plus, pas un choix de taille. |
+| **Les lampes du bord** | dans le salon | Question posée avec le mauvais bouton. L'interrupteur existe maintenant vraiment. À rejouer un jour. |
 
-### Tranché le 6 août — plus besoin de personne
+### Tranché — plus besoin de personne
 
-- **Le quadrillage pendant le recul** → ça va.
+- **La présentation d'entrée** → ça va (6 août, troisième séance).
 - **La bulle de Lumen** → ça va.
+- **Le quadrillage pendant le recul** → ça allait à plat, mais Hugo a demandé
+  trois fois qu'il se lise en volume, la dernière le 6 août : « j'aimerai que le
+  quadrillage soit 3d, vertival aussi, la on a qune grille horizontale ».
+  **Fait** — des arêtes verticales relient désormais les trois nappes.
+  `outil-verif-recul.js` les surveille, ainsi que leur visibilité : le premier
+  jet les avait posées à 0,081 d'opacité contre 0,217 aux horizontales,
+  c'est-à-dire sous le seuil du visible, et la demande serait revenue une
+  quatrième fois. À confirmer d'un coup d'œil à la prochaine séance.
 
 ---
 

@@ -113,12 +113,14 @@ function arrondi(x){
 
    Chaque ligne porte en outre son propre alpha, décroissant vers le bord, pour
    que la grille se dissolve au lieu de s'arrêter net sur un rectangle. */
-function nappe(ctx, projette, maille, force){
-  if(force <= 0.004) return;
-  const n = 7;                              // lignes de part et d'autre
-  const etages = [[0, 1], [-3, 0.42], [3, 0.42]];   // hauteur en mailles, opacité
+const N = 7;                                        // lignes de part et d'autre
+const ETAGES = [[0, 1], [-3, 0.42], [3, 0.42]];     // hauteur en mailles, opacité
 
-  for(const [h, poids] of etages){
+function nappe(ctx, projette, maille, force, W, H){
+  if(force <= 0.004) return;
+  const n = N;
+
+  for(const [h, poids] of ETAGES){
     const y = h * maille;
     for(let i = -n; i <= n; i++){
       ctx.globalAlpha = 0.22 * force * poids * (1 - Math.abs(i)/(n + 1));
@@ -132,6 +134,87 @@ function nappe(ctx, projette, maille, force){
       if(c && e){ ctx.moveTo(c[0], c[1]); ctx.lineTo(e[0], e[1]); }
       ctx.stroke();
     }
+  }
+  montants(ctx, projette, maille, force, W, H);
+}
+
+/* LES MONTANTS — ce qui fait qu'on voit un volume et non des tapis.
+
+   Trois nappes empilées se lisent encore comme trois nappes : rien ne dit
+   qu'elles appartiennent au même objet, et l'œil n'a de fuite que dans le plan.
+   Hugo, trois fois plutôt qu'une, la dernière le 6 août : « j'aimerai que le
+   quadrillage soit 3d, vertical aussi, là on a qu'une grille horizontale. »
+
+   Ce sont les arêtes verticales qui donnent la troisième fuite. Elles relient
+   les étages, et c'est cette liaison — pas leur nombre — qui fait le volume.
+
+   TROIS CHOIX, ET LEURS RAISONS :
+
+   Une colonne sur deux. Les poser toutes rendrait la baie illisible ; le repère
+   doit rester une aide de lecture, et il est déjà déclaré comme telle.
+
+   Aucune ne passe par le centre. Les indices sont impairs, si bien que le
+   trou noir n'est jamais barré par un trait vertical — il est le sujet, pas un
+   nœud du quadrillage.
+
+   Elles ne sont PAS assombries. Premier jet, je les avais mises à moitié
+   d'opacité, en supposant qu'une arête verticale traverse toute la hauteur de
+   l'image et pèserait donc plus lourd à l'œil. Mesure faite sur une vraie image
+   depuis la baie : elles font 803 pixels de long en moyenne contre 1060 aux
+   horizontales — elles sont plus COURTES, pas plus longues, parce qu'elles ne
+   couvrent que six mailles de haut là où les autres en traversent quatorze.
+
+   À 0,081 contre 0,217, elles étaient sous le seuil du visible, et la demande
+   serait revenue une quatrième fois. Le léger retrait qui reste vient de la
+   décroissance par anneau, qui commence à un cran du centre.
+
+   On les groupe par anneau parce que leur opacité ne dépend que de
+   l'éloignement au centre : quatre tracés au lieu de soixante-quatre.
+
+   ---------------------------------------------------------------------------
+   POURQUOI ON DÉCOUPE, ET POURQUOI ON JETTE LES TRONÇONS TROP LONGS
+
+   `projette` rend `null` en deçà du plan rapproché. Une arête tracée d'un seul
+   trait disparaît donc ENTIÈREMENT dès qu'une seule de ses deux extrémités passe
+   derrière ce plan — et comme un montant est haut de six mailles, c'est-à-dire
+   la moitié de la distance au trou noir, ça lui arrive tout le temps. Mesuré
+   depuis la baie, en pleine décade : deux montants dessinés sur soixante-quatre.
+
+   Les deux survivants étaient pires que l'absence. Une extrémité posée juste au
+   bord du plan rapproché projette à l'infini : ils faisaient quatorze mille
+   pixels de long, deux traits qui balaient l'écran sans rien vouloir dire.
+
+   On découpe donc chaque montant, et l'on juge tronçon par tronçon. Ce qui
+   passe derrière le plan tombe seul, le reste tient. Et l'on écarte tout
+   tronçon dont la longueur à l'écran n'a plus de sens — c'est le symptôme d'une
+   extrémité rasant le plan rapproché, jamais celui d'une arête honnête. */
+const DECOUPE = 6;                 // tronçons par montant
+
+function montants(ctx, projette, maille, force, W, H){
+  const n = N;
+  const bas  = Math.min(...ETAGES.map(e => e[0])) * maille;
+  const haut = Math.max(...ETAGES.map(e => e[0])) * maille;
+  const limite = 2 * Math.hypot(W, H);          // au-delà, c'est une aberration
+
+  for(let anneau = 1; anneau <= n; anneau += 2){
+    ctx.globalAlpha = 0.22 * force * (1 - anneau/(n + 1));
+    if(ctx.globalAlpha < 0.004) continue;
+    ctx.beginPath();
+    let trace = false;
+    for(let i = -n; i <= n; i += 2)
+      for(let j = -n; j <= n; j += 2){
+        if(Math.max(Math.abs(i), Math.abs(j)) !== anneau) continue;
+        let prec = projette([i*maille, bas, j*maille]);
+        for(let k = 1; k <= DECOUPE; k++){
+          const y = bas + (haut - bas) * k/DECOUPE;
+          const p = projette([i*maille, y, j*maille]);
+          if(prec && p && Math.hypot(p[0]-prec[0], p[1]-prec[1]) < limite){
+            ctx.moveTo(prec[0], prec[1]); ctx.lineTo(p[0], p[1]); trace = true;
+          }
+          prec = p;
+        }
+      }
+    if(trace) ctx.stroke();
   }
 }
 
@@ -171,8 +254,8 @@ function dessineQuadrillage(ctx, W, H, projette, force){
   // des deux pour ne pas perdre le fil.
   const f = d.fraction * d.fraction * (3 - 2*d.fraction);
   const fine = Math.pow(10, d.entiere - 1);
-  nappe(ctx, projette, fine,      force * (1 - f));
-  nappe(ctx, projette, fine * 10, force * f);
+  nappe(ctx, projette, fine,      force * (1 - f), W, H);
+  nappe(ctx, projette, fine * 10, force * f,       W, H);
 
   // L'étiquette suit la maille DOMINANTE, et c'est elle qui fait sentir les
   // décades — un chiffre qui saute une fois, quand la grille, elle, coule.
