@@ -799,8 +799,8 @@ questions: [
   { id:"q6-1", t:`The geometry is exact: ring, shadow, disk folded over the top, all of it comes out of integrating the paths of light. The disk, on the other hand, is a <b>plausible invention</b>, not an observation — Sgr A* accretes very little, and its EHT image is a fuzzy ring at radio wavelengths, not this show.`,
     dire:`The geometry is exact: ring, shadow, disk folded over the top, all of it comes out of integrating the paths of light. The disk, on the other hand, is a plausible invention, not an observation. Sagittarius A star accretes very little, and its E H T image is a fuzzy ring at radio wavelengths, not this show.`,
     sources:["eht2022","yuan2014","luminet1979"] },
-  { id:"q6-2", t:`Exact gravitational optics, decorative astrophysics. The spin is there: at a ≠ 0 we switch to Kerr, with frame dragging, ergosphere and displaced ISCO — at the cost of a seam on the polar axis, singular in Boyer-Lindquist. Missing, on the other hand: radiative transfer in optically thin plasma, the thick geometry of a RIAF, and variability. A real render starts from GRMHD post-processing; here the emissivity is set by hand. <i>Card 8.</i>`,
-    dire:`Exact gravitational optics, decorative astrophysics. The spin is there: at non-zero spin, we switch to Kerr, with frame dragging, ergosphere and displaced I S C O, at the cost of a seam on the polar axis, singular in Boyer-Lindquist. Missing, on the other hand: radiative transfer in optically thin plasma, the thick geometry of a R I A F, and variability. A real render starts from G R M H D post-processing. Here, the emissivity is set by hand.`,
+  { id:"q6-2", t:`Exact gravitational optics, decorative astrophysics. The spin is there: at a ≠ 0 we switch to Kerr, with frame dragging, ergosphere and displaced ISCO, in Kerr-Schild coordinates where the polar axis is no longer singular. Missing, on the other hand: radiative transfer in optically thin plasma, the thick geometry of a RIAF, and variability. A real render starts from GRMHD post-processing; here the emissivity is set by hand. <i>Card 8.</i>`,
+    dire:`Exact gravitational optics, decorative astrophysics. The spin is there: at non-zero spin, we switch to Kerr, with frame dragging, ergosphere and displaced I S C O, in Kerr-Schild coordinates, where the polar axis is no longer singular. Missing, on the other hand: radiative transfer in optically thin plasma, the thick geometry of a R I A F, and variability. A real render starts from G R M H D post-processing. Here, the emissivity is set by hand.`,
     sources:["bardeen1972","yuan2014","eht2022"] },
 ]},
 { q:"Why don't the stars fall in?", niv:[
@@ -1098,8 +1098,8 @@ fiches: [
     2.40 in theory at a* = 0.9, and the inner edge of the disk following the ISCO.
     <b>What it does not simulate:</b> the ergosphere is not drawn, the slider stops
     at a* = 0.95 because the integrator loses its grip when the prograde photon orbit sticks to
-    the horizon, and a seam remains visible on the polar axis — a singularity of the
-    Boyer-Lindquist coordinates, not of the calculation.`,
+    the horizon. The polar axis no longer carries a seam: the engine now integrates
+    in Kerr-Schild, where those coordinates are not singular.`,
   ]
 },
 {
@@ -1443,7 +1443,6 @@ notes: {
       titre: "What our own code does badly",
       chapeau: "Our limits, not physics'.",
       points: [
-        "<b>A thin seam on the axis when the black hole spins.</b> The coordinates we use are singular there. The physics stays correct at that spot; it is the description that breaks. Fixing it would mean rewriting the engine in another system.",
         "<b>The onboard screens are drawn flat.</b> They have no true perspective, and nothing passes in front of them.",
         "<b>The disc stops at eleven radii.</b> A real accretion flow reaches much further, but its outer part is cold and dark; cutting it there costs the image little and saves a great deal of computation.",
         "<b>The well is too deep right near the edge.</b> Light does follow the true geodesics. But the probes are computed with a shortcut: Newton's gravity plus a correction term. That shortcut is excellent — it recovers the innermost stable orbit exactly, and exactly the periastron advance measured on the star S2. Its limit lies elsewhere: below two radii you would need to exceed the speed of light to leave, whereas the true answer is one radius. In other words, between one and two radii our probes are trapped a little too early.",
@@ -1533,9 +1532,9 @@ methode: [
  <p>The optics is exact; the astrophysics is not. The disk is a plausible
  texture, not a simulation of plasma flow.</p>
  <p>Rotation, though, <b>is</b> simulated: the spin slider switches over to the
- Kerr metric, the shadow goes off-center and the ISCO moves. But it has its own flaw, and
- we may as well say so: the coordinates used become singular on the polar axis, where
- a fine seam remains. The default image, with no rotation, is free of it.</p>`,
+ Kerr metric, the shadow goes off-center and the ISCO moves. It long carried a thin seam on the rotation
+ axis — a flaw of the coordinates used, not of the calculation. The engine now
+ integrates in Kerr-Schild, where that axis is not singular, and the seam is gone.</p>`,
 
 // ------------------------------------------------------------ Astrophysicist
 `<h3>Formulation</h3>
@@ -1584,14 +1583,13 @@ methode: [
  <ul>
    <li><b>Spin — partially simulated.</b> Two engines coexist and we switch on
        the value of <i>a</i>. At a = 0, Cartesian Schwarzschild integration, with
-       no coordinate singularity at all. At a ≠ 0, a Hamiltonian in Boyer-Lindquist with
-       Carter constant: frame dragging, ergosphere, displaced ISCO and
+       no coordinate singularity at all. At a ≠ 0, a Hamiltonian in Cartesian Kerr-Schild: frame dragging, ergosphere, displaced ISCO and
        prograde/retrograde asymmetry are then present. The validation bears on
        the <i>asymmetry</i> of the critical impact parameter — 2.30 measured against 2.40
        expected at a* = 0.9 — and not on the absolute values, the floor of the
-       pixel-based measurement being 5 to 7 %. Accepted limit: the polar axis is singular
-       by construction in Boyer-Lindquist, hence a fine seam when rotation is active;
-       fixing it would mean moving to Kerr-Schild.</li>
+       pixel-based measurement being 5 to 7 %. The polar axis no longer carries a seam: the move to Kerr-Schild has been made,
+       and those coordinates are not singular there. Measured before and after on the
+       same camera, the discontinuity on the axis drops from 78-310 levels to 2-26.</li>
    <li><b>The radio photosphere.</b> Its radius follows a law drawn from the
        measurements — the flow becomes opaque at long wavelength, and that is why
        the shadow is unobservable in the radio and why the Event Horizon Telescope

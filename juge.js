@@ -135,8 +135,22 @@ const DECISIONS = [
        pas voir. C'est exactement le défaut du drone, repayé.
 
        On l'emmène donc au télescope, panneau ouvert, réglages sous les yeux. */
-    quoi: "Les quatre rotations sont dans le panneau, en bas. Passe-les une à une "
-        + "et regarde l'astre par la baie : l'effet se voit, ou pas ?",
+    /* TROISIÈME FOIS QUE CETTE QUESTION EST POSÉE, ET LA PREMIÈRE OÙ ELLE PORTE
+       SUR CE QU'ELLE PRÉTEND.
+
+       Le matin, le verdict a porté sur ma fenêtre qui mangeait l'écran. Le soir,
+       sur des boutons que je posais hors de vue. À la troisième, il a enfin pu
+       regarder l'astre — et il a vu une trace verticale qu'il a appelée « buguée ».
+
+       C'était la couture de l'axe polaire, déclarée sept fois dans le contenu,
+       dont dans le panneau ouvert devant lui. Il l'a lue comme un bug quand même,
+       et il avait raison : une déclaration qu'il faut lire ne répare pas ce qu'on
+       voit. Le moteur a donc été réécrit en Kerr-Schild.
+
+       La question redevient donc celle qu'elle aurait toujours dû être. */
+    quoi: "Le moteur de rotation a été réécrit : la trace verticale que tu avais vue "
+        + "sur l'axe n'existe plus, c'est mesuré. Passe les quatre rotations et "
+        + "regarde l'astre par la baie — l'effet de la rotation se voit, ou pas ?",
     pose: () => {
       auSalon(0, 0.6, 0, -0.05);
       ouvreTelescope();

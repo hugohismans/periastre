@@ -801,8 +801,8 @@ questions: [
   { id:"q6-1", t:`La géométrie est exacte : anneau, ombre, disque replié par-dessus, tout sort de l'intégration des trajectoires de la lumière. En revanche le disque est une <b>invention plausible</b>, pas une observation — Sgr A* accrète très peu, et son image EHT est un anneau flou en ondes radio, pas ce spectacle.`,
     dire:`La géométrie est exacte : anneau, ombre, disque replié par-dessus, tout sort de l'intégration des trajectoires de la lumière. En revanche le disque est une invention plausible, pas une observation. Sagittarius A étoile accrète très peu, et son image de l'E H T est un anneau flou en ondes radio, pas ce spectacle.`,
     sources:["eht2022","yuan2014","luminet1979"] },
-  { id:"q6-2", t:`Optique gravitationnelle exacte, astrophysique décorative. Le spin est là : à a ≠ 0 on bascule sur Kerr, avec frame-dragging, ergosphère et ISCO déplacée — au prix d'une couture sur l'axe polaire, singulier en Boyer-Lindquist. Manquent en revanche le transfert radiatif en plasma optiquement mince, la géométrie épaisse d'un RIAF, et la variabilité. Un vrai rendu part d'un post-traitement GRMHD ; ici l'émissivité est posée à la main. <i>Fiche 8.</i>`,
-    dire:`Optique gravitationnelle exacte, astrophysique décorative. Le spin est là : à spin non nul, on bascule sur Kerr, avec frame-dragging, ergosphère et I S C O déplacée, au prix d'une couture sur l'axe polaire, singulier en Boyer-Lindquist. Manquent en revanche le transfert radiatif en plasma optiquement mince, la géométrie épaisse d'un R I A F, et la variabilité. Un vrai rendu part d'un post-traitement G R M H D. Ici, l'émissivité est posée à la main.`,
+  { id:"q6-2", t:`Optique gravitationnelle exacte, astrophysique décorative. Le spin est là : à a ≠ 0 on bascule sur Kerr, avec frame-dragging, ergosphère et ISCO déplacée, en coordonnées de Kerr-Schild où l'axe polaire n'a plus rien de singulier. Manquent en revanche le transfert radiatif en plasma optiquement mince, la géométrie épaisse d'un RIAF, et la variabilité. Un vrai rendu part d'un post-traitement GRMHD ; ici l'émissivité est posée à la main. <i>Fiche 8.</i>`,
+    dire:`Optique gravitationnelle exacte, astrophysique décorative. Le spin est là : à spin non nul, on bascule sur Kerr, avec frame-dragging, ergosphère et I S C O déplacée, en coordonnées de Kerr-Schild, où l'axe polaire n'a plus rien de singulier. Manquent en revanche le transfert radiatif en plasma optiquement mince, la géométrie épaisse d'un R I A F, et la variabilité. Un vrai rendu part d'un post-traitement G R M H D. Ici, l'émissivité est posée à la main.`,
     sources:["bardeen1972","yuan2014","eht2022"] },
 ]},
 { q:"Pourquoi les étoiles ne tombent pas dedans ?", niv:[
@@ -1101,8 +1101,8 @@ fiches: [
     2,40 en théorie à a* = 0,9, et le bord interne du disque qui suit l'ISCO.
     <b>Ce qu'elle ne simule pas :</b> l'ergosphère n'est pas figurée, le curseur s'arrête
     à a* = 0,95 car l'intégrateur décroche quand l'orbite photonique prograde se colle à
-    l'horizon, et une couture reste visible sur l'axe polaire — singularité des
-    coordonnées de Boyer-Lindquist, non du calcul.`,
+    l'horizon. L'axe polaire, lui, ne porte plus de couture depuis que le moteur
+    intègre en Kerr-Schild : ces coordonnées n'y sont pas singulières.`,
   ]
 },
 {
@@ -1453,7 +1453,6 @@ notes: {
       titre: "Ce que notre calcul fait mal",
       chapeau: "Nos limites à nous, pas celles de la physique.",
       points: [
-        "<b>Une fine couture sur l'axe, quand le trou noir tourne.</b> Les coordonnées employées y sont singulières. La physique reste juste à cet endroit ; c'est sa description qui s'y casse. Corriger demanderait de réécrire le moteur dans un autre système.",
         "<b>Les écrans du bord sont dessinés à plat.</b> Ils n'ont pas de perspective véritable, et rien ne passe devant eux.",
         "<b>Le disque s'arrête à onze rayons.</b> Un vrai flot d'accrétion s'étend beaucoup plus loin, mais sa partie externe est froide et sombre ; la couper là coûte peu à l'image et beaucoup moins cher à calculer.",
         "<b>Le puits est trop profond tout près du bord.</b> La lumière, elle, suit les vraies géodésiques. Mais les sondes sont calculées avec un raccourci : la gravité de Newton plus un terme correctif. Ce raccourci est excellent — il retrouve exactement la dernière orbite stable, et exactement l'avance du périastre qu'on a mesurée sur l'étoile S2. Sa limite est ailleurs : sous deux rayons, il faudrait dépasser la vitesse de la lumière pour repartir, alors que la vraie réponse est un rayon. Autrement dit, entre un et deux rayons, nos sondes sont prisonnières un peu trop tôt.",
@@ -1543,9 +1542,9 @@ methode: [
  <p>L'optique est exacte ; l'astrophysique ne l'est pas. Le disque est une texture
  plausible, pas une simulation d'écoulement de plasma.</p>
  <p>La rotation, elle, <b>est</b> simulée : le curseur de spin bascule sur la métrique de
- Kerr, l'ombre se décentre et l'ISCO se déplace. Mais elle a son propre défaut, et autant
- le dire : les coordonnées employées deviennent singulières sur l'axe polaire, où subsiste
- une fine couture. L'image par défaut, sans rotation, en est exempte.</p>`,
+ Kerr, l'ombre se décentre et l'ISCO se déplace. Elle a longtemps porté une fine couture sur
+ l'axe de rotation — un défaut des coordonnées employées, non du calcul. Le moteur
+ intègre désormais en Kerr-Schild, où cet axe n'a rien de singulier, et elle a disparu.</p>`,
 
 // ------------------------------------------------------------ Astrophysicien
 `<h3>Formulation</h3>
@@ -1594,14 +1593,13 @@ methode: [
  <ul>
    <li><b>Spin — partiellement simulé.</b> Deux moteurs cohabitent et l'on branche sur
        la valeur de <i>a</i>. À a = 0, l'intégration cartésienne de Schwarzschild, sans
-       aucune singularité de coordonnées. À a ≠ 0, un hamiltonien en Boyer-Lindquist avec
-       constante de Carter : frame-dragging, ergosphère, ISCO déplacée et asymétrie
+       aucune singularité de coordonnées. À a ≠ 0, un hamiltonien en Kerr-Schild cartésien : frame-dragging, ergosphère, ISCO déplacée et asymétrie
        prograde/rétrograde sont alors présents. La validation porte sur
        l'<i>asymétrie</i> du paramètre d'impact critique — 2,30 mesuré contre 2,40 attendu
        à a* = 0,9 — et non sur les valeurs absolues, le plancher de la mesure par pixels
-       étant de 5 à 7 %. Limite assumée : l'axe polaire est singulier par construction en
-       Boyer-Lindquist, d'où une couture fine quand la rotation est active ; la corriger
-       demanderait un passage en Kerr-Schild.</li>
+       étant de 5 à 7 %. L'axe polaire ne porte plus de couture : le passage en Kerr-Schild a été fait, et
+       ces coordonnées n'y sont pas singulières. Mesuré avant et après sur la même
+       caméra, la discontinuité sur l'axe tombe de 78-310 niveaux à 2-26.</li>
    <li><b>La photosphère radio.</b> Son rayon suit une loi tirée des mesures — le
        flux devient opaque à grande longueur d'onde, et c'est pour cette raison
        que l'ombre est inobservable en radio et que l'Event Horizon Telescope

@@ -207,8 +207,16 @@ vaisseaux.
 
 ## Dettes connues
 
-- **Couture sur l'axe polaire** en rotation : coordonnées de Boyer-Lindquist
-  singulières. Corriger demande de réécrire en Kerr-Schild.
+- ~~**Couture sur l'axe polaire** en rotation~~ — **payée le 6 août 2026.** Le
+  moteur de rotation est passé en Kerr-Schild, où l'axe n'est pas singulier.
+  Mesuré avant/après sur la même caméra : la discontinuité sur l'axe tombe de
+  78-310 niveaux à 2-26, et `VERIF.couture()` la garde. La branche a = 0 n'a pas
+  bougé, la table d'or non plus.
+
+  *Cette dette a tenu des semaines parce qu'elle était **déclarée** — sept fois
+  dans le contenu, dont le panneau ouvert devant Hugo au moment où il a écrit
+  « trace verticale buguée ». Une déclaration qu'il faut lire ne répare pas ce
+  qu'on voit. C'est la leçon, et elle vaut plus que la couture.*
 - **Écrans du bord en deux dimensions** : pas de perspective vraie, rien ne les
   occulte. La solution est de les passer en géométrie texturée.
 - **Cockpit enfermé dans une bande** sur écran large et court.

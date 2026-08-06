@@ -46,7 +46,26 @@ enfler. **Les verdicts de la troisième séance sont à relire avec ça en tête
 | **La console de tir** | fosse du salon | Sortie de la séance. « Quand je dis agrandir, je veux dire agrandir LE VAISSEAU, et mettre le canon dans une nouvelle salle. » C'est une aile de plus, pas un choix de taille. |
 | **Les lampes du bord** | dans le salon | Question posée avec le mauvais bouton. L'interrupteur existe maintenant vraiment. À rejouer un jour. |
 
-### La couture de l'axe — la décision qu'Hugo doit prendre
+### ✅ La couture de l'axe — tranchée et faite le 6 août au soir
+
+**Hugo a choisi la route 1 : réécrire le moteur.** C'est fait. La branche en
+rotation intègre en Kerr-Schild, où l'axe polaire n'a rien de singulier.
+
+Mesuré avant/après, même caméra, même code : la discontinuité sur l'axe passe de
+**78-310 niveaux à 2-26**, avec un témoin à rotation nulle qui donne 1,3 dans les
+deux cas — c'est lui qui prouve que la mesure ne raconte pas d'histoire.
+`VERIF.couture()` la garde désormais.
+
+La branche du trou noir immobile n'a pas été touchée, et la table d'or est
+identique au chiffre près. Le coût passe de 18,2 à 19,9 ms par image en rotation,
+soit sept pour cent.
+
+**Il reste ton œil.** Aucun de ces chiffres ne dit si c'est beau — et la question
+qui a déclenché le chantier t'attend dans la séance.
+
+<details><summary>Le raisonnement d'origine, gardé pour mémoire</summary>
+
+#### La couture de l'axe — la décision qu'Hugo devait prendre
 
 Le 6 août au soir, quatrième séance : « regarde le screenshot que je t'ai envoyé,
 il y a une trace verticale buguée quand on met une rotation au trou noir ».
@@ -79,6 +98,13 @@ dans un paragraphe, pas sur la couture.
    Ne change rien à l'image, change tout à sa lecture.
 
 Les routes 2 et 3 ne s'excluent pas, et aucune n'interdit la 1 plus tard.
+
+*Note d'après coup : la route 2 n'existait pas. J'avais annoncé une borne
+`sin θ ≥ 10⁻²` à resserrer ; elle valait déjà `10⁻⁷`, et le commentaire du code
+expliquait qu'on l'y avait mise exprès — la brider à 10⁻² causait une colonne
+d'artefacts bien pire. Il n'y avait pas de demi-mesure.*
+
+</details>
 
 ### Le bruit de fond du ciel — à revoir plus tard, sans urgence
 
