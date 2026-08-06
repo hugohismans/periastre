@@ -147,7 +147,76 @@ const DECISIONS = [
     montre: () => $$("etude-spin"),
     rend: () => { fermeTelescope(); },
   },
+
+  /* CE QU'IL A RELEVÉ AU PASSAGE, ET QUE PERSONNE NE LUI DEMANDAIT.
+
+     « L'apparition du cercle d'orbite des étoiles autour du trou noir n'est pas
+     fluide, ça pop d'un coup à la fin. » Quatrième défaut trouvé par le champ
+     libre — celui qui ne répond à rien.
+
+     J'ai mesuré avant de demander : le fondu de la carte monte de 0,0059 par
+     image au plus, sur cinq secondes. Il est lisse. Ce qui saute est donc AUTRE
+     CHOSE, et je ne sais pas quoi.
+
+     Plutôt que de lui redemander « qu'est-ce qui saute ? » — question à laquelle
+     personne ne sait répondre en regardant une seconde et demie — on lui donne
+     de quoi TRANCHER : la même arrivée, avec et sans le panneau qui s'ouvre. Si
+     le saut disparaît avec le panneau, c'est le panneau. C'est une expérience,
+     pas un sondage.
+
+     Et on se pose à quatre-vingt-dix pour cent du trajet : personne ne doit
+     attendre vingt-deux secondes pour revoir deux secondes. */
+  { id: "arrivee",
+    titre: "L'arrivée du voyage",
+    libre: true,
+    quoi: "Tu as noté que le cercle d'orbite « pop » d'un coup. J'ai mesuré le fondu : "
+        + "il est lisse sur cinq secondes, donc ce qui saute est autre chose. "
+        + "Bascule entre les deux boutons — même arrivée, une fois avec le panneau qui "
+        + "s'ouvre, une fois sans. Est-ce que le saut est encore là sans lui ?",
+    pose: () => rejoueArrivee(false),
+    options: [
+      { nom: "l'arrivée telle quelle",   fait: () => rejoueArrivee(false) },
+      { nom: "sans le panneau qui s'ouvre", fait: () => rejoueArrivee(true) },
+    ],
+    /* On rend le monde comme on l'a pris. Sans ça, la séance se termine et le
+       voyage armé continue : on est emmené à l'arrivée en pleine lecture du
+       rapport. Un protocole qui laisse le site dans un état qu'il n'avait pas
+       fausse ce qu'on regardera ensuite. */
+    rend: () => {
+      rendPoseArrivee();
+      fermeTelescope();
+      if(TELESCOPE.trajet){ TELESCOPE.trajet = null; TELESCOPE.retour = false; }
+      RECUL.etat.actif = false;
+      TELESCOPE.carte = 0;
+      $$("chrono").classList.remove("vu");
+      poseSalon();
+    },
+  },
 ];
+
+/* Rejouer les deux dernières secondes d'un voyage, en supprimant au besoin le
+   panneau d'arrivée. On remplace `poseArrivee` plutôt que de l'empêcher d'être
+   appelée : c'est le seul point par lequel le panneau se lève, et le rendre
+   muet ne change rien d'autre à la scène. */
+let vraiePoseArrivee = null;
+function rendPoseArrivee(){
+  if(vraiePoseArrivee){ global.poseArrivee = vraiePoseArrivee; vraiePoseArrivee = null; }
+}
+function rejoueArrivee(sansPanneau){
+  rendPoseArrivee();
+  if(sansPanneau){
+    vraiePoseArrivee = global.poseArrivee;
+    global.poseArrivee = function(){ /* muet, le temps de la comparaison */ };
+  }
+  fermeTelescope();
+  auSalon(0, 0.6, 0, -0.05);
+  if(TELESCOPE.trajet){ TELESCOPE.trajet = null; TELESCOPE.retour = false; }
+  RECUL.etat.actif = false;
+  TELESCOPE.carte = 0;                      // on repart d'une carte éteinte
+  const d = DESTINATIONS[0];
+  lanceVoyage(d, VOYAGE.entre(distanceVaisseau(), d.d_m));
+  RECUL.etat.t = 0.90;                      // l'arrivée tombe dans deux secondes
+}
 
 // ================================================================== l'écran
 const style = document.createElement("style");
