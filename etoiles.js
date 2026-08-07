@@ -381,7 +381,41 @@ function entree(t){
   vue.echelle = ZOOM_ENTREE + (1 - ZOOM_ENTREE)*doux;
 }
 
-global.ETOILES_S = { ETOILES, position, dessine, tourne, zoome, entree, vue,
+/* ------------------------------------------- LE CADRE SUIT LA DISTANCE
+
+   Hugo, 7 août 2026 : « la taille des orbites doit être relative à la distance
+   à laquelle on est du trou noir pendant le voyage. »
+
+   `entree` faisait dépendre l'échelle de l'OUVERTURE DU PANNEAU — une animation
+   d'interface. Elle dépend maintenant d'où l'on est : serrée au départ, quand on
+   est encore dans l'essaim, desserrée jusqu'à son cadre final à l'arrivée.
+
+   CE QUE ÇA N'EST TOUJOURS PAS, et il faut le dire : une perspective. La vraie
+   loi serait en 1/d, ce qui mettrait les orbites mille fois trop grandes au
+   départ — hors de tout écran. On interpole donc LINÉAIREMENT EN LOGARITHME de
+   la distance, ce qui est monotone, continu, et rend le geste du recul sans
+   prétendre à une vue. La carte reste une reconstruction, le site le dit, et à
+   l'arrivée le vaisseau est DANS l'essaim : il ne pourrait physiquement pas le
+   voir de l'extérieur.
+
+   C'est un compromis de mise en scène, et il se déclare comme tel.            */
+function cadre(distance_m, depart_m, arrivee_m){
+  const a = Math.log(Math.max(arrivee_m, 1)), d = Math.log(Math.max(depart_m, 1));
+  const x = Math.log(Math.max(distance_m, 1));
+  // 0 à l'arrivée, 1 au départ. Si le trajet est nul, on reste au cadre final.
+  const f = Math.abs(a - d) < 1e-9 ? 0 : Math.max(0, Math.min(1, (a - x)/(a - d)));
+
+  /* Au tout début d'un recul, le cadrage automatique REPREND LA BARRE. C'est le
+     rôle que tenait `entree(t < 0.01)` : sans lui, une carte qu'on avait zoomée
+     à la main restait figée à cette échelle pour tous les voyages suivants —
+     et, à la première exécution, `pilotee` n'étant jamais passé à vrai, l'échelle
+     restait bloquée à 1. Mesuré, et c'est ce qui a rattrapé l'oubli. */
+  if(f > 0.999) vue.pilotee = true;
+  if(!vue.pilotee) return;               // quelqu'un a zoomé : on ne lui reprend pas
+  vue.echelle = 1 + (ZOOM_ENTREE - 1)*f;
+}
+
+global.ETOILES_S = { ETOILES, position, dessine, tourne, zoome, entree, cadre, vue,
                      demiEtendue, ZOOM_ENTREE };
 
 })(window);

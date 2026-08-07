@@ -64,8 +64,23 @@ const fs = require("fs"), path = require("path");
 
    Il reste treize lignes de câblage irréductible, plus trois de repli. Le
    plafond monte donc de 4 298 à 4 314, et redescendra au prochain domaine
-   sorti. */
-const PLAFOND = 4314;
+   sorti.
+
+   PUIS 4 343, LE MÊME SOIR ET POUR LE MÊME CHANTIER. Le découpage de la carte
+   à l'ouverture de la baie — « la trace des orbites est devant la vitre dans le
+   vaisseau » — demande de projeter les trois vitres et de tailler le calque.
+
+   Là encore le cliquet a fait son travail avant de céder : la GÉOMÉTRIE des
+   vitres est partie dans `vaisseau.js`, où elle vit à côté des montants qu'elle
+   doit éviter et où une formule dupliquée aurait fini par diverger. Ce qui
+   reste dans la page est la projection et la taille du calque, qui ne peuvent
+   pas en sortir — elles ont besoin de la caméra de la pièce et du contexte de
+   dessin.
+
+   Deux hausses en une soirée, c'est beaucoup, et c'est le même chantier qui les
+   demande. Le prochain qui touche à ce bloc devrait sortir un domaine entier
+   plutôt qu'ajouter une ligne : la marge est consommée. */
+const PLAFOND = 4343;
 
 // Le nombre de modules déjà sortis. Il ne descend jamais non plus : un module
 // qu'on ferait rentrer dans le bloc serait le contraire exact du chantier.

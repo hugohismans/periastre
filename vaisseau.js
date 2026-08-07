@@ -39,6 +39,33 @@ const OEIL = 1.62;
 // Ouverture de la baie, dans le mur du fond
 const BAIE = { x:6.2, bas:0.30, haut:2.72, montants:2 };
 
+const DEMI_MONTANT = 0.048;   // la demi-épaisseur d'un montant de baie
+
+/* LES TROIS VITRES, en coordonnées de la pièce.
+
+   L'ouverture moins ses montants. Ça existe parce que la carte des orbites est
+   un calque à deux dimensions posé sur tout l'écran : Hugo, 7 août 2026, « la
+   trace des orbites est devant la vitre dans le vaisseau, on n'a pas
+   l'impression que c'est à l'extérieur ». Pour la découper à l'ouverture, il
+   faut savoir où l'ouverture est — et cette connaissance appartient à la
+   géométrie du vaisseau, pas à la page.
+
+   Les montants sont posés plus bas par la même formule ; si l'une des deux
+   change sans l'autre, le découpage cessera de tomber sur le métal. C'est le
+   genre de duplication qu'on ne veut pas, d'où cette fonction plutôt qu'un
+   calcul recopié ailleurs. */
+function vitres(){
+  const g = -BAIE.x/2, z = -P/2, r = [];
+  let x = g;
+  for(let i = 1; i <= BAIE.montants; i++){
+    const c = g + BAIE.x*i/(BAIE.montants + 1);
+    r.push({ x0:x, x1:c - DEMI_MONTANT, y0:BAIE.bas, y1:BAIE.haut, z });
+    x = c + DEMI_MONTANT;
+  }
+  r.push({ x0:x, x1:g + BAIE.x, y0:BAIE.bas, y1:BAIE.haut, z });
+  return r;
+}
+
 // La fosse d'observation : on descend vers la vitre.
 const FOSSE = -0.58;
 const ZF = -P/2 + 2.6;      // son bord, côté salle
@@ -509,7 +536,7 @@ function dessine(gl){
 }
 
 global.VAISSEAU = { L, H, P, OEIL, FOSSE, ZF, RAMPE, BAIE, POSTES, TELESCOPE, TIR, AMBRE, CYAN,
-                    construit, poseTir, dessine, dessineCube,
+                    construit, poseTir, dessine, dessineCube, vitres,
                     get sommets(){ return nSommets; } };
 
 })(window);
