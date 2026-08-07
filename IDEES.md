@@ -1523,6 +1523,153 @@ Trois conséquences, à ne pas défaire :
 
 ---
 
+# Le cours attaché à l'expérience — *7 août 2026*
+
+Idée d'Hugo, dictée en marchant, donnée explicitement comme **à faire plus tard**.
+Elle n'est pas prise en chantier ; elle est écrite ici pour ne pas se reperdre.
+
+> « On va aborder des sujets physiques, et l'idée du jeu c'est de les faire
+> vivre. Mais j'aimerais que non seulement ce soit sourcé, mais que sur la
+> plupart des expériences qu'on propose, tu puisses appuyer sur **H** comme help,
+> et ça t'ouvre un petit cours sur le sujet qu'on est en train de vivre. »
+
+
+## Le principe
+
+L'expérience se vit d'abord, le cours vient **après et à la demande**. On ne
+lit pas pour comprendre ce qu'on va voir ; on voit, on est intrigué, on appuie
+sur H. C'est l'ordre inverse de celui d'un manuel, et c'est tout l'intérêt.
+
+Le cas d'école, qui est aussi le premier à écrire : **le voyage vers Sagittarius
+A\***. Le jeu annonce le décalage — des dizaines de milliers d'années passées
+sur Terre pour quelques années à bord. C'est un fait brut et il ne s'explique
+pas tout seul. H ouvre alors un cours de relativité restreinte qui dit *pourquoi*.
+
+
+## La référence — un exemple de registre, pas un modèle à copier
+
+`https://hugohismans.github.io/temps-propre/` — « Comment avoir un plancher dans
+l'espace ». Hugo l'a faite avec une autre session, et il la donne pour montrer
+l'idée, pas comme une norme : bilingue, sectionnée, des tableaux de chiffres
+concrets, les formules montrées à nu, un schéma qu'on manipule (on tire le rayon
+de la roue, la vitesse de rotation suit), et une section **THE CATCH** qui dit
+franchement ce qu'aucune machine ne sait faire.
+
+Ce qu'on en retient : *« des petits schémas, des petits graphiques, des petits
+trucs interactifs »*. Et le mot qui revient trois fois dans sa dictée : **ludique**.
+Explicatif et profond, mais jamais austère.
+
+Cette page contient **déjà** la ligne du centre galactique — 27 000 années-lumière,
+avec le temps à bord et le temps terrestre côte à côte — et les deux formules qui
+la produisent :
+
+    τ = (2c/a) · arccosh( 1 + aD / 2c² )        le temps propre, à bord
+    T = 2 · √( (D/2c)² + D/a )                  le temps terrestre
+
+**Aucun de ces chiffres ne part en production tel quel.** Règle 6 du dépôt : jamais
+de valeur recopiée. On les redérive des formules, on les fait tomber dans un
+`outil-verif-*`, et alors seulement ils s'écrivent. La page de référence dit quoi
+calculer, pas quoi copier.
+
+
+## Ce qui compte le plus : on manipule, on ne lit pas seulement
+
+C'est la précision décisive de la dictée, et elle déplace le projet :
+
+> « Des petits sliders pour faire des expériences. Si je vais là, si je vais là,
+> ça fait quoi. Et c'est à propos de ce qu'on est en train de vivre dans le jeu. »
+
+Un cours qui se lit reste un texte, et un texte se saute. Un cours où l'on tire
+un curseur *devient une expérience à son tour* — la même mécanique que le jeu,
+en plus petit et en plus lent, avec le droit de revenir en arrière.
+
+Concrètement, pour le voyage : un curseur de **destination** (ou de distance),
+un curseur d'**accélération**, et deux horloges qui répondent côte à côte, celle
+du bord et celle de la Terre. On pousse la distance et l'on voit de ses yeux la
+chose contre-intuitive — le temps à bord grandit comme le *logarithme* de la
+distance, pendant que le temps terrestre explose. Multiplier la distance par
+quatre-vingt-dix n'ajoute que quelques années au voyageur. Ça ne se raconte pas
+bien ; ça se manipule très bien.
+
+**Et cette partie-là est vérifiable, contrairement à un texte.** Un curseur qui
+calcule doit tomber sur les mêmes chiffres qu'un `outil-verif-*` qui les dérive
+autrement — c'est exactement ce que fait déjà le graphique du recul dans
+`journal.js`, calculé depuis les formules du simulateur et non dessiné à la main.
+Le cours hérite donc du filet du dépôt au lieu d'être une zone de confiance
+aveugle. C'est un argument de plus pour ne pas le traiter comme du contenu inerte.
+
+**La recherche pédagogique est un travail à part entière**, et Hugo l'a nommée.
+Chercher comment ces notions s'enseignent réellement — ce qui bloque, quelles
+images marchent, lesquelles installent des contresens durables — avant d'écrire.
+S'inspirer de ce qui existe, à condition que chaque fait reparte dans
+`contenu.js` avec sa source.
+
+
+## Ce sur quoi ça tombe — et c'est la bonne nouvelle
+
+Presque toute la machine existe déjà, construite pour le blog :
+
+- `journal.js` / `journal.html` — **trois niveaux de lecture** (tout le monde /
+  intermédiaire / technique) et **trois langues**, avec KaTeX pour les formules,
+  des chapitres qui se replient, et des graphiques SVG calculés depuis les mêmes
+  formules que le simulateur plutôt que dessinés à la main. Les trois niveaux
+  qu'Hugo redemande ici sont exactement ceux-là.
+- `contenu.js` + `outil-verif-contenu.js` — le sourçage n'est pas une intention,
+  c'est un contrôle : une affirmation factuelle sans clé de source fait échouer
+  l'outil. Le « que ce soit sourcé » de la demande est déjà tenu par une machine.
+- La touche **H est libre** — vérifié le 7 août, aucune liaison dans `index.html`
+  ni dans les modules.
+
+Ce qui manque est donc court, et aucune de ces trois pièces n'est de la
+plomberie profonde :
+
+1. **Le lien contextuel** — savoir quel cours ouvrir depuis où l'on est. Une
+   table `lieu / expérience → cours`, et une garde qui refuse un renvoi mort,
+   sur le modèle du `montre` de `juge.js`.
+2. **L'index** — une page qui liste tous les cours écrits. Elle existera de toute
+   façon pour le blog ; la question est si c'est la même.
+3. **Les cours eux-mêmes.** C'est là qu'est le coût réel, et aucune
+   infrastructure ne l'enlève.
+
+
+## La décision à prendre, le jour où on s'y met
+
+**Les cours et les billets du blog sont-ils le même objet ?**
+
+Pour : même moteur, même index, une seule machine à entretenir, et les trois
+niveaux sont déjà là.
+
+Contre : ils ne répondent pas à la même question. Un billet se lit pour
+lui-même et raconte une trouvaille ; un cours répond à « qu'est-ce que je viens
+de voir ». Les mélanger dans un même index peut donner un fourre-tout où l'on ne
+trouve plus la relativité restreinte parce qu'elle est coincée entre deux notes
+de chantier.
+
+Piste, à trancher à ce moment-là et pas maintenant : **un seul moteur, deux
+familles**, chacune avec son entrée — le blog se lit en ligne, le cours s'ouvre
+depuis l'expérience — et un index commun qui les sépare visiblement.
+
+
+## Le vrai risque, nommé
+
+Écrire un cours de relativité restreinte à trois niveaux, sourcé, dans trois
+langues, avec ses instruments à curseurs, c'est un travail d'écriture et de
+pédagogie — pas de code. Le tenter sur dix sujets à la fois donnera dix
+brouillons. **Un seul cours, complet, éprouvé sur l'œil d'Hugo** — et on décide
+ensuite si on continue.
+
+Le candidat est évident : celui du voyage, puisque le décalage est déjà affiché
+dans le jeu et qu'il n'est aujourd'hui expliqué nulle part.
+
+Un piège à éviter dès le premier : **le niveau débutant n'est pas le niveau
+technique amputé.** Hugo le décrit comme « si on veut juste comprendre un peu
+plus » — c'est une porte, pas un résumé. Les trois niveaux des fiches existantes
+ont déjà buté là-dessus, et `AUDIT-NIVEAUX.md` en garde la trace.
+
+
+
+---
+
 # Le journal
 
 
