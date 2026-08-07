@@ -85,6 +85,26 @@ joué, `?juge` la séance de jugement.
 
 ---
 
+## Le cap — ce qu'Hugo lit, lui
+
+`cap.html` est sa feuille de route : le but du jeu, une ligne du temps, l'état
+des fondations, les chantiers, ses propres idées, et une boîte à idées de mon
+côté. Elle n'est liée depuis aucune page et porte `noindex`. Tous les autres
+documents du dépôt sont écrits pour moi ; **celui-là est écrit pour lui**, et il
+ne doit jamais devenir un dossier technique.
+
+Elle ne se met **pas** à jour à chaque session — il l'a explicitement refusé, ce
+serait trop lourd. À la place :
+
+1. J'écris quelques lignes dans `JOURNAL-DE-BORD.md` en fin de session.
+2. Quand ce fichier a assez grossi, ou qu'une direction change, je propose :
+   **« on refait le cap ? »**
+3. On remet `cap.html` d'aplomb, et la date en tête change.
+
+Il peut aussi le déclencher lui-même : « on refait le cap ».
+
+---
+
 ## Architecture
 
 Le gros de l'application est encore dans `index.html`. Le chantier **F2** en
