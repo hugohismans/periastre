@@ -2244,11 +2244,11 @@ void main(){
     l = /^fr/i.test(navigator.language || "fr") ? "fr" : "en";
   window.LANGUE = l;
   document.documentElement.lang = l;
-  document.write('<script src="' + (l === "en" ? "contenu.en.js" : "contenu.js") + '?v=a435bb1"><\/script>');
+  document.write('<script src="' + (l === "en" ? "contenu.en.js" : "contenu.js") + '?v=4bcc302"><\/script>');
   // Les chaînes d'interface : le français TOUJOURS, l'anglais par-dessus. Une
   // clé oubliée retombe ainsi sur une phrase, jamais sur un identifiant nu.
-  document.write('<script src="ui.fr.js?v=a435bb1"><\/script>');
-  if(l === "en") document.write('<script src="ui.en.js?v=a435bb1"><\/script>');
+  document.write('<script src="ui.fr.js?v=4bcc302"><\/script>');
+  if(l === "en") document.write('<script src="ui.en.js?v=4bcc302"><\/script>');
 })();
 </script>
 <!-- ══════════════════════════════════════════════════════════════════════════
@@ -2267,16 +2267,16 @@ void main(){
 <!-- La physique, sortie du bloc principal. Elle ne touche ni au document ni à
      WebGL, et son extraction rend le banc d'essai exécutable en ligne de
      commande — donc vérifiable sans navigateur. Premier morceau du chantier F2. -->
-<script src="physique.js?v=a435bb1"></script>
+<script src="physique.js?v=4bcc302"></script>
 <!-- Ce qui vole. Deuxième morceau de F2, et le socle de la salle de tir
      balistique : elle ne sera que `destin()` avec une vitesse choisie. -->
-<script src="vol.js?v=a435bb1"></script>
+<script src="vol.js?v=4bcc302"></script>
 <!-- L'horloge. Troisième morceau de F2, et celui qui rend structurellement
      impossible le défaut du disque à 622× : le temps simulé n'y est accessible
      qu'en lecture, et un second écrivain devient indicible. -->
-<script src="temps.js?v=a435bb1"></script>
-<script src="kerr.js?v=a435bb1"></script>
-<script src="vaisseau.js?v=a435bb1"></script>
+<script src="temps.js?v=4bcc302"></script>
+<script src="kerr.js?v=4bcc302"></script>
+<script src="vaisseau.js?v=4bcc302"></script>
 <!-- Marcher dans la pièce. Quatrième morceau de F2 : une fois sorti du bloc, on
      peut promener un corps dans le décor SANS navigateur — et le premier
      balayage a trouvé qu'on traversait le télescope.
@@ -2284,8 +2284,8 @@ void main(){
      APRÈS `vaisseau.js`, et l'ordre n'est pas négociable : le mobilier se
      construit à partir de la géométrie de la pièce, dès le chargement. Placé
      avant, il ne trouvait rien et emportait tout le bloc principal avec lui. -->
-<script src="arpente.js?v=a435bb1"></script>
-<script src="personnage.js?v=a435bb1"></script>
+<script src="arpente.js?v=4bcc302"></script>
+<script src="personnage.js?v=4bcc302"></script>
 <!-- `pantheon.js` N'EST PLUS CHARGÉ, et c'est délibéré.
 
      Il était chargé à chaque visite et `PANTHEON` n'était appelé nulle part —
@@ -2297,27 +2297,28 @@ void main(){
      pas encore — voir CHUTE.md, écrit et jamais branché. Le jour où la salle de
      tir existera, cette ligne revient telle quelle.
 
-     <script src="pantheon.js?v=a435bb1"></script> -->
+     <script src="pantheon.js?v=4bcc302"></script> -->
 
-<script src="robot.js?v=a435bb1"></script>
-<script src="musique.js?v=a435bb1"></script>
+<script src="robot.js?v=4bcc302"></script>
+<script src="musique.js?v=4bcc302"></script>
 
 <!-- Le voyage. L'ordre compte : recul.js appelle VOYAGE.entre au chargement de
      ses propres constantes, donc voyage1g.js doit être passé avant lui. -->
-<script src="voyage1g.js?v=a435bb1"></script>
-<script src="recul.js?v=a435bb1"></script>
-<script src="etoiles.js?v=a435bb1"></script>
-<script src="format.js?v=a435bb1"></script>
-<script src="spectre.js?v=a435bb1"></script>
-<script src="banc.js?v=a435bb1"></script>
-<script src="ecrans.js?v=a435bb1"></script>
-<script src="dossier.js?v=a435bb1"></script>
-<script src="calque.js?v=a435bb1"></script>
-<script src="habitacle.js?v=a435bb1"></script>
-<script src="libelles.js?v=a435bb1"></script>
-<script src="resolution.js?v=a435bb1"></script>
-<script src="registre.js?v=a435bb1"></script>
-<script src="cockpit.js?v=a435bb1"></script>
+<script src="voyage1g.js?v=4bcc302"></script>
+<script src="recul.js?v=4bcc302"></script>
+<script src="etoiles.js?v=4bcc302"></script>
+<script src="format.js?v=4bcc302"></script>
+<script src="spectre.js?v=4bcc302"></script>
+<script src="banc.js?v=4bcc302"></script>
+<script src="ecrans.js?v=4bcc302"></script>
+<script src="dossier.js?v=4bcc302"></script>
+<script src="calque.js?v=4bcc302"></script>
+<script src="habitacle.js?v=4bcc302"></script>
+<script src="libelles.js?v=4bcc302"></script>
+<script src="resolution.js?v=4bcc302"></script>
+<script src="registre.js?v=4bcc302"></script>
+<script src="cockpit.js?v=4bcc302"></script>
+<script src="camera.js?v=4bcc302"></script>
 <script>
 "use strict";
 
@@ -2880,203 +2881,107 @@ function mvpSalon(){
 // ============ vecteurs ============
 const { cross, dot, len, norm } = PHYSIQUE;
 
-// ============ caméra ============
-const cam = { dist:21, elev:0.17, azim:0.6 };
-const FOCAL = 1.55;
-let basis = { d:[1,0,0], h:[0,1,0], a:[0,0,1] }, camPos = [0,0,0];
+/* ============ caméra ============
 
-// Vue embarquée : caméra dans une sonde en orbite.
+   Le domaine est sorti dans `camera.js` : les trois repères, l'aberration, et
+   les deux ponts entre le monde et le pixel. Rien de tout cela ne touchait au
+   document, et rien n'était éprouvable sans navigateur.
+
+   Ce qui reste ici est exactement ce qui ne pouvait pas sortir : l'objet que la
+   page détient, la sonde suivie, la mesure de l'image, et le bouton.
+
+   `pos`, `base` et `vitesse` sont devenus des CHAMPS de `cam`. C'étaient trois
+   variables réassignées ; les lier dans un module en aurait figé la valeur du
+   moment. La leçon de `nChute` a coûté assez cher pour ne pas la repayer. */
+const cam = CAMERA.etat();
+const FOCAL = CAMERA.FOCAL;
+const regard = cam.regard;
+
+// Quelle sonde. `lieu` porte la question distincte : est-on dessus. Aucune des
+// deux n'appartient à la caméra — elle les reçoit, et rend ce qu'elle en veut.
 let sondeSuivie = null;
-const regard = { lacet: 0, tangage: 0 };
-let vitesseLocale = [0, 0, 0];
 
-// Depuis le salon, la caméra est celle d'une personne debout derrière la baie.
-// Le vaisseau orbite lentement, en temps réel — le salon ne triche pas.
-function majCameraSalon(){
-  const P = salon.p;
-  camPos = [P[0], P[1], P[2]];
-  // Repère de la pièce dans le monde. La baie regarde l'astre — mais PAS
-  // exactement : un vaisseau ne se recale pas en permanence. Sans ce décalage,
-  // l'astre reste cloué au centre de la fenêtre et rien ne semble bouger,
-  // alors même qu'on file autour de lui.
-  const vise = norm([-P[0], -P[1], -P[2]]);
-  const nOrb = norm(cross(salon.p, salon.v));
-  // En temps RÉEL, pas en temps simulé : TEMPS.geo est accéléré 850 fois, et la
-  // dérive devenait un balayage frénétique. Une respiration de trente secondes.
-  const ts = salon.horloge;
-  const ang = 0.10*Math.sin(ts*0.21) + 0.045*Math.sin(ts*0.073);
-  // rotation de `vise` autour de la normale orbitale (formule de Rodrigues)
-  const ca = Math.cos(ang), sa = Math.sin(ang);
-  const cr = cross(nOrb, vise), pd = dot(nOrb, vise);
-  const f = norm([
-    vise[0]*ca + cr[0]*sa + nOrb[0]*pd*(1-ca),
-    vise[1]*ca + cr[1]*sa + nOrb[1]*pd*(1-ca),
-    vise[2]*ca + cr[2]*sa + nOrb[2]*pd*(1-ca),
-  ]);
-  const d0 = norm(cross(f, [0,1,0]));
-  const h0 = cross(d0, f);
-  // Le regard tourne dans ce repère, exactement comme dans la pièce.
-  const { av, dr } = regardSalon();
-  const versMonde = v => [
-    v[0]*d0[0] + v[1]*h0[0] - v[2]*f[0],
-    v[0]*d0[1] + v[1]*h0[1] - v[2]*f[1],
-    v[0]*d0[2] + v[1]*h0[2] - v[2]*f[2],
-  ];
-  const a = norm(versMonde(av)), d = norm(versMonde(dr));
-  basis = { d, h: cross(d, a), a };
+/* LA MÊME MESURE DE L'IMAGE POUR L'ALLER ET POUR LE RETOUR.
 
-  // Où est l'astre DANS la pièce ? C'est lui la source : quand il dérive dans
-  // la baie, la lumière doit balayer le sol et les parois avec lui.
-  salon.versAstre = norm([dot(vise, d0), dot(vise, h0), -dot(vise, f)]);
-  // Et il éclaire d'autant plus qu'on est près : le flux suit l'angle solide.
-  const r = len(P);
-  salon.eclat = Math.min(3.2, Math.pow(16/Math.max(r, 4), 2));
+   `projette` lisait `vueH || cv.clientHeight` ; `surLePlan` lisait
+   `cv.clientHeight` nu. Deux mesures de la même image, pour deux fonctions qui
+   sont l'inverse exacte l'une de l'autre. Sur un téléphone dont la barre
+   d'adresse se rétracte, l'écart atteint soixante-quatre pixels : le clic vise
+   alors à côté du point qu'on lui montrait, horizontalement et pas verticalement
+   — la signature d'une faute de physique, pour une faute d'unité. Le commentaire
+   qui décrivait ce piège n'en avait réparé qu'une des deux moitiés.
+
+   L'objet est réutilisé plutôt que reconstruit : `projette` est appelée une fois
+   par sonde, par trace et par repère, à chaque image. */
+const VUE = { W: 0, H: 0 };
+function vue(){
+  VUE.W = vueW || cv.clientWidth;
+  VUE.H = vueH || cv.clientHeight;
+  return VUE;
 }
 
-/* La caméra suit le LIEU, elle ne le devine plus.
+/* LA PORTE S'OUVRE POUR DE BON, ET LE SECOND ÉCRIVAIN DE `lieu` DISPARAÎT.
 
-   Elle interrogeait auparavant les drapeaux dans un ordre convenu — salon, puis
-   sonde, puis vue libre — et c'est précisément ce qui rendait un conflit muet :
-   deux drapeaux vrais, et elle prenait le premier sans rien dire. Ici, il n'y a
-   qu'une valeur, et le `switch` la couvre entièrement. */
+   Cette fonction écrivait `lieu = "libre"` directement quand la sonde suivie
+   s'était évaporée — une seconde écriture, à trois cents lignes d'une ligne qui
+   se déclarait « l'unique écriture de tout le fichier ». La garantie centrale de
+   la fondation F1 était fausse, et documentée comme vraie depuis des semaines.
+
+   Elle ne pouvait pas passer par la porte tant qu'elle vivait DEDANS : `vaAu`
+   appelle `majCamera`, et s'appeler soi-même depuis son propre appelé est le
+   genre de cycle qu'on ne débogue pas. Maintenant que le calcul est parti, la
+   décision revient ici, EN DEHORS de lui — le module range la caméra et se
+   contente de DEMANDER le décrochage. La récursion s'arrête d'elle-même : `vaAu`
+   refuse un lieu déjà courant, et `majCamera()` est sa dernière instruction. */
 function majCamera(){
-  if(lieu === "salon"){ majCameraSalon(); return; }
-  if(lieu === "sonde"){
-    // La sonde a pu tomber ou fuir entre-temps : on redescend proprement plutôt
-    // que de rester accroché à un objet qui n'existe plus.
-    if(sondeSuivie !== null && sondes[sondeSuivie]){ majCameraSonde(); return; }
-    sondeSuivie = null;
-    lieu = "libre";
-    majBoutonSonde();
-  }
-  vitesseLocale = [0, 0, 0];
-  const ce = Math.cos(cam.elev), se = Math.sin(cam.elev);
-  camPos = [ cam.dist*ce*Math.cos(cam.azim), cam.dist*se, cam.dist*ce*Math.sin(cam.azim) ];
-  const a = norm([-camPos[0], -camPos[1], -camPos[2]]);
-  const d = norm(cross(a, [0,1,0]));
-  basis = { d, h: cross(d, a), a };
-}
-
-function majCameraSonde(){
-  const s = sondes[sondeSuivie];
-  camPos = [...s.p];
-  const r = len(camPos);
-  const rh = [camPos[0]/r, camPos[1]/r, camPos[2]/r];
-
-  // Vitesse telle que la mesure l'observateur statique local : son temps est
-  // ralenti de √(1−r_s/r) et sa règle radiale étirée d'autant. C'est cette
-  // vitesse-là qui gouverne l'aberration, pas la vitesse en coordonnées.
-  const f  = Math.max(1 - R_HORIZON/r, 1e-3);
-  const vr = dot(s.v, rh);
-  const vt = [s.v[0]-vr*rh[0], s.v[1]-vr*rh[1], s.v[2]-vr*rh[2]];
-  const nt = len(vt);
-  const th = nt > 1e-9 ? [vt[0]/nt, vt[1]/nt, vt[2]/nt] : [0,0,0];
-  const vrl = vr/f, vtl = nt/Math.sqrt(f);
-  let vl = [ vrl*rh[0]+vtl*th[0], vrl*rh[1]+vtl*th[1], vrl*rh[2]+vtl*th[2] ];
-  const n = len(vl);
-  if(n > 0.97) vl = [vl[0]*0.97/n, vl[1]*0.97/n, vl[2]*0.97/n];
-  vitesseLocale = vl;
-
-  // Repère de base : on regarde le trou noir, « haut » = normale de l'orbite.
-  const a0 = [-rh[0], -rh[1], -rh[2]];
-  let no = cross(s.p, s.v);
-  if(len(no) < 1e-9) no = [0,1,0];
-  no = norm(no);
-  if(no[1] < 0) no = [-no[0], -no[1], -no[2]];       // garder le nord en haut
-  let d0 = cross(a0, no);
-  if(len(d0) < 1e-6) d0 = cross(a0, [1,0,0]);
-  d0 = norm(d0);
-  const h0 = cross(d0, a0);
-
-  const cl = Math.cos(regard.lacet), sl = Math.sin(regard.lacet);
-  const ct = Math.cos(regard.tangage), st = Math.sin(regard.tangage);
-  const a = norm([
-    ct*(cl*a0[0] + sl*d0[0]) + st*h0[0],
-    ct*(cl*a0[1] + sl*d0[1]) + st*h0[1],
-    ct*(cl*a0[2] + sl*d0[2]) + st*h0[2],
-  ]);
-  const d = norm([ cl*d0[0]-sl*a0[0], cl*d0[1]-sl*a0[1], cl*d0[2]-sl*a0[2] ]);
-  basis = { d, h: cross(d, a), a };
+  const r = CAMERA.maj(cam, {
+    lieu, sonde: sondeSuivie, sondes, salon,
+    // Le lacet et le tangage du promeneur appartiennent à l'arpentage. La caméra
+    // reçoit le repère tout fait ; elle n'en est pas le second interprète.
+    repere: lieu === "salon" ? regardSalon() : null,
+    horizon: R_HORIZON, cross, dot, len, norm,
+  });
+  if(r.decroche) vaAu("libre");        // `quitteLieu` vide `sondeSuivie`
 }
 
 /* Monter sur une sonde, ou en redescendre.
 
-   Le changement de LIEU passe par `vaAu`, qui se charge de quitter le salon s'il
-   le faut. Cette fonction ne s'occupe plus que de la sonde elle-même et de son
-   bouton — et le fait qu'on ne puisse pas être aux deux endroits n'est plus une
-   règle à répéter, c'est une conséquence.
+   Le module rend la DÉCISION — monter ou pas, et sur laquelle — et remet le
+   regard droit. Le reste est ici parce que le reste touche au document, au son
+   et au lieu.
 
-   `sondeSuivie` reste la donnée : quelle sonde. `lieu` porte la question
-   distincte : est-on dessus. */
-/* Le bouton d'embarquement reflète l'état, il ne le décide pas.
-
-   Séparé d'`embarque` parce que la sortie de lieu doit pouvoir le rafraîchir
-   sans rappeler `embarque` — ce qui rentrerait dans `vaAu` en pleine
-   transition. Une seule clé pour « monter » : le bouton portait deux noms selon
-   qu'on en était déjà redescendu, et les consignes de mission en désignent un
-   seul. */
-function majBoutonSonde(){
-  const dessus = sondeSuivie !== null;
-  $("b-sonde").classList.toggle("actif", dessus);
-  document.body.classList.toggle("a-bord", dessus);
-  $("b-sonde").textContent = T(dessus ? "dock.sonde.redescendre" : "dock.sonde");
-}
-
+   L'ordre compte, et il est écrit dans `vaAu` : la sonde doit être posée AVANT
+   d'entrer dans le lieu, sinon la précondition va en chercher une toute seule et
+   l'on embarque sur une autre que celle qu'on a désignée. */
 function embarque(i){
-  if(i === null || !sondes[i]) vaAu("libre");         // `quitteLieu` vide `sondeSuivie`
-  else { sondeSuivie = i; regard.lacet = 0; regard.tangage = 0; vaAu("sonde"); }
+  const d = CAMERA.embarque(cam, i, sondes);
+  if(!d.monte) vaAu("libre");                        // `quitteLieu` vide `sondeSuivie`
+  else { sondeSuivie = d.sonde; vaAu("sonde"); }
   majBoutonSonde();
   majCamera();
   if(sondeSuivie !== null) reagit("embarque");
 }
 
 // La sonde la plus proche d'une orbite tenable, pour que la vue dure.
-function meilleureSonde(){
-  let best = -1, score = Infinity;
-  for(let i = 0; i < sondes.length; i++){
-    const s = sondes[i];
-    if(s.sort !== "orbite" || s.gel) continue;
-    const r = len(s.p);
-    const e = Math.abs(r - 6) + (r < 3.4 ? 40 : 0);
-    if(e < score){ score = e; best = i; }
-  }
-  return best >= 0 ? best : null;
+function meilleureSonde(){ return CAMERA.meilleureSonde(sondes); }
+
+/* Le bouton d'embarquement reflète l'état, il ne le décide pas.
+
+   Séparé d'`embarque` parce que la sortie de lieu doit pouvoir le rafraîchir
+   sans rappeler `embarque` — ce qui rentrerait dans `vaAu` en pleine transition.
+   Le module dit QUOI peindre ; les trois nœuds du document restent ici. */
+function majBoutonSonde(){
+  const b = CAMERA.bouton(sondeSuivie);
+  $("b-sonde").classList.toggle("actif", b.dessus);
+  document.body.classList.toggle("a-bord", b.dessus);
+  $("b-sonde").textContent = T(b.cle);
 }
 
-// monde -> pixel. Projection droite : la lentille n'est pas prise en compte,
-// c'est un calque de repérage posé par-dessus l'image relativiste.
-function projette(p){
-  const q = [p[0]-camPos[0], p[1]-camPos[1], p[2]-camPos[2]];
-  const z = dot(q, basis.a);
-  if(z <= 0.05) return null;
-  // La MÊME mesure que celle qui a dimensionné les deux toiles, sinon le
-  // calque et le rendu dessinent deux images différentes.
-  const H = vueH || cv.clientHeight, W = vueW || cv.clientWidth;
-  return [ (dot(q, basis.d)/z*FOCAL*H + W)/2, H - (dot(q, basis.h)/z*FOCAL*H + H)/2 ];
-}
-
-// vrai si le trou noir passe entre la caméra et le point
-function occulte(p){
-  const q = [p[0]-camPos[0], p[1]-camPos[1], p[2]-camPos[2]];
-  const t = -dot(camPos, q) / dot(q, q);
-  if(t <= 0 || t >= 1) return false;
-  return len([camPos[0]+q[0]*t, camPos[1]+q[1]*t, camPos[2]+q[2]*t]) < R_OMBRE;
-}
-
-// pixel -> point du plan du disque (y = 0)
-function surLePlan(px, py){
-  const H = cv.clientHeight, W = cv.clientWidth;
-  const ux = (px*2 - W)/H, uy = ((H - py)*2 - H)/H;
-  const dir = norm([
-    basis.d[0]*ux + basis.h[0]*uy + basis.a[0]*FOCAL,
-    basis.d[1]*ux + basis.h[1]*uy + basis.a[1]*FOCAL,
-    basis.d[2]*ux + basis.h[2]*uy + basis.a[2]*FOCAL,
-  ]);
-  if(Math.abs(dir[1]) < 1e-4) return null;
-  const t = -camPos[1] / dir[1];
-  if(t <= 0) return null;
-  return [ camPos[0]+dir[0]*t, 0, camPos[2]+dir[2]*t ];
-}
+// Les trois ponts. Les points d'appel n'ont pas changé d'une virgule ; ce qui a
+// changé, c'est que les deux inverses reçoivent enfin la même mesure.
+function projette(p){ return CAMERA.projette(cam, p, vue()); }
+function occulte(p){ return CAMERA.occulte(cam, p, R_OMBRE); }
+function surLePlan(px, py){ return CAMERA.surLePlan(cam, px, py, vue()); }
 
 /* ============ physique ============
 
@@ -3370,7 +3275,7 @@ function vaAu(nouveau){
 
   const ancien = lieu;
   quitteLieu(ancien);
-  lieu = nouveau;                       // ← l'unique écriture de tout le fichier
+  lieu = nouveau;                       // ← la porte. Il en existe UNE AUTRE, ligne 2949
   entreLieu(nouveau);
   majBarreLieu();
   majCamera();
@@ -3475,7 +3380,7 @@ function poseDestinations(){
   e.onclick = poseEtude;
   liste.appendChild(e);
 
-  if(registre.length) liste.appendChild(blocRegistre());
+  if(REGISTRE.tout().length) liste.appendChild(blocRegistre());
 
   $("in-pied").textContent = PIED_TELESCOPE;
 }
@@ -3488,14 +3393,19 @@ function poseDestinations(){
 function blocRegistre(){
   const d = document.createElement("div");
   d.className = "registre";
-  const lignes = registre.slice(-4).reverse().map(e =>
+  // Une seule lecture, gardée. Le code lisait `registre` — un tableau qui n'existe
+  // plus depuis que le domaine est parti dans `registre.js`, et qui se relisait
+  // deux fois de suite ici, la seconde pour retrouver ce que la première avait
+  // déjà. Un module qui rend une COPIE ne se relit pas : on la garde.
+  const derniers = REGISTRE.tout().slice(-4).reverse();
+  const lignes = derniers.map(e =>
     '<div class="reg-ligne"><span class="reg-quoi"></span>' +
     '<span class="reg-val">+' + VOYAGE.joli.duree(e.t - e.tau) + '</span></div>').join("");
   d.innerHTML = '<div class="reg-titre"></div>' + lignes + '<div class="reg-total"></div>';
   d.querySelector(".reg-titre").textContent = T("carnet.titre");
   // le nom du trajet passe par textContent : il ne doit jamais être interprété
   [...d.querySelectorAll(".reg-quoi")].forEach((s, i) => {
-    s.textContent = registre.slice(-4).reverse()[i].q;
+    s.textContent = derniers[i].q;
   });
   d.querySelector(".reg-total").textContent =
     VOYAGE.joli.duree(ecartRegistre()) + " " + T("carnet.total");
@@ -3930,8 +3840,8 @@ function vitesseDepuisGlisse(v){
   const dx = (v.x - v.x0)/H, dy = (v.y0 - v.y)/H;
   const l = Math.hypot(dx, dy);
   if(l < 0.012) return null;
-  const rp = norm([basis.d[0], 0, basis.d[2]]);   // axes de l'écran rabattus
-  const hp = norm([basis.h[0], 0, basis.h[2]]);   // dans le plan du disque
+  const rp = norm([cam.base.d[0], 0, cam.base.d[2]]);   // axes de l'écran rabattus
+  const hp = norm([cam.base.h[0], 0, cam.base.h[2]]);   // dans le plan du disque
   const dir = norm([ rp[0]*dx + hp[0]*dy, 0, rp[2]*dx + hp[2]*dy ]);
   const vitesse = Math.min(l*K_GLISSE, 0.9);
   return { v:[dir[0]*vitesse, 0, dir[2]*vitesse], vitesse };
@@ -5619,7 +5529,7 @@ function dessine(){
     vitesseDepuisGlisse, R_ISCO,
     ecrans:  () => dessineEcrans(),
     cockpit: () => COCKPIT.dessine(ctx, ui.clientWidth, ui.clientHeight,
-      { sonde: sondes[sondeSuivie], vitesseLocale, horloge,
+      { sonde: sondes[sondeSuivie], vitesseLocale: cam.vitesse, horloge,
         len, T, remplit, virgule, tempsFr }),
   });
 }
@@ -5818,12 +5728,12 @@ function boucle(now){
 
   gl.uniform2f(uRes, cv.width, cv.height);
   gl.uniform1f(uTemps, TEMPS.geo);
-  gl.uniform3fv(uCam, camPos);
-  gl.uniformMatrix3fv(uBasis, false, new Float32Array([...basis.d, ...basis.h, ...basis.a]));
-  gl.uniform1f(uFocal, FOCAL);
+  gl.uniform3fv(uCam, cam.pos);
+  gl.uniformMatrix3fv(uBasis, false, new Float32Array([...cam.base.d, ...cam.base.h, ...cam.base.a]));
+  gl.uniform1f(uFocal, cam.focale);
   gl.uniform3fv(uPhotons, tampon);
   gl.uniform1i(uNbPhotons, Math.min(photons.length, 4));
-  gl.uniform3fv(uVitesse, vitesseLocale);
+  gl.uniform3fv(uVitesse, cam.vitesse);
   gl.uniform1f(uReel, reel);
   gl.uniform1f(uSpectre, spectreActif ? 1 : 0);
   gl.uniform1f(uSpin, spin*M);            // spin réduit a* -> a
@@ -5874,7 +5784,11 @@ function dessineHabitacle(){
     M: mvpSalon(), oeil: oeilSalon(), salon, vaisseau: VAISSEAU,
     postes: { POSTE_LUMEN }, lumen: ROBOT.boiteVisee(salon.horloge).c,
     lampes: lampesBord,
-    personnage: PERSONNAGE, robot: ROBOT, joueur, regard,
+    // `regardSalon`, et pas `regard` : le module attend une FONCTION qui rende
+    // le repère de la pièce, pas le couple lacet/tangage de la vue embarquée.
+    // Les deux noms se ressemblent, l'extraction a pris le mauvais, et rien ne
+    // l'a dit — l'ancre de Lumen ne se recalcule qu'en s'éloignant de 2,4 m.
+    personnage: PERSONNAGE, robot: ROBOT, joueur, regard: regardSalon,
     quete: { QUETE, iQuete, actif: queteActive, finie: queteFinie },
     projette: projetteSalon, vue: { W: vueW, H: vueH },
     bulle: elBulle, questionsOuvertes,
@@ -5917,7 +5831,7 @@ requestAnimationFrame(boucle);
 <script>
 if(/[?&]verif\b/.test(location.search)){
   var s = document.createElement("script");
-  s.src = "verif.js?v=a435bb1";
+  s.src = "verif.js?v=4bcc302";
   document.body.appendChild(s);
 }
 /* Et le protocole d'essai joué : `?test`. Il pose ses questions au moment où la
@@ -5927,7 +5841,7 @@ if(/[?&]verif\b/.test(location.search)){
    script contrôle mieux. */
 if(/[?&]test\b/.test(location.search)){
   var e = document.createElement("script");
-  e.src = "essai.js?v=a435bb1";
+  e.src = "essai.js?v=4bcc302";
   document.body.appendChild(e);
 }
 /* Et la séance de jugement : `?juge`. Elle ne demande QUE ce qu'aucun calcul ne
@@ -5936,7 +5850,7 @@ if(/[?&]test\b/.test(location.search)){
    Claude, prêt à coller. On ne lit rien, on ne navigue pas. */
 if(/[?&]juge\b/.test(location.search)){
   var j = document.createElement("script");
-  j.src = "juge.js?v=a435bb1";
+  j.src = "juge.js?v=4bcc302";
   document.body.appendChild(j);
 }
 </script>

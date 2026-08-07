@@ -36,6 +36,37 @@ enfler. **Les verdicts de la troisième séance sont à relire avec ça en tête
 
 ---
 
+## Trois choses réparées que personne n'avait vues — 8 août 2026
+
+Rien à regarder ici, c'est de l'entretien. C'est noté parce que les trois se
+sont trouvées toutes seules, en rangeant, et qu'aucune n'était visible.
+
+**1. Le clic visait à côté sur téléphone.** Deux fonctions inverses l'une de
+l'autre — celle qui place un repère sur l'image, celle qui retrouve le point
+qu'on a touché — mesuraient la hauteur de l'image de deux façons différentes.
+Quand la barre d'adresse de ton iPhone se rétracte, l'écart fait soixante-quatre
+pixels : tu touchais une sonde et tu en désignais une autre, horizontalement
+seulement. Ça ressemblait à une erreur de physique. C'était une erreur d'unité.
+**Si tu avais déjà eu l'impression de rater ce que tu visais, c'était ça.**
+
+**2. Le carnet de bord plantait.** Le panneau qui liste tes trajets et le temps
+que tu as gagné sur la Terre lisait quelque chose qui n'existait plus depuis
+qu'on a rangé ce domaine dans son propre fichier. Il ne s'ouvre qu'après un
+voyage, donc personne n'était tombé dessus.
+
+**3. Lumen ne se replaçait plus dans le salon.** Quand tu t'éloignes de plus de
+deux mètres, il doit venir se remettre devant toi. Le code lui demandait où tu
+regardes en appelant la mauvaise chose — deux noms qui se ressemblent, et
+l'extraction avait pris le mauvais.
+
+Ce qui a rendu les deux dernières visibles : le filet ne s'arrête plus au
+premier contrôle qui trébuche. Il note « celui-là est tombé » et continue. Ces
+deux morts silencieuses emportaient **treize vérifications** avec elles, sans
+rien dire. Le filet est passé de 93 à 106 contrôles au vert, et je n'en ai écrit
+aucun — ils étaient déjà là, ils ne s'exécutaient plus.
+
+---
+
 ## ❗ À CONFIRMER DE TON ŒIL — les écrans du salon ont bougé de 44 cm
 
 **8 août 2026.** Le contrôle des écrans de bord a trouvé que chaque dalle

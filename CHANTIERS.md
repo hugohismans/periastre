@@ -53,10 +53,27 @@ qui, dans l'état actuel, ouvre la porte — et ce qui la ferme.
 qu'elle a eu lieu, et le 6 août il m'a fait afficher à Hugo une feuille de route
 où F1 était en rouge. Le document était périmé, pas le code. Corrigé ici.*
 
-`lieu` est l'unique autorité, avec **une seule écriture dans tout le fichier**
-(`vaAu`, index.html). `salon.actif` n'est plus une donnée mais un accesseur
-dérivé (`Object.defineProperty`). Les transitions sont énumérées à un seul
-endroit, `quitteLieu` / `entreLieu`.
+`lieu` est l'unique autorité. `salon.actif` n'est plus une donnée mais un
+accesseur dérivé (`Object.defineProperty`). Les transitions sont énumérées à un
+seul endroit, `quitteLieu` / `entreLieu`.
+
+> ⚠ **CE PARAGRAPHE A AFFIRMÉ UNE CHOSE FAUSSE PENDANT DES SEMAINES.** Il disait
+> « une seule écriture dans tout le fichier ». Il y en avait **deux** : `vaAu`,
+> et `majCamera` qui écrivait `lieu = "libre"` quand la sonde suivie
+> disparaissait. Trouvé le 8 août 2026 en extrayant le domaine des lieux, dans
+> l'endroit même où ce document se félicitait de l'avoir soigné.
+>
+> **Réparé le même jour, en sortant la caméra dans `camera.js`.** On ne pouvait
+> pas y passer par la porte tant que le calcul vivait dedans : `vaAu` appelle
+> `majCamera`, donc l'appeler de là aurait fait un cycle. Le module rend
+> maintenant `decroche` — il DEMANDE — et la page, qui est en dehors de lui,
+> ouvre la porte. Le nœud s'est défait en déplaçant le calcul, pas en ajoutant
+> une garde.
+>
+> Ce qui a changé pour de vrai : le décrochage passe désormais par `quitteLieu`,
+> `entreLieu` et `majBarreLieu`, qu'il court-circuitait. Éprouvé en faisant
+> s'évaporer la sonde suivie sous la caméra — `lieu`, le bouton et la classe
+> `a-bord` suivent tous les trois.
 
 **Gardé** depuis le 6 août par `VERIF.lieux()` : les neuf transitions
 ordonnées, six invariants après chacune, et le cas du voyage encore armé après

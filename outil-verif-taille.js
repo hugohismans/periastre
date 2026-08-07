@@ -110,8 +110,33 @@ const fs = require("fs"), path = require("path");
 
    3 892 — les écrans de bord dans `ecrans.js`. Le plus gros morceau du
    chantier : trois cent dix-neuf lignes d'un coup, et une ligne morte retirée
-   au passage. Sous la barre des quatre mille pour la première fois. */
-const PLAFOND = 3626;   // ... les libelles, la resolution, puis le registre
+   au passage. Sous la barre des quatre mille pour la première fois.
+
+   3 539 — la caméra dans `camera.js`. Cent quatre-vingt-dix-huit lignes, et
+   trois choses qui valent mieux que le compte :
+
+   · `lieu` n'a plus qu'UN écrivain. La fondation F1 en faisait sa garantie
+     centrale, et c'était faux depuis des semaines — `majCamera` écrivait
+     `lieu = "libre"` de son côté, à trois cents lignes d'une ligne qui se
+     déclarait « l'unique écriture de tout le fichier ». On ne pouvait pas
+     passer par la porte tant que le calcul vivait dedans : `vaAu` appelle
+     `majCamera`. Le module rend maintenant `decroche` et la page ouvre la
+     porte. Sorti le domaine, le nœud se défait tout seul.
+
+   · `projette` et `surLePlan` lisent enfin la MÊME mesure de l'image. Elles
+     sont l'inverse exacte l'une de l'autre et lisaient deux hauteurs
+     différentes ; sur un téléphone dont la barre d'adresse se rétracte, le
+     clic visait à côté du point qu'on lui montrait. L'aller-retour se referme
+     à 1,7·10⁻¹⁴ près, et c'est désormais un contrôle.
+
+   · Le filet est passé de 93 à 106 contrôles au vert SANS qu'on en écrive un
+     seul. Deux noms morts, laissés par les extractions du registre et de
+     l'habitacle, faisaient lever deux contrôles et emportaient en silence tout
+     ce qui venait après eux dans le même bloc. Le `try` de l'étape 0.3 les a
+     montrés du doigt ; treize assertions ne s'exécutaient plus. C'est la
+     démonstration la plus nette du chantier : ce qu'on ne mesure pas, on ne
+     l'a pas. */
+const PLAFOND = 3539;   // ... les libelles, la resolution, le registre, la caméra
 
 // Le nombre de modules déjà sortis. Il ne descend jamais non plus : un module
 // qu'on ferait rentrer dans le bloc serait le contraire exact du chantier.

@@ -1351,7 +1351,7 @@ function voyage(){
   if(!salon.actif) document.getElementById("b-salon").click();
   cinema.actif = false;
   if(typeof queteActive !== "undefined"){ queteActive = false; queteFinie = true; }
-  const avant = registre.length;
+  const avant = REGISTRE.tout().length;
 
   ouvreTelescope();
   const liste = document.getElementById("in-liste");
@@ -1362,7 +1362,8 @@ function voyage(){
   point("on est arrivé", TELESCOPE.trajet && TELESCOPE.trajet.arrive === true, true,
         TELESCOPE.trajet ? TELESCOPE.trajet.arrive : "trajet absent");
   point("la carte des étoiles est là", TELESCOPE.carte > 0.9, "> 0,9", +TELESCOPE.carte.toFixed(3));
-  point("le registre a inscrit le trajet", registre.length === avant + 1, avant + 1, registre.length);
+  point("le registre a inscrit le trajet", REGISTRE.tout().length === avant + 1,
+        avant + 1, REGISTRE.tout().length);
 
   const l2 = document.getElementById("in-liste");
   point("le retour est proposé", l2.children.length >= 1, "≥ 1", l2.children.length);

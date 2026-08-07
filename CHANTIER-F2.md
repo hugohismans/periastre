@@ -51,9 +51,11 @@ Le détail de chaque étape est dans le plan approuvé. Ici, seulement l'état.
 
 ## Étape 5 — les gros de logique
 
-- [ ] 5.1 caméra → `camera.js` + son outil
-- [ ] 5.2 lieux → `lieux.js` + son outil
-- [x] 5.3 registre → `registre.js` + son outil
+- [x] 5.1 caméra → `camera.js` — branchée, 198 lignes, et le second écrivain de `lieu` a disparu avec : le module DEMANDE le décrochage, la page ouvre la porte. F1 dit enfin vrai. Son outil est en cours d'écriture
+- [ ] 5.2 lieux → `lieux.js` écrit, **pas branché** — la raison est dans `POURQUOI_PAS_BRANCHE`
+- [x] 5.3 registre → `registre.js` + son outil — ⚠ l'extraction avait laissé trois lecteurs morts derrière elle, réparés le 8 août
+- [x] 5.3 bis les deux noms morts — `registre` (carnet de bord) et `regard` passé à la place de `regardSalon` (l'ancre de Lumen). Ils emportaient treize contrôles en silence ; le filet passe de 93 à 106 sans qu'on en écrive un
+- [ ] 5.3 ter `outil-verif-noms.js` — un nom lu et déclaré nulle part doit rougir hors navigateur. Les deux ci-dessus ont été trouvés par hasard, trois extractions trop tard
 - [ ] 5.4 voyage → vers `voyage1g.js`
 - [ ] 5.5 Lumen → `lumen.js` + son outil
 - [ ] 5.6 missions et progression → `progression.js` + son outil
