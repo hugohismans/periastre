@@ -2244,11 +2244,11 @@ void main(){
     l = /^fr/i.test(navigator.language || "fr") ? "fr" : "en";
   window.LANGUE = l;
   document.documentElement.lang = l;
-  document.write('<script src="' + (l === "en" ? "contenu.en.js" : "contenu.js") + '?v=5543675"><\/script>');
+  document.write('<script src="' + (l === "en" ? "contenu.en.js" : "contenu.js") + '?v=a435bb1"><\/script>');
   // Les chaînes d'interface : le français TOUJOURS, l'anglais par-dessus. Une
   // clé oubliée retombe ainsi sur une phrase, jamais sur un identifiant nu.
-  document.write('<script src="ui.fr.js?v=5543675"><\/script>');
-  if(l === "en") document.write('<script src="ui.en.js?v=5543675"><\/script>');
+  document.write('<script src="ui.fr.js?v=a435bb1"><\/script>');
+  if(l === "en") document.write('<script src="ui.en.js?v=a435bb1"><\/script>');
 })();
 </script>
 <!-- ══════════════════════════════════════════════════════════════════════════
@@ -2267,16 +2267,16 @@ void main(){
 <!-- La physique, sortie du bloc principal. Elle ne touche ni au document ni à
      WebGL, et son extraction rend le banc d'essai exécutable en ligne de
      commande — donc vérifiable sans navigateur. Premier morceau du chantier F2. -->
-<script src="physique.js?v=5543675"></script>
+<script src="physique.js?v=a435bb1"></script>
 <!-- Ce qui vole. Deuxième morceau de F2, et le socle de la salle de tir
      balistique : elle ne sera que `destin()` avec une vitesse choisie. -->
-<script src="vol.js?v=5543675"></script>
+<script src="vol.js?v=a435bb1"></script>
 <!-- L'horloge. Troisième morceau de F2, et celui qui rend structurellement
      impossible le défaut du disque à 622× : le temps simulé n'y est accessible
      qu'en lecture, et un second écrivain devient indicible. -->
-<script src="temps.js?v=5543675"></script>
-<script src="kerr.js?v=5543675"></script>
-<script src="vaisseau.js?v=5543675"></script>
+<script src="temps.js?v=a435bb1"></script>
+<script src="kerr.js?v=a435bb1"></script>
+<script src="vaisseau.js?v=a435bb1"></script>
 <!-- Marcher dans la pièce. Quatrième morceau de F2 : une fois sorti du bloc, on
      peut promener un corps dans le décor SANS navigateur — et le premier
      balayage a trouvé qu'on traversait le télescope.
@@ -2284,8 +2284,8 @@ void main(){
      APRÈS `vaisseau.js`, et l'ordre n'est pas négociable : le mobilier se
      construit à partir de la géométrie de la pièce, dès le chargement. Placé
      avant, il ne trouvait rien et emportait tout le bloc principal avec lui. -->
-<script src="arpente.js?v=5543675"></script>
-<script src="personnage.js?v=5543675"></script>
+<script src="arpente.js?v=a435bb1"></script>
+<script src="personnage.js?v=a435bb1"></script>
 <!-- `pantheon.js` N'EST PLUS CHARGÉ, et c'est délibéré.
 
      Il était chargé à chaque visite et `PANTHEON` n'était appelé nulle part —
@@ -2297,26 +2297,27 @@ void main(){
      pas encore — voir CHUTE.md, écrit et jamais branché. Le jour où la salle de
      tir existera, cette ligne revient telle quelle.
 
-     <script src="pantheon.js?v=5543675"></script> -->
+     <script src="pantheon.js?v=a435bb1"></script> -->
 
-<script src="robot.js?v=5543675"></script>
-<script src="musique.js?v=5543675"></script>
+<script src="robot.js?v=a435bb1"></script>
+<script src="musique.js?v=a435bb1"></script>
 
 <!-- Le voyage. L'ordre compte : recul.js appelle VOYAGE.entre au chargement de
      ses propres constantes, donc voyage1g.js doit être passé avant lui. -->
-<script src="voyage1g.js?v=5543675"></script>
-<script src="recul.js?v=5543675"></script>
-<script src="etoiles.js?v=5543675"></script>
-<script src="format.js?v=5543675"></script>
-<script src="spectre.js?v=5543675"></script>
-<script src="banc.js?v=5543675"></script>
-<script src="ecrans.js?v=5543675"></script>
-<script src="dossier.js?v=5543675"></script>
-<script src="calque.js?v=5543675"></script>
-<script src="habitacle.js?v=5543675"></script>
-<script src="libelles.js?v=5543675"></script>
-<script src="resolution.js?v=5543675"></script>
-<script src="cockpit.js?v=5543675"></script>
+<script src="voyage1g.js?v=a435bb1"></script>
+<script src="recul.js?v=a435bb1"></script>
+<script src="etoiles.js?v=a435bb1"></script>
+<script src="format.js?v=a435bb1"></script>
+<script src="spectre.js?v=a435bb1"></script>
+<script src="banc.js?v=a435bb1"></script>
+<script src="ecrans.js?v=a435bb1"></script>
+<script src="dossier.js?v=a435bb1"></script>
+<script src="calque.js?v=a435bb1"></script>
+<script src="habitacle.js?v=a435bb1"></script>
+<script src="libelles.js?v=a435bb1"></script>
+<script src="resolution.js?v=a435bb1"></script>
+<script src="registre.js?v=a435bb1"></script>
+<script src="cockpit.js?v=a435bb1"></script>
 <script>
 "use strict";
 
@@ -3600,33 +3601,19 @@ function choisitDestination(d, v){
 
 $("in-fermer").onclick = fermeTelescope;
 
-/* ---- le registre temporel ----
-
-   Chaque trajet inscrit sa ligne : ce qu'on a fait, et ce que ça a coûté aux
-   deux horloges. C'est un REGISTRE, pas une simulation — on enregistre ce qui
-   s'est passé, on n'intègre rien en continu.
-
-   Et il se fige quand on s'en va. C'était tranché : un compteur qui courrait en
-   l'absence du joueur récompenserait l'attente au lieu du voyage, ce qui est
-   l'inverse de ce qu'on veut enseigner. */
+/* ---- le registre temporel ---- */
+// Il vit dans `registre.js`, avec sa mémoire reçue en argument : le 7 août, un
+// réglage laissé dans cette mémoire a divisé par huit la cadence du site sur le
+// téléphone d'Hugo, et rien de ce qui y touche n'était éprouvable hors
+// navigateur. Un outil lui donne maintenant une fausse mémoire et joue cent
+// voyages sans rien salir.
 const CLE_REGISTRE = "periastre.registre";
-let registre = [];
-
-try { registre = JSON.parse(localStorage.getItem(CLE_REGISTRE)) || []; }
-catch(e){ registre = []; }
-
-function inscritRegistre(quoi, v){
-  if(!v || !isFinite(v.tau) || !isFinite(v.t)) return;
-  registre.push({ q:quoi, tau:v.tau, t:v.t, d:v.d_m, quand:Date.now() });
-  if(registre.length > 40) registre.shift();
-  try { localStorage.setItem(CLE_REGISTRE, JSON.stringify(registre)); } catch(e){}
-}
-
-// L'écart accumulé entre les deux horloges, en secondes. C'est le seul chiffre
-// qui compte vraiment : le temps qu'on a gagné sur ceux qui sont restés.
-function ecartRegistre(){
-  return registre.reduce((s, e) => s + (e.t - e.tau), 0);
-}
+REGISTRE.pose({
+  lit:   () => JSON.parse(localStorage.getItem(CLE_REGISTRE)),
+  ecrit: l  => localStorage.setItem(CLE_REGISTRE, JSON.stringify(l)),
+});
+const inscritRegistre = (quoi, v) => REGISTRE.inscrit(quoi, v);
+const ecartRegistre   = () => REGISTRE.ecart();
 
 /* ---- le voyage ----
 
@@ -5930,7 +5917,7 @@ requestAnimationFrame(boucle);
 <script>
 if(/[?&]verif\b/.test(location.search)){
   var s = document.createElement("script");
-  s.src = "verif.js?v=5543675";
+  s.src = "verif.js?v=a435bb1";
   document.body.appendChild(s);
 }
 /* Et le protocole d'essai joué : `?test`. Il pose ses questions au moment où la
@@ -5940,7 +5927,7 @@ if(/[?&]verif\b/.test(location.search)){
    script contrôle mieux. */
 if(/[?&]test\b/.test(location.search)){
   var e = document.createElement("script");
-  e.src = "essai.js?v=5543675";
+  e.src = "essai.js?v=a435bb1";
   document.body.appendChild(e);
 }
 /* Et la séance de jugement : `?juge`. Elle ne demande QUE ce qu'aucun calcul ne
@@ -5949,7 +5936,7 @@ if(/[?&]test\b/.test(location.search)){
    Claude, prêt à coller. On ne lit rien, on ne navigue pas. */
 if(/[?&]juge\b/.test(location.search)){
   var j = document.createElement("script");
-  j.src = "juge.js?v=5543675";
+  j.src = "juge.js?v=a435bb1";
   document.body.appendChild(j);
 }
 </script>

@@ -53,7 +53,7 @@ Le détail de chaque étape est dans le plan approuvé. Ici, seulement l'état.
 
 - [ ] 5.1 caméra → `camera.js` + son outil
 - [ ] 5.2 lieux → `lieux.js` + son outil
-- [ ] 5.3 registre → `registre.js` + son outil
+- [x] 5.3 registre → `registre.js` + son outil
 - [ ] 5.4 voyage → vers `voyage1g.js`
 - [ ] 5.5 Lumen → `lumen.js` + son outil
 - [ ] 5.6 missions et progression → `progression.js` + son outil
