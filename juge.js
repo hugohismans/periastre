@@ -157,6 +157,59 @@ const TOUTES = [
      de vue, il faudra un type distinct dans la séance, dont le rendu ne parle
      ni de garder ni d'enlever. */
 
+  /* LE VOYAGE REFAIT. C'est la question qui compte, et elle est large exprès :
+     quatre choses ont changé en même temps et je ne sais pas laquelle il verra
+     en premier. Deux entrées, parce que quatorze secondes pour rejuger deux
+     secondes d'arrivée serait une insulte à son temps. */
+  { id: "voyage-refait",
+    titre: "Le voyage, refait",
+    libre: true,
+    quoi: "Les traces d'orbites se voient maintenant dès le départ et se resserrent "
+        + "à mesure qu'on s'éloigne ; elles sont découpées à la vitre ; et le "
+        + "chronomètre affiche la vitesse en fraction de c, la dilatation et la "
+        + "distance parcourue. Regarde le trajet et dis-moi ce qui ne va pas.",
+    pose: () => rejoueVoyage(0),
+    options: [
+      { nom: "le trajet entier",  fait: () => rejoueVoyage(0) },
+      { nom: "l'arrivée seule",   fait: () => rejoueVoyage(0.90) },
+    ],
+    rend: () => rangeVoyage(),
+  },
+
+  /* LA QUESTION PRÉCISE, celle de son verdict. J'ai mesuré que la carte ne
+     peint plus un pixel hors du cadre de la baie — mais « ne pas déborder » et
+     « avoir l'air d'être dehors » sont deux choses différentes, et la seconde
+     ne se mesure pas. */
+  { id: "carte-dehors",
+    titre: "Les orbites ont-elles l'air d'être dehors ?",
+    libre: true,
+    quoi: "Tu disais : « la trace des orbites est devant la vitre, on n'a pas "
+        + "l'impression que c'est à l'extérieur. » Elle est maintenant découpée aux "
+        + "trois vitres — elle ne peut plus déborder sur la coque. Est-ce que ça "
+        + "suffit à la faire passer dehors, ou il manque encore quelque chose ?",
+    pose: () => rejoueVoyage(0.45),
+    options: [
+      { nom: "au milieu du trajet", fait: () => rejoueVoyage(0.45) },
+      { nom: "juste avant l'arrivée", fait: () => rejoueVoyage(0.86) },
+    ],
+    rend: () => rangeVoyage(),
+  },
+
+  /* LE BANDEAU, qu'il a demandé et dont il n'a pas vu la forme. `montre` refuse
+     la question s'il n'est pas à l'écran : c'est la garde qui a évité qu'on lui
+     fasse juger des boutons qu'il n'avait pas sous les yeux. */
+  { id: "bandeau-vol",
+    titre: "Ce qu'on lit pendant le vol",
+    libre: true,
+    quoi: "Vitesse en fraction de c, dilatation du temps, distance parcourue, et la "
+        + "phase — on accélère, puis on freine. Les chiffres sont vrais : ils viennent "
+        + "de la position, pas de la durée de l'animation. Est-ce que ça se lit, et "
+        + "est-ce qu'il manque une information ?",
+    pose: () => rejoueVoyage(0.30),
+    montre: () => $$("ch-vol"),
+    rend: () => rangeVoyage(),
+  },
+
   /* L'ARRIVÉE — LES DEUX VARIANTES ONT ÉTÉ REFUSÉES, ET C'ÉTAIT LA BONNE RÉPONSE.
 
      Je cherchais ce qui « pop » à l'arrivée, et je lui proposais de trancher
@@ -220,7 +273,26 @@ let vraiePoseArrivee = null;
 function rendPoseArrivee(){
   if(vraiePoseArrivee){ global.poseArrivee = vraiePoseArrivee; vraiePoseArrivee = null; }
 }
-function rejoueArrivee(sansPanneau){
+function rejoueArrivee(sansPanneau){ rejoueVoyage(0.90, sansPanneau); }
+
+/* On rend le monde comme on l'a pris. Sans ça, la séance se termine et le
+   voyage armé continue : on est emmené à l'arrivée en pleine lecture du
+   rapport. Un protocole qui laisse le site dans un état qu'il n'avait pas
+   fausse ce qu'on regardera ensuite. */
+function rangeVoyage(){
+  rendPoseArrivee();
+  fermeTelescope();
+  if(TELESCOPE.trajet){ TELESCOPE.trajet = null; TELESCOPE.retour = false; }
+  RECUL.etat.actif = false;
+  TELESCOPE.carte = 0;
+  $$("chrono").classList.remove("vu");
+  poseSalon();
+}
+
+/* Rejouer un voyage depuis l'avancement qu'on veut. `depuis` vaut 0 pour le
+   trajet entier, 0,90 pour ne revoir que l'arrivée — personne ne doit attendre
+   quatorze secondes pour juger deux secondes. */
+function rejoueVoyage(depuis, sansPanneau){
   rendPoseArrivee();
   if(sansPanneau){
     vraiePoseArrivee = global.poseArrivee;
@@ -233,7 +305,7 @@ function rejoueArrivee(sansPanneau){
   TELESCOPE.carte = 0;                      // on repart d'une carte éteinte
   const d = DESTINATIONS[0];
   lanceVoyage(d, VOYAGE.entre(distanceVaisseau(), d.d_m));
-  RECUL.etat.t = 0.90;                      // l'arrivée tombe dans deux secondes
+  RECUL.etat.t = depuis;
 }
 
 // ================================================================== l'écran
