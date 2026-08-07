@@ -136,7 +136,17 @@ const fs = require("fs"), path = require("path");
      montrés du doigt ; treize assertions ne s'exécutaient plus. C'est la
      démonstration la plus nette du chantier : ce qu'on ne mesure pas, on ne
      l'a pas. */
-const PLAFOND = 3539;   // ... les libelles, la resolution, le registre, la caméra
+/* 3 507 — le pilotage du recul rejoint `recul.js` : le recentrage de la pièce
+   vers ce qu'elle quitte, le lever du quadrillage, le lever de la carte des
+   étoiles. Trente-deux lignes seulement, et ce n'est pas le point.
+
+   Ces trois règles ont TOUTES ÉTÉ RÉGLÉES PAR L'ŒIL D'HUGO, chacune après un
+   défaut qu'il avait vu — l'astre qui s'en va de biais puis saute au centre, le
+   quadrillage qui entre brutalement quand la visée pivote, la carte qui coupait
+   le recul en deux. Elles vivaient dans une page qu'aucun outil ne lisait.
+   Elles ont maintenant vingt-cinq contrôles, dont quatre sabotages qui prouvent
+   qu'ils mordent, et deux cent mille tirages qui démontrent que rien n'a bougé. */
+const PLAFOND = 3507;   // ... les libelles, la resolution, le registre, la caméra, le pilotage
 
 // Le nombre de modules déjà sortis. Il ne descend jamais non plus : un module
 // qu'on ferait rentrer dans le bloc serait le contraire exact du chantier.

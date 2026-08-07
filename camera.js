@@ -188,6 +188,23 @@ function majSalon(cam, e){
   const { cross, dot, len, norm, salon, repere } = e;
   const P = salon.p;
   cam.pos = [P[0], P[1], P[2]];
+  /* ON REDESCEND À ZÉRO, COMME LA VUE LIBRE. Cette ligne manquait.
+     Le bouton du salon appelle `vaAu("salon")` sans repasser par la vue libre :
+     on quittait donc une sonde à 0,3 c et l'on entrait dans la pièce avec sa
+     vitesse encore dans l'uniforme d'aberration. Tout le ciel vu par la baie
+     restait penché, à la vitesse d'un objet qu'on venait de quitter.
+
+     Trouvé le 8 août par les deux agents qui écrivaient l'outil de la caméra et
+     celui du recul, chacun de son côté, en lisant le module extrait. Le défaut
+     était dans la page depuis le début et n'a jamais été vu — ce n'est pas un
+     effet de l'extraction, c'est ce qu'elle a montré.
+
+     ZÉRO N'EST PAS LA RÉPONSE PHYSIQUE, et c'est une question pour Hugo, écrite
+     dans `A-REGARDER.md` : le vaisseau du salon orbite pour de vrai, donc son
+     ciel DEVRAIT être aberré — de SA vitesse à lui, pas de celle d'une sonde
+     quittée. Zéro est le comportement voulu jusqu'ici, sur toute la partie sauf
+     après une sonde ; on rétablit ce qui était voulu, et on lui demande. */
+  cam.vitesse = [0, 0, 0];
   // Repère de la pièce dans le monde. La baie regarde l'astre — mais PAS
   // exactement : un vaisseau ne se recale pas en permanence. Sans ce décalage,
   // l'astre reste cloué au centre de la fenêtre et rien ne semble bouger,

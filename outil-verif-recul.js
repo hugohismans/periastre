@@ -381,6 +381,380 @@ groupe("L'étiquette change d'unité quand il le faut");
   ok("une grande maille se dit en UA", /UA$/.test(R.etiquette(1e5)), "en UA", R.etiquette(1e5));
 }
 
+/* ══════════════════════════════════════════════════════════════════════════
+   LE PILOTAGE — les trois règles de mise en scène
+
+   Elles vivaient dans `majVoyage()`, au milieu du câblage de la page, et rien
+   ne les lisait. Les trois ont été posées par l'œil d'Hugo après qu'il ait vu
+   le défaut correspondant : l'astre qui saute du coin au centre, le quadrillage
+   qui entre brutalement quand la visée pivote, la carte qui coupe le recul en
+   deux. Trois défauts vus, donc trois contrôles — règle 1.
+
+   D'OÙ VIENT LA VÉRITÉ ICI. Le recentrage vise l'angle que porte la direction
+   de l'astre : on le prend d'`atan2` et d'`asin` appliqués à cette direction,
+   pas de ce que le module recalcule. Et l'écart le plus court se mesure par
+   `atan2(sin Δ, cos Δ)`, qui est une autre dérivation du même repliement que la
+   boucle `while` qu'on éprouve — deux chemins, pas un miroir.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* Le devant du regard dans la pièce : avant = −z, la baie est de ce côté.
+
+   C'est la DÉFINITION géométrique, celle que `regardSalon()` applique dans la
+   page. Elle est récrite ici parce qu'un contrôle doit pouvoir juger une visée
+   sans monter le document autour — et `recul.js` ne la contient pas : il reçoit
+   ce repère tout calculé, précisément pour qu'il n'y ait qu'une seule loi. */
+const avant = (lacet, tangage) => {
+  const cl = Math.cos(lacet), sl = Math.sin(lacet);
+  const ct = Math.cos(tangage), st = Math.sin(tangage);
+  return [ ct*sl, st, -ct*cl ];
+};
+// L'écart le plus court entre deux caps, par un tout autre chemin que le module.
+const ecart = (a, b) => Math.atan2(Math.sin(a - b), Math.cos(a - b));
+
+/* Une copie de `recul.js` dont on a cassé une règle, en mémoire.
+
+   Elle rend `null` quand l'ancre a disparu du fichier : sans ça, un renommage
+   rendrait les auto-tests muets — ils compareraient un module intact à
+   lui-même et resteraient verts en ne prouvant plus rien. */
+function casse(...remplacements){
+  let src = fs.readFileSync(path.join(__dirname, "recul.js"), "utf8");
+  for(const [de, vers] of remplacements){
+    if(!src.includes(de)) return null;
+    src = src.split(de).join(vers);
+  }
+  const g = {};
+  new Function("window", fs.readFileSync(path.join(__dirname, "voyage1g.js"), "utf8"))(g);
+  new Function("window", src)(g);
+  return g.RECUL;
+}
+
+/* ---------------------------------------------------------------------------
+   LES QUATRE ÉPREUVES FALSIFIABLES
+
+   Chacune rend un verdict et une mesure. On les joue d'abord sur le vrai
+   module, où elles doivent passer ; puis, tout en bas, sur des copies dont on a
+   cassé exactement la règle qu'elles surveillent, où elles doivent TOMBER.
+   Une épreuve qui reste verte sur une règle cassée ne contrôle rien. */
+
+// Des caps de part et d'autre de la couture ±π, plus un témoin loin d'elle.
+const COUTURES = [
+  [-3.10,  3.10],   // cinq degrés d'écart, vus comme six radians par un naïf
+  [ 3.10, -3.10],   // le même, en miroir : il doit tourner dans l'AUTRE sens
+  [-3.05,  3.05],
+  [ 3.05, -3.05],
+  [ 6.50,  0.20],   // un lacet jamais normalisé — la page ne le ramène pas
+  [-6.50, -0.20],
+  [ 0.10, -0.10],   // témoin : loin de la couture, rien ne doit changer
+];
+
+const DT = 1/60;
+const K = Math.min(1, DT * 0.8);   // le réglage d'Hugo, écrit ici en clair
+
+function epreuveCouture(M){
+  let pireDetour = 0, pireSaut = 0, sensJuste = true, ou = "";
+  for(const [l0, cible] of COUTURES){
+    const va = avant(cible, 0);
+    const court = Math.abs(ecart(cible, l0));      // vérité indépendante
+    let l = l0, chemin = 0;
+    for(let i = 0; i < 3000; i++){
+      const p = M.recentre(va, l, 0, DT);
+      const pas = p.lacet - l;
+      if(i === 0){
+        if(Math.sign(pas) !== Math.sign(ecart(cible, l0))){ sensJuste = false; ou = l0 + "→" + cible; }
+        pireSaut = Math.max(pireSaut, Math.abs(pas) / K);
+      }
+      chemin += Math.abs(pas);
+      l = p.lacet;
+    }
+    // Le chemin parcouru ne peut pas dépasser l'écart le plus court : un fondu
+    // qui approche sa cible sans jamais la dépasser parcourt exactement ça.
+    pireDetour = Math.max(pireDetour, chemin / court);
+    if(Math.abs(ecart(l, cible)) > 1e-9){ sensJuste = false; ou = "n'arrive pas : " + l0; }
+  }
+  return {
+    ok: sensJuste && pireDetour <= 1 + 1e-6 && pireSaut <= Math.PI + 1e-9,
+    detour: pireDetour, saut: pireSaut, sensJuste, ou,
+  };
+}
+
+function epreuvePlafond(M){
+  const cible = 2.4, tCible = -0.31, va = avant(cible, tCible);
+  let pire = "";
+  for(const dt of [DT, 0.5, 1.25, 3, 60, 1e6]){
+    let l = -1.2, t = 0.9, prec = Infinity;
+    for(let i = 0; i < 200; i++){
+      const p = M.recentre(va, l, t, dt);
+      l = p.lacet; t = p.tangage;
+      const e = Math.hypot(ecart(l, cible), t - tCible);
+      // Jamais plus loin qu'à l'image d'avant : c'est ça, « ne pas dépasser ».
+      if(!(e <= prec + 1e-12)) return { ok:false, ou:"dt=" + dt + ", image " + i
+                                                   + " : " + prec.toExponential(2)
+                                                   + " → " + e.toExponential(2) };
+      prec = e;
+    }
+    // Au-delà d'une seconde et quart, le plafond vaut 1 : on arrive PILE.
+    if(dt >= 1.25 && (Math.abs(ecart(l, cible)) > 1e-12 || Math.abs(t - tCible) > 1e-12))
+      pire = "dt=" + dt + " n'arrive pas pile";
+  }
+  return { ok: pire === "", ou: pire || "aucun dépassement, aucune oscillation" };
+}
+
+function epreuveBornes(M){
+  let hors = 0, mono = true, fini = true, ou = "";
+  for(const vitesse of [0.85, 2.2]){
+    for(const dt of [1e-3, DT, 0.25, 0.5, 1, 2, 5, 60, 1e6]){
+      for(const [depart, cible] of [[0,1], [1,0], [0.37,1], [0.61,0]]){
+        let v = depart;
+        for(let i = 0; i < 60; i++){
+          const w = M.fondu(v, cible, dt, vitesse);
+          // Un fondu qui diverge finit par rendre l'infini, puis NaN — et NaN
+          // avale toute comparaison en silence. On le nomme au lieu de le laisser
+          // traverser la mesure.
+          if(!Number.isFinite(w)){ fini = false; ou = "dt=" + dt + " diverge"; break; }
+          hors = Math.max(hors, -w, w - 1);
+          if(cible > depart ? w < v - 1e-12 : w > v + 1e-12){
+            mono = false; ou = "dt=" + dt + ", vitesse " + vitesse;
+          }
+          v = w;
+        }
+      }
+    }
+  }
+  return { ok: fini && hors <= 1e-12 && mono, hors, mono, fini,
+           ecart: fini ? hors.toExponential(2) : "divergé (" + ou + ")", ou };
+}
+
+function epreuveChamp(M){
+  const joue = (actif, vue, depart, retour) => {
+    M.etat.actif = actif;
+    const tele = { grille: depart, carte: 0, retour: !!retour };
+    for(let i = 0; i < 600; i++) M.fondus(tele, DT, vue);
+    return tele;
+  };
+  const cas = {
+    monte:  joue(true,  0.97, 0).grille,   // on bouge et on regarde l'astre
+    baisse: joue(true,  0.20, 1).grille,   // on bouge mais on regarde ailleurs
+    eteint: joue(false, 0.97, 0).grille,   // on ne bouge plus : rien ne se lève
+    tombe:  joue(false, 0.97, 1).grille,   // ... et ce qui était levé redescend
+    juste:  joue(true,  0.56, 0).grille,   // juste au-dessus du seuil d'Hugo
+    sous:   joue(true,  0.54, 1).grille,   // juste en dessous
+  };
+  M.etat.actif = false;
+  return {
+    ok: cas.monte > 0.99 && cas.baisse < 0.01 && cas.eteint === 0
+        && cas.tombe < 0.01 && cas.juste > 0.99 && cas.sous < 0.01,
+    cas,
+  };
+}
+
+// ══════════════════════════════════════════ 7. le recentrage vise vraiment l'astre
+groupe("Le recentrage ramène la visée sur ce qu'on quitte");
+{
+  const lCible = 2.4, tCible = -0.31;
+  const va = avant(lCible, tCible);
+  let l = -1.2, t = 0.62;
+  for(let i = 0; i < 3000; i++){
+    const p = R.recentre(va, l, t, DT);
+    l = p.lacet; t = p.tangage;
+  }
+  /* La vérité vient de la DIRECTION, pas du module : ce sont les angles que
+     porte `va` elle-même. Si `recentre` visait un autre point, il pourrait très
+     bien y converger proprement — et ce contrôle le verrait quand même. */
+  const lVrai = Math.atan2(va[0], -va[2]);
+  const tVrai = Math.asin(va[1]);
+
+  /* On compare des CAPS, pas des nombres. La page ne normalise jamais le lacet
+     — il s'accumule à la souris et peut valoir −3,88 là où l'astre en porte
+     2,40 : c'est le même cap, atteint par le court chemin, et c'est justement
+     pour ça que le repliement de l'écart doit être juste. Exiger l'égalité des
+     nombres ferait échouer ce contrôle sur du code parfait. */
+  ok("le lacet finit sur celui de l'astre", Math.abs(ecart(l, lVrai)) < 1e-9,
+     "écart nul avec " + lVrai.toFixed(6),
+     l.toFixed(6) + ", soit un écart de " + ecart(l, lVrai).toExponential(2),
+     "vérité prise sur `atan2` de la direction, pas sur le calcul qu'on éprouve");
+  ok("le tangage aussi", Math.abs(t - tVrai) < 1e-9, tVrai.toFixed(9), t.toFixed(9));
+  ok("et l'astre est alors droit devant",
+     R.enVue(avant(l, t), va) > 1 - 1e-12, "≈ 1", R.enVue(avant(l, t), va).toFixed(12),
+     "sans quoi la carte des étoiles ferait sauter l'objet du coin au centre");
+
+  const rien = R.recentre(null, 1.3, -0.2, DT);
+  ok("sans direction connue, il ne touche à rien",
+     rien.lacet === 1.3 && rien.tangage === -0.2, "1.3 / -0.2",
+     rien.lacet + " / " + rien.tangage);
+}
+
+// ═══════════════════════════════════ 8. la couture ±π — le contrôle qui compte
+/* Le défaut le plus discret du domaine. Il ne se déclenche que sur un secteur
+   étroit de la boussole : deux visées à cinq degrés l'une de l'autre, posées de
+   part et d'autre de ±π, et la pièce part faire un tour complet à l'envers.
+   Relire le code ne l'attrape pas ; le mesurer, si. */
+groupe("Le recentrage prend le plus court chemin, même par-dessus la couture");
+{
+  const e = epreuveCouture(R);
+  ok("il tourne toujours du bon côté", e.sensJuste, "le sens de l'écart replié",
+     e.sensJuste ? "les sept cas" : "faux sur " + e.ou,
+     "+3,10 et −3,10 rad sont voisins : ils doivent tourner en sens OPPOSÉS");
+  ok("et il ne fait jamais le tour long", e.detour <= 1 + 1e-6, "≤ 1,000000",
+     e.detour.toFixed(6),
+     "chemin parcouru rapporté à l'écart le plus court, mesuré par `atan2` — "
+     + "le tour long donnerait 74");
+  ok("aucun premier pas ne vaut plus d'un demi-tour", e.saut <= Math.PI + 1e-9,
+     "≤ " + Math.PI.toFixed(6), e.saut.toFixed(6),
+     "l'écart suivi doit tenir dans ]−π, π] avant d'être multiplié par le pas");
+}
+
+// ═════════════════════════════════════ 9. il ne dépasse pas, même après un gel
+/* Un onglet passé en arrière-plan rend la main avec plusieurs secondes d'un
+   coup. `k = min(1, dt·0,8)` est plafonné pour ça : on arrive pile, on
+   n'oscille pas autour de la cible. */
+groupe("Le recentrage ne dépasse pas, quel que soit le pas de temps");
+{
+  const e = epreuvePlafond(R);
+  ok("l'écart ne remonte jamais, et un pas énorme arrive pile", e.ok,
+     "aucun dépassement", e.ou,
+     "pas de temps éprouvés : 1/60 s jusqu'à un million de secondes");
+}
+
+// ═══════════════════════════════════════════ 10. les deux fondus restent chez eux
+groupe("Les deux fondus sont monotones et bornés");
+{
+  const e = epreuveBornes(R);
+  ok("jamais hors de [0, 1]", e.fini && e.hors <= 1e-12, "0", e.ecart,
+     "une opacité négative ou au-delà de 1 se voit : c'est un clignotement");
+  ok("et jamais un pas en arrière", e.mono, "monotone",
+     e.mono ? "monotone" : "recul sur " + e.ou,
+     "quatre départs, deux vitesses, neuf pas de temps dont un million de secondes");
+}
+
+// ═════════════════════════════════════════ 11. le quadrillage suit le regard
+groupe("Le quadrillage ne se lève que pendant le mouvement, et face à l'astre");
+{
+  const e = epreuveChamp(R);
+  const c = e.cas;
+  ok("il monte quand on bouge en regardant l'astre", c.monte > 0.99, "> 0,99",
+     c.monte.toFixed(4));
+  ok("il descend quand on détourne le regard", c.baisse < 0.01, "< 0,01",
+     c.baisse.toFixed(4),
+     "sans cette condition il se levait hors écran, puis ENTRAIT brutalement "
+     + "quand la visée pivotait — l'apparition buguée qu'Hugo a vue");
+  ok("il reste à zéro quand on ne bouge plus", c.eteint === 0, "0", c.eteint,
+     "rien ne quadrille l'espace : le repère n'existe que pour prouver le mouvement");
+  ok("et ce qui était levé redescend à l'arrêt", c.tombe < 0.01, "< 0,01",
+     c.tombe.toFixed(4));
+  ok("le seuil d'Hugo sépare bien les deux cas",
+     c.juste > 0.99 && c.sous < 0.01, "0,56 monte et 0,54 descend",
+     c.juste.toFixed(4) + " et " + c.sous.toFixed(4),
+     "0,55 de cosinus, soit 57° — c'est un réglage de l'œil, pas un calcul");
+}
+
+// ══════════════════════════════ 12. un vol entier, dans l'ordre du récit
+/* Le contrôle de bout en bout : on part DOS À L'ASTRE, on fait le voyage, on
+   arrive. Ce qui doit tenir tout du long, c'est l'ORDRE — on s'éloigne, le trou
+   noir disparaît, ET ALORS la carte montre ce qui tourne autour de ce vide. */
+groupe("Un vol entier : chaque chose à son moment");
+{
+  R.poseRythme("fidele");
+  R.etat.distance = 16 * R.RS_M;
+  R.lance(16000 * R.RS_M, 22);
+
+  /* Pendant un recul RADIAL, la direction de l'astre ne bouge pratiquement pas
+     dans le repère de la pièce — on s'écarte en gardant son cap. On la tient
+     donc fixe, et le contrôle porte alors sur le pilotage seul. */
+  const va = avant(0.9, -0.12);
+  let lacet = 0.9 + Math.PI, tangage = 0.5;      // on commence en regardant ailleurs
+  const tele = { grille: 0, carte: 0, retour: false };
+
+  let carteEnVol = 0, grilleMax = 0, grilleHorsChamp = 0, images = 0, leve = -1;
+  while(R.etat.actif && images < 4000){
+    R.avance(DT);
+    const p = R.recentre(va, lacet, tangage, DT);
+    lacet = p.lacet; tangage = p.tangage;
+    const vue = R.enVue(avant(lacet, tangage), va);
+    R.fondus(tele, DT, vue);
+    images++;
+    /* L'image d'arrivée est la PREMIÈRE où la carte a le droit de commencer :
+       `avance` y éteint `actif`. On ne mesure donc le vol que tant qu'il dure,
+       sans quoi on reprocherait à la règle de s'appliquer. */
+    if(!R.etat.actif) break;
+    carteEnVol = Math.max(carteEnVol, tele.carte);
+    grilleMax  = Math.max(grilleMax, tele.grille);
+    if(vue <= 0.55) grilleHorsChamp = Math.max(grilleHorsChamp, tele.grille);
+    if(leve < 0 && tele.grille > 0.5) leve = images;
+  }
+
+  ok("la carte reste éteinte pendant TOUT le trajet", carteEnVol < 1e-12,
+     "0", carteEnVol.toExponential(2),
+     "elle se levait autrefois passé un seuil de distance : le recul se trouvait "
+     + "coupé en deux et le fond étoilé effacé au moment le plus intéressant");
+  ok("le quadrillage, lui, s'est bien levé en route", grilleMax > 0.99, "> 0,99",
+     grilleMax.toFixed(4), "levé à l'image " + leve + " sur " + images);
+  ok("mais jamais tant qu'on regardait ailleurs", grilleHorsChamp <= 0.01,
+     "≤ 0,01", grilleHorsChamp.toFixed(4),
+     "on part dos à l'astre : le recentrage doit l'avoir ramené AVANT que le "
+     + "repère ne paraisse");
+  ok("et le voyage s'est bien terminé", !R.etat.actif && images < 4000,
+     "arrivé", images + " images");
+
+  // Dix secondes de plus, à l'arrêt : l'instrument prend la main.
+  for(let i = 0; i < 600; i++){
+    R.avance(DT);
+    R.fondus(tele, DT, R.enVue(avant(lacet, tangage), va));
+  }
+  ok("à l'arrivée, la carte se lève", tele.carte > 0.99, "> 0,99", tele.carte.toFixed(4));
+  ok("et le quadrillage s'efface", tele.grille < 0.01, "< 0,01", tele.grille.toFixed(4),
+     "on ne bouge plus, donc il n'a plus rien à prouver");
+
+  /* Le retour est l'autre moitié de la règle : on rentre, la carte s'efface et
+     ne doit PAS se relever à l'arrivée — sinon on finirait le voyage devant un
+     télescope alors qu'on est revenu regarder par la baie. */
+  const rentre = { grille: 0, carte: 1, retour: true };
+  R.etat.actif = false;
+  for(let i = 0; i < 600; i++) R.fondus(rentre, DT, 0.97);
+  ok("au retour, la carte s'efface et ne revient pas", rentre.carte < 0.01,
+     "< 0,01", rentre.carte.toFixed(4));
+}
+
+// ══════════════════════════ 13. et ces quatre contrôles savent tomber
+/* Règle 2. On casse dans une copie en mémoire exactement la règle que chaque
+   épreuve surveille, et l'épreuve doit virer au rouge. Si elle restait verte,
+   elle ne contrôlerait rien — et les groupes 8 à 11 ne prouveraient rien non
+   plus. Les ancres sont vérifiées : un renommage rend `casse()` nulle, et le
+   contrôle échoue au lieu de se taire. */
+groupe("Ces contrôles savent tomber");
+{
+  const sansCouture = casse(["while(dl >  Math.PI)", "while(false && dl >  Math.PI)"],
+                            ["while(dl < -Math.PI)", "while(false && dl < -Math.PI)"]);
+  ok("sans le repliement en ]−π, π], la couture est vue",
+     sansCouture !== null && epreuveCouture(sansCouture).ok === false,
+     "l'épreuve tombe",
+     sansCouture === null ? "ANCRE INTROUVABLE dans recul.js"
+       : (epreuveCouture(sansCouture).ok ? "elle reste verte" : "détour ×"
+          + epreuveCouture(sansCouture).detour.toFixed(1)));
+
+  const sansPlafondK = casse(["Math.min(1, dt * RECENTRAGE)", "(dt * RECENTRAGE)"]);
+  ok("sans le plafond du recentrage, le dépassement est vu",
+     sansPlafondK !== null && epreuvePlafond(sansPlafondK).ok === false,
+     "l'épreuve tombe",
+     sansPlafondK === null ? "ANCRE INTROUVABLE dans recul.js"
+       : (epreuvePlafond(sansPlafondK).ok ? "elle reste verte" : "vue"));
+
+  const sansPlafondF = casse(["Math.min(1, dt * vitesse)", "(dt * vitesse)"]);
+  ok("sans le plafond du fondu, la sortie de [0, 1] est vue",
+     sansPlafondF !== null && epreuveBornes(sansPlafondF).ok === false,
+     "l'épreuve tombe",
+     sansPlafondF === null ? "ANCRE INTROUVABLE dans recul.js"
+       : (epreuveBornes(sansPlafondF).ok ? "elle reste verte"
+          : epreuveBornes(sansPlafondF).ecart));
+
+  const sansChamp = casse(["(etat.actif && vue > DANS_LE_CHAMP)", "(etat.actif)"]);
+  ok("sans la condition de champ, l'apparition buguée est vue",
+     sansChamp !== null && epreuveChamp(sansChamp).ok === false,
+     "l'épreuve tombe",
+     sansChamp === null ? "ANCRE INTROUVABLE dans recul.js"
+       : (epreuveChamp(sansChamp).ok ? "elle reste verte" : "quadrillage à "
+          + epreuveChamp(sansChamp).cas.baisse.toFixed(3) + " le regard détourné"));
+}
+
 console.log("\n  " + (echecs ? "❌  " + echecs + " ÉCHECS sur " + n + " contrôles"
                              : "✅  TOUT PASSE — " + n + " contrôles") + "\n");
 process.exit(echecs ? 1 : 0);

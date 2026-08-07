@@ -3593,50 +3593,18 @@ function majVoyage(dt){
   const u = norm(salon.p);
   salon.p = [u[0]*r, u[1]*r, u[2]*r];
 
-  /* On se tourne vers ce qu'on quitte.
+  /* Le PILOTAGE vit dans `recul.js` — recentrage, quadrillage, carte des
+     étoiles. Les trois règles y sont écrites au long, avec le défaut qu'Hugo a
+     vu derrière chacune, et `outil-verif-recul.js` les éprouve sans navigateur.
 
-     Sans cela, la caméra reste braquée là où le joueur regardait au départ, et
-     l'astre s'en va DE BIAIS — il rétrécit dans un coin. Puis la carte des
-     étoiles arrive, elle, centrée sur le trou noir : on voyait donc l'objet
-     sauter du coin au centre au moment du relais, ce qui cassait net l'illusion
-     du même lieu vu de plus loin. Hugo l'a vu tout de suite.
-
-     Le recentrage est lent, et il n'interdit rien : on peut continuer à tourner
-     la tête, la visée revient simplement d'elle-même. C'est aussi ce qu'on
-     ferait — on regarde ce qu'on abandonne. */
+     L'ORDRE N'EST PAS INTERCHANGEABLE : `regardSalon()` se lit APRÈS le
+     recentrage, pour que le quadrillage juge la visée qu'on AURA et non celle
+     qu'on avait — sinon il commente avec une image de retard. */
   const va = salon.versAstre;
-  if(va){
-    let dl = Math.atan2(va[0], -va[2]) - salon.lacet;
-    while(dl >  Math.PI) dl -= 2*Math.PI;      // toujours le plus court chemin
-    while(dl < -Math.PI) dl += 2*Math.PI;
-    const dt_ = Math.asin(Math.max(-1, Math.min(1, va[1]))) - salon.tangage;
-    const k = Math.min(1, dt * 0.8);
-    salon.lacet   += dl  * k;
-    salon.tangage += dt_ * k;
-  }
-
-  /* Le quadrillage ne paraît que pendant le mouvement — rien ne quadrille
-     l'espace — et seulement quand l'astre est DANS LE CHAMP.
-
-     Sans cette seconde condition il se levait alors qu'on regardait encore
-     ailleurs : centré sur le trou noir, il était hors écran, puis il entrait
-     brutalement quand la visée pivotait. Hugo l'a vu comme une apparition
-     buguée, et c'en était une. */
-  const av = regardSalon().av;
-  const enVue = va ? (av[0]*va[0] + av[1]*va[1] + av[2]*va[2] > 0 ?
-                      av[0]*va[0] + av[1]*va[1] + av[2]*va[2] : 0) : 1;
-  const veut = (RECUL.actif && enVue > 0.55) ? 1 : 0;
-  TELESCOPE.grille += (veut - TELESCOPE.grille) * Math.min(1, dt*2.2);
-
-  /* La carte ne paraît qu'à L'ARRIVÉE, plus à mi-parcours.
-
-     Elle se levait passé une distance seuil, en plein trajet, et se substituait
-     au ciel — ce qui coupait le recul en deux et effaçait le fond étoilé au
-     moment le plus intéressant. Or l'ordre juste est celui du récit : on
-     s'éloigne, le trou noir disparaît, ET ALORS le télescope montre ce qui
-     tourne autour de ce vide. D'abord le constat, ensuite l'explication. */
-  const carte = (!RECUL.actif && !TELESCOPE.retour) ? 1 : 0;
-  TELESCOPE.carte += (carte - TELESCOPE.carte) * Math.min(1, dt*0.85);
+  const vise = RECUL.recentre(va, salon.lacet, salon.tangage, dt);
+  salon.lacet = vise.lacet;
+  salon.tangage = vise.tangage;
+  RECUL.fondus(TELESCOPE, dt, RECUL.enVue(regardSalon().av, va));
 
   majChrono();
 

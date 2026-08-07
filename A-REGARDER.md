@@ -36,6 +36,50 @@ enfler. **Les verdicts de la troisième séance sont à relire avec ça en tête
 
 ---
 
+## ❓ DEUX QUESTIONS POUR TOI — 8 août 2026
+
+Les deux sont sorties du même chantier, et aucune ne se tranche par un calcul.
+
+### 1. Le quadrillage se lève trop tôt sur ton téléphone, et c'est mesurable
+
+Tu m'avais dit : *« le quadrillage se levait alors qu'on regardait encore
+ailleurs… une apparition buguée »*. On avait réglé ça avec un seuil : le
+quadrillage n'apparaît que si le trou noir est **dans le champ**.
+
+Le seuil vaut un angle de **56,6°**. Sur un écran d'ordinateur en 16:9, le coin
+de l'image est à 52,8° — le seuil tombe donc juste au-delà du coin, et c'est
+parfaitement réglé. C'est ton œil qui l'a posé, sur ton écran.
+
+**En portrait sur iPhone, le coin descend à 35,4°.** Le quadrillage se lève donc
+alors que le trou noir est encore à **vingt et un degrés hors de l'écran**.
+C'est exactement le défaut que tu avais signalé, revenu par la porte du format.
+
+La règle juste se déduit : le seuil devrait suivre la focale et la forme de
+l'écran, au lieu d'être un nombre fixe. Ça reproduirait ton réglage à
+l'identique sur ordinateur, et ne changerait la chose que là où elle est
+fausse.
+
+**Je ne l'ai pas fait, parce que c'est ton chiffre.** Dis-moi si je le rends
+automatique.
+
+### 2. Le salon devrait-il avoir sa propre aberration ?
+
+Le vaisseau du salon orbite pour de vrai. Physiquement, le ciel vu par la baie
+devrait donc être **déformé par sa vitesse à lui** — les couleurs poussées vers
+l'avant, l'image resserrée devant.
+
+Aujourd'hui il ne l'est pas : la vitesse est à zéro dans le salon.
+
+Ce n'est pas un oubli qu'on vient de faire — c'est le comportement depuis le
+début, et je viens de le rétablir là où il s'était perdu (voir plus bas). Mais
+c'est une entorse à la simulation, et tu as été clair là-dessus.
+
+**Ça se voit ou pas ?** Le vaisseau va vite, donc l'effet ne serait pas
+discret. Ça peut aussi rendre la pièce désagréable à regarder. C'est un choix,
+pas un calcul.
+
+---
+
 ## Trois choses réparées que personne n'avait vues — 8 août 2026
 
 Rien à regarder ici, c'est de l'entretien. C'est noté parce que les trois se
@@ -58,6 +102,17 @@ voyage, donc personne n'était tombé dessus.
 deux mètres, il doit venir se remettre devant toi. Le code lui demandait où tu
 regardes en appelant la mauvaise chose — deux noms qui se ressemblent, et
 l'extraction avait pris le mauvais.
+
+**4. Le ciel du salon restait penché quand tu venais d'une sonde.** Si tu
+montais sur une sonde — qui file à 0,6 fois la vitesse de la lumière — et que tu
+appuyais ensuite sur le bouton du salon, la pièce gardait la vitesse de la
+sonde. Tout le ciel vu par la baie restait déformé par une vitesse qui n'était
+plus la tienne. Depuis toujours, et par le chemin le plus court : deux boutons.
+
+Deux agents l'ont trouvé **le même jour, chacun de son côté**, simplement en
+lisant le domaine une fois qu'il était sorti dans son propre fichier. C'est
+l'argument le plus net que j'aie pour ce chantier : le défaut était là depuis le
+début, il ne s'est pas vu tant que le code vivait au milieu de six mille lignes.
 
 Ce qui a rendu les deux dernières visibles : le filet ne s'arrête plus au
 premier contrôle qui trébuche. Il note « celui-là est tombé » et continue. Ces

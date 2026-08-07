@@ -87,7 +87,7 @@
 
    Le dernier groupe copie l'objet `CAMERA` en mémoire, remplace UNE fonction
    par une version subtilement fausse, rejoue en silence le groupe de contrôles
-   correspondant et exige qu'il tombe. Neuf sabotages, dont les trois qui
+   correspondant et exige qu'il tombe. Dix sabotages, dont les trois qui
    comptent le plus :
 
      · une `surLePlan` qui lit `vue.W` là où elle doit lire `vue.H` — la faute
@@ -506,7 +506,87 @@ function controleAllerRetour(C){
 groupe("`projette` et `surLePlan` sont inverses exactes");
 controleAllerRetour(CAMERA);
 
-/* ══════════════════════════════════ 3. LA BASE EST ORTHONORMÉE, DANS LES TROIS LIEUX
+/* ═══════════════════════════ 3. LES DEUX PONTS SAVENT REFUSER
+
+   Les deux fonctions rendent `null` dans des cas précis, et ces refus sont la
+   moitié de leur contrat — c'est ce qui empêche un repère de se peindre
+   DERRIÈRE l'observateur, et un clic sur le ciel de poser une sonde à dix mille
+   rayons. Un refus n'est pas une politesse : c'est le seul endroit du domaine
+   où « ne rien rendre » est la bonne réponse, et un module qui aurait perdu ses
+   bornes continuerait de rendre des nombres parfaitement finis et parfaitement
+   faux.                                                                       */
+function controleRefus(C){
+  const cam = camLibre(C, 21, 0.17, 0.6);
+  const vue = VUES[0], b = cam.base, F = cam.focale;
+  const surLAxe = t => plus(cam.pos, fois(b.a, t));
+
+  {
+    const refuses = [-8, -1, 0, 0.04].filter(t => C.projette(cam, surLAxe(t), vue) === null);
+    ok("`projette` refuse ce qui est derrière l'œil ou collé à lui",
+       refuses.length === 4, "les quatre refusés", refuses.length + " sur 4",
+       "un repère projeté depuis l'arrière ressort au même pixel que son "
+       + "symétrique devant : il se peindrait sur l'image, à l'endroit d'un objet "
+       + "qui n'y est pas");
+    const p = C.projette(cam, surLAxe(0.06), vue);
+    ok("et accepte juste au-delà du plan de coupure",
+       p !== null && Math.abs(p[0] - vue.W/2) < 1e-9 && Math.abs(p[1] - vue.H/2) < 1e-9,
+       "[720, 450]", p ? "[" + p[0].toFixed(3) + ", " + p[1].toFixed(3) + "]" : "null",
+       "la coupure doit être un seuil, pas un mur : à six centièmes de rayon "
+       + "l'objet est devant, et il se voit");
+    // un point de côté, mais toujours derrière : le refus porte sur z, pas sur x
+    const cote = plus(surLAxe(-2), fois(b.d, 40));
+    ok("le refus porte bien sur la profondeur, pas sur l'écart latéral",
+       C.projette(cam, cote, vue) === null, "null",
+       JSON.stringify(C.projette(cam, cote, vue)));
+  }
+
+  /* La ligne d'horizon de l'image, calculée et non cherchée : au milieu de la
+     largeur, la direction du rayon est h·uy + a·F, et sa composante verticale
+     s'annule pour uy = −a_y·F/h_y. Le pixel correspondant vise l'infini — le
+     module doit refuser, plutôt que de rendre une coordonnée de dix mille
+     rayons qui passerait tous les tests de borne. */
+  {
+    const uy = -b.a[1]*F/b.h[1];
+    const pyH = vue.H - vue.H*(uy + 1)/2;
+    ok("l'horizon de l'image tombe bien dans le cadre", pyH > 0 && pyH < vue.H,
+       "0 < py < " + vue.H, pyH.toFixed(2),
+       "sans cela le contrôle suivant viserait hors de l'écran et ne prouverait rien");
+    const dessus = [0, -1, -3, -40, -pyH + 1].every(d =>
+      C.surLePlan(cam, vue.W/2, pyH + d, vue) === null);
+    ok("`surLePlan` refuse tout ce qui vise au-dessus de l'horizon", dessus,
+       "null au-dessus", dessus ? "cinq hauteurs, toutes refusées" : "au moins une acceptée",
+       "au-dessus, le plan du disque est DERRIÈRE l'observateur : un clic sur le "
+       + "ciel poserait une sonde dans son dos");
+    const dessous = C.surLePlan(cam, vue.W/2, pyH + 30, vue);
+    ok("et accepte juste en dessous", dessous !== null && Math.abs(dessous[1]) < 1e-12,
+       "un point du plan y = 0", dessous ? "y = " + dessous[1].toExponential(1) : "null");
+  }
+
+  /* En descendant dans l'image, on marche vers soi. C'est une vérité purement
+     géométrique — le rayon s'incline, l'intersection se rapproche — et elle ne
+     passe par aucune formule du module. */
+  {
+    const uy = -b.a[1]*F/b.h[1];
+    const pyH = vue.H - vue.H*(uy + 1)/2;
+    let monotone = true, av = Infinity, vus = 0;
+    for(let py = pyH + 20; py < vue.H; py += 7){
+      const q = C.surLePlan(cam, vue.W/2, py, vue);
+      if(!q) continue;
+      const d = ecartV(q, cam.pos);
+      if(d > av + 1e-9) monotone = false;
+      av = d; vus++;
+    }
+    ok("descendre dans l'image rapproche le point visé", monotone && vus > 20,
+       "distance à l'œil décroissante", vus + " hauteurs, "
+       + (monotone ? "toujours décroissante" : "une remontée"),
+       "un signe inversé sur `uy` renverserait le pointeur haut-bas sans jamais "
+       + "faire échouer l'aller-retour, qui se refermerait sur la même erreur");
+  }
+}
+groupe("Les deux ponts savent refuser");
+controleRefus(CAMERA);
+
+/* ══════════════════════════════════ 4. LA BASE EST ORTHONORMÉE, DANS LES TROIS LIEUX
 
    Une base qui dérive de l'orthonormalité ne casse rien : elle fait tourner les
    sondes autour d'un centre légèrement décalé, et cisaille le calque sans que
@@ -557,7 +637,7 @@ function controleBase(C){
 groupe("La base est orthonormée, et de sens constant");
 controleBase(CAMERA);
 
-/* ═══════════════════════ 4. EN VUE LIBRE, ON EST À `dist` ET L'ON REGARDE L'ORIGINE
+/* ═══════════════════════ 5. EN VUE LIBRE, ON EST À `dist` ET L'ON REGARDE L'ORIGINE
 
    La vérité ne vient pas de la formule du module mais de deux chemins qui ne
    passent pas par elle : la trigonométrie sphérique prise À L'ENVERS — du
@@ -640,7 +720,7 @@ function controleVueLibre(C){
 groupe("En vue libre : à `dist` de l'origine, et l'œil dessus");
 controleVueLibre(CAMERA);
 
-/* ══════════════════════════ 5. LA VITESSE LOCALE, ET SON PLAFOND À 0,97 c
+/* ══════════════════════════ 6. LA VITESSE LOCALE, ET SON PLAFOND À 0,97 c
 
    L'arbitre est la métrique de Schwarzschild, pas le module : voir `sondeA()`.
    Une sonde construite pour valoir β localement doit être mesurée à β, à TOUS
@@ -750,7 +830,7 @@ function controlePlafond(C){
 groupe("La vitesse locale et son plafond à 0,97 c");
 controlePlafond(CAMERA);
 
-/* ══════════════════ 6. LA VITESSE RETOMBE À ZÉRO QUAND ON REDESCEND
+/* ══════════════════ 7. LA VITESSE RETOMBE À ZÉRO QUAND ON REDESCEND
 
    Le module le fait dans la branche libre, et il dit pourquoi : sans cela, la
    vitesse de la dernière sonde quittée resterait dans l'uniforme d'aberration
@@ -783,7 +863,7 @@ function controleRetourAuCalme(C){
 groupe("En redescendant, le ciel se redresse");
 controleRetourAuCalme(CAMERA);
 
-/* ═══════════════════════ 7. `maj` RANGE LA CAMÉRA, MAIS NE DÉCIDE PAS DU LIEU
+/* ═══════════════════════ 8. `maj` RANGE LA CAMÉRA, MAIS NE DÉCIDE PAS DU LIEU
 
    Deux propriétés que le module revendique explicitement, et qui sont la raison
    d'être de la refonte de `lieu` :
@@ -869,7 +949,7 @@ function controleMaj(C){
 groupe("`maj` range la caméra et rend la main sur le lieu");
 controleMaj(CAMERA);
 
-/* ══════════════════════════════ 8. EMBARQUER, DÉBARQUER, ET LE BOUTON
+/* ══════════════════════════════ 9. EMBARQUER, DÉBARQUER, ET LE BOUTON
 
    `embarque` est une DÉCISION, pas une action : elle ne touche ni au lieu, ni
    au son, ni au document. La seule chose qu'elle change dans la caméra est le
@@ -925,7 +1005,7 @@ function controleEmbarque(C){
 groupe("Embarquer, débarquer, et ce que le bouton dit");
 controleEmbarque(CAMERA);
 
-/* ═══════════════════════════ 9. `occulte` — CE QUE L'OMBRE CACHE VRAIMENT
+/* ═══════════════════════════ 10. `occulte` — CE QUE L'OMBRE CACHE VRAIMENT
 
    L'arbitre ne refait pas la minimisation en forme fermée du module : il
    PARCOURT le segment en vingt mille pas et garde le plus petit rayon vu. Deux
@@ -1030,7 +1110,7 @@ function controleOcculte(C){
 groupe("`occulte` — ce que l'ombre cache, et ce qu'elle ne cache pas");
 controleOcculte(CAMERA);
 
-/* ══════════════════════════ 10. `meilleureSonde` — LE REFUS DES ORBITES QUI NE TIENNENT PAS
+/* ══════════════════════════ 11. `meilleureSonde` — LE REFUS DES ORBITES QUI NE TIENNENT PAS
 
    40 n'est pas une distance, c'est un refus : sous 3,4 rayons on est déjà
    dedans, et embarquer là revient à offrir trois secondes de chute.
@@ -1108,7 +1188,7 @@ function controleMeilleure(C){
 groupe("`meilleureSonde` refuse les orbites qui ne tiennent pas");
 controleMeilleure(CAMERA);
 
-/* ══════════════════════ 11. LE SALON ÉCRIT `versAstre` ET `eclat` — LA SORTIE LATÉRALE
+/* ══════════════════════ 12. LE SALON ÉCRIT `versAstre` ET `eclat` — LA SORTIE LATÉRALE
 
    C'est la seule impureté du module, et elle est annoncée : la direction et
    l'intensité de la SOURCE dans le repère de la pièce ne se calculent qu'ici,
@@ -1248,7 +1328,7 @@ function controleSalon(C){
 groupe("Le salon écrit `versAstre` et `eclat` — la sortie latérale");
 controleSalon(CAMERA);
 
-/* ══════════════════════════════════ 12. LE CONTRÔLE SAIT-IL ÉCHOUER ?  (règle 2)
+/* ══════════════════════════════════ 13. LE CONTRÔLE SAIT-IL ÉCHOUER ?  (règle 2)
 
    On copie l'objet `CAMERA`, on remplace UNE fonction par une version
    subtilement fausse, on rejoue EN SILENCE le groupe qui la surveille, et l'on
@@ -1320,7 +1400,20 @@ essaie("une `majLibre` dont la base n'est plus orthogonale",
   }
 }
 
-/* ── 4. LA CAMÉRA POSÉE UN POIL TROP LOIN. La base est intacte, l'astre reste
+/* ── 4. LA PROJECTION QUI NE REFUSE PLUS RIEN.
+
+   Une perspective non bornée envoie un point et son SYMÉTRIQUE par rapport à
+   l'œil sur le MÊME pixel : x/z ne change pas quand on retourne q. Le sabotage
+   se contente donc de rattraper les refus par le symétrique — c'est exactement
+   ce que rendrait `projette` sans son plan de coupure, sans qu'une seule ligne
+   de la formule soit réécrite ici. */
+essaie("une `projette` qui a perdu son plan de coupure",
+       copie({ projette: (cam, p, vue) =>
+                 CAMERA.projette(cam, p, vue)
+                 || CAMERA.projette(cam, moins(fois(cam.pos, 2), p), vue) }),
+       [controleRefus]);
+
+/* ── 5. LA CAMÉRA POSÉE UN POIL TROP LOIN. La base est intacte, l'astre reste
    au centre : seul |pos| = dist tombe. C'est ce qui montre que les groupes 3 et
    4 ne surveillent pas la même chose. */
 essaie("une `majLibre` qui pose la caméra à 1,0001 × dist",
@@ -1379,6 +1472,49 @@ essaie("un `majSalon` dont `versAstre` suit une autre convention de signe",
                } }),
        [controleSalon]);
 
+/* ══════════════════════════ SONDE → SALON REMET LA VITESSE À ZÉRO
+
+   Ce contrôle était un CONSTAT, imprimé sous « ⚠ » et non compté, avec
+   l'assertion écrite à côté « à armer le jour où le module change ». Le module a
+   changé le 8 août : `majSalon` remet la vitesse à zéro, comme `majLibre`.
+
+   Ce qu'on réparait : le bouton du salon appelle `vaAu("salon")` sans repasser
+   par la vue libre. On quittait donc une sonde à 0,3 c et l'on entrait dans la
+   pièce avec sa vitesse encore dans l'uniforme d'aberration — tout le ciel vu
+   par la baie restait penché, à la vitesse d'un objet qu'on venait de quitter.
+   Le défaut était dans la page depuis le début ; il a fallu sortir le domaine
+   pour qu'on le lise.
+
+   L'assertion est posée pour de bon, et son sabotage prouve qu'elle mord. */
+{
+  /* Le module arrive en ARGUMENT, comme pour tous les autres contrôles : c'est
+     ce qui permet à `essaie` de rejouer exactement la même assertion sur une
+     copie sabotée. Un contrôle qui lirait le `CAMERA` global éprouverait le vrai
+     module au lieu du faux, passerait toujours, et prouverait qu'il ne mord pas
+     — j'ai écrit cette faute-là avant de l'écrire juste. */
+  const controleVitesseSalon = (C = CAMERA) => {
+    const cam = camSonde(C, sondeA(1.4, 0.9, 1.1), 0.4, 0.2);
+    const avant = len(cam.vitesse);
+    ok("la sonde de départ va bien vite — sans quoi l'épreuve ne prouve rien",
+       avant > 0.1, "> 0,1 c", avant.toFixed(3) + " c");
+    C.majSalon(cam, Object.assign({ salon: etatSalon(16, 3),
+                                    repere: repereSalon(0.3, -0.1, 0) }, OPS));
+    ok("sonde → salon remet la vitesse à zéro",
+       cam.vitesse.every(x => x === 0), "[0, 0, 0]", "[" + cam.vitesse.join(", ") + "]",
+       "zéro EXACT et non « petit » : c'est une remise à zéro, pas une décroissance");
+  };
+  groupe("Le salon n'hérite pas de la vitesse d'une sonde quittée");
+  controleVitesseSalon();
+
+  essaie("un `majSalon` qui laisse la vitesse de la sonde quittée",
+         copie({ majSalon: (cam, e) => {
+                   const v = cam.vitesse;
+                   CAMERA.majSalon(cam, e);
+                   cam.vitesse = v;                // le défaut, remis en place
+                 } }),
+         [controleVitesseSalon]);
+}
+
 /* ══════════════════════════════════ CE QUI EST SIGNALÉ ET NON CORRIGÉ
 
    Cet outil n'écrit pas dans `camera.js`. Deux constats sont sortis de sa
@@ -1388,28 +1524,6 @@ essaie("un `majSalon` dont `versAstre` suit une autre convention de signe",
 {
   console.log("\n  Constats — signalés, non corrigés, non comptés");
   console.log("  ─────────────────────────────────────────────");
-
-  const cam = camSonde(CAMERA, sondeA(1.4, 0.9, 1.1), 0.4, 0.2);
-  const avant = len(cam.vitesse);
-  CAMERA.majSalon(cam, Object.assign({ salon: etatSalon(16, 3),
-                                       repere: repereSalon(0.3, -0.1, 0) }, OPS));
-  const apres = len(cam.vitesse);
-  if(apres > 1e-12){
-    console.log("  ⚠   `majSalon` ne remet pas `cam.vitesse` à zéro.");
-    console.log("        sonde à " + avant.toFixed(3) + " c → salon : la caméra garde "
-                + apres.toFixed(3) + " c.");
-    console.log("        `majLibre` le fait explicitement, avec son commentaire ; la");
-    console.log("        branche du salon ne le fait pas, et le chemin sonde → salon");
-    console.log("        est atteignable en un bouton (`b-salon` appelle vaAu(\"salon\")");
-    console.log("        sans repasser par la vue libre). Le ciel vu par la baie serait");
-    console.log("        alors aberré à la vitesse de la sonde quittée.");
-    console.log("        L'assertion à armer le jour où le module change :");
-    console.log("            ok(\"sonde → salon remet la vitesse à zéro\",");
-    console.log("               cam.vitesse.every(x => x === 0), \"[0,0,0]\", …);");
-  } else {
-    console.log("  ·   `majSalon` remet bien la vitesse à zéro — le constat est levé,");
-    console.log("      l'assertion ci-dessus peut être armée pour de bon.");
-  }
 
   console.log("");
   const centre = CAMERA.etat();

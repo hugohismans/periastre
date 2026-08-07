@@ -158,6 +158,160 @@ function avance(dt){
   if(etat.t >= 1) etat.actif = false;
 }
 
+/* ============================================================================
+   LE PILOTAGE — ce qui se joue à chaque image, en plus de la position.
+
+   Trois règles de mise en scène. Les trois ont été posées par l'œil d'Hugo
+   APRÈS qu'il ait vu le défaut correspondant, et les trois vivaient jusqu'ici
+   au milieu du câblage de la page, là où aucun contrôle ne pouvait les
+   atteindre. Une règle qu'on ne peut pas éprouver finit toujours par repartir
+   de travers au premier remaniement : c'est la seule raison de ce déplacement.
+   Les quatre réglages — 0,8, 2,2, 0,85, 0,55 — sont ceux d'avant, au chiffre
+   près. Ils ne se calculent pas, ils se regardent.
+
+   ---------------------------------------------------------------------------
+   1. ON SE TOURNE VERS CE QU'ON QUITTE
+
+   Sans recentrage, la visée reste braquée là où le joueur regardait au départ
+   et l'astre s'en va DE BIAIS — il rétrécit dans un coin. Puis la carte des
+   étoiles arrive, elle centrée sur le trou noir : on voyait donc l'objet sauter
+   du coin au centre au moment du relais, ce qui cassait net l'illusion du même
+   lieu vu de plus loin. Hugo l'a vu tout de suite.
+
+   Le recentrage est lent, et il n'interdit rien : on peut continuer à tourner
+   la tête, la visée revient simplement d'elle-même. C'est aussi ce qu'on ferait
+   — on regarde ce qu'on abandonne.
+
+   LE PLUS COURT CHEMIN EST LE CŒUR DU TRUC. L'écart de lacet se ramène dans
+   ]−π, π] avant d'être suivi. Sans cela, deux visées presque identiques posées
+   de part et d'autre de la couture — +3,10 rad et −3,10 rad, soit cinq degrés
+   d'écart — feraient faire à la pièce un tour complet dans le mauvais sens. Le
+   défaut ne se lit pas dans le code, il se voit quand la pièce part à l'envers,
+   et il ne se déclenche que sur un secteur étroit de la boussole : c'est
+   exactement le genre de faute qu'un contrôle attrape et qu'une relecture non.
+
+   ---------------------------------------------------------------------------
+   2. LE QUADRILLAGE NE SE LÈVE QUE SI L'ASTRE EST DANS LE CHAMP
+
+   Il ne paraît que pendant le mouvement — rien ne quadrille l'espace — ET
+   seulement quand on regarde ce qu'il quadrille. Sans la seconde condition il
+   montait pendant qu'on regardait ailleurs : centré sur le trou noir, il était
+   hors écran, puis il ENTRAIT brutalement quand la visée pivotait. Hugo l'a vu
+   comme une apparition buguée, et c'en était une.
+
+   ---------------------------------------------------------------------------
+   3. LA CARTE NE PARAÎT QU'À L'ARRIVÉE
+
+   Elle se levait autrefois passé une distance seuil, en plein trajet, et se
+   substituait au ciel : le recul se trouvait coupé en deux et le fond étoilé
+   effacé au moment le plus intéressant. Or l'ordre juste est celui du récit —
+   on s'éloigne, le trou noir disparaît, ET ALORS le télescope montre ce qui
+   tourne autour de ce vide. D'abord le constat, ensuite l'explication.
+
+   ---------------------------------------------------------------------------
+   OÙ VIT L'ÉTAT, ET POURQUOI PAS AU MÊME ENDROIT POUR LES QUATRE
+
+   Un scalaire réassigné ne se partage pas entre deux fichiers : le lier ici en
+   figerait la valeur du moment. La leçon est déjà payée dans ce dépôt, c'est
+   l'histoire de `nChute`. Rien de mutable ne descend donc dans ce module. Mais
+   les quatre valeurs pilotées n'ont pas le même propriétaire, et le contrat
+   suit cette frontière au lieu de l'effacer :
+
+     · `grille` et `carte` sont AU RECUL. Le quadrillage est son étalon, la
+       carte est son arrivée, et la page ne fait que les lire pour peindre. On
+       reçoit donc l'objet qui les tient — c'est `TELESCOPE` — et on les
+       REMPLIT, exactement comme `CAMERA.maj` remplit `cam`. Un seul écrivain
+       pour chacune, et il est ici.
+
+     · `lacet` et `tangage` sont À L'ARPENTAGE. Le promeneur les écrit à la
+       souris pendant le voyage lui-même, et `camera.js` a déjà tranché : « le
+       lacet et le tangage du promeneur sont à l'arpentage, pas à la caméra ».
+       On les RENVOIE donc, et la page pose. Écrire dans `salon` d'ici ferait un
+       second écrivain pour une valeur qui appartient à quelqu'un d'autre — la
+       maladie qui a donné le disque à 622×.
+
+   `actif` ne s'argumente pas : c'est l'état du recul, il est dans ce fichier,
+   et le faire entrer par la porte ne ferait qu'offrir à la page l'occasion de
+   le passer faux un jour.
+
+   ---------------------------------------------------------------------------
+   L'ORDRE D'APPEL, QUI N'EST PAS UN DÉTAIL
+
+   Le quadrillage juge la visée d'APRÈS le recentrage. La page recentre, pose
+   les deux angles, PUIS calcule son repère de regard et le donne à `enVue`.
+   Inverser les deux ferait juger la visée d'avant, et le quadrillage
+   commenterait une image en retard ce qu'il est censé accompagner. C'est ce que
+   la page faisait déjà ; c'est écrit ici pour que ça le reste.
+
+   ---------------------------------------------------------------------------
+   LE CONTRAT
+
+     RECUL.recentre(va, lacet, tangage, dt)   -> { lacet, tangage }, les
+                                  nouveaux angles. `va` est la direction de
+                                  l'astre DANS LA PIÈCE (`salon.versAstre`) ;
+                                  absente, on ne touche à rien.
+
+     RECUL.enVue(av, va)          0 à 1 — le cosinus entre la visée et l'astre,
+                                  plancher à 0 pour qu'un astre dans le dos ne
+                                  compte pas négativement. `av` est le devant du
+                                  regard, calculé par la page : ce repère est à
+                                  l'arpentage, et deux lois pour un même espace
+                                  se paient toujours.
+
+     RECUL.fondus(tele, dt, vue)  remplit `tele.grille` et `tele.carte`, lit
+                                  `tele.retour`. Ne rend rien : l'objet EST la
+                                  sortie.
+
+     RECUL.fondu(v, cible, dt, vitesse)   la primitive des deux, exposée pour
+                                  qu'un contrôle puisse éprouver la borne sans
+                                  monter un télescope autour.
+   ============================================================================ */
+
+const RECENTRAGE  = 0.8;    // par seconde — la visée revient d'elle-même
+const LEVE_GRILLE = 2.2;    // par seconde — le quadrillage paraît vite
+const LEVE_CARTE  = 0.85;   // par seconde — la carte prend son temps
+const DANS_LE_CHAMP = 0.55; // cosinus : au-delà, l'astre est vraiment devant
+
+/* Un fondu de premier ordre, borné PAR CONSTRUCTION.
+
+   `Math.min(1, dt*vitesse)` n'est pas une précaution de style, c'est ce qui
+   rend le fondu monotone quel que soit `dt`. Un onglet passé en arrière-plan
+   rend la main avec plusieurs secondes d'un coup : sans le plafond, le pas
+   dépasse la cible, la valeur sort de [0, 1] et l'on voit clignoter au retour.
+   Le même plafond gouverne le recentrage, pour la même raison. */
+function fondu(v, cible, dt, vitesse){
+  return v + (cible - v) * Math.min(1, dt * vitesse);
+}
+
+function recentre(va, lacet, tangage, dt){
+  if(!va) return { lacet, tangage };
+  let dl = Math.atan2(va[0], -va[2]) - lacet;
+  while(dl >  Math.PI) dl -= 2*Math.PI;      // ]−π, π] : toujours le plus court
+  while(dl < -Math.PI) dl += 2*Math.PI;      // chemin, jamais le tour complet
+  // Le tangage n'a pas de couture : il vit dans [−π/2, π/2] et n'en sort pas.
+  // Le `clamp` est là pour l'arrondi, `va` étant unitaire à 10⁻¹⁶ près.
+  const dtg = Math.asin(Math.max(-1, Math.min(1, va[1]))) - tangage;
+  const k = Math.min(1, dt * RECENTRAGE);
+  return { lacet: lacet + dl*k, tangage: tangage + dtg*k };
+}
+
+// Le plancher à zéro, et non la valeur brute : un astre dans le dos donne un
+// cosinus négatif, qui comparé à un seuil positif dirait la même chose — mais
+// une échelle qui descend sous zéro se retrouve tôt ou tard multipliée par
+// quelque chose, et alors elle ment.
+function enVue(av, va){
+  if(!va) return 1;
+  const c = av[0]*va[0] + av[1]*va[1] + av[2]*va[2];
+  return c > 0 ? c : 0;
+}
+
+function fondus(tele, dt, vue){
+  const veutGrille = (etat.actif && vue > DANS_LE_CHAMP) ? 1 : 0;
+  const veutCarte  = (!etat.actif && !tele.retour) ? 1 : 0;
+  tele.grille = fondu(tele.grille, veutGrille, dt, LEVE_GRILLE);
+  tele.carte  = fondu(tele.carte,  veutCarte,  dt, LEVE_CARTE);
+}
+
 /* La décade courante et l'avancement dedans. C'est ce couple qui commande le
    quadrillage : la maille garde sa taille tant qu'on est dans la décade, et
    l'étiquette saute quand on en change. */
@@ -348,6 +502,7 @@ function dessineQuadrillage(ctx, W, H, projette, force){
 
 global.RECUL = { etat, lance, avance, decade, etiquette, dessineQuadrillage,
                  poseRythme, RS_M, UA_M,
+                 recentre, enVue, fondu, fondus,
                  get rythme(){ return rythme; },
                  get actif(){ return etat.actif; } };
 
