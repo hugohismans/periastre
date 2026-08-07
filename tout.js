@@ -163,6 +163,15 @@ const POURQUOI_PAS_BRANCHE = {
   "ncorps.js":
     "DETTE F3, en cours — décision d'Hugo du 6 août : on branche N corps, on "
     + "laisse la Lune. Usage retenu : un compagnon au trou noir d'étude.",
+  "aveu.js":
+    "ÉCRIT, EN ATTENTE DE SES BADGES — la moitié hors navigateur de F4 est "
+    + "faite et gardée (21 contrôles) : le module rend les onze compromis par "
+    + "lieu, « partout » sort à chaque lieu, et sa liste de lieux est tenue "
+    + "d'accord avec celle de `contrat.js` par lecture de son source. Ce qui "
+    + "manque est la POSE des badges dans les huit panneaux, plus "
+    + "`VERIF.aveux()` qui exige qu'un compromis déclaré soit affiché là où il "
+    + "est déclaré. C'est ce contrôle-là qui ferme F4 ; le module seul ne la "
+    + "ferme pas, et le dire vaut mieux que de cocher la case.",
   "lieux.js":
     "ÉCRIT, EN ATTENTE DE BRANCHEMENT — extrait le 8 août. `vaAu` y rend des "
     + "ORDRES au lieu d'agir, et l'état passe par un sac que la page tient. "
