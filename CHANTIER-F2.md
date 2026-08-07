@@ -68,6 +68,26 @@ Le détail de chaque étape est dans le plan approuvé. Ici, seulement l'état.
 - [ ] F3 — un compagnon au trou noir d'étude, pour brancher `ncorps.js`
 - [ ] F4 — la forme visuelle de l'aveu, et le contrôle qui l'exige
 
+## La cible est-elle atteignable ? — mesuré le 8 août, à 3 539
+
+Le plan annonçait « ≈ 2 300 lignes » sur une estimation à vue. Vérifié depuis,
+en classant les 3 544 lignes du bloc par nature :
+
+| | lignes | part | |
+|---|---:|---:|---|
+| commentaires | 955 | 27 % | un actif du projet, jamais une dette |
+| DOM | 560 | 16 % | ne peut pas sortir — un module qui touche au document cesse d'être éprouvable |
+| WebGL | 61 | 2 % | l'uniforme s'adresse au programme courant |
+| lignes vides | 421 | 12 % | |
+| **le reste** | **1 547** | **44 %** | **tout ce qui peut encore partir** |
+
+**Plancher absolu : 1 997 lignes**, si absolument tout ce qui peut sortir sort.
+La cible de 2 400 est donc atteignable, et elle ne demande pas d'y arriver — il
+reste 400 lignes de marge pour le câblage et l'orchestration qui doivent rester.
+
+Ce qui ne se fera pas pour tenir un chiffre : couper des commentaires. Ce serait
+truquer le contrôle, et c'est la seule chose que ce chantier ne s'autorise pas.
+
 ## Pour finir
 
 - [ ] `PLAFOND` sous 2 400 lignes
