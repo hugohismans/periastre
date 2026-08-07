@@ -36,6 +36,45 @@ enfler. **Les verdicts de la troisième séance sont à relire avec ça en tête
 
 ---
 
+## Trouvé en sortant la progression — sept choses, dont la maladie connue
+
+**8 août 2026.** Le domaine des missions et de la quête d'accueil est le plus
+couplé du fichier. En l'extrayant, sept défauts sont apparus. Aucun n'a été
+corrigé : une extraction est un déplacement.
+
+**1. Deux écrivains pour une même valeur — la maladie qui a donné le disque à
+622×.** La mémoire du site n'a pas qu'un point d'écriture : le bouton de quête
+fait son propre lire-modifier-écrire pour retirer le drapeau « déjà venu », hors
+de la fonction de sauvegarde. Pire, celle-ci le réécrit **inconditionnellement**
+— donc n'importe quel changement de réglage pendant l'intro rejouée annule ce
+que le bouton venait de faire. C'est nommé dans `CLAUDE.md` comme la maladie à
+soigner en premier.
+
+**2. Un panneau qui se contredit pendant quatre secondes.** À la fin de
+n'importe quelle étape de quête, la jauge s'allume **entièrement** pendant que
+le numéro annonce « étape 1 sur 4 ». Mesuré : la jauge rend `1111` quand le
+panneau rend `0000`. Puis elle retombe. Les missions, elles, n'allument que le
+fait.
+
+**3. Un compte d'images déguisé en millisecondes.** Le temps de regard s'incrémente
+de 16 par image pour un seuil à 1 800 : cela fait 1,88 s à 60 Hz mais **0,94 s à
+120 Hz**, alors que le commentaire annonce « deux secondes ». Sur un téléphone
+récent, l'étape se valide deux fois trop vite.
+
+**4. Une écriture morte.** Une clé de mémoire est écrite à deux endroits et lue
+nulle part dans tout le dépôt.
+
+**5. `MISE_EN_PLACE.jumeaux` cherche une mission dans une liste qui l'exclut**,
+donc rend −1. Inoffensif aujourd'hui parce que l'expérience est filtrée du menu,
+mais c'est un accès à l'indice −1 en attente. Le commentaire voisin annonce huit
+missions ; il en reste six.
+
+**6. Deux règles pour le même panneau.** Cliquer « missions » dans les quatre
+secondes qui suivent une réussite efface « réussi » et remet la consigne, alors
+que la classe visuelle « fini » reste posée.
+
+---
+
 ## Trouvé en sortant le calque — la couleur qui enseigne sature en blanc
 
 **8 août 2026.** Quand on tire une sonde, la trajectoire prévue change de

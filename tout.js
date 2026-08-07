@@ -163,6 +163,11 @@ const POURQUOI_PAS_BRANCHE = {
   "ncorps.js":
     "DETTE F3, en cours — décision d'Hugo du 6 août : on branche N corps, on "
     + "laisse la Lune. Usage retenu : un compagnon au trou noir d'étude.",
+  "progression.js":
+    "ÉCRIT, EN ATTENTE DE BRANCHEMENT — extrait le 8 août. Son contrat change "
+    + "la forme de neuf fonctions et rend des ORDRES au lieu d'agir : la "
+    + "chirurgie est sa propre étape, et la bâcler en fin de session serait la "
+    + "pire façon de toucher à la mémoire du site.",
   "echelle.js":
     "EN ATTENTE D'UNE DÉCISION — moteur de voyage d'échelle sans lieu où vivre. "
     + "À trancher avec le chantier des scènes, pas avant.",
