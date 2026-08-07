@@ -101,20 +101,54 @@ function lance(vers_m, secondesEcran){
      deux bouts — c'est ce que l'ancienne courbe imitait à la main ;
    - le seul artifice restant est la COMPRESSION du temps, quatorze secondes
      d'écran pour des mois de vol, et le site le déclare déjà.                */
+/* DEUX RYTHMES, ET C'EST UN RÉGLAGE — décision d'Hugo, 7 août 2026 au soir :
+   « fais les deux, paramétrable dans les options ; le choix par défaut changera
+   quand on aura l'option cinéma ou réaliste ».
+
+   Il avait demandé un défilement lent-rapide-lent, et la physique en donne un
+   autre : la VITESSE du vaisseau fait bien zéro-max-zéro, mais la TAILLE
+   APPARENTE change le plus vite au début, quand on est encore près. Doubler une
+   petite distance change tout, doubler une grande ne change presque rien.
+   Mesuré : 0,58 décade franchie sur le premier dixième du trajet, 0,03 sur
+   l'avant-dernier. Les deux faits sont vrais en même temps, et aucun n'est
+   négociable — d'où un réglage plutôt qu'un arbitrage.
+
+   `fidele`  — le temps d'écran est proportionnel au temps PROPRE. C'est ce
+               qu'on verrait par le hublot, sans retouche.
+   `regulier` — le temps d'écran est réparti en décades, ce qui donne un
+               défilement égal. La position n'est plus celle de l'horloge, mais
+               les chiffres affichés restent VRAIS : on demande à `enChemin` le
+               temps propre correspondant à la distance atteinte. Le vaisseau a
+               réellement cette vitesse là où il est ; seule la cadence est
+               retouchée, et c'est un compromis déclaré.
+
+   Dans les deux cas `etat.vol` sort du même calcul que la position. Il ne peut
+   pas y avoir de chiffre qui contredise ce qu'on voit. */
+let rythme = "fidele";
+function poseRythme(r){ rythme = (r === "regulier") ? "regulier" : "fidele"; }
+
+// Une courbe douce aux deux bouts, pour le rythme régulier seulement.
+const adouci = x => x < 0.5 ? 4*x*x*x : 1 - Math.pow(-2*x + 2, 3)/2;
+
 function avance(dt){
   if(!etat.actif) return;
   etat.t = Math.min(1, etat.t + dt/etat.duree);
 
   const D = Math.abs(etat.d1 - etat.d0);
   const sens = etat.d1 >= etat.d0 ? 1 : -1;
-  if(D > 0 && global.VOYAGE && global.VOYAGE.etat){
-    // Le temps d'écran est proportionnel au temps PROPRE : une seconde
-    // d'animation vaut toujours la même tranche d'horloge du bord.
-    const tauTotal = global.VOYAGE.etat(D, 0).tauTotal;
-    const e = global.VOYAGE.etat(D, etat.t * tauTotal);
-    etat.vol = e;
-    etat.parcouru = e.s;
-    etat.distance = etat.d0 + sens*e.s;
+  const V = global.VOYAGE;
+  if(D > 0 && V && V.etat){
+    if(rythme === "regulier"){
+      const l0 = Math.log10(etat.d0), l1 = Math.log10(etat.d1);
+      etat.distance = Math.pow(10, l0 + (l1 - l0)*adouci(etat.t));
+      etat.parcouru = Math.min(D, Math.abs(etat.distance - etat.d0));
+      etat.vol = V.etat(D, V.enChemin(D, etat.parcouru).tau);
+    } else {
+      const e = V.etat(D, etat.t * V.etat(D, 0).tauTotal);
+      etat.vol = e;
+      etat.parcouru = e.s;
+      etat.distance = etat.d0 + sens*e.s;
+    }
   } else {
     etat.vol = null;
     etat.parcouru = 0;
@@ -313,7 +347,8 @@ function dessineQuadrillage(ctx, W, H, projette, force){
 }
 
 global.RECUL = { etat, lance, avance, decade, etiquette, dessineQuadrillage,
-                 RS_M, UA_M,
+                 poseRythme, RS_M, UA_M,
+                 get rythme(){ return rythme; },
                  get actif(){ return etat.actif; } };
 
 })(window);

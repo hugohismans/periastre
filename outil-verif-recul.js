@@ -308,6 +308,72 @@ groupe("Ce qu'on affiche pendant le vol");
      "≈ 0 c", R.etat.vol ? R.etat.vol.beta.toExponential(2) : "aucun état");
 }
 
+// ═════════════════════════════ 5 ter. les deux rythmes, et leur honnêteté
+/* Décision d'Hugo : les deux existent, en réglage. Ce qui doit rester vrai dans
+   les DEUX, c'est que le chiffre affiché corresponde à la position — sinon on
+   aurait fabriqué un mode où la vitesse ment. Et ils doivent réellement
+   différer, sans quoi le réglage ne réglerait rien. */
+groupe("Les deux rythmes, et ce qui ne change pas entre eux");
+{
+  const d0 = 16 * R.RS_M, d1 = 16000 * R.RS_M, D = d1 - d0;
+  const joue = r => {
+    R.poseRythme(r);
+    Object.assign(R.etat, { actif:true, d0, d1, t:0, duree:10, distance:d0 });
+    const dec = [], ecarts = [];
+    for(let i = 0; i < 600; i++){
+      R.avance(10/600);
+      if(i % 60 === 0){
+        dec.push(Math.log10(R.etat.distance));
+        // la vitesse affichée doit correspondre à la distance ATTEINTE
+        const attendu = faux.VOYAGE.etat(D, faux.VOYAGE.enChemin(D, R.etat.parcouru).tau);
+        ecarts.push(Math.abs(R.etat.vol.beta - attendu.beta));
+      }
+    }
+    const pas = [];
+    for(let i = 1; i < dec.length; i++) pas.push(dec[i] - dec[i-1]);
+    return { pas, pireEcart: Math.max(...ecarts), fin: R.etat.distance };
+  };
+
+  const fid = joue("fidele"), reg = joue("regulier");
+  R.poseRythme("fidele");
+
+  ok("le rythme fidèle dit la vérité sur sa vitesse", fid.pireEcart < 1e-9,
+     "< 1e-9", fid.pireEcart.toExponential(1));
+  ok("le rythme régulier aussi", reg.pireEcart < 1e-6, "< 1e-6", reg.pireEcart.toExponential(1),
+     "c'est le point qui rend le compromis acceptable : seule la cadence est "
+     + "retouchée, jamais le chiffre");
+
+  /* CE QUI SÉPARE LES DEUX MODES, ET CE N'EST PAS CE QUE J'AVAIS ÉCRIT.
+
+     J'exigeais du mode réglé un pas CONSTANT, et il rendait 0,725 d'écart. Il
+     n'est pas constant, il est SYMÉTRIQUE : lent, rapide au milieu, lent — ce
+     qu'Hugo décrivait quand il disait « au début ça va aller doucement, puis au
+     milieu à sa vitesse maximale, puis ça va re-ralentir ». Le mode fidèle, lui,
+     ralentit sans arrêt du début à la fin. C'est cette opposition-là qui fait
+     que le réglage a un sens. */
+  const decroit = p => p.every((v, i) => i === 0 || v <= p[i-1] + 1e-9);
+  const sommet = p => p.indexOf(Math.max(...p));
+  const pic = Math.max(...reg.pas), i = sommet(reg.pas), n = reg.pas.length;
+
+  ok("le rythme réglé va lentement, puis vite au milieu, puis lentement",
+     i > n*0.25 && i < n*0.75
+       && reg.pas[0] < pic*0.6 && reg.pas[n-1] < pic*0.6,
+     "sommet au milieu, extrémités sous 60 % du sommet",
+     "sommet au " + Math.round(100*i/(n-1)) + " %, début "
+     + Math.round(100*reg.pas[0]/pic) + " %, fin "
+     + Math.round(100*reg.pas[n-1]/pic) + " %",
+     "c'est le défilement qu'Hugo décrivait — et il ne se mesure pas par une "
+     + "symétrie exacte, l'échantillonnage étant décalé d'une image");
+  ok("le rythme fidèle, lui, ne fait que ralentir", decroit(fid.pas) && !decroit(reg.pas),
+     "décroissant, et l'autre non",
+     decroit(fid.pas) ? "décroissant" : "PAS décroissant",
+     "0,58 décade sur le premier dixième du trajet, 0,03 sur l'avant-dernier : "
+     + "c'est ce qu'on verrait vraiment, et c'est ce que le réglage permet de refuser");
+  ok("les deux arrivent au même endroit",
+     Math.abs(fid.fin - reg.fin)/d1 < 1e-6, d1.toExponential(4),
+     fid.fin.toExponential(4) + " et " + reg.fin.toExponential(4));
+}
+
 // ════════════════════════════════════════════════════ 6. l'étiquette parle
 groupe("L'étiquette change d'unité quand il le faut");
 {
