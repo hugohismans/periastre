@@ -784,6 +784,97 @@ function carteFixe(){
   return enCours;
 }
 
+/* 5 quater. LA CARTE RESTE DEHORS, ET ELLE N'A PAS DE TROU.
+
+   Hugo, 7 août : « la trace des orbites est devant la vitre dans le vaisseau,
+   on n'a pas l'impression que c'est à l'extérieur. »
+
+   La mesure est différentielle, et il le faut : ce calque porte aussi les
+   écrans du bord et l'interface, donc compter les pixels peints ne dirait rien.
+   On rend deux fois la même image, une fois avec la carte neutralisée, et l'on
+   regarde ce qu'elle AJOUTE de part et d'autre du cadre de la baie.
+
+   Le second point garde le raccord : à l'arrivée, le recul s'arrête avant que
+   le voile ne monte, et les traces retombaient à zéro dans l'intervalle. C'est
+   ça, le « pop » qu'il signalait. On exige que l'opacité ne descende jamais
+   d'une image à l'autre pendant tout le trajet.                              */
+function carteDehors(){
+  ouvre("La carte des orbites reste derrière la vitre");
+  const av = { lieu, p: joueur.p.slice(), lacet: salon.lacet, tangage: salon.tangage,
+               trajet: TELESCOPE.trajet, carte: TELESCOPE.carte, grille: TELESCOPE.grille };
+  const degele = fige();
+  const vraiDessine = ETOILES_S.dessine;
+  try {
+    if(lieu !== "salon") vaAu("salon");
+    salon.lacet = 0; salon.tangage = -0.05;
+    joueur.p = [0, hauteurSol(0, 0.6), 0.6];
+    RECUL.lance(2.03e14, 14);
+    TELESCOPE.trajet = { dest:{ nom:"chrono.retour" }, arrive:false, depart:RECUL.etat.d0,
+                         calcul: VOYAGE.entre(RECUL.etat.d0, RECUL.etat.d1) };
+
+    // Le cadre de la baie, projeté — c'est la frontière qu'on interdit de franchir.
+    let t = avanceImages(200);
+    const M = mvpSalon();
+    let x0 = 1e9, x1 = -1e9, y0 = 1e9, y1 = -1e9, vues = 0;
+    for(const w of VAISSEAU.vitres())
+      for(const p of [[w.x0,w.y0,w.z], [w.x1,w.y1,w.z]]){
+        const q = projetteSalon(p, M);
+        if(!q) continue;
+        vues++;
+        x0 = Math.min(x0, q[0]); x1 = Math.max(x1, q[0]);
+        y0 = Math.min(y0, q[1]); y1 = Math.max(y1, q[1]);
+      }
+    point("la baie se projette bien à l'écran", vues >= 6, "≥ 6 coins", vues,
+          "sans cadre, les deux points suivants ne mesurent rien");
+
+    const cvs = ctx.canvas, e = cvs.width / cvs.clientWidth;
+    const compte = () => {
+      const img = ctx.getImageData(0, 0, cvs.width, cvs.height).data;
+      let dedans = 0, dehors = 0;
+      for(let y = 0; y < cvs.height; y += 2) for(let x = 0; x < cvs.width; x += 2){
+        if(img[(y*cvs.width + x)*4 + 3] < 8) continue;
+        const cx = x/e, cy = y/e;
+        if(cx >= x0-2 && cx <= x1+2 && cy >= y0-2 && cy <= y1+2) dedans++; else dehors++;
+      }
+      return { dedans, dehors };
+    };
+    ETOILES_S.dessine = () => {};
+    t = avanceImages(4, t); const sans = compte();
+    ETOILES_S.dessine = vraiDessine;
+    t = avanceImages(4, t); const avec = compte();
+
+    point("elle peint bien quelque chose", avec.dedans - sans.dedans > 200,
+          "> 200 pixels dans la baie", avec.dedans - sans.dedans,
+          "sinon le point suivant serait satisfait par une carte invisible");
+    point("et rien en dehors du cadre", avec.dehors - sans.dehors < 60,
+          "< 60 pixels", avec.dehors - sans.dehors,
+          "mesuré par différence : ce calque porte aussi les écrans du bord");
+
+    // Le raccord entre le recul et le voile, image par image.
+    let pire = 0, avant = null;
+    for(let i = 0; i < 1100; i++){
+      t = avanceImages(1, t);
+      const o = Math.max(TELESCOPE.trajet ? 0.12 + 0.30*RECUL.etat.t : 0,
+                         Math.max(0, (TELESCOPE.carte - 0.30)/0.70));
+      if(avant !== null) pire = Math.min(pire, o - avant);
+      avant = o;
+    }
+    point("l'opacité des traces ne retombe jamais", pire > -0.002,
+          "> −0,002 par image", pire.toFixed(4),
+          "c'est le « pop » qu'il signalait : les traces disparaissaient entre "
+          + "la fin du recul et la montée du voile");
+  } finally {
+    ETOILES_S.dessine = vraiDessine;
+    TELESCOPE.trajet = av.trajet; TELESCOPE.carte = av.carte; TELESCOPE.grille = av.grille;
+    RECUL.etat.actif = false;
+    joueur.p = av.p; salon.lacet = av.lacet; salon.tangage = av.tangage;
+    degele();
+    if(lieu !== av.lieu) vaAu(av.lieu);
+    avanceImages(2);
+  }
+  return enCours;
+}
+
 function couture(){
   ouvre("L'axe de rotation ne porte pas de couture");
   const av = { spin, dist: cam.dist, elev: cam.elev, azim: cam.azim, lieu };
@@ -1155,7 +1246,7 @@ function texte(){
 function sain(){
   resultats.length = 0;
   vivant(); coherence(); lieux(); tempsJuste(); resolution(); saisieLibre(); nuanceurs();
-  clesNues(); banc(); pixels(); couture(); carteFixe(); mesurePage(); budget();
+  clesNues(); banc(); pixels(); couture(); carteFixe(); carteDehors(); mesurePage(); budget();
   return bilan();
 }
 
@@ -1164,14 +1255,14 @@ function sain(){
 function tout(){
   resultats.length = 0;
   vivant(); coherence(); lieux(); tempsJuste(); resolution(); saisieLibre(); nuanceurs();
-  clesNues(); banc(); pixels(); couture(); carteFixe(); mesurePage(); budget();
+  clesNues(); banc(); pixels(); couture(); carteFixe(); carteDehors(); mesurePage(); budget();
   parcours(); voyage();
   return bilan();
 }
 
 global.VERIF = {
   vivant, coherence, lieux, tempsJuste, resolution, saisieLibre, nuanceurs, clesNues,
-  banc, pixels, couture, carteFixe, mesurePage, parcours, voyage, budget,
+  banc, pixels, couture, carteFixe, carteDehors, mesurePage, parcours, voyage, budget,
   sain, tout, bilan, texte, resultats, FORMATS, OR,
   // outillage exposé : d'autres contrôles pourront s'y adosser
   pose, fige, avanceImages,
