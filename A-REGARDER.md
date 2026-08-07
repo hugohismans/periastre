@@ -66,18 +66,33 @@ de l'écran, **en partant de ton réglage** : sur ton 16:9 il vaut 0,551 au lieu
 de 0,55, et le trajet s'y déroule image pour image comme avant. Rien n'a bougé
 là où tu l'avais réglé.
 
-**Ce n'est réparé qu'à moitié, et je préfère te le dire.** En portrait, on passe
-de 745 px à 322 px hors bord, et de 91 images d'avance à 64. Mieux, pas bon : le
-quadrillage est encore à 91 % quand le trou noir entre.
+**⚠ ET JE ME SUIS AVANCÉ SUR LE RESTE — voici la mesure honnête.**
 
-La raison est ailleurs et je ne l'ai pas touchée : **le quadrillage monte trois
-fois plus vite que la pièce ne se retourne** (2,2 contre 0,8 par seconde). Sur
-ton écran ça tombe bien. Sur un écran étroit, il a le temps de finir avant que
-l'astre arrive.
+Les chiffres ci-dessus viennent d'un trajet où j'avais tourné la vue à 180° du
+trou noir avant de partir. Je te l'ai présenté comme « le comportement sur ton
+téléphone » sans le dire. C'est faux dans le cas le plus courant.
 
-**La question est pour toi : est-ce que 91 % te choque encore ?** Si oui, ce qui
-reste à faire est de ralentir la montée du quadrillage, et c'est un réglage de
-sensation — donc le tien.
+En balayant l'orientation de départ, sur un écran de 390 × 844 :
+
+| tu pars en regardant… | le quadrillage a d'avance |
+|---|---|
+| **le trou noir — le trajet lancé normalement** | **0 image** |
+| 30° à côté | 44 images |
+| 60° et au-delà | 64 images |
+
+**Si tu entres au salon, ouvres le télescope et pars, tu es pile en face du trou
+noir et il n'y a aucun problème.** Le défaut n'apparaît que si tu regardes
+ailleurs au moment de partir — ce qui arrive dès trente degrés, donc un simple
+coup d'œil dans la pièce, mais pas sur le chemin direct.
+
+Ce qui reste vrai : le seuil suit maintenant la forme de l'écran, et l'ancien
+angle fixe était faux sur les deux extrêmes (trop large en portrait, trop serré
+en très large). Ça, c'était un vrai défaut, et il est réparé.
+
+**La question est donc plus petite que je ne l'ai dit** : est-ce que ça te gêne
+quand tu pars sans regarder l'astre ? Le reste tient au fait que le quadrillage
+monte trois fois plus vite que la pièce ne se retourne (2,2 contre 0,8 par
+seconde), et c'est un réglage de sensation — donc le tien.
 
 ### 2. Le lancer de sonde se retourne quand tu passes au-dessus du disque
 

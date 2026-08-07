@@ -210,6 +210,48 @@ const TOUTES = [
     rend: () => rangeVoyage(),
   },
 
+  /* LE QUADRILLAGE QUI SE LÈVE AVANT QU'ON VOIE QUOI QUE CE SOIT.
+
+     C'est une question d'INSPECTION, pas de choix — et l'en-tête de ce fichier
+     dit ce que coûte de confondre les deux. Les deux entrées ci-dessous sont
+     deux angles de vue sur la même chose, pas deux propositions entre
+     lesquelles trancher. Rien ne doit être « gardé » ou « enlevé » d'après la
+     réponse.
+
+     CE QUI A DÉJÀ ÉTÉ RÉPARÉ : le seuil était un angle fixe, posé à l'œil sur un
+     écran 16:9. Mesuré, il était faux aux deux extrêmes — trop large en portrait
+     (le quadrillage montait sur un astre encore à vingt degrés hors de l'écran)
+     et trop serré en très large (2560 × 1080 : il refusait de monter alors que
+     l'astre était visible dans le coin). Il se calcule maintenant à partir de la
+     forme de l'écran, en partant du réglage d'Hugo : sur son 16:9 il rend 0,551
+     au lieu de 0,55, et le trajet s'y déroule image pour image comme avant.
+
+     CE QUI RESTE, et qui n'est pas mesurable : le quadrillage monte trois fois
+     plus vite que la pièce ne se retourne. Si l'on part sans regarder l'astre,
+     il a le temps d'arriver presque en entier avant lui. Est-ce que ça se voit
+     comme un défaut, ou comme une annonce ? Aucun calcul ne tranche ça. */
+  { id: "quadrillage-avance",
+    titre: "Le quadrillage arrive-t-il trop tôt ?",
+    libre: true,
+    // Angles de vue, pas propositions. Voir « TROIS TYPES » plus bas : sans ce
+    // drapeau, la séance demanderait d'en « garder une et enlever les autres »,
+    // ce qui ne veut rien dire ici et a déjà failli coûter une fonctionnalité.
+    inspection: true,
+    quoi: "Tu pars du salon SANS regarder le trou noir. La pièce se retourne "
+        + "toute seule vers lui, et le quadrillage se lève pendant ce temps-là — "
+        + "donc avant qu'il soit entré dans l'image. Sur un téléphone tenu debout "
+        + "ça fait environ une seconde. Regarde le départ : est-ce que le "
+        + "quadrillage a l'air d'arriver trop tôt, ou est-ce qu'il annonce bien "
+        + "ce qui vient ?",
+    pose: () => rejoueVoyageTourne(90),
+    options: [
+      { nom: "en partant de côté",   fait: () => rejoueVoyageTourne(90) },
+      { nom: "en partant de dos",    fait: () => rejoueVoyageTourne(180) },
+      { nom: "en le regardant",      fait: () => rejoueVoyageTourne(0) },
+    ],
+    rend: () => rangeVoyage(),
+  },
+
   /* L'ARRIVÉE — LES DEUX VARIANTES ONT ÉTÉ REFUSÉES, ET C'ÉTAIT LA BONNE RÉPONSE.
 
      Je cherchais ce qui « pop » à l'arrivée, et je lui proposais de trancher
@@ -292,6 +334,31 @@ function rangeVoyage(){
 /* Rejouer un voyage depuis l'avancement qu'on veut. `depuis` vaut 0 pour le
    trajet entier, 0,90 pour ne revoir que l'arrivée — personne ne doit attendre
    quatorze secondes pour juger deux secondes. */
+/* Le même trajet, mais en partant SANS REGARDER OÙ L'ON VA.
+
+   `rejoueVoyage` pose toujours la vue face à l'astre, et c'est le cas courant :
+   on entre au salon, on ouvre le télescope, on part — mesuré, on est pile en
+   face. Le quadrillage n'a alors aucune avance sur lui, et il n'y a rien à
+   juger.
+
+   Le défaut ne se montre qu'à partir d'une trentaine de degrés d'écart : le
+   quadrillage se lève pendant que la pièce se retourne encore, donc avant que le
+   trou noir soit entré dans l'image. Mesuré sur un écran de 390 × 844, en
+   balayant l'orientation de départ : 0 image d'avance à 0°, 44 à 30°, 64 à 60°
+   et au-delà — la pièce se retourne à vitesse constante, d'où le palier.
+
+   Cette fonction reproduit donc exactement la situation où il y a quelque chose
+   à voir, et sur un téléphone tenu debout, qui est là où c'est le plus marqué. */
+function rejoueVoyageTourne(ecart){
+  rejoueVoyage(0);
+  const va = salon.versAstre;
+  if(va){
+    salon.lacet = Math.atan2(va[0], -va[2]) + ecart*Math.PI/180;
+    salon.tangage = 0;
+  }
+  TELESCOPE.grille = 0;        // sinon il reste levé du trajet précédent
+}
+
 function rejoueVoyage(depuis, sansPanneau){
   rendPoseArrivee();
   if(sansPanneau){
@@ -647,7 +714,9 @@ function montre(){
   if(d.options){
     const titre = document.createElement("div");
     titre.className = "titre-var";
-    titre.textContent = "Bascule pour comparer :";
+    // Une inspection ne compare pas des propositions, elle regarde la même chose
+    // sous plusieurs angles. Le mot le dit, sinon le bouton ment déjà ici.
+    titre.textContent = d.inspection ? "Bascule pour regarder :" : "Bascule pour comparer :";
     boiteVar.appendChild(titre);
     d.options.forEach((o, k) => {
       const b = document.createElement("button");
@@ -658,7 +727,7 @@ function montre(){
         choisie = o.nom;
         [...boiteVar.querySelectorAll("button")].forEach((c, j) => c.classList.toggle("la", j === k));
         const val = boite.querySelector(".valider");
-        if(val) val.textContent = "✓  Je garde « " + o.nom + " »";
+        if(val && !d.inspection) val.textContent = "✓  Je garde « " + o.nom + " »";
       };
       boiteVar.appendChild(b);
     });
@@ -675,7 +744,20 @@ function montre(){
     b.onclick = () => repond(verdict);
     rang.appendChild(b);
   };
-  if(d.options){
+  /* TROIS TYPES, ET LE TROISIÈME A COÛTÉ UNE FONCTIONNALITÉ.
+
+     Le 7 août, une question d'INSPECTION portait des variantes qui n'étaient que
+     des angles de vue. La séance a produit sa consigne habituelle — « garde
+     celle-ci, enlève les autres » — qui, appliquée à la lettre, aurait supprimé
+     trois rotations du site. C'est-à-dire effacer une fonctionnalité parce qu'il
+     avait dit qu'elle marchait.
+
+     L'en-tête de ce fichier en tirait la conséquence : « il faudra un type
+     distinct, dont le rendu ne parle ni de garder ni d'enlever ». Le voici. Avec
+     `inspection: true`, les variantes restent des angles de vue et les verdicts
+     redeviennent « ça va » / « ça coince » — on juge la CHOSE, jamais la
+     variante depuis laquelle on la regarde. */
+  if(d.options && !d.inspection){
     bouton("✓  Je garde celle-ci", "oui valider", "retenu");
     bouton("✕  Aucune de ces " + d.options.length + " ne convient", "non", "aucune");
   } else {
@@ -780,6 +862,7 @@ function repond(verdict){
   const d = DECISIONS[i];
   verdicts.push({ id: d.id, titre: d.titre, verdict,
                   option: d.options ? choisie : null,
+                  inspection: !!d.inspection,
                   mot: q("textarea").value.trim(),
                   minute: Math.round((Date.now() - debut)/60000) });
   if(d.rend) sur(d.rend);
@@ -843,10 +926,15 @@ function termine(){
       l.push("- **" + v.titre + "** → j'ai validé, mais aucune variante n'était sélectionnée. À vérifier.");
     else if(v.verdict === "aucune")
       l.push("- **" + v.titre + "** → aucune des variantes ne va. Cherche autre chose.");
+    /* Sur une INSPECTION, on nomme l'angle depuis lequel il a regardé — c'est un
+       renseignement — mais la consigne ne parle jamais de garder ni d'enlever.
+       C'est toute la différence, et elle vaut une fonctionnalité. */
     else if(v.verdict === "ça va")
-      l.push("- **" + v.titre + "** → ça va. Raye-le de `A-REGARDER.md`.");
+      l.push("- **" + v.titre + "** → ça va" + (v.inspection && v.option ? " (regardé « " + v.option + " »)" : "")
+             + ". Raye-le de `A-REGARDER.md`.");
     else
-      l.push("- **" + v.titre + "** → ça coince. À reprendre.");
+      l.push("- **" + v.titre + "** → ça coince" + (v.inspection && v.option ? " (regardé « " + v.option + " »)" : "")
+             + ". À reprendre.");
     if(v.mot) l.push("  > " + v.mot.split("\n").join("\n  > "));
   }
 
