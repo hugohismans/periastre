@@ -103,14 +103,31 @@ function pose(){
 
    L'équipage marche, le drone tourne, le disque tourne, l'orbite avance. Deux
    mesures successives sans ce gel comparent deux images différentes — c'est ce
-   qui m'a fait conclure trois fois à du bruit qui n'existait pas. */
+   qui m'a fait conclure trois fois à du bruit qui n'existait pas.
+
+   ---------------------------------------------------------------------------
+   IL FAUT AUSSI RENDRE LA CAMÉRA AU CONTRÔLE
+
+   Le 7 août, `couture()` réglait `cam.azim` puis lisait 1,05 au lieu de 0,54.
+   L'ouverture cinématique (`index.html:6282`) réécrit dist, elev ET azim à
+   chaque image pendant neuf secondes : tout contrôle lancé sur une page fraîche
+   mesurait un travelling, depuis un point de vue qu'il n'avait pas choisi.
+
+   Le symptôme était sournois — il disparaissait dès qu'on rejouait le contrôle
+   à la main, puisque les neuf secondes étaient alors écoulées. C'est exactement
+   la forme d'un contrôle qui ment : d'accord avec soi-même quand on l'observe.
+
+   On la coupe ici plutôt que dans chaque contrôle, parce que le piège vaut pour
+   tous ceux qui lisent des pixels, pas seulement pour celui qui l'a révélé. */
 function fige(){
   const av = { facteur: salon.facteur, horloge: salon.horloge, p: salon.p.slice(),
-               v: salon.v.slice(), images, cumul };
+               v: salon.v.slice(), images, cumul, cinema: cinema.actif };
   salon.facteur = 0;
+  cinema.actif = false;
   return () => {
     salon.facteur = av.facteur; salon.horloge = av.horloge;
     salon.p = av.p; salon.v = av.v; images = av.images; cumul = av.cumul;
+    cinema.actif = av.cinema;
   };
 }
 
@@ -648,70 +665,164 @@ function pixels(){
    contrôle est ce qui empêche la couture de revenir.
 
    ---------------------------------------------------------------------------
-   COMMENT ON MESURE UNE COUTURE SANS LA REGARDER
+   LA PREMIÈRE VERSION MESURAIT LES ÉTOILES
 
-   Une couture est une COLONNE d'un pixel, posée exactement sur l'axe de rotation
-   projeté. Chercher un fort contraste ne suffit pas : le bord de l'ombre et le
-   disque en produisent de bien plus grands, et une première version de ce
-   contrôle rendait 195 d'écart à spin NUL, là où il ne peut y avoir aucune
-   couture.
+   Elle lisait une bande de pixels en travers de l'axe, rangée par rangée, et
+   gardait le PIRE rapport. Le 7 août elle a échoué à spin 0,9 en rendant 36 —
+   trois fois sa borne. Le profil des pixels disait tout :
 
-   On demande donc à `projette()` où tombe l'axe, on lit une bande de pixels
-   centrée dessus, et l'on compare la différence seconde AU CENTRE à la médiane
-   de la bande. Un fond lisse donne un rapport de 2 ou 3. Une couture donne dix
-   à cent fois plus.
+       31  31  30  30  [54]  30  30  29  29
 
-   Mesuré avant/après, même caméra, même code :
+   Un seul pixel. Une couture est une colonne ; un pixel isolé sur une seule
+   rangée n'en est pas une. Sa couleur a donné le coupable : r 35, v 33, b 52 —
+   la teinte bleutée du champ d'étoiles. Le contrôle mesurait le CIEL.
 
-       spin      Boyer-Lindquist      Kerr-Schild
-       0                    1,3               1,3     (le témoin)
-       0,6                  310              25,7
-       0,9                 78,7               1,7
-       0,95                  99               2,0                            */
+   Il ne s'agissait même pas de malchance : la position lentillée d'une étoile
+   se déplace avec la rotation, donc le hasard d'en trouver une sur l'axe change
+   à chaque spin et à chaque caméra. Le même contrôle rendait 3 puis 36 sur la
+   même image. Un contrôle qui bouge tout seul ne prouve rien, dans aucun sens.
+
+   ---------------------------------------------------------------------------
+   CE QUI SÉPARE VRAIMENT UNE COUTURE D'UNE ÉTOILE
+
+   Une couture est collée à la SCÈNE : elle reste sur l'axe projeté quel que soit
+   l'endroit d'où on regarde. Une étoile est collée au CIEL : elle glisse dès que
+   la caméra tourne.
+
+   On mesure donc la même colonne depuis cinq azimuts voisins et l'on garde, pour
+   chaque rangée, la MÉDIANE des cinq. Ce qui appartient à la scène survit ; ce
+   qui appartient au ciel est éliminé par construction, sans avoir à reconnaître
+   une étoile ni à régler un seuil de brillance.
+
+   L'effet est net sur l'image même qui avait fait échouer la version d'avant :
+
+       spin 0,9,    un seul azimut       36        (une étoile)
+       spin 0,9,    médiane de cinq       2,5      (le fond)
+
+   ---------------------------------------------------------------------------
+   ET LA PREUVE QU'IL SAIT ENCORE VOIR
+
+   Une mesure qu'on vient de rendre insensible au bruit doit prouver qu'elle est
+   restée sensible au signal — sinon on a fabriqué un contrôle qui passe toujours,
+   ce qui est pire que pas de contrôle.
+
+   Le cinquième point pose donc la même colonne sur le BORD DE L'OMBRE, qu'il
+   localise lui-même en cherchant le plus grand saut de luminance sur la rangée
+   de l'équateur. Le bord est une vraie structure verticale, collée à la scène
+   comme le serait une couture, et d'origine entièrement indépendante. Il doit
+   être vu.
+
+       l'axe, toutes rotations, quatre passages     1,5  à  3,1
+       le bord de l'ombre, mêmes passages          10,6  à  31,5
+
+   Les bornes — 6 pour l'axe, 7 pour le témoin — sont posées dans ce couloir.
+
+   Les valeurs Boyer-Lindquist relevées avant la réécriture (42 à 620) l'ont été
+   avec l'ANCIENNE statistique : elles ne sont pas comparables à celles-ci et ne
+   servent donc pas de référence. C'est le témoin du bord qui étalonne.        */
 function couture(){
   ouvre("L'axe de rotation ne porte pas de couture");
   const av = { spin, dist: cam.dist, elev: cam.elev, azim: cam.azim, lieu };
   const degele = fige();
   try {
     if(lieu !== "libre") vaAu("libre");
-    cam.dist = 9; cam.elev = 0.0; cam.azim = 0.6;
+    cam.dist = 9; cam.elev = 0.0;
 
-    const mesure = s => {
-      spin = s;
-      avanceImages(8);
-      const haut = projette([0, 6, 0]), bas = projette([0, -6, 0]);
-      if(!haut || !bas) return null;
-      const e = cv.width / cv.clientWidth;
-      const buf = new Uint8Array(41*4);
-      let pire = 0;
-      for(let k = 0; k <= 40; k++){
-        const f = k/40;
-        const sx = Math.round((haut[0] + (bas[0]-haut[0])*f) * e);
-        const sy = Math.round(cv.height - (haut[1] + (bas[1]-haut[1])*f) * e);
-        if(sx < 25 || sx > cv.width-25 || sy < 2 || sy > cv.height-2) continue;
-        gl.readPixels(sx-20, sy, 41, 1, gl.RGBA, gl.UNSIGNED_BYTE, buf);
-        const L = [];
-        for(let i = 0; i < 41; i++) L.push((buf[i*4] + buf[i*4+1] + buf[i*4+2])/3);
-        const d2 = [];
-        for(let i = 1; i < 40; i++) d2.push(Math.abs(L[i+1] - 2*L[i] + L[i-1]));
-        const tri = d2.slice().sort((p, q) => p - q);
-        pire = Math.max(pire, d2[19] / Math.max(tri[Math.floor(tri.length/2)], 0.5));
-      }
-      return pire;
+    const AZIM = 0.6, ECARTS = [-0.06, -0.03, 0, 0.03, 0.06];
+    const ech = cv.width / cv.clientWidth;
+    const buf = new Uint8Array(41*4);
+
+    // Le rapport de la différence seconde AU CENTRE à la médiane de la bande.
+    const rangee = (sx, sy) => {
+      if(sx < 25 || sx > cv.width-25 || sy < 2 || sy > cv.height-2) return null;
+      gl.readPixels(sx-20, sy, 41, 1, gl.RGBA, gl.UNSIGNED_BYTE, buf);
+      const L = [];
+      for(let i = 0; i < 41; i++) L.push((buf[i*4] + buf[i*4+1] + buf[i*4+2])/3);
+      const d2 = [];
+      for(let i = 1; i < 40; i++) d2.push(Math.abs(L[i+1] - 2*L[i] + L[i-1]));
+      const tri = d2.slice().sort((p, q) => p - q);
+      return d2[19] / Math.max(tri[Math.floor(tri.length/2)], 0.5);
     };
 
-    const temoin = mesure(0);
-    point("le témoin à rotation nulle est calme", temoin !== null && temoin < 8,
-          "< 8", temoin === null ? "axe hors champ" : temoin.toFixed(2),
+    /* `decal` est un écart en pixels CSS depuis le centre projeté : 0 pour
+       l'axe, l'écart du bord de l'ombre pour le témoin. */
+    let derive = 0;                 // ce que la caméra a fait de travers
+    const colonne = decal => {
+      const parRangee = [];
+      for(const d of ECARTS){
+        cam.azim = AZIM + d;
+        avanceImages(6);
+        derive = Math.max(derive, Math.abs(cam.azim - (AZIM + d)));
+        const h = projette([0, 6, 0]), b = projette([0, -6, 0]), c = projette([0, 0, 0]);
+        if(!h || !b || !c) return null;
+        for(let k = 0; k <= 40; k++){
+          const f = k/40;
+          (parRangee[k] = parRangee[k] || []).push(
+            rangee(Math.round((c[0] + decal) * ech),
+                   Math.round(cv.height - (h[1] + (b[1]-h[1])*f) * ech)));
+        }
+      }
+      const med = parRangee.map(a => {
+        const p = a.filter(v => v !== null).sort((x, y) => x - y);
+        return p.length < 3 ? null : p[Math.floor(p.length/2)];
+      }).filter(v => v !== null);
+      return med.length ? Math.max(...med) : null;
+    };
+
+    // Le bord de l'ombre, cherché et non supposé : le plus grand saut de
+    // luminance à gauche du centre, sur la rangée de l'équateur.
+    const bordOmbre = () => {
+      cam.azim = AZIM;
+      avanceImages(6);
+      const c = projette([0, 0, 0]);
+      if(!c) return null;
+      const y = Math.round(cv.height - c[1] * ech);
+      if(y < 1 || y >= cv.height) return null;
+      const ligne = new Uint8Array(cv.width * 4);
+      gl.readPixels(0, y, cv.width, 1, gl.RGBA, gl.UNSIGNED_BYTE, ligne);
+      const L = i => (ligne[i*4] + ligne[i*4+1] + ligne[i*4+2])/3;
+      let x = null, saut = 0;
+      for(let i = 30; i < Math.round(c[0]*ech) - 5; i++){
+        const d = Math.abs(L(i+2) - L(i));
+        if(d > saut){ saut = d; x = i; }
+      }
+      return (x === null || saut < 40) ? null : x/ech - c[0];
+    };
+
+    spin = 0;
+    const temoin = colonne(0);
+
+    /* AVANT tout verdict : la caméra a-t-elle obéi ?
+
+       Elle ne le faisait pas, et rien ne le disait. Une mesure prise depuis un
+       point de vue qu'on n'a pas choisi n'est pas une mesure prudente, c'est
+       une mesure fausse — et ici elle rendait la médiane sur cinq azimuts
+       parfaitement inutile, puisque les cinq images étaient la même. */
+    point("la caméra est allée où on la demandait", derive < 0.01,
+          "< 0,01 rad d'écart", derive.toFixed(4),
+          derive >= 0.01 ? "quelque chose pilote la caméra par-dessus le contrôle : "
+                         + "les quatre points suivants ne veulent rien dire" : undefined);
+
+    point("le témoin à rotation nulle est calme", temoin !== null && temoin < 6,
+          "< 6", temoin === null ? "axe hors champ" : temoin.toFixed(2),
           "sans rotation il ne PEUT pas y avoir de couture : si celui-ci monte, "
           + "c'est la mesure qui est en cause, pas le moteur");
 
     for(const s of [0.6, 0.9, 0.95]){
-      const v = mesure(s);
-      point("spin " + s + " — pas de colonne sur l'axe", v !== null && v < 12,
-            "< 12", v === null ? "axe hors champ" : v.toFixed(2),
-            "Boyer-Lindquist rendait ici de 42 à 620");
+      spin = s;
+      const v = colonne(0);
+      point("spin " + s + " — pas de colonne sur l'axe", v !== null && v < 6,
+            "< 6", v === null ? "axe hors champ" : v.toFixed(2));
     }
+
+    spin = 0.9;
+    const ou = bordOmbre();
+    const vu = ou === null ? null : colonne(ou);
+    point("cette mesure voit encore une vraie colonne", vu !== null && vu > 7,
+          "> 7", vu === null ? "bord introuvable" : vu.toFixed(2),
+          "la même colonne posée sur le bord de l'ombre, à "
+          + (ou === null ? "?" : Math.round(-ou)) + " px à gauche du centre — "
+          + "s'il ne le voyait pas, il ne verrait pas non plus une couture");
   } finally {
     spin = av.spin; cam.dist = av.dist; cam.elev = av.elev; cam.azim = av.azim;
     degele();
