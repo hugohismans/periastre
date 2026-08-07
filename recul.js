@@ -50,6 +50,8 @@ const etat = {
   t: 0, duree: 0,                 // avancement de 0 à 1, et durée en secondes
   distance: 16*RS_M,              // distance courante
   tauBord: 0, tauLoin: 0,         // ce que le trajet aura coûté, en secondes
+  parcouru: 0,                    // distance déjà franchie, en mètres
+  vol: null,                      // l'état physique courant — voir `avance`
 };
 
 /* Lance un recul. La durée à l'écran n'a rien à voir avec la durée réelle du
@@ -64,6 +66,8 @@ function lance(vers_m, secondesEcran){
   etat.duree = secondesEcran || 14;
   etat.tauBord = v.tau;
   etat.tauLoin = v.t;
+  etat.parcouru = 0;
+  etat.vol = null;
   return v;
 }
 
@@ -71,6 +75,36 @@ function lance(vers_m, secondesEcran){
 // vaisseau d'un coup, et l'on n'arrive pas en pile.
 const adouci = x => x < 0.5 ? 4*x*x*x : 1 - Math.pow(-2*x + 2, 3)/2;
 
+/* ---------------------------------------------------------------------------
+   LE RYTHME EST CELUI DE L'ŒIL, LES CHIFFRES SONT CEUX DE LA PHYSIQUE.
+
+   Hugo, 7 août 2026 : « il faudrait mettre notre vitesse actuelle pendant le
+   voyage, en vitesse de la lumière. » Or la position à l'écran suivait une
+   courbe choisie pour être agréable, pendant que le chronomètre calculait le
+   vrai vol à 1 g : une vitesse tirée de cette courbe aurait été un chiffre faux
+   EN MOUVEMENT, ce qui se croit bien mieux qu'un chiffre faux immobile.
+
+   J'AI D'ABORD ESSAYÉ L'INVERSE, ET C'ÉTAIT UNE ERREUR. Faire suivre à la
+   position le vrai profil relativiste donne, sur ce trajet, deux virgule sept
+   décades dans la première moitié de l'animation et zéro virgule trois dans la
+   seconde : la seconde moitié ne bouge plus. C'est exactement ce que le recul
+   logarithmique existait pour éviter — « un recul proportionnel au temps
+   passerait quatre-vingt-dix-neuf pour cent du trajet à ne plus rien voir » —
+   et ça contredit le « on doit vraiment avoir l'impression qu'on s'éloigne » de
+   la même dictée. `outil-verif-recul.js` l'a refusé, à juste titre.
+
+   On sépare donc les deux choses :
+
+   - LE RYTHME reste logarithmique et adouci. C'est une décision de mise en
+     scène, et elle est déjà déclarée : quatorze secondes d'écran pour des mois
+     de vol, le site le dit.
+   - LES CHIFFRES se déduisent de la POSITION, pas du temps d'écran. On demande
+     à `enChemin` quel temps propre correspond à la distance déjà franchie, puis
+     à `etat` la vitesse et la dilatation à cet instant-là.
+
+   Ce qui s'affiche est donc VRAI : le vaisseau a réellement cette vitesse quand
+   il est là. Le seul artifice est la cadence à laquelle on parcourt le trajet,
+   et c'est un artifice assumé, pas un chiffre inventé.                        */
 function avance(dt){
   if(!etat.actif) return;
   etat.t = Math.min(1, etat.t + dt/etat.duree);
@@ -79,6 +113,14 @@ function avance(dt){
   // linéairement, pas la distance.
   const l0 = Math.log10(etat.d0), l1 = Math.log10(etat.d1);
   etat.distance = Math.pow(10, l0 + (l1 - l0)*k);
+
+  const D = Math.abs(etat.d1 - etat.d0);
+  etat.parcouru = Math.min(D, Math.abs(etat.distance - etat.d0));
+  if(D > 0 && global.VOYAGE && global.VOYAGE.etat){
+    const tau = global.VOYAGE.enChemin(D, etat.parcouru).tau;
+    etat.vol = global.VOYAGE.etat(D, tau);
+  } else etat.vol = null;
+
   if(etat.t >= 1) etat.actif = false;
 }
 

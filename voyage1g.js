@@ -111,6 +111,19 @@ function millier(x){
 const pluriel = (n, s) => n >= 2 ? s + mot("pluriel", "s") : s;
 
 const joli = {
+  /* Exposé le 7 août pour le bandeau de vol. C'est `nombre` qui met la virgule
+     ou le point selon la langue : le formater à la main ailleurs redonnerait
+     « 0.998 c » en français, faute que le site a déjà payée sur les unités. */
+  nombre,
+  /* La vitesse en fraction de c. Près de la limite, « 1,000 c » serait un
+     mensonge d'arrondi : on bascule sur ce qui MANQUE à la vitesse de la
+     lumière, seule façon honnête d'écrire 0,999999997. */
+  vitesse(beta){
+    if(beta > 0.9995)
+      return "c − " + (1 - beta).toExponential(1).replace("e-", "·10⁻").replace("+", "");
+    return nombre(beta, beta < 0.01 ? 4 : 3) + " c";
+  },
+  dilatation(gamma){ return "× " + nombre(gamma, gamma < 10 ? 3 : 0); },
   duree(s){
     const an = s/AN;
     if(an >= 1) return nombre(an, an < 10 ? 1 : 0) + " " + pluriel(an, mot("an", "an"));

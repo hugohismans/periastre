@@ -43,7 +43,29 @@ const fs = require("fs"), path = require("path");
    Ce chiffre a d'ailleurs été posé à 4 291 au premier jet — une estimation — et
    l'outil a refusé de passer dès sa première exécution. C'est exactement le
    comportement qu'on lui demande, et il l'a prouvé avant même d'être commis. */
-const PLAFOND = 4298;   // descendu de 4310 le 7 août 2026 — le cliquet a cliqué
+/* 4 314 le 7 août 2026 au soir. **LE PLAFOND MONTE POUR LA PREMIÈRE FOIS**, et
+   ça se justifie ici comme l'outil l'exige.
+
+   Il était à 4 310 toute la semaine, je l'ai descendu à 4 298 le matin même en
+   retirant du code — puis le bandeau de vol demandé par Hugo (vitesse en
+   fraction de c, dilatation, distance parcourue, phase) a coûté treize lignes
+   de câblage dans la page.
+
+   CE QUI A ÉTÉ TENTÉ D'ABORD, et qui a rendu quinze lignes : tout le formatage
+   est parti dans `voyage1g.js` — `joli.vitesse`, `joli.dilatation` —, où il est
+   éprouvable hors navigateur au lieu de vivre dans le bloc géant. C'est le bon
+   mouvement, et il ne suffit pas.
+
+   CE QUI N'A PAS ÉTÉ FAIT, et pourquoi : sortir la mise à jour du chronomètre
+   dans un module. Elle ne touche que le DOM ; un module qui touche le DOM n'est
+   pas éprouvable hors navigateur, donc l'extraction n'aurait servi qu'à
+   déplacer des lignes pour satisfaire ce compteur. Truquer un contrôle coûte
+   plus cher que treize lignes.
+
+   Il reste treize lignes de câblage irréductible, plus trois de repli. Le
+   plafond monte donc de 4 298 à 4 314, et redescendra au prochain domaine
+   sorti. */
+const PLAFOND = 4314;
 
 // Le nombre de modules déjà sortis. Il ne descend jamais non plus : un module
 // qu'on ferait rentrer dans le bloc serait le contraire exact du chantier.

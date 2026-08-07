@@ -115,6 +115,11 @@ Object.assign(window.UI, {
   "chrono.abord":          "aboard",
   "chrono.auloin":         "back home",
   "chrono.note":           "The ship holds one g. These are the durations it would really take.",
+  "chrono.vitesse":        "speed",
+  "chrono.dilatation":     "time stretch",
+  "chrono.parcouru":       "covered",
+  "chrono.accelere":       "burning",
+  "chrono.freine":         "braking",
   "chrono.retour":         "Return",
   "chrono.retourRegistre": "Back to the black hole",
 

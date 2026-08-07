@@ -130,6 +130,11 @@ window.UI = {
   "chrono.abord":          "à bord",
   "chrono.auloin":         "au loin",
   "chrono.note":           "Le vaisseau tient un g. Ces durées sont celles qu'il faudrait vraiment.",
+  "chrono.vitesse":        "vitesse",
+  "chrono.dilatation":     "dilatation",
+  "chrono.parcouru":       "parcouru",
+  "chrono.accelere":       "on accélère",
+  "chrono.freine":         "on freine",
   "chrono.retour":         "Retour",
   "chrono.retourRegistre": "Retour au trou noir",
 

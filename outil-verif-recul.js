@@ -35,9 +35,17 @@
 const fs = require("fs"), path = require("path");
 
 const faux = {};
-// `lance()` seul a besoin de VOYAGE ; on ne s'en sert pas ici, mais le module
-// le lit à l'appel et non au chargement — un guetteur suffit.
-faux.VOYAGE = { entre: () => ({ tau: 0, t: 0 }) };
+/* LE VRAI `VOYAGE`, PLUS UN LEURRE.
+
+   Il y avait ici `{ entre: () => ({ tau: 0, t: 0 }) }`, au motif que `lance()`
+   seul s'en servait et qu'on ne mesurait pas son résultat. Depuis le 7 août la
+   POSITION vient de `VOYAGE.etat` : un leurre qui rend zéro ferait alors un
+   vaisseau immobile, et tous les contrôles de décades mesureraient une scène
+   figée en croyant mesurer un voyage.
+
+   On charge donc le module réel. C'est aussi plus honnête : ce fichier vérifie
+   le recul tel qu'il tourne, pas une version de laboratoire. */
+new Function("window", fs.readFileSync(path.join(__dirname, "voyage1g.js"), "utf8"))(faux);
 new Function("window", fs.readFileSync(path.join(__dirname, "recul.js"), "utf8"))(faux);
 const R = faux.RECUL;
 
@@ -220,6 +228,70 @@ groupe("Le recul se compte en décades");
      Math.abs(R.etat.distance - d1) / d1 < 1e-9, d1.toExponential(4),
      R.etat.distance.toExponential(4));
   ok("et le recul s'arrête", R.etat.actif === false, "false", String(R.etat.actif));
+}
+
+// ═══════════════════════════════════ 5 bis. les chiffres de vol sont vrais
+/* Ce que le voyage AFFICHE désormais — vitesse, dilatation, distance franchie —
+   ne vient pas du temps d'écran mais de la position. Ces contrôles vérifient
+   que la traduction est juste, et surtout que les DEUX PHASES sont réellement
+   traversées : Hugo veut qu'on comprenne qu'on accélère puis qu'on freine, et
+   un trajet qui ne montrerait jamais le freinage le tromperait. */
+groupe("Ce qu'on affiche pendant le vol");
+{
+  const d0 = 16 * R.RS_M, d1 = 16000 * R.RS_M, D = d1 - d0;
+  Object.assign(R.etat, { actif:true, d0, d1, t:0, duree:10, distance:d0 });
+
+  const vus = new Set();
+  let betaMax = 0, gammaMax = 1, croissant = true, sAv = -1;
+  for(let i = 0; i < 600; i++){
+    R.avance(10/600);
+    const v = R.etat.vol;
+    if(!v) continue;
+    vus.add(v.phase);
+    betaMax = Math.max(betaMax, v.beta);
+    gammaMax = Math.max(gammaMax, v.gamma);
+    if(R.etat.parcouru < sAv - 1) croissant = false;
+    sAv = R.etat.parcouru;
+  }
+
+  ok("les deux phases sont traversées", vus.has("acceleration") && vus.has("freinage"),
+     "acceleration et freinage", [...vus].join(" + "),
+     "sans le freinage, on laisserait croire qu'on arrive lancé");
+  ok("la distance franchie ne recule jamais", croissant, "toujours croissante",
+     croissant ? "600 images" : "une inversion");
+  ok("on a bien franchi tout le trajet", Math.abs(R.etat.parcouru - D)/D < 1e-6,
+     D.toExponential(4), R.etat.parcouru.toExponential(4));
+
+  /* La vitesse de pointe doit être celle que `trajet()` calcule par un tout
+     autre chemin — c'est le contrôle qui attrape une traduction fausse entre
+     position et temps propre. */
+  const ref = faux.VOYAGE.trajet(D);
+  /* Deux bornes, et pas une égalité. Le maximum ÉCHANTILLONNÉ ne peut pas
+     tomber pile sur le demi-tour — six cents images à cadence logarithmique le
+     franchissent entre deux mesures — donc exiger l'égalité, c'est exiger que
+     le hasard du pas coopère. Ce qui doit être vrai, en revanche, l'est dans
+     les deux sens : on ne DÉPASSE jamais la vitesse du vol à 1 g, et l'on s'en
+     approche à un pour cent. Une traduction fausse entre position et temps
+     propre casserait l'une ou l'autre. */
+  ok("la vitesse affichée ne dépasse jamais celle du vol à 1 g",
+     betaMax <= ref.vmax * (1 + 1e-9),
+     "≤ " + ref.vmax.toFixed(6) + " c", betaMax.toFixed(6) + " c");
+  ok("et elle l'atteint à un pour cent près", betaMax > ref.vmax * 0.99,
+     "> " + (ref.vmax*0.99).toFixed(6) + " c", betaMax.toFixed(6) + " c",
+     "référence calculée par `trajet()`, qui ne sait rien du recul ni de son rythme");
+  ok("le facteur de dilatation suit la même borne",
+     gammaMax <= ref.gamma * (1 + 1e-9) && gammaMax > ref.gamma - 1e-3,
+     ref.gamma.toFixed(6), gammaMax.toFixed(6));
+
+  // Aux deux bouts, le vaisseau est à l'arrêt : c'est ce qui rend les phases
+  // lisibles sans avoir à les annoncer.
+  Object.assign(R.etat, { actif:true, d0, d1, t:0, duree:10, distance:d0 });
+  R.avance(1e-6);
+  ok("on part à l'arrêt", R.etat.vol && R.etat.vol.beta < 1e-3,
+     "≈ 0 c", R.etat.vol ? R.etat.vol.beta.toExponential(2) : "aucun état");
+  for(let i = 0; i < 600; i++) R.avance(10/600);
+  ok("et l'on arrive à l'arrêt", R.etat.vol && R.etat.vol.beta < 1e-3,
+     "≈ 0 c", R.etat.vol ? R.etat.vol.beta.toExponential(2) : "aucun état");
 }
 
 // ════════════════════════════════════════════════════ 6. l'étiquette parle
