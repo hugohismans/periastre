@@ -79,8 +79,23 @@ const fs = require("fs"), path = require("path");
 
    Deux hausses en une soirée, c'est beaucoup, et c'est le même chantier qui les
    demande. Le prochain qui touche à ce bloc devrait sortir un domaine entier
-   plutôt qu'ajouter une ligne : la marge est consommée. */
-const PLAFOND = 4343;
+   plutôt qu'ajouter une ligne : la marge est consommée.
+
+   ---------------------------------------------------------------------------
+   4 382 LE 8 AOÛT — ET CE N'EST PAS UNE TROISIÈME HAUSSE.
+
+   Le critère a changé, donc le chiffre change avec lui. On mesurait le plus
+   gros bloc (4 343) ; on mesure maintenant la SOMME des blocs de code de la
+   page (4 343 + 14 + 25 = 4 382). Pas une ligne n'a été ajoutée entre les deux
+   relevés.
+
+   La raison est écrite plus haut, près de la découpe : le chantier F2 commence
+   par couper le bloc en trois, ce qui aurait fait tomber l'ancien compteur à
+   ~2 400 sans que rien ne sorte du fichier. Un cliquet qu'on désarme en
+   déplaçant une frontière ne cliquette pas.
+
+   À partir d'ici il ne fait plus que descendre. Cible du chantier : ~2 300. */
+const PLAFOND = 4382;
 
 // Le nombre de modules déjà sortis. Il ne descend jamais non plus : un module
 // qu'on ferait rentrer dans le bloc serait le contraire exact du chantier.
@@ -101,18 +116,40 @@ const ici = __dirname;
 const page = fs.readFileSync(path.join(ici, "index.html"), "utf8");
 
 /* Les blocs SANS `src` seulement : une balise qui charge un module est
-   précisément ce qu'on encourage, et la compter serait absurde. */
-const blocs = [];
-const re = /<script(?![^>]*\bsrc=)[^>]*>([\s\S]*?)<\/script>/g;
-let m;
-while((m = re.exec(page)) !== null){
-  blocs.push({
-    depart: page.slice(0, m.index).split("\n").length,
-    lignes: m[1].split("\n").length - 1,
-  });
-}
-blocs.sort((a, b) => b.lignes - a.lignes);
+   précisément ce qu'on encourage, et la compter serait absurde.
 
+   ---------------------------------------------------------------------------
+   ON COMPTE LA SOMME, PAS LE PLUS GROS — ET C'EST UNE CORRECTION.
+
+   Cet outil ne regardait que `blocs[0]`, le plus gros. Or le chantier F2
+   commence par COUPER le bloc en trois pour qu'une panne n'emporte plus toute
+   la page. Le plus gros serait alors tombé de 4 343 à ~2 400 sans qu'une seule
+   ligne soit sortie du fichier : la première étape du chantier aurait truqué le
+   contrôle censé le mesurer.
+
+   Le cliquet porte donc sur la SOMME du code de la page, qui ne peut pas être
+   réduite en déplaçant une frontière. Le plus gros bloc reste affiché, parce
+   qu'il dit autre chose — le rayon d'une mort silencieuse.
+
+   ---------------------------------------------------------------------------
+   ET LES NUANCEURS NE SONT PAS DU CODE DE PAGE.
+
+   `<script id="fs" type="x-shader/x-fragment">` n'a pas de `src` non plus, et
+   l'ancienne expression les attrapait — sans conséquence tant qu'on ne prenait
+   que le maximum, fatale dès qu'on somme : 777 lignes de GLSL entreraient dans
+   un compteur qui parle de portée globale JavaScript. On filtre donc sur le
+   `type`, et un contrôle plus bas exige qu'on en ait bien écarté.
+
+   La découpe elle-même vit dans `outils/blocs.js`, partagée avec
+   `outil-verif-ordre.js` : deux expressions recopiées divergent tôt ou tard, et
+   le jour où elles divergent, l'un des deux outils mesure un fichier que
+   l'autre ne voit pas. */
+const { decoupe } = require("./outils/blocs.js");
+
+const { code, autres: ecartes } = decoupe(page);
+const blocs = code.slice().sort((a, b) => b.lignes - a.lignes);
+
+const somme = blocs.reduce((s, b) => s + b.lignes, 0);
 const gros = blocs[0] || { lignes: 0, depart: 0 };
 const totalPage = page.split("\n").length;
 
@@ -121,21 +158,23 @@ console.log("  ═════════════════════�
 
 groupe("Ce qu'on mesure");
 console.log("  index.html                " + String(totalPage).padStart(5) + " lignes");
-console.log("  blocs <script> sans src   " + String(blocs.length).padStart(5));
+console.log("  blocs de code sans src    " + String(blocs.length).padStart(5)
+            + "   (" + ecartes.length + " nuanceur(s) écarté(s))");
+console.log("  LA SOMME — le cliquet     " + String(somme).padStart(5) + " lignes");
 console.log("  le plus gros              " + String(gros.lignes).padStart(5)
             + " lignes, à partir de la ligne " + gros.depart);
-console.log("  part du fichier           " + String(Math.round(100*gros.lignes/totalPage)).padStart(5) + " %");
+console.log("  part du fichier           " + String(Math.round(100*somme/totalPage)).padStart(5) + " %");
 
 groupe("Le cliquet");
-ok("le bloc principal n'a pas grossi", gros.lignes <= PLAFOND,
-   "≤ " + PLAFOND, gros.lignes,
-   gros.lignes > PLAFOND
-     ? "il a pris " + (gros.lignes - PLAFOND) + " lignes. Sortir un domaine, ou "
-       + "expliquer ici pourquoi le plafond doit monter — et ce sera la première fois."
-     : "marge : " + (PLAFOND - gros.lignes) + " lignes");
+ok("le code de la page n'a pas grossi", somme <= PLAFOND,
+   "≤ " + PLAFOND, somme,
+   somme > PLAFOND
+     ? "il a pris " + (somme - PLAFOND) + " lignes. Sortir un domaine, ou "
+       + "expliquer ici pourquoi le plafond doit monter."
+     : "marge : " + (PLAFOND - somme) + " lignes");
 
-if(gros.lignes < PLAFOND){
-  console.log("\n  ⬇  LE PLAFOND PEUT DESCENDRE : " + PLAFOND + " → " + gros.lignes);
+if(somme < PLAFOND){
+  console.log("\n  ⬇  LE PLAFOND PEUT DESCENDRE : " + PLAFOND + " → " + somme);
   console.log("     Modifier `PLAFOND` dans ce fichier. C'est le seul entretien qu'il demande.");
 }
 
@@ -153,9 +192,21 @@ if(modules > MODULES_SORTIS){
    marcher, l'outil rendrait zéro et passerait au vert en ne mesurant rien. */
 groupe("La mesure elle-même tient debout");
 ok("on a bien trouvé des blocs de script", blocs.length > 0, "> 0", blocs.length);
-ok("et le plus gros n'est pas vide", gros.lignes > 1000, "> 1000 lignes", gros.lignes,
+ok("et le plus gros n'est pas vide", gros.lignes > 500, "> 500 lignes", gros.lignes,
    "un zéro voudrait dire que l'expression de découpe ne mord plus, pas que le "
    + "bloc a disparu — et le contrôle passerait au vert sans rien mesurer");
+
+/* Le filtre sur le type est le seul point où l'on peut se tromper de 777 lignes
+   sans s'en apercevoir : s'il cessait de mordre, les nuanceurs entreraient dans
+   la somme et le plafond sauterait d'un coup — ou pire, on le monterait pour
+   « faire passer », en croyant que le code a grossi. */
+ok("les nuanceurs sont bien écartés du compte", ecartes.length >= 4,
+   "≥ 4 blocs de nuanceur", ecartes.length,
+   ecartes.length ? ecartes.map(b => b.type + " (" + b.lignes + " l)").join(" · ")
+                  : "AUCUN — le filtre sur le type ne mord plus");
+ok("la somme est cohérente avec le plus gros", somme >= gros.lignes,
+   "≥ " + gros.lignes, somme,
+   "trivial, sauf si le filtre a laissé passer un bloc dans un compte et pas dans l'autre");
 
 console.log("\n  " + (echecs ? "❌  " + echecs + " ÉCHECS sur " + n + " contrôles"
                              : "✅  TOUT PASSE — " + n + " contrôles") + "\n");

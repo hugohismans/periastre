@@ -145,16 +145,50 @@ if(orphelins.length === 0){
   console.log("  " + c("    Certains se gardent eux-mêmes — à regarder, pas à corriger d'office.", "gris"));
 }
 
+/* UN MODULE NON BRANCHÉ DOIT PORTER SA RAISON, SINON L'OUTIL ÉCHOUE.
+
+   Trois modules étaient signalés du même ton depuis des semaines — et l'un des
+   trois n'est PAS une dette : `kerrschild.js` est l'arbitre du nuanceur, il tire
+   sa vérité d'ailleurs précisément parce qu'il ne tourne jamais dans la page.
+   Le mettre sur la même ligne que `ncorps.js`, écrit et oublié, apprend à
+   ignorer la liste entière.
+
+   Chaque module hors page porte donc une raison écrite ici. Un module qui n'en
+   a pas fait ÉCHOUER `node tout.js` : on ne peut plus en oublier un en silence,
+   et on ne peut plus faire semblant qu'une dette est un choix. */
+const POURQUOI_PAS_BRANCHE = {
+  "kerrschild.js":
+    "ARBITRE, jamais chargé — il éprouve le nuanceur depuis dehors (règle 3). "
+    + "Le brancher le rendrait complice de ce qu'il contrôle.",
+  "ncorps.js":
+    "DETTE F3, en cours — décision d'Hugo du 6 août : on branche N corps, on "
+    + "laisse la Lune. Usage retenu : un compagnon au trou noir d'étude.",
+  "echelle.js":
+    "EN ATTENTE D'UNE DÉCISION — moteur de voyage d'échelle sans lieu où vivre. "
+    + "À trancher avec le chantier des scènes, pas avant.",
+  "lune.js":
+    "ÉCARTÉ — le carnet lui reproche de ne pas être sourçable, et le désaccord "
+    + "n'a jamais été tranché. Décision d'Hugo du 6 août : on la laisse de côté.",
+};
+
 if(horsPage.length){
-  console.log("\n  " + c("ÉCRIT, ÉPROUVÉ, BRANCHÉ À RIEN", "gras"));
-  console.log("  " + "─".repeat(30));
+  const sansRaison = horsPage.filter(m => !POURQUOI_PAS_BRANCHE[m]);
+  console.log("\n  " + c("HORS PAGE, ET POURQUOI", "gras"));
+  console.log("  " + "─".repeat(23));
   for(const m of horsPage){
     const n = fs.readFileSync(path.join(ici, m), "utf8").split("\n").length;
-    console.log("  " + c("⚠", "jaune") + "   " + m.padEnd(18)
-                + String(n).padStart(5) + " lignes   "
-                + c("chargé par aucune page", "gris"));
+    const r = POURQUOI_PAS_BRANCHE[m];
+    console.log("  " + c(r ? "·" : "❌", r ? "gris" : "rouge") + "   " + m.padEnd(18)
+                + String(n).padStart(5) + " lignes");
+    console.log("      " + c(r || "AUCUNE RAISON ÉCRITE — ni acquis ni dette, "
+                + "le troisième état. Décider, ou l'écrire dans POURQUOI_PAS_BRANCHE.",
+                r ? "gris" : "rouge"));
   }
-  console.log("  " + c("      Ni acquis ni dette : le troisième état, celui qu'on ne veut pas.", "gris"));
+  if(sansRaison.length){
+    echecs++;
+    rates.push({ o: "tout.js — modules sans raison",
+                 sortie: "❌ " + sansRaison.join(", ") + " : hors page et sans raison écrite." });
+  }
 }
 
 // ──────────────────────────────────────────── ce que cet outil ne peut pas faire

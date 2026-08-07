@@ -1412,12 +1412,45 @@ function texte(){
   return l.join("\n");
 }
 
+/* ---------------------------------------------------------------------------
+   CHAQUE CONTRÔLE SOUS FILET.
+
+   Les deux passes appelaient dix-sept contrôles à la file, sans `try`. Le
+   premier qui levait emportait les seize suivants : on lisait « rien ne
+   s'affiche » et l'on ne savait pas si c'était un contrôle cassé ou seize
+   défauts. C'est exactement le mode de panne d'un chantier qui déplace des
+   noms — celui qui commence le 8 août 2026.
+
+   Un contrôle qui lève rend maintenant un point rouge nommé, et les autres
+   continuent. L'erreur devient une information au lieu d'un silence. */
+function joue(nom, f){
+  try { f(); }
+  catch(e){
+    ouvre(nom);
+    point("le contrôle s'est joué jusqu'au bout", false, "aucune erreur",
+          (e && e.message) ? e.message : String(e),
+          "il a LEVÉ. Les points qu'il aurait posés manquent — mais les autres "
+          + "contrôles ont continué, et c'est tout l'intérêt de ce filet.");
+  }
+}
+
+/* La liste vit à un seul endroit : deux listes divergent, et celle qu'on oublie
+   de tenir à jour est celle qui compte. */
+const PASSE = [
+  ["Le bloc de script vit", vivant], ["Cohérence", coherence], ["Les lieux", lieux],
+  ["Le temps", tempsJuste], ["La résolution", resolution], ["La saisie libre", saisieLibre],
+  ["Les nuanceurs", nuanceurs], ["Les clés nues", clesNues], ["Le banc d'essai", banc],
+  ["Les pixels", pixels], ["La couture", couture], ["La carte fixe", carteFixe],
+  ["La carte dehors", carteDehors], ["La rotation calme", rotationCalme],
+  ["Le même espace", memeEspace], ["La mise en page", mesurePage], ["Le budget", budget],
+];
+const PASSE_LONGUE = [["Le parcours", parcours], ["Le voyage", voyage]];
+
 /* La passe non destructive : tout ce qui n'abîme pas l'état courant.
    C'est celle qu'on lance après une modification, en boucle. */
 function sain(){
   resultats.length = 0;
-  vivant(); coherence(); lieux(); tempsJuste(); resolution(); saisieLibre(); nuanceurs();
-  clesNues(); banc(); pixels(); couture(); carteFixe(); carteDehors(); rotationCalme(); memeEspace(); mesurePage(); budget();
+  for(const [nom, f] of PASSE) joue(nom, f);
   return bilan();
 }
 
@@ -1425,9 +1458,7 @@ function sain(){
    on la lance sur une page fraîche. */
 function tout(){
   resultats.length = 0;
-  vivant(); coherence(); lieux(); tempsJuste(); resolution(); saisieLibre(); nuanceurs();
-  clesNues(); banc(); pixels(); couture(); carteFixe(); carteDehors(); rotationCalme(); memeEspace(); mesurePage(); budget();
-  parcours(); voyage();
+  for(const [nom, f] of PASSE.concat(PASSE_LONGUE)) joue(nom, f);
   return bilan();
 }
 
