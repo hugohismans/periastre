@@ -43,11 +43,13 @@ const fs = require("fs"), path = require("path");
    Ce chiffre a d'ailleurs été posé à 4 291 au premier jet — une estimation — et
    l'outil a refusé de passer dès sa première exécution. C'est exactement le
    comportement qu'on lui demande, et il l'a prouvé avant même d'être commis. */
-const PLAFOND = 4310;
+const PLAFOND = 4298;   // descendu de 4310 le 7 août 2026 — le cliquet a cliqué
 
 // Le nombre de modules déjà sortis. Il ne descend jamais non plus : un module
 // qu'on ferait rentrer dans le bloc serait le contraire exact du chantier.
-const MODULES_SORTIS = 24;
+// Monté de 24 à 26 le 7 août 2026 : `kerrschild.js` et `contrat.js` — l'outil
+// l'avait signalé lui-même, c'est le seul entretien qu'il demande.
+const MODULES_SORTIS = 26;
 
 let n = 0, echecs = 0;
 const groupe = t => console.log("\n  " + t + "\n  " + "─".repeat(t.length));

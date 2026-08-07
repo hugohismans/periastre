@@ -706,20 +706,84 @@ function pixels(){
    restée sensible au signal — sinon on a fabriqué un contrôle qui passe toujours,
    ce qui est pire que pas de contrôle.
 
-   Le cinquième point pose donc la même colonne sur le BORD DE L'OMBRE, qu'il
-   localise lui-même en cherchant le plus grand saut de luminance sur la rangée
-   de l'équateur. Le bord est une vraie structure verticale, collée à la scène
-   comme le serait une couture, et d'origine entièrement indépendante. Il doit
-   être vu.
+   On l'éprouve donc sur des profils FABRIQUÉS, dans les deux sens : elle doit
+   crier sur une colonne d'un pixel et se taire sur le même fond sans elle. Plus
+   un troisième point qui exige que les bandes réellement lues contiennent une
+   image, faute de quoi tout le reste mesurerait un tampon vide.
 
        l'axe, toutes rotations, quatre passages     1,5  à  3,1
-       le bord de l'ombre, mêmes passages          10,6  à  31,5
+       le pic fabriqué d'un pixel                        ≈ 24
+       le même fond sans pic                             ≈ 2
 
-   Les bornes — 6 pour l'axe, 7 pour le témoin — sont posées dans ce couloir.
+   Les bornes — 6 pour l'axe, 12 et 6 pour les témoins — sont posées dans ce
+   couloir, et elles ne dépendent plus de la taille de la fenêtre.
 
    Les valeurs Boyer-Lindquist relevées avant la réécriture (42 à 620) l'ont été
    avec l'ANCIENNE statistique : elles ne sont pas comparables à celles-ci et ne
    servent donc pas de référence. C'est le témoin du bord qui étalonne.        */
+
+/* 5 ter. LA CARTE DES ORBITES NE BOUGE PAS TOUTE SEULE.
+
+   Hugo, séance du 7 août : « on a l'impression que le vaisseau tourne autour du
+   trou noir, ou que leur plan tourne sous lui-même. Mais on est sur un point
+   fixe dans la galaxie quand on le regarde. »
+
+   La cause tenait en une ligne — `vue.azim += dt*0.05`, ajoutée pour que le
+   volume se lise. Elle fabriquait un déplacement du vaisseau qui n'existe pas,
+   sur un site dont toute la valeur est que ce qu'on voit est calculé.
+
+   Ce contrôle interdit qu'elle revienne. Il fait tourner cinq secondes de
+   simulation sans qu'aucun doigt ne touche rien, et exige que l'azimut soit
+   IDENTIQUE — pas « proche ». Une caméra qui dérive n'a pas de bonne vitesse
+   de dérive.
+
+   Et il vérifie dans la foulée que le mouvement LÉGITIME, lui, a bien lieu :
+   les étoiles avancent sur leurs orbites parce que l'année défile. Sans ce
+   second point, on aurait pu satisfaire le premier en gelant toute la carte,
+   ce qui aurait supprimé le seul mouvement vrai de la scène.                   */
+function carteFixe(){
+  ouvre("La carte des orbites ne tourne pas toute seule");
+  const V = ETOILES_S.vue;
+  const av = { azim: V.azim, elev: V.elev, annee: V.annee,
+               carte: TELESCOPE.carte, lieu };
+  const degele = fige();
+  try {
+    if(lieu !== "telescope") vaAu("telescope");
+
+    /* IL FAUT QUE LA CARTE SOIT RÉELLEMENT DESSINÉE.
+
+       Première version : on allait au télescope et l'on avançait trois cents
+       images. Les deux premiers points passaient — et ne prouvaient RIEN, parce
+       que `dessineVoyage` se court-circuite quand aucun trajet n'est en cours.
+       L'azimut ne bougeait pas puisque le code qui le fait bouger ne
+       s'exécutait jamais.
+
+       On force donc l'opacité de la carte à chaque image. C'est la troisième
+       fois cette semaine qu'un de mes contrôles passe en n'exerçant rien. */
+    const azim0 = V.azim, elev0 = V.elev, annee0 = V.annee;
+    let t = performance.now();
+    for(let i = 0; i < 300; i++){ TELESCOPE.carte = 1; t = avanceImages(1, t); }
+
+    point("l'azimut n'a pas bougé d'un iota", V.azim === azim0,
+          azim0.toFixed(6), V.azim.toFixed(6),
+          "une dérive de 0,05 rad/s donnerait " + (azim0 + 0.25).toFixed(6)
+          + " ici — c'est ce qui a fait dire à Hugo qu'on tournait autour de l'objet");
+    point("l'élévation non plus", V.elev === elev0, elev0.toFixed(6), V.elev.toFixed(6));
+
+    point("mais les étoiles, elles, avancent", V.annee > annee0,
+          "> " + annee0.toFixed(2), V.annee.toFixed(2),
+          "le seul mouvement vrai de la scène : si celui-ci s'arrête, on a figé "
+          + "la carte au lieu de retirer la fausse rotation");
+  } finally {
+    V.azim = av.azim; V.elev = av.elev; V.annee = av.annee;
+    TELESCOPE.carte = av.carte;
+    degele();
+    if(lieu !== av.lieu) vaAu(av.lieu);
+    avanceImages(2);
+  }
+  return enCours;
+}
+
 function couture(){
   ouvre("L'axe de rotation ne porte pas de couture");
   const av = { spin, dist: cam.dist, elev: cam.elev, azim: cam.azim, lieu };
@@ -730,18 +794,41 @@ function couture(){
 
     const AZIM = 0.6, ECARTS = [-0.06, -0.03, 0, 0.03, 0.06];
     const ech = cv.width / cv.clientWidth;
-    const buf = new Uint8Array(41*4);
 
-    // Le rapport de la différence seconde AU CENTRE à la médiane de la bande.
-    const rangee = (sx, sy) => {
-      if(sx < 25 || sx > cv.width-25 || sy < 2 || sy > cv.height-2) return null;
-      gl.readPixels(sx-20, sy, 41, 1, gl.RGBA, gl.UNSIGNED_BYTE, buf);
-      const L = [];
-      for(let i = 0; i < 41; i++) L.push((buf[i*4] + buf[i*4+1] + buf[i*4+2])/3);
-      const d2 = [];
-      for(let i = 1; i < 40; i++) d2.push(Math.abs(L[i+1] - 2*L[i] + L[i-1]));
+    /* LA BANDE SE MESURE EN FRACTION D'ÉCRAN, PAS EN PIXELS.
+
+       Elle faisait quarante et un pixels en dur. C'est 3 % de la largeur sur un
+       écran de bureau — et 11 % sur un téléphone à 375 points, où elle avale
+       alors la courbure du bord de l'ombre et noie la structure qu'elle est
+       censée voir. Le témoin tombait de 24-29 à 3,5-8 sans qu'une seule ligne
+       du moteur ait changé.
+
+       Le contrôle dépendait donc de la taille de la fenêtre sans le dire, ce
+       qui est la même faute que la caméra qui n'obéissait pas : d'accord avec
+       lui-même dans les conditions où on l'a écrit, muet ailleurs. Et il aurait
+       menti précisément sur le matériel d'Hugo, qui juge au téléphone. */
+    const DEMI  = Math.max(6, Math.round(cv.width * 0.0156));   // 20 px à 1280
+    const LARGE = 2*DEMI + 1;
+    const buf = new Uint8Array(LARGE*4);
+
+    /* Le rapport de la différence seconde AU CENTRE à la médiane de la bande.
+       Séparé de la lecture de pixels pour qu'on puisse l'éprouver sur des
+       profils fabriqués — voir les deux témoins, plus bas. */
+    const rapport = L => {
+      const n = L.length, d2 = [];
+      for(let i = 1; i < n-1; i++) d2.push(Math.abs(L[i+1] - 2*L[i] + L[i-1]));
       const tri = d2.slice().sort((p, q) => p - q);
-      return d2[19] / Math.max(tri[Math.floor(tri.length/2)], 0.5);
+      return d2[(n>>1) - 1] / Math.max(tri[Math.floor(tri.length/2)], 0.5);
+    };
+
+    let vuDuVrai = 0;                 // l'amplitude réelle rencontrée dans l'image
+    const rangee = (sx, sy) => {
+      if(sx < DEMI+5 || sx > cv.width-DEMI-5 || sy < 2 || sy > cv.height-2) return null;
+      gl.readPixels(sx-DEMI, sy, LARGE, 1, gl.RGBA, gl.UNSIGNED_BYTE, buf);
+      const L = [];
+      for(let i = 0; i < LARGE; i++) L.push((buf[i*4] + buf[i*4+1] + buf[i*4+2])/3);
+      vuDuVrai = Math.max(vuDuVrai, Math.max(...L) - Math.min(...L));
+      return rapport(L);
     };
 
     /* `decal` est un écart en pixels CSS depuis le centre projeté : 0 pour
@@ -767,26 +854,6 @@ function couture(){
         return p.length < 3 ? null : p[Math.floor(p.length/2)];
       }).filter(v => v !== null);
       return med.length ? Math.max(...med) : null;
-    };
-
-    // Le bord de l'ombre, cherché et non supposé : le plus grand saut de
-    // luminance à gauche du centre, sur la rangée de l'équateur.
-    const bordOmbre = () => {
-      cam.azim = AZIM;
-      avanceImages(6);
-      const c = projette([0, 0, 0]);
-      if(!c) return null;
-      const y = Math.round(cv.height - c[1] * ech);
-      if(y < 1 || y >= cv.height) return null;
-      const ligne = new Uint8Array(cv.width * 4);
-      gl.readPixels(0, y, cv.width, 1, gl.RGBA, gl.UNSIGNED_BYTE, ligne);
-      const L = i => (ligne[i*4] + ligne[i*4+1] + ligne[i*4+2])/3;
-      let x = null, saut = 0;
-      for(let i = 30; i < Math.round(c[0]*ech) - 5; i++){
-        const d = Math.abs(L(i+2) - L(i));
-        if(d > saut){ saut = d; x = i; }
-      }
-      return (x === null || saut < 40) ? null : x/ech - c[0];
     };
 
     spin = 0;
@@ -815,14 +882,46 @@ function couture(){
             "< 6", v === null ? "axe hors champ" : v.toFixed(2));
     }
 
-    spin = 0.9;
-    const ou = bordOmbre();
-    const vu = ou === null ? null : colonne(ou);
-    point("cette mesure voit encore une vraie colonne", vu !== null && vu > 7,
-          "> 7", vu === null ? "bord introuvable" : vu.toFixed(2),
-          "la même colonne posée sur le bord de l'ombre, à "
-          + (ou === null ? "?" : Math.round(-ou)) + " px à gauche du centre — "
-          + "s'il ne le voyait pas, il ne verrait pas non plus une couture");
+    /* ------------------------------------------------- LES DEUX TÉMOINS
+
+       Le premier essai posait la même colonne sur le BORD DE L'OMBRE, en
+       pariant que c'était une structure verticale franche. C'est faux, et le
+       profil des pixels le dit sans appel — 240, 236, 229, 224, 217, 190, 174,
+       138, 128, 96, 47, 34, 32 : une RAMPE sur dix pixels, pas une marche. Une
+       différence seconde ne voit rien d'une pente lisse, et le témoin passait à
+       1 280 par chance de cadrage avant de rater à 375.
+
+       On éprouve donc la statistique sur des profils fabriqués, où l'on sait ce
+       qu'il y a. Elle doit crier sur une colonne d'un pixel et se taire sur un
+       fond bruité — les deux sens, sans quoi on ne saurait pas si elle est
+       aveugle ou hystérique.
+
+       Et comme un test sur données fabriquées ne prouverait rien de la chaîne
+       de lecture, un troisième point exige que les bandes réellement lues
+       contiennent une image, et pas un tampon vide. */
+    /* Le profil n'est pas inventé : c'est CELUI DU 7 AOÛT, relevé sur l'image
+       qui avait fait échouer ce contrôle — `31 31 30 30 [54] 30 30 29 29`. Un
+       fond qui dérive doucement de 31 à 29, et l'étoile à +24 dessus. */
+    const plat = [], pic = [];
+    for(let i = 0; i < LARGE; i++){
+      const fond = Math.round(31 - i*2/(LARGE - 1));
+      plat.push(fond);
+      pic.push(i === (LARGE >> 1) ? fond + 24 : fond);
+    }
+    const rPic = rapport(pic), rPlat = rapport(plat);
+
+    point("la mesure voit une colonne d'un seul pixel", rPic > 12,
+          "> 12", rPic.toFixed(2),
+          "un pic de 24 niveaux sur un fond bruité de 30 — l'ordre de grandeur "
+          + "exact de l'étoile qui avait fait échouer ce contrôle le 7 août");
+    point("et elle se tait sur un fond sans colonne", rPlat < 6,
+          "< 6", rPlat.toFixed(2),
+          "le même fond, sans le pic : sans ce point, une mesure qui crie "
+          + "toujours passerait le précédent");
+    point("les bandes lues contenaient bien une image", vuDuVrai > 20,
+          "> 20 niveaux d'amplitude", Math.round(vuDuVrai),
+          "sinon les quatre points ci-dessus mesurent un tampon vide, et "
+          + "l'absence de couture ne veut rien dire");
   } finally {
     spin = av.spin; cam.dist = av.dist; cam.elev = av.elev; cam.azim = av.azim;
     degele();
@@ -1056,7 +1155,7 @@ function texte(){
 function sain(){
   resultats.length = 0;
   vivant(); coherence(); lieux(); tempsJuste(); resolution(); saisieLibre(); nuanceurs();
-  clesNues(); banc(); pixels(); couture(); mesurePage(); budget();
+  clesNues(); banc(); pixels(); couture(); carteFixe(); mesurePage(); budget();
   return bilan();
 }
 
@@ -1065,14 +1164,14 @@ function sain(){
 function tout(){
   resultats.length = 0;
   vivant(); coherence(); lieux(); tempsJuste(); resolution(); saisieLibre(); nuanceurs();
-  clesNues(); banc(); pixels(); couture(); mesurePage(); budget();
+  clesNues(); banc(); pixels(); couture(); carteFixe(); mesurePage(); budget();
   parcours(); voyage();
   return bilan();
 }
 
 global.VERIF = {
   vivant, coherence, lieux, tempsJuste, resolution, saisieLibre, nuanceurs, clesNues,
-  banc, pixels, couture, mesurePage, parcours, voyage, budget,
+  banc, pixels, couture, carteFixe, mesurePage, parcours, voyage, budget,
   sain, tout, bilan, texte, resultats, FORMATS, OR,
   // outillage exposé : d'autres contrôles pourront s'y adosser
   pose, fige, avanceImages,
