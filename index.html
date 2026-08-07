@@ -2244,11 +2244,11 @@ void main(){
     l = /^fr/i.test(navigator.language || "fr") ? "fr" : "en";
   window.LANGUE = l;
   document.documentElement.lang = l;
-  document.write('<script src="' + (l === "en" ? "contenu.en.js" : "contenu.js") + '?v=b4e3c6a"><\/script>');
+  document.write('<script src="' + (l === "en" ? "contenu.en.js" : "contenu.js") + '?v=2e2a5a4"><\/script>');
   // Les chaînes d'interface : le français TOUJOURS, l'anglais par-dessus. Une
   // clé oubliée retombe ainsi sur une phrase, jamais sur un identifiant nu.
-  document.write('<script src="ui.fr.js?v=b4e3c6a"><\/script>');
-  if(l === "en") document.write('<script src="ui.en.js?v=b4e3c6a"><\/script>');
+  document.write('<script src="ui.fr.js?v=2e2a5a4"><\/script>');
+  if(l === "en") document.write('<script src="ui.en.js?v=2e2a5a4"><\/script>');
 })();
 </script>
 <!-- ══════════════════════════════════════════════════════════════════════════
@@ -2267,16 +2267,16 @@ void main(){
 <!-- La physique, sortie du bloc principal. Elle ne touche ni au document ni à
      WebGL, et son extraction rend le banc d'essai exécutable en ligne de
      commande — donc vérifiable sans navigateur. Premier morceau du chantier F2. -->
-<script src="physique.js?v=b4e3c6a"></script>
+<script src="physique.js?v=2e2a5a4"></script>
 <!-- Ce qui vole. Deuxième morceau de F2, et le socle de la salle de tir
      balistique : elle ne sera que `destin()` avec une vitesse choisie. -->
-<script src="vol.js?v=b4e3c6a"></script>
+<script src="vol.js?v=2e2a5a4"></script>
 <!-- L'horloge. Troisième morceau de F2, et celui qui rend structurellement
      impossible le défaut du disque à 622× : le temps simulé n'y est accessible
      qu'en lecture, et un second écrivain devient indicible. -->
-<script src="temps.js?v=b4e3c6a"></script>
-<script src="kerr.js?v=b4e3c6a"></script>
-<script src="vaisseau.js?v=b4e3c6a"></script>
+<script src="temps.js?v=2e2a5a4"></script>
+<script src="kerr.js?v=2e2a5a4"></script>
+<script src="vaisseau.js?v=2e2a5a4"></script>
 <!-- Marcher dans la pièce. Quatrième morceau de F2 : une fois sorti du bloc, on
      peut promener un corps dans le décor SANS navigateur — et le premier
      balayage a trouvé qu'on traversait le télescope.
@@ -2284,8 +2284,8 @@ void main(){
      APRÈS `vaisseau.js`, et l'ordre n'est pas négociable : le mobilier se
      construit à partir de la géométrie de la pièce, dès le chargement. Placé
      avant, il ne trouvait rien et emportait tout le bloc principal avec lui. -->
-<script src="arpente.js?v=b4e3c6a"></script>
-<script src="personnage.js?v=b4e3c6a"></script>
+<script src="arpente.js?v=2e2a5a4"></script>
+<script src="personnage.js?v=2e2a5a4"></script>
 <!-- `pantheon.js` N'EST PLUS CHARGÉ, et c'est délibéré.
 
      Il était chargé à chaque visite et `PANTHEON` n'était appelé nulle part —
@@ -2297,17 +2297,19 @@ void main(){
      pas encore — voir CHUTE.md, écrit et jamais branché. Le jour où la salle de
      tir existera, cette ligne revient telle quelle.
 
-     <script src="pantheon.js?v=b4e3c6a"></script> -->
+     <script src="pantheon.js?v=2e2a5a4"></script> -->
 
-<script src="robot.js?v=b4e3c6a"></script>
-<script src="musique.js?v=b4e3c6a"></script>
+<script src="robot.js?v=2e2a5a4"></script>
+<script src="musique.js?v=2e2a5a4"></script>
 
 <!-- Le voyage. L'ordre compte : recul.js appelle VOYAGE.entre au chargement de
      ses propres constantes, donc voyage1g.js doit être passé avant lui. -->
-<script src="voyage1g.js?v=b4e3c6a"></script>
-<script src="recul.js?v=b4e3c6a"></script>
-<script src="etoiles.js?v=b4e3c6a"></script>
-<script src="cockpit.js?v=b4e3c6a"></script>
+<script src="voyage1g.js?v=2e2a5a4"></script>
+<script src="recul.js?v=2e2a5a4"></script>
+<script src="etoiles.js?v=2e2a5a4"></script>
+<script src="format.js?v=2e2a5a4"></script>
+<script src="spectre.js?v=2e2a5a4"></script>
+<script src="cockpit.js?v=2e2a5a4"></script>
 <script>
 "use strict";
 
@@ -4283,22 +4285,11 @@ addEventListener("keydown", e => {
 });
 
 // ---- lecture chiffrée ----
-/* Une durée courte. Les suffixes « s », « min », « h » s'écrivent de la même
-   façon dans les deux langues — c'est la DÉCIMALE qui change, et elle passe
-   donc par `virgule()` plutôt que par un `replace` codé en dur. Le nom reste
-   `tempsFr` : il est appelé de six endroits et le renommer n'apprend rien. */
-function tempsFr(s){
-  if(s < 90) return virgule(s.toFixed(s < 10 ? 1 : 0)) + " s";
-  const m = Math.floor(s/60);
-  if(m < 90) return m + " min " + String(Math.round(s%60)).padStart(2,"0") + " s";
-  const h = Math.floor(m/60);
-  return h + " h " + String(m%60).padStart(2,"0") + " min";
-}
-// Le pluriel part de deux en français comme en anglais : « 1,80 tour », mais
-// « 2,00 tours ». Le mot vient des chaînes, le seuil reste ici.
-function tours(n){
-  return virgule(n.toFixed(2)) + " " + T(n >= 2 ? "lecture.tour.pl" : "lecture.tour.un");
-}
+// Les deux formateurs vivent dans `format.js`, où un outil les joue : ils ont
+// déjà affiché « 2.31 tour », fautif deux fois. Le nom reste `tempsFr`, appelé
+// de plusieurs endroits — le renommer n'apprendrait rien.
+const tempsFr = s => FORMAT.temps(s, virgule);
+const tours   = n => FORMAT.tours(n, virgule, T);
 
 function majLecture(){
   const el = $("lecture");
@@ -4792,51 +4783,20 @@ setTimeout(() => { if(!queteActive) reagit("accueil"); }, 1400);
 // Le fait central : c'est la longueur d'onde qui décide si l'ombre est visible.
 // En radio le gaz est opaque et forme une photosphère ; vers le millimétrique
 // il devient transparent. Tout le reste découle de la SED mesurée.
+//
+// Le CALCUL vit dans `spectre.js`, où un outil le joue sans navigateur. Ne
+// restent ici que l'état d'interface et le dessin, qui touchent au DOM.
 const SPECTRE = CONTENU.spectre;
-
-// Convention des fausses couleurs en astronomie : long = rouge, court = bleu.
-const COUL_BANDE = {
-  radio:[1.00,0.35,0.24], submm:[1.00,0.62,0.24], ir:[1.00,0.80,0.30],
-  visible:[0.92,0.92,0.96], uv:[0.64,0.49,1.00], x:[0.35,0.66,1.00], gamma:[0.82,0.70,1.00],
-};
+SPECTRE_CALC.pose(SPECTRE);
+const COUL_BANDE   = SPECTRE_CALC.COUL_BANDE;
+const sedA         = SPECTRE_CALC.sed;
+const bandeA       = SPECTRE_CALC.bande;
+const rPhotosphere = SPECTRE_CALC.rPhotosphere;
+const eclatA       = SPECTRE_CALC.eclat;
+const longueurFr   = SPECTRE_CALC.longueur;
+const SED_MAX      = SPECTRE_CALC.sedMax;
 
 let spectreActif = false, lgLambda = -6.22;
-const SED_MAX = Math.max(...SPECTRE.sed.map(p => p[1]));
-
-// νLν interpolé linéairement en log-log
-function sedA(lg){
-  const p = [...SPECTRE.sed].sort((a,b) => a[0]-b[0]);
-  if(lg <= p[0][0]) return p[0][1];
-  if(lg >= p[p.length-1][0]) return p[p.length-1][1];
-  for(let i = 1; i < p.length; i++){
-    if(lg <= p[i][0]){
-      const t = (lg - p[i-1][0])/(p[i][0] - p[i-1][0]);
-      return p[i-1][1] + t*(p[i][1] - p[i-1][1]);
-    }
-  }
-  return p[p.length-1][1];
-}
-
-const bandeA = lg => SPECTRE.bandes.find(b => lg >= b.min && lg < b.max) || SPECTRE.bandes[0];
-
-// Rayon de la photosphère synchrotron, calé sur deux faits observés : à 1,3 mm
-// le flux est devenu transparent à l'échelle de l'horizon — c'est ce qui permet
-// à l'EHT d'y voir l'ombre — et en centimétrique il masque quelques dizaines de
-// rayons. Entre les deux, la taille apparente varie à peu près comme λ.
-const rPhotosphere = lg => {
-  const r = Math.pow(10, 0.079 + (lg + 2.886));
-  return r < 1.5 ? 0 : Math.min(r, 60);
-};
-const eclatA = lg => Math.pow(10, (sedA(lg) - SED_MAX)*0.45);
-
-function longueurFr(lg){
-  const m = Math.pow(10, lg);
-  if(m < 1e-9)  return (m*1e12).toPrecision(3) + " pm";
-  if(m < 1e-6)  return (m*1e9).toPrecision(3)  + " nm";
-  if(m < 1e-3)  return (m*1e6).toPrecision(3)  + " µm";
-  if(m < 1)     return (m*1e3).toPrecision(3)  + " mm";
-  return m.toPrecision(3) + " m";
-}
 
 const gr = $("sp-graphe"), grc = gr.getContext("2d");
 
@@ -6536,7 +6496,7 @@ requestAnimationFrame(boucle);
 <script>
 if(/[?&]verif\b/.test(location.search)){
   var s = document.createElement("script");
-  s.src = "verif.js?v=b4e3c6a";
+  s.src = "verif.js?v=2e2a5a4";
   document.body.appendChild(s);
 }
 /* Et le protocole d'essai joué : `?test`. Il pose ses questions au moment où la
@@ -6546,7 +6506,7 @@ if(/[?&]verif\b/.test(location.search)){
    script contrôle mieux. */
 if(/[?&]test\b/.test(location.search)){
   var e = document.createElement("script");
-  e.src = "essai.js?v=b4e3c6a";
+  e.src = "essai.js?v=2e2a5a4";
   document.body.appendChild(e);
 }
 /* Et la séance de jugement : `?juge`. Elle ne demande QUE ce qu'aucun calcul ne
@@ -6555,7 +6515,7 @@ if(/[?&]test\b/.test(location.search)){
    Claude, prêt à coller. On ne lit rien, on ne navigue pas. */
 if(/[?&]juge\b/.test(location.search)){
   var j = document.createElement("script");
-  j.src = "juge.js?v=b4e3c6a";
+  j.src = "juge.js?v=2e2a5a4";
   document.body.appendChild(j);
 }
 </script>

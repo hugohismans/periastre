@@ -99,8 +99,11 @@ const fs = require("fs"), path = require("path");
    4 255 le 8 août — LA PREMIÈRE DESCENTE DU CHANTIER. La coupe en trois blocs
    avait coûté huit lignes (deux `"use strict"` et deux commentaires de deux
    lignes) ; sortir le cockpit en rend cent trente-cinq. Le solde est payé dans
-   le même commit, pour ne pas laisser une marge traîner. */
-const PLAFOND = 4255;
+   le même commit, pour ne pas laisser une marge traîner.
+
+   4 213 — les deux formateurs de durée dans `format.js`, et le calcul du
+   spectre dans `spectre.js`. */
+const PLAFOND = 4213;
 
 // Le nombre de modules déjà sortis. Il ne descend jamais non plus : un module
 // qu'on ferait rentrer dans le bloc serait le contraire exact du chantier.

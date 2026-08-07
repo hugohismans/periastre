@@ -36,6 +36,31 @@ enfler. **Les verdicts de la troisième séance sont à relire avec ça en tête
 
 ---
 
+## Trouvé en sortant le spectre — deux réglages portent un fait
+
+**8 août 2026.** Le panneau du spectre enseigne un fait central : à 1,3 mm le gaz
+devient transparent, et c'est ce qui permet à l'EHT de voir l'ombre.
+
+Or ce fait ne sort d'aucune source. Il sort de **deux constantes d'affichage** :
+`10^(0,079 + lg + 2,886)`, avec un seuil d'extinction à 1,5 rayon. Le `0,079`
+n'est justifié nulle part — ni dans `contenu.js`, ni dans `contrat.js`, ni dans
+les sources — et c'est lui, avec le seuil, qui décide que la photosphère
+s'éteint à 1,63 mm et donc que 1,3 mm est dégagé.
+
+Deux réglages de rendu portent la démonstration du panneau. C'est un manquement
+à la sixième règle dure — *aucune affirmation factuelle hors de `contenu.js`,
+et chacune porte ses clés de sources.*
+
+Deux autres, plus légers, notés au même endroit :
+- le plafond à **60 rayons** est un bord de scène, pas une physique. La caméra
+  recule à `rPhotosphere × 2,1`, soit 126 rayons quand il sature.
+- l'exposant **0,45** de l'éclat est une compression tonale, pas une grandeur
+  photométrique, et il n'est déclaré dans aucun compromis.
+- `dessineSED` fixe **30,5** comme plancher de l'axe vertical alors que le
+  minimum de la SED vaut 31,0.
+
+---
+
 ## Deux choses trouvées en sortant le cockpit
 
 ### La console du cockpit passe peut-être sous deux panneaux
