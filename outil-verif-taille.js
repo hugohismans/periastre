@@ -102,8 +102,12 @@ const fs = require("fs"), path = require("path");
    le même commit, pour ne pas laisser une marge traîner.
 
    4 213 — les deux formateurs de durée dans `format.js`, et le calcul du
-   spectre dans `spectre.js`. */
-const PLAFOND = 4213;
+   spectre dans `spectre.js`.
+
+   4 208 — le banc d'essai dans `banc.js`. Le gain en lignes est petit ; ce qui
+   sort vaut mieux que sa taille : les deux seuils qui prononcent « juste » ou
+   « faux » à l'écran vivaient dans une page qu'aucun outil ne lisait. */
+const PLAFOND = 4208;
 
 // Le nombre de modules déjà sortis. Il ne descend jamais non plus : un module
 // qu'on ferait rentrer dans le bloc serait le contraire exact du chantier.

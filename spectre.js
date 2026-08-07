@@ -147,13 +147,45 @@ function eclat(lg){ return Math.pow(10, (sed(lg) - sedMax)*0.45); }
 /* « 1,30 mm ». L'unité suit l'ordre de grandeur, comme l'écrirait un
    astronome : personne ne dit 0,0013 m. Trois chiffres significatifs, parce
    qu'au pas de la réglette le quatrième ne veut plus rien dire. */
-function longueur(lg){
+/* ---------------------------------------------------------------------------
+   DEUX DÉFAUTS D'AFFICHAGE, TROUVÉS PAR L'OUTIL LE JOUR DE SON ÉCRITURE.
+
+   Ils étaient dans le code d'origine, et l'extraction les avait déplacés tels
+   quels — c'est la règle : une extraction est un déplacement. Ils se corrigent
+   ici, à part.
+
+   1. LA DÉCIMALE. `toPrecision` écrit toujours un point. La réglette affichait
+      donc « 1.30 mm » en français, quand tout le reste du site écrit « 1,30 ».
+      C'est la faute exacte qui avait donné « 2.31 tour » au bandeau de lecture.
+      La ponctuation arrive maintenant en argument, comme dans `format.js` : un
+      module qui ponctuerait tout seul ne saurait pas parler deux langues.
+
+   2. LA NOTATION SCIENTIFIQUE. À λ = 9,99998 × 10⁻¹⁰ m, la mantisse vaut
+      999,998 pm ; arrondie à trois chiffres elle devient 1000, que
+      `toPrecision` écrit « 1.00e+3 ». Une réglette qu'on fait glisser au doigt
+      n'a pas à montrer d'exposant. Quand l'arrondi atteint mille, on monte
+      d'un cran — et « 1,00 nm » est de toute façon la bonne lecture.        */
+const PALIERS = [
+  [1e-9, 1e12, "pm"], [1e-6, 1e9, "nm"], [1e-3, 1e6, "µm"],
+  [1,    1e3,  "mm"], [Infinity, 1, "m"],
+];
+
+function longueur(lg, virgule){
+  const v = virgule || (x => String(x));
   const m = Math.pow(10, lg);
-  if(m < 1e-9)  return (m*1e12).toPrecision(3) + " pm";
-  if(m < 1e-6)  return (m*1e9).toPrecision(3)  + " nm";
-  if(m < 1e-3)  return (m*1e6).toPrecision(3)  + " µm";
-  if(m < 1)     return (m*1e3).toPrecision(3)  + " mm";
-  return m.toPrecision(3) + " m";
+  for(let i = 0; i < PALIERS.length; i++){
+    const [borne, f, u] = PALIERS[i];
+    if(m >= borne) continue;
+    const x = m*f;
+    let t = x.toPrecision(3);
+    /* On corrige la NOTATION, pas le palier. Mon premier jet montait d'un cran
+       quand l'arrondi atteignait mille — ce qui marchait, et changeait le
+       comportement bien au-delà du défaut : « 999,998 pm » devenait « 1,00 nm »,
+       et l'unité basculait avant son seuil. L'outil l'a refusé, à raison. */
+    if(t.includes("e")) t = String(Math.round(x));
+    return v(t) + " " + u;
+  }
+  return v(m.toPrecision(3)) + " m";
 }
 
 /* `sedMax` passe par un accesseur : il n'existe qu'après `pose`, et une valeur

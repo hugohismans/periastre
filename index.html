@@ -2244,11 +2244,11 @@ void main(){
     l = /^fr/i.test(navigator.language || "fr") ? "fr" : "en";
   window.LANGUE = l;
   document.documentElement.lang = l;
-  document.write('<script src="' + (l === "en" ? "contenu.en.js" : "contenu.js") + '?v=2e2a5a4"><\/script>');
+  document.write('<script src="' + (l === "en" ? "contenu.en.js" : "contenu.js") + '?v=33e82af"><\/script>');
   // Les chaînes d'interface : le français TOUJOURS, l'anglais par-dessus. Une
   // clé oubliée retombe ainsi sur une phrase, jamais sur un identifiant nu.
-  document.write('<script src="ui.fr.js?v=2e2a5a4"><\/script>');
-  if(l === "en") document.write('<script src="ui.en.js?v=2e2a5a4"><\/script>');
+  document.write('<script src="ui.fr.js?v=33e82af"><\/script>');
+  if(l === "en") document.write('<script src="ui.en.js?v=33e82af"><\/script>');
 })();
 </script>
 <!-- ══════════════════════════════════════════════════════════════════════════
@@ -2267,16 +2267,16 @@ void main(){
 <!-- La physique, sortie du bloc principal. Elle ne touche ni au document ni à
      WebGL, et son extraction rend le banc d'essai exécutable en ligne de
      commande — donc vérifiable sans navigateur. Premier morceau du chantier F2. -->
-<script src="physique.js?v=2e2a5a4"></script>
+<script src="physique.js?v=33e82af"></script>
 <!-- Ce qui vole. Deuxième morceau de F2, et le socle de la salle de tir
      balistique : elle ne sera que `destin()` avec une vitesse choisie. -->
-<script src="vol.js?v=2e2a5a4"></script>
+<script src="vol.js?v=33e82af"></script>
 <!-- L'horloge. Troisième morceau de F2, et celui qui rend structurellement
      impossible le défaut du disque à 622× : le temps simulé n'y est accessible
      qu'en lecture, et un second écrivain devient indicible. -->
-<script src="temps.js?v=2e2a5a4"></script>
-<script src="kerr.js?v=2e2a5a4"></script>
-<script src="vaisseau.js?v=2e2a5a4"></script>
+<script src="temps.js?v=33e82af"></script>
+<script src="kerr.js?v=33e82af"></script>
+<script src="vaisseau.js?v=33e82af"></script>
 <!-- Marcher dans la pièce. Quatrième morceau de F2 : une fois sorti du bloc, on
      peut promener un corps dans le décor SANS navigateur — et le premier
      balayage a trouvé qu'on traversait le télescope.
@@ -2284,8 +2284,8 @@ void main(){
      APRÈS `vaisseau.js`, et l'ordre n'est pas négociable : le mobilier se
      construit à partir de la géométrie de la pièce, dès le chargement. Placé
      avant, il ne trouvait rien et emportait tout le bloc principal avec lui. -->
-<script src="arpente.js?v=2e2a5a4"></script>
-<script src="personnage.js?v=2e2a5a4"></script>
+<script src="arpente.js?v=33e82af"></script>
+<script src="personnage.js?v=33e82af"></script>
 <!-- `pantheon.js` N'EST PLUS CHARGÉ, et c'est délibéré.
 
      Il était chargé à chaque visite et `PANTHEON` n'était appelé nulle part —
@@ -2297,19 +2297,20 @@ void main(){
      pas encore — voir CHUTE.md, écrit et jamais branché. Le jour où la salle de
      tir existera, cette ligne revient telle quelle.
 
-     <script src="pantheon.js?v=2e2a5a4"></script> -->
+     <script src="pantheon.js?v=33e82af"></script> -->
 
-<script src="robot.js?v=2e2a5a4"></script>
-<script src="musique.js?v=2e2a5a4"></script>
+<script src="robot.js?v=33e82af"></script>
+<script src="musique.js?v=33e82af"></script>
 
 <!-- Le voyage. L'ordre compte : recul.js appelle VOYAGE.entre au chargement de
      ses propres constantes, donc voyage1g.js doit être passé avant lui. -->
-<script src="voyage1g.js?v=2e2a5a4"></script>
-<script src="recul.js?v=2e2a5a4"></script>
-<script src="etoiles.js?v=2e2a5a4"></script>
-<script src="format.js?v=2e2a5a4"></script>
-<script src="spectre.js?v=2e2a5a4"></script>
-<script src="cockpit.js?v=2e2a5a4"></script>
+<script src="voyage1g.js?v=33e82af"></script>
+<script src="recul.js?v=33e82af"></script>
+<script src="etoiles.js?v=33e82af"></script>
+<script src="format.js?v=33e82af"></script>
+<script src="spectre.js?v=33e82af"></script>
+<script src="banc.js?v=33e82af"></script>
+<script src="cockpit.js?v=33e82af"></script>
 <script>
 "use strict";
 
@@ -4793,7 +4794,7 @@ const sedA         = SPECTRE_CALC.sed;
 const bandeA       = SPECTRE_CALC.bande;
 const rPhotosphere = SPECTRE_CALC.rPhotosphere;
 const eclatA       = SPECTRE_CALC.eclat;
-const longueurFr   = SPECTRE_CALC.longueur;
+const longueurFr   = lg => SPECTRE_CALC.longueur(lg, virgule);
 const SED_MAX      = SPECTRE_CALC.sedMax;
 
 let spectreActif = false, lgLambda = -6.22;
@@ -5580,15 +5581,10 @@ majDossier();
    en a déjà fourni deux exemples cette semaine. */
 const { tirePhoton, orbiteTient, bisecteCapture, REPERES } = PHYSIQUE;
 
-const ESSAIS = REPERES.map(r => ({
-  nom:      "banc.essai." + r.id + ".nom",
-  quoi:     "banc.essai." + r.id + ".quoi",
-  attendu:  "banc.essai." + r.id + ".attendu",
-  theorie:  r.theorie,
-  unite:    r.id === "deflexion" ? " rad" : " r<sub>s</sub>",
-  chiffres: r.id === "deflexion" ? 6 : undefined,
-  mesure:   r.mesure,
-}));
+// La composition des essais et les deux seuils du verdict vivent dans
+// `banc.js` : un chiffre qui prononce « juste » ou « faux » à l'écran doit
+// pouvoir être éprouvé, et il ne pouvait pas l'être dans cette page.
+const ESSAIS = BANC.essais(REPERES);
 
 // Les chiffres du banc suivent la langue comme le reste : `millier` est déclaré
 // tout en haut, avec `T`.
@@ -5631,10 +5627,10 @@ $("b-lancer").onclick = () => {
 
     setTimeout(() => {
       const v = e.mesure();
-      const ecart = Math.abs(v - e.theorie) / Math.abs(e.theorie);
-      const c = ecart < 0.005 ? "ok" : ecart < 0.03 ? "bof" : "non";
+      const ecart = BANC.ecart(v, e.theorie);
+      const c = BANC.verdict(ecart);
       const mot = T("banc.verdict." + c);
-      tr.children[2].innerHTML = nb(v, e.chiffres || 4) + e.unite;
+      tr.children[2].innerHTML = nb(v, e.chiffres) + e.unite;
       tr.children[3].innerHTML = `<span class="verdict ${c}">${nb(ecart*100, 2)} % · ${mot}</span>`;
       suivant();
     }, 30);
@@ -6496,7 +6492,7 @@ requestAnimationFrame(boucle);
 <script>
 if(/[?&]verif\b/.test(location.search)){
   var s = document.createElement("script");
-  s.src = "verif.js?v=2e2a5a4";
+  s.src = "verif.js?v=33e82af";
   document.body.appendChild(s);
 }
 /* Et le protocole d'essai joué : `?test`. Il pose ses questions au moment où la
@@ -6506,7 +6502,7 @@ if(/[?&]verif\b/.test(location.search)){
    script contrôle mieux. */
 if(/[?&]test\b/.test(location.search)){
   var e = document.createElement("script");
-  e.src = "essai.js?v=2e2a5a4";
+  e.src = "essai.js?v=33e82af";
   document.body.appendChild(e);
 }
 /* Et la séance de jugement : `?juge`. Elle ne demande QUE ce qu'aucun calcul ne
@@ -6515,7 +6511,7 @@ if(/[?&]test\b/.test(location.search)){
    Claude, prêt à coller. On ne lit rien, on ne navigue pas. */
 if(/[?&]juge\b/.test(location.search)){
   var j = document.createElement("script");
-  j.src = "juge.js?v=2e2a5a4";
+  j.src = "juge.js?v=33e82af";
   document.body.appendChild(j);
 }
 </script>
