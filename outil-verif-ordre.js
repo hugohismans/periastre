@@ -50,6 +50,7 @@
 "use strict";
 const fs = require("fs"), path = require("path");
 const { decoupe } = require("./outils/blocs.js");
+const { nettoie } = require("./outils/nettoie.js");
 
 // ─────────────────────────────────────────────────────────────── les cliquets
 /* ZÉRO, et ce n'est pas négociable : une seule inversion armée tue la page. */
@@ -78,90 +79,21 @@ function ok(nom, vrai, attendu, mesure, note){
 }
 
 // ══════════════════════════════════════════════════ 1. enlever ce qui n'est pas du code
-/* On remplace commentaires, chaînes et expressions régulières par des espaces,
-   en gardant les sauts de ligne : les numéros de ligne restent justes, et plus
-   rien ne peut ressembler à un identifiant.
+/* Il vivait ici, et il avait un défaut : le corps d'un `${…}` était recopié TEL
+   QUEL, en comptant simplement les accolades. Les chaînes qui s'y trouvent
+   survivaient donc à leur propre effacement, et le site en est plein —
+   `` `<span>${T("accueil.entrer.voix")}</span>` `` rendait `accueil` comme un
+   identifiant lu.
 
-   L'intérieur des gabarits `${…}` est CONSERVÉ — c'est du vrai code, et une
-   référence qui s'y cache compte autant qu'une autre. */
-function nettoie(src){
-  let out = "", i = 0;
-  const n = src.length;
-  // Ce qui précède décide si un `/` ouvre une expression régulière ou divise.
-  const avantRegex = () => {
-    for(let k = out.length - 1; k >= 0; k--){
-      const c = out[k];
-      if(c === " " || c === "\n" || c === "\t") continue;
-      return "(,=:[!&|?{};+-*%~^<>".includes(c);
-    }
-    return true;
-  };
-  const gabarits = [];   // pile : on peut imbriquer `a ${ `b` } c`
-  while(i < n){
-    const c = src[i], d = src[i+1];
-    if(c === "/" && d === "/"){
-      while(i < n && src[i] !== "\n"){ out += " "; i++; }
-      continue;
-    }
-    if(c === "/" && d === "*"){
-      out += "  "; i += 2;
-      while(i < n && !(src[i] === "*" && src[i+1] === "/")){ out += src[i] === "\n" ? "\n" : " "; i++; }
-      out += "  "; i += 2;
-      continue;
-    }
-    if(c === "'" || c === '"'){
-      out += " "; i++;
-      while(i < n && src[i] !== c){
-        if(src[i] === "\\"){ out += "  "; i += 2; continue; }
-        out += src[i] === "\n" ? "\n" : " "; i++;
-      }
-      out += " "; i++;
-      continue;
-    }
-    if(c === "`"){
-      out += " "; i++; gabarits.push(true);
-      while(i < n && gabarits.length){
-        if(src[i] === "\\"){ out += "  "; i += 2; continue; }
-        if(src[i] === "`"){ out += " "; i++; gabarits.pop(); break; }
-        if(src[i] === "$" && src[i+1] === "{"){
-          // on ressort en mode code jusqu'à l'accolade fermante appariée
-          out += "  "; i += 2;
-          let prof = 1;
-          while(i < n && prof){
-            if(src[i] === "{") prof++;
-            else if(src[i] === "}") prof--;
-            if(!prof) break;
-            out += src[i]; i++;
-          }
-          out += " "; i++;
-          continue;
-        }
-        out += src[i] === "\n" ? "\n" : " "; i++;
-      }
-      continue;
-    }
-    if(c === "/" && avantRegex()){
-      // une expression régulière : on la blanchit jusqu'au `/` non échappé
-      let j = i + 1, dansClasse = false, ferme = false;
-      while(j < n){
-        if(src[j] === "\\"){ j += 2; continue; }
-        if(src[j] === "\n") break;                 // pas de saut de ligne dans un littéral
-        if(src[j] === "[") dansClasse = true;
-        else if(src[j] === "]") dansClasse = false;
-        else if(src[j] === "/" && !dansClasse){ ferme = true; break; }
-        j++;
-      }
-      if(ferme){
-        for(let k = i; k <= j; k++) out += " ";
-        i = j + 1;
-        while(i < n && /[gimsuyd]/.test(src[i])){ out += " "; i++; }
-        continue;
-      }
-    }
-    out += c; i++;
-  }
-  return out;
-}
+   Ici la conséquence était douce : un nom doit AUSSI figurer parmi les
+   déclarations pour compter, donc seuls les homonymes d'une vraie variable
+   faisaient du bruit. Dans l'outil des noms orphelins, où il suffit d'être lu,
+   c'était cinq faux positifs sur six.
+
+   La loi est donc partie dans `outils/nettoie.js`, comme la découpe est dans
+   `outils/blocs.js`, et pour la même raison : deux implémentations recopiées
+   divergent, et le jour où elles divergent, l'un des deux outils lit un fichier
+   que l'autre ne voit pas. C'est ce qui venait d'arriver. */
 
 // ══════════════════════════════════════════════════ 2. lire déclarations et références
 const MOTS = new Set([

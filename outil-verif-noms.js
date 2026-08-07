@@ -89,6 +89,7 @@
 "use strict";
 const fs = require("fs"), path = require("path");
 const { decoupe } = require("./outils/blocs.js");
+const { nettoie } = require("./outils/nettoie.js");
 
 /* ───────────────────────────────────────────────────────────────── LE CLIQUET
 
@@ -108,129 +109,10 @@ const { decoupe } = require("./outils/blocs.js");
 const INCONNUS = 0;
 
 // ══════════════════════════════════════════════════════ 1. enlever ce qui n'est pas du code
-/* Repris d'`outil-verif-ordre.js`, avec deux différences.
-
-   En mode normal on blanchit commentaires, chaînes et expressions régulières en
-   gardant les sauts de ligne — les numéros de ligne restent justes et plus rien
-   ne peut ressembler à un identifiant. L'intérieur des gabarits `${…}` est
-   CONSERVÉ : c'est du vrai code.
-
-   ---------------------------------------------------------------------------
-   PREMIÈRE DIFFÉRENCE — LE `${…}` EST RENETTOYÉ, PAS RECOPIÉ
-
-   `outil-verif-ordre.js` recopie le corps d'un `${…}` tel quel, en comptant
-   simplement les accolades. Les chaînes qui s'y trouvent survivent donc à leur
-   propre effacement, et le site en est plein :
-
-       `<span>${T("accueil.entrer.voix")}</span>`
-
-   `accueil` ressort alors comme un identifiant lu — cinq faux positifs sur six
-   au premier relevé de cet outil, tous de cette seule cause. Là-bas c'est sans
-   conséquence, parce que le nom doit AUSSI figurer parmi les déclarations pour
-   compter ; ici il suffit d'être lu.
-
-   Le gabarit est donc traité comme un vrai mode du lecteur, avec sa pile : on
-   entre en mode texte au premier accent grave, on ressort en mode code à chaque
-   `${`, et l'on y revient à l'accolade appariée — les chaînes du dedans passent
-   par le même blanchiment que les autres, aussi profondément qu'il le faut.
-
-   SECONDE DIFFÉRENCE — la porte `gardeChaines`, où seuls les commentaires
-   partent. C'est ce qui sert à savoir quels modules la page charge : la réponse
-   est dans des chaînes (`document.write('<script src="…">')`), et il faut
-   pouvoir les lire — sans pour autant croire un nom de fichier cité dans un
-   commentaire. */
-function nettoie(src, gardeChaines){
-  let out = "", i = 0;
-  const n = src.length;
-  const cache = c => (gardeChaines ? c : (c === "\n" ? "\n" : " "));
-  // Ce qui précède décide si un `/` ouvre une expression régulière ou divise.
-  const avantRegex = () => {
-    for(let k = out.length - 1; k >= 0; k--){
-      const c = out[k];
-      if(c === " " || c === "\n" || c === "\t") continue;
-      return "(,=:[!&|?{};+-*%~^<>".includes(c);
-    }
-    return true;
-  };
-
-  /* `texte` : on est dans le corps littéral d'un gabarit, entre les accents.
-     `retours` : à quoi revenir en fermant — "code" pour un accent grave,
-     "texte" pour un `${`. `profs` retient la profondeur d'accolades du code
-     qu'on a quitté en entrant dans un `${`. */
-  let texte = false, prof = 0;
-  const retours = [], profs = [];
-
-  while(i < n){
-    const c = src[i], d = src[i+1];
-
-    if(texte){
-      if(c === "\\"){ out += gardeChaines ? src.slice(i, i+2) : "  "; i += 2; continue; }
-      if(c === "`"){
-        out += gardeChaines ? "`" : " "; i++;
-        texte = retours.pop() === "texte";
-        continue;
-      }
-      if(c === "$" && d === "{"){
-        out += gardeChaines ? "${" : "  "; i += 2;
-        retours.push("texte"); profs.push(prof); prof = 0; texte = false;
-        continue;
-      }
-      out += cache(c); i++; continue;
-    }
-
-    if(c === "/" && d === "/"){
-      while(i < n && src[i] !== "\n"){ out += " "; i++; }
-      continue;
-    }
-    if(c === "/" && d === "*"){
-      out += "  "; i += 2;
-      while(i < n && !(src[i] === "*" && src[i+1] === "/")){ out += src[i] === "\n" ? "\n" : " "; i++; }
-      out += "  "; i += 2;
-      continue;
-    }
-    if(c === "'" || c === '"'){
-      out += gardeChaines ? c : " "; i++;
-      while(i < n && src[i] !== c){
-        if(src[i] === "\\"){ out += gardeChaines ? src.slice(i, i+2) : "  "; i += 2; continue; }
-        out += cache(src[i]); i++;
-      }
-      out += gardeChaines ? (src[i] || "") : " "; i++;
-      continue;
-    }
-    if(c === "`"){
-      out += gardeChaines ? "`" : " "; i++;
-      retours.push("code"); texte = true;
-      continue;
-    }
-    if(c === "{"){ prof++; out += c; i++; continue; }
-    if(c === "}"){
-      if(prof === 0 && retours.length && retours[retours.length-1] === "texte"){
-        retours.pop(); prof = profs.pop() || 0; texte = true;
-        out += gardeChaines ? "}" : " "; i++; continue;
-      }
-      prof--; out += c; i++; continue;
-    }
-    if(c === "/" && !gardeChaines && avantRegex()){
-      let j = i + 1, dansClasse = false, ferme = false;
-      while(j < n){
-        if(src[j] === "\\"){ j += 2; continue; }
-        if(src[j] === "\n") break;
-        if(src[j] === "[") dansClasse = true;
-        else if(src[j] === "]") dansClasse = false;
-        else if(src[j] === "/" && !dansClasse){ ferme = true; break; }
-        j++;
-      }
-      if(ferme){
-        for(let k = i; k <= j; k++) out += " ";
-        i = j + 1;
-        while(i < n && /[gimsuyd]/.test(src[i])){ out += " "; i++; }
-        continue;
-      }
-    }
-    out += c; i++;
-  }
-  return out;
-}
+/* Parti dans `outils/nettoie.js` le 8 août, avec `outil-verif-ordre.js` qui
+   l'emploie désormais aussi. Il était écrit ici, en mieux qu'ailleurs, et c'est
+   précisément ce qui n'allait pas : deux lecteurs, deux lois. Le bloc de
+   commentaire qui suivait est parti avec, dans le module. */
 
 // ══════════════════════════════════════════════════════ 2. les jetons
 /* Découper en jetons plutôt que de marcher caractère par caractère : la moitié
