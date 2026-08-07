@@ -1,0 +1,62 @@
+# ============================================================================
+# PUBLIER LE SITE
+#
+# Ce fichier remplace la publication automatique de GitHub Pages, qui tirait
+# encore le site par le pipeline Jekyll hérité.
+#
+# CE QU'IL RÉPARE
+#
+# Le 6 août 2026, chaque publication échouait bruyamment avant d'arriver quand
+# même : le pipeline Jekyll rendait « Page build failed » à chaque commit, et
+# l'étape de dépôt abandonnait après très exactement dix minutes d'attente.
+# Le contenu finissait par être servi, mais aucun signal ne disait la vérité —
+# au point que j'ai annoncé quatre fois une publication qui n'avait pas eu lieu,
+# puis un échec alors que le site marchait.
+#
+# Un site statique n'a rien à faire construire. Il n'y a ici ni Jekyll, ni
+# dépendance, ni étape de compilation : on prend le dépôt tel quel et on le
+# dépose. Ce qui échoue échoue vite, et ce qui réussit le dit.
+#
+# `.nojekyll` reste à la racine : il ne sert plus à rien sur ce chemin, mais il
+# coûte zéro et protège si le réglage repassait un jour en mode hérité.
+# ============================================================================
+
+name: Publier le site
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:        # pour republier sans avoir à faire un commit vide
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# On ne veut pas deux dépôts concurrents, mais on ne veut pas non plus annuler
+# une publication en cours : la suivante attend son tour.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  publier:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.depot.outputs.page_url }}
+    steps:
+      - name: Récupérer le dépôt
+        uses: actions/checkout@v4
+
+      - name: Préparer Pages
+        uses: actions/configure-pages@v5
+
+      - name: Empaqueter le site tel quel
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+
+      - name: Déposer
+        id: depot
+        uses: actions/deploy-pages@v4
