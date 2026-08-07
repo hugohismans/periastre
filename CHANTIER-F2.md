@@ -46,7 +46,7 @@ Le détail de chaque étape est dans le plan approuvé. Ici, seulement l'état.
 - [x] 4.1 écrans de bord → `ecrans.js`
 - [ ] 4.1 bis l'outil des écrans de bord
 - [x] 4.2 calque → `calque.js` + son outil
-- [ ] 4.3 habitacle → `habitacle.js` + son outil
+- [x] 4.3 habitacle → `habitacle.js` + son outil
 - [ ] 4.4 résolution adaptative → `resolution.js` + son outil
 
 ## Étape 5 — les gros de logique

@@ -111,7 +111,7 @@ const fs = require("fs"), path = require("path");
    3 892 — les écrans de bord dans `ecrans.js`. Le plus gros morceau du
    chantier : trois cent dix-neuf lignes d'un coup, et une ligne morte retirée
    au passage. Sous la barre des quatre mille pour la première fois. */
-const PLAFOND = 3809;   // le dossier, puis le calque
+const PLAFOND = 3686;   // le dossier, le calque, puis l'habitacle
 
 // Le nombre de modules déjà sortis. Il ne descend jamais non plus : un module
 // qu'on ferait rentrer dans le bloc serait le contraire exact du chantier.

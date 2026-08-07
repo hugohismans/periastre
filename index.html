@@ -2244,11 +2244,11 @@ void main(){
     l = /^fr/i.test(navigator.language || "fr") ? "fr" : "en";
   window.LANGUE = l;
   document.documentElement.lang = l;
-  document.write('<script src="' + (l === "en" ? "contenu.en.js" : "contenu.js") + '?v=c0bf75f"><\/script>');
+  document.write('<script src="' + (l === "en" ? "contenu.en.js" : "contenu.js") + '?v=0622336"><\/script>');
   // Les chaînes d'interface : le français TOUJOURS, l'anglais par-dessus. Une
   // clé oubliée retombe ainsi sur une phrase, jamais sur un identifiant nu.
-  document.write('<script src="ui.fr.js?v=c0bf75f"><\/script>');
-  if(l === "en") document.write('<script src="ui.en.js?v=c0bf75f"><\/script>');
+  document.write('<script src="ui.fr.js?v=0622336"><\/script>');
+  if(l === "en") document.write('<script src="ui.en.js?v=0622336"><\/script>');
 })();
 </script>
 <!-- ══════════════════════════════════════════════════════════════════════════
@@ -2267,16 +2267,16 @@ void main(){
 <!-- La physique, sortie du bloc principal. Elle ne touche ni au document ni à
      WebGL, et son extraction rend le banc d'essai exécutable en ligne de
      commande — donc vérifiable sans navigateur. Premier morceau du chantier F2. -->
-<script src="physique.js?v=c0bf75f"></script>
+<script src="physique.js?v=0622336"></script>
 <!-- Ce qui vole. Deuxième morceau de F2, et le socle de la salle de tir
      balistique : elle ne sera que `destin()` avec une vitesse choisie. -->
-<script src="vol.js?v=c0bf75f"></script>
+<script src="vol.js?v=0622336"></script>
 <!-- L'horloge. Troisième morceau de F2, et celui qui rend structurellement
      impossible le défaut du disque à 622× : le temps simulé n'y est accessible
      qu'en lecture, et un second écrivain devient indicible. -->
-<script src="temps.js?v=c0bf75f"></script>
-<script src="kerr.js?v=c0bf75f"></script>
-<script src="vaisseau.js?v=c0bf75f"></script>
+<script src="temps.js?v=0622336"></script>
+<script src="kerr.js?v=0622336"></script>
+<script src="vaisseau.js?v=0622336"></script>
 <!-- Marcher dans la pièce. Quatrième morceau de F2 : une fois sorti du bloc, on
      peut promener un corps dans le décor SANS navigateur — et le premier
      balayage a trouvé qu'on traversait le télescope.
@@ -2284,8 +2284,8 @@ void main(){
      APRÈS `vaisseau.js`, et l'ordre n'est pas négociable : le mobilier se
      construit à partir de la géométrie de la pièce, dès le chargement. Placé
      avant, il ne trouvait rien et emportait tout le bloc principal avec lui. -->
-<script src="arpente.js?v=c0bf75f"></script>
-<script src="personnage.js?v=c0bf75f"></script>
+<script src="arpente.js?v=0622336"></script>
+<script src="personnage.js?v=0622336"></script>
 <!-- `pantheon.js` N'EST PLUS CHARGÉ, et c'est délibéré.
 
      Il était chargé à chaque visite et `PANTHEON` n'était appelé nulle part —
@@ -2297,23 +2297,24 @@ void main(){
      pas encore — voir CHUTE.md, écrit et jamais branché. Le jour où la salle de
      tir existera, cette ligne revient telle quelle.
 
-     <script src="pantheon.js?v=c0bf75f"></script> -->
+     <script src="pantheon.js?v=0622336"></script> -->
 
-<script src="robot.js?v=c0bf75f"></script>
-<script src="musique.js?v=c0bf75f"></script>
+<script src="robot.js?v=0622336"></script>
+<script src="musique.js?v=0622336"></script>
 
 <!-- Le voyage. L'ordre compte : recul.js appelle VOYAGE.entre au chargement de
      ses propres constantes, donc voyage1g.js doit être passé avant lui. -->
-<script src="voyage1g.js?v=c0bf75f"></script>
-<script src="recul.js?v=c0bf75f"></script>
-<script src="etoiles.js?v=c0bf75f"></script>
-<script src="format.js?v=c0bf75f"></script>
-<script src="spectre.js?v=c0bf75f"></script>
-<script src="banc.js?v=c0bf75f"></script>
-<script src="ecrans.js?v=c0bf75f"></script>
-<script src="dossier.js?v=c0bf75f"></script>
-<script src="calque.js?v=c0bf75f"></script>
-<script src="cockpit.js?v=c0bf75f"></script>
+<script src="voyage1g.js?v=0622336"></script>
+<script src="recul.js?v=0622336"></script>
+<script src="etoiles.js?v=0622336"></script>
+<script src="format.js?v=0622336"></script>
+<script src="spectre.js?v=0622336"></script>
+<script src="banc.js?v=0622336"></script>
+<script src="ecrans.js?v=0622336"></script>
+<script src="dossier.js?v=0622336"></script>
+<script src="calque.js?v=0622336"></script>
+<script src="habitacle.js?v=0622336"></script>
+<script src="cockpit.js?v=0622336"></script>
 <script>
 "use strict";
 
@@ -5923,141 +5924,18 @@ function boucle(now){
    l'absence d'objet, y laisse la profondeur au maximum — et c'est par ce trou
    que le lancer de géodésiques passera juste après. */
 function dessineHabitacle(){
-  {
-    gl.enable(gl.DEPTH_TEST);
-    gl.useProgram(progSalon);
-    gl.uniformMatrix4fv(uMVP, false, mvpSalon());
-    gl.uniform3fv(uVersAstre, salon.versAstre);
-    gl.uniform1f(uEclatAstre, salon.eclat);
-    gl.uniform1f(uLampes, lampesBord ? 1 : 0);
-    gl.uniform1f(uBaieX, VAISSEAU.BAIE.x/2);
-    gl.uniform1f(uBaieBas, VAISSEAU.BAIE.bas);
-    gl.uniform1f(uBaieHaut, VAISSEAU.BAIE.haut);
-    gl.uniform1f(uBaieZ, -VAISSEAU.P/2);
-    gl.uniform3fv(uOeil, oeilSalon());
-    gl.uniform1f(uForce, 0);
-    gl.uniformMatrix4fv(uModele, false, IDENTITE);
-    VAISSEAU.dessine(gl);
-
-    // Les postes. Le cran retenu est ambre et franc ; les autres sont cyan et
-    // sourds ; celui qu'on vise s'éclaire. C'est tout ce qu'il faut pour qu'on
-    // comprenne qu'un objet du décor se manipule, sans une ligne de didacticiel.
-    gl.uniform1f(uForce, 1);
-    // L'étape en cours, s'il y en a une : elle désigne le poste à mettre en avant.
-    const attendu = (queteActive && QUETE[iQuete]) ? QUETE[iQuete].id : null;
-    for(const p of VAISSEAU.POSTES){
-      /* Deux familles de postes, et la distinction n'est pas cosmétique.
-
-         Les lames du temps N'ONT PAS de géométrie propre : le cube dessiné ici
-         EST la lame. Le télescope et la console de tir, eux, sont modelés dans
-         `vaisseau.js` — leur boîte ne sert qu'à les viser, et la dessiner
-         poserait un pavé cyan de soixante-dix centimètres sur l'instrument.
-
-         Je l'ai appris en posant la console : elle apparaissait comme un bloc
-         bleu uniforme, et j'ai cherché la faute dans ses teintes, dans son
-         placement, jusque dans l'alignement des attributs de sommets. La vraie
-         géométrie était dessous, cachée par sa propre zone de visée. */
-      if(p.id === "telescope" || p.id === "tir"){
-        const appele = attendu === "a-telescope" && p.id === "telescope";
-        if(salon.vise !== p && !appele) continue;
-        gl.uniform3fv(uTeinteF, VAISSEAU.AMBRE);
-        gl.uniform1f(uEmiF, salon.vise === p ? 0.17
-                     : 0.05 + 0.06*Math.sin(salon.horloge*3.1));
-        gl.uniformMatrix4fv(uModele, false, new Float32Array([
-          p.d[0],0,0,0,  0,p.d[1],0,0,  0,0,p.d[2],0,  p.c[0],p.c[1],p.c[2],1 ]));
-        VAISSEAU.dessineCube(gl);
-        continue;
-      }
-      const retenu = p.valeur === salon.facteur;
-      const vise = salon.vise === p;
-      /* Ce qui respire s'active.
-
-         Sur un téléphone il n'y a pas de survol : rien n'indiquait qu'on
-         pouvait toucher ces lames, et l'étape restait bloquée. Elles pulsent
-         donc — mais seulement pendant l'étape qui les demande, et seulement
-         celles-là. Un décor où tout clignote ne désigne plus rien. */
-      const battement = attendu === "a-temps" ? 0.30 + 0.30*Math.sin(salon.horloge*3.1) : 0;
-      gl.uniform3fv(uTeinteF, retenu ? VAISSEAU.AMBRE : VAISSEAU.CYAN);
-      gl.uniform1f(uEmiF, retenu ? 1.0 : Math.max(vise ? 0.72 : 0.20, battement));
-      gl.uniformMatrix4fv(uModele, false, new Float32Array([
-        p.d[0],0,0,0,  0,p.d[1],0,0,  0,0,p.d[2],0,  p.c[0],p.c[1],p.c[2],1 ]));
-      VAISSEAU.dessineCube(gl);
-    }
-    gl.uniform1f(uForce, 0);
-    // Les occupants. Ils sont dans la fosse, accoudés à la main courante, et
-    // regardent là où est l'astre. Deux suffisent à ce que le lieu soit habité.
-    const versAstre = Math.atan2(salon.versAstre[0], -salon.versAstre[2]);
-    const envoie = M => gl.uniformMatrix4fv(uModele, false, M);
-    PERSONNAGE.dessine(gl, envoie,
-      [1,0,0,0, 0,1,0,0, 0,0,1,0, -1.40,VAISSEAU.FOSSE,-3.05,1],
-      salon.horloge, versAstre);
-    PERSONNAGE.dessine(gl, envoie,
-      [1,0,0,0, 0,1,0,0, 0,0,1,0, 1.95,VAISSEAU.FOSSE,-2.70,1],
-      salon.horloge + 11.3, versAstre);
-
-    // Soi-même, à la troisième personne. En première on ne se dessine pas :
-    // on verrait l'intérieur de son propre casque.
-    if(joueur.vue === 3){
-      const c = Math.cos(salon.lacet), si = Math.sin(salon.lacet);
-      PERSONNAGE.dessine(gl, envoie,
-        [c,0,-si,0, 0,1,0,0, si,0,c,0, joueur.p[0],joueur.p[1],joueur.p[2],1],
-        salon.horloge, 0);
-    }
-
-    /* La bulle suit le drone à l'écran. On la place sous lui, bornée aux
-       marges : sinon elle sort du cadre dès qu'il passe près d'un bord, et
-       l'on perd le lien qu'on cherchait justement à établir. */
-    if(elBulle.classList.contains("vu")){
-      const q = projetteSalon(ROBOT.pose(salon.horloge), mvpSalon());
-      if(q){
-        const marge = 170;
-        const x = Math.max(marge, Math.min(vueW - marge, q[0]));
-        /* On dégage la hauteur du drone, qui n'est pas une constante.
-
-           Trente-quatre pixels étaient toujours à l'intérieur de lui : à une
-           longueur de bras et demie, sa silhouette fait déjà soixante pixels de
-           rayon sur un téléphone. La bulle démarre donc sous son bord, et non
-           sous son centre. */
-        const rayonDrone = Math.max(46, vueH*0.085);
-        // On borne avec la hauteur RÉELLE de la bulle, pas avec une constante :
-        // elle varie du simple au quintuple selon la longueur de la réplique.
-        const h = elBulle.offsetHeight || 140;
-        const y = Math.max(60, Math.min(vueH - h - 18, q[1] + rayonDrone));
-        elBulle.style.setProperty("--bulle-x", x + "px");
-        elBulle.style.setProperty("--bulle-y", y + "px");
-      }
-    }
-
-    // Lumen. Il fait sa ronde, sauf quand l'étape demande qu'on lui parle :
-    // il vient alors se placer à portée, et cesse de se dérober au doigt.
-    if(attendu === "a-lumen"){
-      /* L'ancre se calcule UNE FOIS, et elle reste dans la PIÈCE.
-
-         Elle se recalculait à chaque image depuis la direction du regard : le
-         drone était donc rivé à un point fixe de l'ÉCRAN et suivait la tête au
-         degré près. On ne voyait plus un objet dans la salle mais une vignette
-         plaquée sur l'objectif, et le viser revenait à se courir après —
-         impossible au doigt.
-
-         Elle ne se refait que si l'on s'en est vraiment éloigné, pour qu'il
-         vienne nous retrouver quand on change de coin sans nous coller quand on
-         tourne simplement la tête. La hauteur ignore le tangage : lever les yeux
-         ne doit pas l'envoyer au plafond. */
-      const oe = oeilSalon();
-      if(!ancreLumen ||
-         Math.hypot(oe[0]-ancreLumen[0], oe[2]-ancreLumen[2]) > 2.4){
-        const { av, dr } = regardSalon();
-        const pl = Math.hypot(av[0], av[2]) || 1;          // le regard, mis à plat
-        ancreLumen = [ oe[0] + (av[0]/pl)*1.45 + dr[0]*0.42,
-                       oe[1] - 0.06,
-                       oe[2] + (av[2]/pl)*1.45 + dr[2]*0.42 ];
-      }
-      ROBOT.veutAttendre(1, ancreLumen);
-    } else { ROBOT.veutAttendre(0); ancreLumen = null; }
-    ROBOT.dessine(gl, envoie, salon.horloge, oeilSalon(),
-      (salon.vise === POSTE_LUMEN || questionsOuvertes) ? 1
-      : (attendu === "a-lumen" ? 0.55 : 0));
-  }
+  return HABITACLE.dessine(gl, {
+    prog: progSalon,
+    uniformes: { uMVP, uVersAstre, uOeil, uTeinteF, uEmiF, uForce,
+                 uEclatAstre, uLampes, uModele, uBaieX, uBaieBas, uBaieHaut, uBaieZ },
+    M: mvpSalon(), oeil: oeilSalon(), salon, vaisseau: VAISSEAU,
+    postes: { POSTE_LUMEN }, lumen: ROBOT.boiteVisee(salon.horloge).c,
+    lampes: lampesBord,
+    personnage: PERSONNAGE, robot: ROBOT, joueur, regard,
+    quete: { QUETE, iQuete, actif: queteActive, finie: queteFinie },
+    projette: projetteSalon, vue: { W: vueW, H: vueH },
+    bulle: elBulle, questionsOuvertes,
+  });
 }
 
 // La fin de la boucle, séparée elle aussi : l'interface, les veilles et le
@@ -6096,7 +5974,7 @@ requestAnimationFrame(boucle);
 <script>
 if(/[?&]verif\b/.test(location.search)){
   var s = document.createElement("script");
-  s.src = "verif.js?v=c0bf75f";
+  s.src = "verif.js?v=0622336";
   document.body.appendChild(s);
 }
 /* Et le protocole d'essai joué : `?test`. Il pose ses questions au moment où la
@@ -6106,7 +5984,7 @@ if(/[?&]verif\b/.test(location.search)){
    script contrôle mieux. */
 if(/[?&]test\b/.test(location.search)){
   var e = document.createElement("script");
-  e.src = "essai.js?v=c0bf75f";
+  e.src = "essai.js?v=0622336";
   document.body.appendChild(e);
 }
 /* Et la séance de jugement : `?juge`. Elle ne demande QUE ce qu'aucun calcul ne
@@ -6115,7 +5993,7 @@ if(/[?&]test\b/.test(location.search)){
    Claude, prêt à coller. On ne lit rien, on ne navigue pas. */
 if(/[?&]juge\b/.test(location.search)){
   var j = document.createElement("script");
-  j.src = "juge.js?v=c0bf75f";
+  j.src = "juge.js?v=0622336";
   document.body.appendChild(j);
 }
 </script>
