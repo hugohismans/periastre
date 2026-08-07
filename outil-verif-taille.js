@@ -153,7 +153,24 @@ const fs = require("fs"), path = require("path");
    dépasse jamais la vitesse de la lumière, le tangage touche sa borne quatorze
    mille fois sans jamais la franchir, et le lacet fait mille dix-huit tours
    sans être serré. */
-const PLAFOND = 3492;   // ... la resolution, le registre, la caméra, le pilotage, les gestes
+/* 3 448 — la progression dans `progression.js`. Les huit missions, la quête
+   d'accueil, et la mémoire locale. C'est le seul domaine du site qui garde une
+   trace de qui joue, et le seul dont le branchement a ATTENDU son outil : le
+   7 août, un réglage laissé dans cette mémoire a divisé par huit la cadence sur
+   le téléphone d'Hugo, et rien de ce qui y touche n'était éprouvable hors
+   navigateur.
+
+   L'outil, écrit d'abord, a trouvé du premier coup que la mémoire laissait
+   entrer des infinis — `1e400` est du JSON valide. Les prédicats des missions
+   sont maintenant éprouvés SEUIL PAR SEUIL, des deux côtés : « lâcher cinquante
+   sondes » ne se coche pas à quarante-neuf, et on le sait au lieu de l'espérer.
+
+   Le branchement a tué le dernier bloc à la première tentative — une propriété
+   abrégée `{ QUETE, iQuete }` renommée en `{ QUETE, PROG.iQuete }`, syntaxe
+   invalide, bloc mort en silence. Trouvé en trente secondes par `vivant()`, qui
+   existe exactement pour ça. C'est la troisième fois que ce mode de panne
+   frappe, et la première où il ne coûte rien. */
+const PLAFOND = 3448;   // ... le registre, la caméra, le pilotage, les gestes, la progression
 
 // Le nombre de modules déjà sortis. Il ne descend jamais non plus : un module
 // qu'on ferait rentrer dans le bloc serait le contraire exact du chantier.

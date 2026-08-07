@@ -52,16 +52,16 @@ Le détail de chaque étape est dans le plan approuvé. Ici, seulement l'état.
 ## Étape 5 — les gros de logique
 
 - [x] 5.1 caméra → `camera.js` — branchée, 198 lignes, et le second écrivain de `lieu` a disparu avec : le module DEMANDE le décrochage, la page ouvre la porte. F1 dit enfin vrai. Son outil est en cours d'écriture
-- [ ] 5.2 lieux → `lieux.js` écrit, **pas branché** — la raison est dans `POURQUOI_PAS_BRANCHE`
+- [ ] 5.2 lieux → `lieux.js` écrit, **pas branché**. Son outil existe désormais (133 contrôles, dont un monde espion qui COMPTE les écritures de `lieu` : « un seul écrivain » est mesuré, pas supposé). La chirurgie est la prochaine
+- [x] 5.9 gestes → `gestes.js` + son outil — 81 contrôles, extraction identique au bit près sur 450 000 tirages
 - [x] 5.3 registre → `registre.js` + son outil — ⚠ l'extraction avait laissé trois lecteurs morts derrière elle, réparés le 8 août
 - [x] 5.3 bis les deux noms morts — `registre` (carnet de bord) et `regard` passé à la place de `regardSalon` (l'ancre de Lumen). Ils emportaient treize contrôles en silence ; le filet passe de 93 à 106 sans qu'on en écrive un
 - [ ] 5.3 ter `outil-verif-noms.js` — un nom lu et déclaré nulle part doit rougir hors navigateur. Les deux ci-dessus ont été trouvés par hasard, trois extractions trop tard
 - [ ] 5.4 voyage → vers `voyage1g.js`
 - [ ] 5.5 Lumen → `lumen.js` + son outil
-- [ ] 5.6 missions et progression → `progression.js` + son outil
+- [x] 5.6 missions et progression → `progression.js` + son outil — **branché**. 153 contrôles écrits AVANT la chirurgie, et c'est ce qui a trouvé les infinis dans la mémoire
 - [ ] 5.7 manette → `manette.js` + son outil
 - [ ] 5.8 accueil → `accueil.js` + son outil
-- [ ] 5.9 gestes → `gestes.js` + son outil
 
 ## Les deux fondations qui restent
 

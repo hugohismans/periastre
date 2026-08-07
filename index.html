@@ -2320,6 +2320,7 @@ void main(){
 <script src="cockpit.js?v=47261d9"></script>
 <script src="camera.js?v=47261d9"></script>
 <script src="gestes.js?v=47261d9"></script>
+<script src="progression.js?v=47261d9"></script>
 <script>
 "use strict";
 
@@ -4037,7 +4038,7 @@ cv.addEventListener("pointerup", e => {
     return;
   }
   if(posteVise(capture() ? centreCanevas() : e) !== d.p) return;
-  queteVues.add(d.p.id);
+  PROG.queteVues.add(d.p.id);
   if(d.p.id === "lumen"){ ouvreQuestions(); return; }
   if(d.p.id === "telescope"){
     // On ne quitte pas le salon : on se met à l'instrument, debout dans la
@@ -4084,9 +4085,9 @@ $("b-quete").onclick = () => {
 };
 
 $("b-missions").onclick = () => {
-  missionsActives = !missionsActives;
-  if(missionsActives && iMission >= MISSIONS.length) iMission = 0;
-  $("b-missions").classList.toggle("actif", missionsActives);
+  PROG.missionsActives = !PROG.missionsActives;
+  if(PROG.missionsActives && PROG.iMission >= MISSIONS.length) PROG.iMission = 0;
+  $("b-missions").classList.toggle("actif", PROG.missionsActives);
   majMission();
 };
 $("b-missions").classList.add("actif");
@@ -4608,7 +4609,7 @@ function veilleLumen(now){
 
 // Pas par-dessus la quête : elle a sa propre narration, et deux voix pour le
 // même instant donnent une phrase commencée puis abandonnée.
-setTimeout(() => { if(!queteActive) reagit("accueil"); }, 1400);
+setTimeout(() => { if(!PROG.queteActive) reagit("accueil"); }, 1400);
 
 // ============ spectre électromagnétique ============
 // Le fait central : c'est la longueur d'onde qui décide si l'ombre est visible.
@@ -4727,236 +4728,192 @@ $("b-spectre").onclick = () => {
 };
 
 // ============ missions ============
-// La porte d'entrée pour qui ne connaît rien : un geste, une chose comprise.
-// Chaque condition lit l'état réel du jeu — rien n'est validé sans l'être.
-/* Mis de côté pour la bêta, sans être supprimé.
+/* Le domaine vit dans `progression.js` — les huit missions, la quête d'accueil,
+   et la mémoire locale. Ce qui reste ici est ce qui ne pouvait pas en sortir :
+   la peinture, la mémoire du navigateur, et les réglages qui appartiennent à
+   d'autres domaines.
 
-   Le contenu reste dans `contenu.js` et la mécanique dans `MISE_EN_PLACE` :
-   vider cet ensemble suffit à tout rendre. Le motif est écrit dans
-   `JUMEAUX.md` — l'expérience embarque sur une sonde sans expliquer ce qu'on
-   incarne ni pourquoi la vue change, et elle arrive en dernier, c'est-à-dire
-   là où l'on juge l'ensemble. */
-const MIS_DE_COTE = new Set(["m-jumeaux", "m-bord"]);
-const MISSIONS = CONTENU.missions.filter(m => !MIS_DE_COTE.has(m.id));
+   POURQUOI CELUI-LÀ A ATTENDU SON OUTIL. C'est le seul domaine du site qui
+   garde une trace de qui joue. Le 7 août 2026, un réglage laissé dans cette
+   mémoire a divisé par huit la cadence du site sur le téléphone d'Hugo, et
+   personne ne l'a vu venir parce que rien de ce qui y touche n'était éprouvable
+   hors navigateur. Le branchement a donc attendu `outil-verif-progression.js` —
+   153 contrôles, qui ont trouvé du premier coup que la mémoire laissait entrer
+   des infinis. Les prédicats des missions sont maintenant éprouvés SEUIL PAR
+   SEUIL, des deux côtés : « lâcher cinquante sondes » ne se coche pas à
+   quarante-neuf, et on le sait au lieu de l'espérer.
 
-const VERIFS = {
-  "m-chute":  () => compte.chute > 0,
-  "m-orbite": () => sondes.some(s => s.sort === "orbite" && !s.gel && s.age > 4),
-  "m-pluie":  () => sondes.length >= 50,
-  "m-limite": () => compte.essaisPres >= 1,
-  "m-photon": () => photons.length > 0 && TEMPS.cran === 0,
-  "m-reel":   () => reelCible > 0.5,
-  "m-bord":   () => sondeSuivie !== null,
-  "m-jumeaux":() => horloge.mere - horloge.bord > 1800,
-};
-
-let iMission = 0, missionFinie = false, tMission = 0, missionsActives = true;
-
-// ---- mémoire locale ----
-// Tout reste dans le navigateur : pas de serveur, pas de compte, rien qui
-// sorte de la machine. En contrepartie, c'est par appareil, et vider
-// l'historique efface tout. On le dit plutôt que de faire semblant.
-const CLE = "periastre.v1";
-let acquis = new Set();
-
-function sauve(){
-  try {
-    localStorage.setItem(CLE, JSON.stringify({
-      niveau: iNiveau, acquis: [...acquis], voix: voixActive,
-      anecdotes: intervalleAnecdote, taille: zoomSonde, volume: volumeVoix, spin, musique: volumeMusique, boutons: modeBoutons, mascotte, deja: true,
-    }));
-  } catch(e){ /* navigation privée : on continue sans mémoire */ }
-}
-function charge(){
-  try {
-    const d = JSON.parse(localStorage.getItem(CLE) || "null");
-    if(!d) return null;
-    acquis = new Set(d.acquis || []);
-    if(Number.isInteger(d.niveau)) iNiveau = d.niveau;
-    if(typeof d.voix === "boolean") voixActive = d.voix;
-    if(typeof d.anecdotes === "number") intervalleAnecdote = d.anecdotes;
-    if(typeof d.taille === "number") zoomSonde = d.taille;
-    if(typeof d.volume === "number") volumeVoix = d.volume;
-    // La rotation ne se relit PLUS — 13,8 ms l'image contre 1,6. `VERIF.rotationCalme`.
-    if(typeof d.musique === "number") volumeMusique = d.musique;
-    if(typeof d.boutons === "boolean") modeBoutons = d.boutons;
-    if(typeof d.mascotte === "boolean") mascotte = d.mascotte;
-    return d;
-  } catch(e){ return null; }
-}
-function oublie(){
-  try { localStorage.removeItem(CLE); } catch(e){}
-  acquis = new Set(); iMission = 0;
-}
-
-/* ---- la quête d'accueil ----
-
-   Même mécanique que les missions : un prédicat par étape, évalué à chaque
-   image, et la main rendue toute seule. Elle s'en distingue sur un point qui
-   compte : elle se joue DANS le salon, où le panneau des missions est masqué
-   par le CSS. Elle a donc son propre panneau, et elle n'écrit pas dans
-   `acquis` — apprendre où sont les boutons n'est pas comprendre quelque chose,
-   et cette monnaie-là ne se gagne qu'en comprenant. */
+   LE PARTAGE : le module DÉCIDE, la page PEINT. `panneau*` rend un descripteur
+   — une clé de libellé et un tableau de booléens, aucune balise ; `veille*` rend
+   des ORDRES que la page exécute. */
+const MIS_DE_COTE = PROGRESSION.MIS_DE_COTE;
+const MISSIONS = PROGRESSION.missions(CONTENU.missions, MIS_DE_COTE);
 const QUETE = CONTENU.accueilQuete;
 
-const VERIFS_QUETE = {
-  // Regarder la baie : la direction du regard doit pointer vers la vitre.
-  // Un seuil sur le produit scalaire, tenu deux secondes — sinon un balayage
-  // rapide validerait sans qu'on ait rien regardé.
-  "a-baie": () => -regardSalon().av[2] > 0.80,
-  /* On attend que les questions soient refermées.
+/* L'état du domaine, dans un OBJET que la page tient et repasse. Le module n'a
+   aucune variable vivante — deux parties peuvent tourner côte à côte, et un
+   contrôle repart d'un état propre sans rien réinitialiser. */
+const PROG = PROGRESSION.etatNeuf();
 
-     Sans ce `!questionsOuvertes`, l'étape se validait dans la foulée du
-     contact et sa récompense écrasait la bulle : les six questions
-     apparaissaient une fraction de seconde, puis disparaissaient. On demandait
-     donc d'interroger quelqu'un tout en empêchant de l'interroger.
-
-     Maintenant l'étape se termine quand on a effectivement consulté le drone
-     et refermé — ce qui est aussi ce que la consigne promet. */
-  "a-lumen": () => queteVues.has("lumen") && !questionsOuvertes,
-  "a-temps": () => salon.facteur === 1,
-  "a-telescope": () => queteVues.has("telescope"),
-};
-
-const queteVues = new Set();     // les postes déjà activés, pour les étapes 2 et 4
-let iQuete = 0, queteActive = false, queteFinie = false, tQuete = 0, tRegard = 0;
 let ouvreLaQuete = false;   // vrai le temps d'entrer au salon, pour museler l'accueil
 
-function majQuete(){
-  const el = $("quete");
-  if(!queteActive || iQuete >= QUETE.length){ el.classList.add("parti"); return; }
-  const q = QUETE[iQuete];
-  el.classList.remove("parti");
-  $("q-num").textContent = remplit("quete.num", { n:iQuete+1, total:QUETE.length });
-  $("q-titre").textContent = q.titre;
-  $("q-consigne").innerHTML = q.consigne;
-  $("q-jauge").innerHTML = QUETE.map((_, i) =>
-    `<i class="${i < iQuete ? "ok" : ""}"></i>`).join("");
+/* Ce que les prédicats ont le droit de regarder. Ils lisaient chacun un global
+   d'un autre domaine ; ils reçoivent maintenant ce paquet et n'ont plus de
+   portée sur quoi que ce soit. C'est ce qui permet à un contrôle de pousser UN
+   SEUL champ et de vérifier que la bonne mission bascule, et qu'elle seule.
+
+   `regardSalon` passe en FONCTION et non en vecteur : elle ne coûte que sur
+   l'étape « regarder la baie », et la précalculer à chaque image la ferait payer
+   tout le temps pour une étape qui dure quinze secondes. */
+function jeuPourVerifs(){
+  return { compte, sondes, photons, TEMPS, horloge, reelCible, sondeSuivie,
+           salon, regardSalon, questionsOuvertes };
 }
 
-function veilleQuete(now){
-  if(!queteActive || iQuete >= QUETE.length) return;
-  if(queteFinie){
-    if(now - tQuete > 4200){
-      queteFinie = false;
-      iQuete++;
-      $("quete").classList.remove("fini");
-      if(iQuete >= QUETE.length){ finQuete(); return; }
-      majQuete();
-    }
-    return;
+/* ---- mémoire locale ----
+   Tout reste dans le navigateur : pas de serveur, pas de compte, rien qui sorte
+   de la machine. En contrepartie c'est par appareil, et vider l'historique
+   efface tout. On le dit plutôt que de faire semblant.
+
+   Le module ne connaît pas `localStorage` : il reçoit cet adaptateur. C'est ce
+   qui permet à un outil de brancher une fausse mémoire et d'éprouver
+   l'aller-retour complet sans navigateur et sans rien salir sur la machine.
+
+   LES TROIS MÉTHODES PORTENT LEUR `try` : en navigation privée, l'écriture lève.
+   Le module traverse sans rattraper — c'est le contrat, et c'est ici qu'il se
+   tient. */
+const CLE = "periastre.v1";
+const MEMOIRE = {
+  lit(){ try { return JSON.parse(localStorage.getItem(CLE) || "null"); } catch(e){ return null; } },
+  ecrit(o){ try { localStorage.setItem(CLE, JSON.stringify(o)); } catch(e){} },
+  efface(){ try { localStorage.removeItem(CLE); } catch(e){} },
+};
+
+// Les réglages vivent dans leurs domaines, pas ici : on les rassemble pour
+// l'écriture et on les repose à la lecture, un par un et nommément.
+const reglagesVivants = () => ({
+  iNiveau, voixActive, intervalleAnecdote, zoomSonde, volumeVoix, spin,
+  volumeMusique, modeBoutons, mascotte,
+});
+
+function sauve(){
+  PROGRESSION.sauve({ memoire: MEMOIRE, reglages: reglagesVivants(), etat: PROG });
+}
+
+function charge(){
+  const r = PROGRESSION.charge({ memoire: MEMOIRE, etat: PROG });
+  if(!r) return null;
+  const g = r.reglages;
+  if("iNiveau"            in g) iNiveau            = g.iNiveau;
+  if("voixActive"         in g) voixActive         = g.voixActive;
+  if("intervalleAnecdote" in g) intervalleAnecdote = g.intervalleAnecdote;
+  if("zoomSonde"          in g) zoomSonde          = g.zoomSonde;
+  if("volumeVoix"         in g) volumeVoix         = g.volumeVoix;
+  if("volumeMusique"      in g) volumeMusique      = g.volumeMusique;
+  if("modeBoutons"        in g) modeBoutons        = g.modeBoutons;
+  if("mascotte"           in g) mascotte           = g.mascotte;
+  // La rotation ne se relit PLUS — 13,8 ms l'image contre 1,6. `VERIF.rotationCalme`.
+  // L'exception est une DONNÉE dans `CHAMPS` (`relit:false`), pas un oubli ici.
+  return r.brut;
+}
+
+function oublie(){ PROGRESSION.oublie({ memoire: MEMOIRE, etat: PROG }); }
+
+/* ---- peindre un panneau ----
+   Missions et quête ont le même panneau à deux noms près. Le descripteur porte
+   la CLÉ du libellé et ses valeurs ; c'est ici qu'on traduit. Le titre et la
+   consigne viennent de `contenu.js` et passent tels quels — la consigne contient
+   des balises voulues, d'où `innerHTML`, et c'est du contenu du dépôt. */
+function peintPanneau(id, p){
+  const el = $(id);
+  if(p.parti){ el.classList.add("parti"); return; }
+  el.classList.remove("parti");
+  const n = id === "mission" ? "m" : "q";
+  $(n + "-num").textContent = remplit(p.num.cle, p.num.vals);
+  $(n + "-titre").textContent = p.titre;
+  $(n + "-consigne").innerHTML = p.consigne;
+  $(n + "-jauge").innerHTML = p.jauge.map(v => `<i class="${v ? "ok" : ""}"></i>`).join("");
+}
+
+const majMission = () => peintPanneau("mission", PROGRESSION.panneauMission(PROG, { missions: MISSIONS }));
+const majQuete   = () => peintPanneau("quete",   PROGRESSION.panneauQuete(PROG, { quete: QUETE }));
+
+/* ---- exécuter les ordres ----
+   Le module rend `null` l'écrasante majorité des images. Quand il rend quelque
+   chose, chaque champ est un ordre facultatif, et l'ordre d'exécution compte :
+   la classe « fini » retombe AVANT qu'on repeigne, sinon on repeint dans un
+   panneau encore en félicitations. */
+function executeOrdres(id, o){
+  if(!o) return;
+  const el = $(id), n = id === "mission" ? "m" : "q";
+  if(o.avance) el.classList.remove("fini");
+  if(o.repeint) (id === "mission" ? majMission : majQuete)();
+  if(o.enregistre) sauve();
+  if(o.frappe !== undefined) MUSIQUE.frappe(o.frappe);
+  if(o.libelle){
+    el.classList.add("fini");
+    $(n + "-num").textContent = T(o.libelle);
+    if(id === "mission") $("m-consigne").innerHTML = "";
+    $(n + "-jauge").innerHTML = o.jauge.map(v => `<i class="${v ? "ok" : ""}"></i>`).join("");
   }
-  const q = QUETE[iQuete];
-  const v = VERIFS_QUETE[q.id];
-  if(!v) return;
-
-  // La première étape demande de tenir le regard : on compte le temps passé
-  // à viser plutôt que l'instant où l'on passe devant.
-  if(q.id === "a-baie"){
-    tRegard = v() ? tRegard + 16 : 0;
-    if(tRegard < 1800) return;
-  } else if(!v()) return;
-
-  queteFinie = true; tQuete = now;
-  // Le premier regard mérite plus que les autres : c'est le seul moment du
-  // parcours où l'on découvre quelque chose au lieu d'apprendre un bouton.
-  MUSIQUE.frappe(q.id === "a-baie" ? 1 : 0.45);
-  const el = $("quete");
-  el.classList.add("fini");
-  $("q-titre").textContent = T("quete.bien");
-  $("q-jauge").innerHTML = QUETE.map(() => `<i class="ok"></i>`).join("");
-  dit(q.reussi, 13000, "", true);
+  if(o.bulle) dit(o.bulle.texte, o.bulle.ms, "", o.bulle.prioritaire);
+  if(o.fin) executeFin(o.fin);
 }
 
 /* La fin de la quête dépose au télescope, c'est-à-dire dans la vue libre, et
-   passe le relais aux huit missions. On demande le niveau de lecture ICI et
-   pas à l'entrée : personne ne sait répondre à « où en es-tu ? » avant d'avoir
-   vu de quoi on parle. */
-function finQuete(){
-  queteActive = false;
-  document.body.classList.remove("en-quete");
-  missionsActives = true;          // les huit missions prennent le relais
-  iMission = 0;
-  majMission();
-  majQuete();
-  try{ localStorage.setItem("periastre.quete", "1"); }catch(_){}
-  setTimeout(() => { if(!dejaNiveau) niveauDemande(); }, 1200);
-}
+   passe le relais aux missions. On demande le niveau de lecture ICI et pas à
+   l'entrée : personne ne sait répondre à « où en es-tu ? » avant d'avoir vu de
+   quoi on parle.
 
-function lanceQuete(){
-  queteActive = true; queteFinie = false; iQuete = 0; tRegard = 0;
-  queteVues.clear();
-  /* On se réveille DOS à la baie. Sans ça, la première consigne — tourner la
-     tête vers la vitre — se validait toute seule au bout de deux secondes,
-     puisqu'on regardait déjà dans la bonne direction. Et l'ouverture y gagne :
-     on découvre le trou noir en se retournant, au lieu de l'avoir sous le nez
-     avant d'avoir compris où l'on est. */
-  salon.lacet = Math.PI * 0.62; salon.tangage = -0.04;
-  /* Le lever de rideau : quelques secondes de grave au réveil, puis plus rien.
-     Uniquement si le son a été accepté — et il ne recouvre pas l'ambiance de
-     qui l'a explicitement allumée. */
-  if(voixActive) MUSIQUE.ouverture(38);
-  joueur.p = [0.9, 0, 2.4]; joueur.v = [0,0,0];
-  missionsActives = false;          // une seule consigne à l'écran à la fois
-  majMission();
-  majQuete();
-}
-
-function majMission(){
-  const el = $("mission");
-  if(!missionsActives || iMission >= MISSIONS.length){
-    el.classList.add("parti");
-    return;
-  }
-  const m = MISSIONS[iMission];
-  el.classList.remove("parti");
-  $("m-num").textContent = remplit("mission.num", { n:iMission+1, total:MISSIONS.length });
-  $("m-titre").textContent = m.titre;
-  $("m-consigne").innerHTML = m.consigne;
-  $("m-jauge").innerHTML = MISSIONS.map((_, i) =>
-    `<i class="${i < iMission ? "ok" : ""}"></i>`).join("");
+   `marqueQuete` range une clé que RIEN ne lit dans tout le dépôt. C'est une
+   écriture morte, reproduite telle quelle par le module et signalée dans son
+   en-tête plutôt que supprimée en passant. */
+function executeFin(f){
+  if(f.enQuete === false) document.body.classList.remove("en-quete");
+  if(f.repeintMission) majMission();
+  if(f.repeintQuete) majQuete();
+  if(f.marqueQuete){ try { localStorage.setItem("periastre.quete", "1"); } catch(_){} }
+  if(f.demandeNiveau) setTimeout(() => { if(!dejaNiveau) niveauDemande(); }, f.demandeNiveau);
 }
 
 function veilleMission(now){
-  if(!missionsActives || iMission >= MISSIONS.length) return;
-  if(missionFinie){
-    if(now - tMission > 4200){          // le temps de lire la chute
-      missionFinie = false;
-      iMission++;
-      $("mission").classList.remove("fini");
-      majMission();
-    }
-    return;
-  }
-  const m = MISSIONS[iMission];
-  const v = VERIFS[m.id];
-  if(v && v()){
-    missionFinie = true;
-    tMission = now;
-    acquis.add(m.id); sauve();
-    $("mission").classList.add("fini");
-    $("m-num").textContent = T("mission.reussi");
-    $("m-consigne").innerHTML = "";
-    $("m-jauge").innerHTML = MISSIONS.map((_, i) =>
-      `<i class="${i <= iMission ? "ok" : ""}"></i>`).join("");
-    dit(m.reussi, 12000);
-  }
+  executeOrdres("mission", PROGRESSION.veilleMission(PROG, { missions: MISSIONS, jeu: jeuPourVerifs() }, now));
 }
+
+function veilleQuete(now){
+  executeOrdres("quete", PROGRESSION.veilleQuete(PROG, { quete: QUETE, jeu: jeuPourVerifs() }, now));
+}
+
+/* La pose du réveil sort en ORDRE plutôt que d'être écrite dans `salon` et
+   `joueur` depuis le module : ces deux objets appartiennent à d'autres domaines,
+   et c'est exactement le genre d'écriture croisée qui a donné le disque à 622×. */
+function lanceQuete(){
+  const o = PROGRESSION.lanceQuete(PROG, { voixActive });
+  if(o.pose){
+    salon.lacet = o.pose.lacet; salon.tangage = o.pose.tangage;
+    joueur.p = [...o.pose.p]; joueur.v = [...o.pose.v];
+  }
+  if(o.ouverture) MUSIQUE.ouverture(o.ouverture);
+  majMission();
+  majQuete();
+}
+
+function finQuete(){ executeFin(PROGRESSION.finQuete(PROG)); }
 
 $("q-fermer").onclick = () => {
   /* On peut passer l'introduction. Hugo l'a posé comme règle générale : proposé,
      jamais imposé. Sans cette croix, quelqu'un de bloqué sur une étape n'avait
      aucun moyen d'aller voir ailleurs. On rend la barre et les missions. */
-  queteActive = false;
+  PROG.queteActive = false;
   document.body.classList.remove("en-quete");
-  missionsActives = true; iMission = 0;
+  PROG.missionsActives = true; PROG.iMission = 0;
   majQuete(); majMission();
   try{ localStorage.setItem("periastre.quete", "1"); }catch(_){}
   if(!dejaNiveau) setTimeout(() => niveauDemande(), 500);
 };
 
 $("m-fermer").onclick = () => {
-  missionsActives = false;
+  PROG.missionsActives = false;
   majMission();
   $("b-missions").classList.remove("actif");
 };
@@ -4970,7 +4927,7 @@ const EXPERIENCES = CONTENU.experiences.filter(x => x.id !== "jumeaux");
 
 const MISE_EN_PLACE = {
   libre(){
-    missionsActives = true; iMission = 0; majMission();
+    PROG.missionsActives = true; PROG.iMission = 0; majMission();
     reglerVitesse(2);
     if(sondeSuivie !== null) embarque(null);
     if(reelCible > 0.5) $("b-reel").click();
@@ -4980,8 +4937,8 @@ const MISE_EN_PLACE = {
     $("b-cours").textContent = T("titre.cours");
   },
   jumeaux(){
-    missionsActives = true;
-    iMission = MISSIONS.findIndex(m => m.id === "m-jumeaux");
+    PROG.missionsActives = true;
+    PROG.iMission = MISSIONS.findIndex(m => m.id === "m-jumeaux");
     majMission();
     horloge.bord = horloge.mere = 0;
     sondes.length = 0;
@@ -5004,8 +4961,8 @@ const MISE_EN_PLACE = {
     setTimeout(() => dit(REACTIONS.jumeauxDepart, 22000, "", true), 700);
   },
   reelle(){
-    missionsActives = true;
-    iMission = MISSIONS.findIndex(m => m.id === "m-reel");
+    PROG.missionsActives = true;
+    PROG.iMission = MISSIONS.findIndex(m => m.id === "m-reel");
     majMission();
     if(sondeSuivie !== null) embarque(null);
     if(reelCible < 0.5) $("b-reel").click();
@@ -5013,7 +4970,7 @@ const MISE_EN_PLACE = {
     $("fiches").classList.add("replie");
   },
   exact(){
-    missionsActives = false; majMission();
+    PROG.missionsActives = false; majMission();
     $("fiches").classList.add("replie");
     iDNiveau = iNiveau; majDossier();
     $("voile").classList.add("vu");
@@ -5262,7 +5219,7 @@ function menu(){
   poseAccueil(false);
   elCartes.style.justifyItems = "";
   elTitre.textContent = T("accueil.titre");
-  const n = acquis.size;
+  const n = PROG.acquis.size;
   /* Le pluriel n'est plus recousu dans la phrase : chaque langue apporte ses
      deux phrases entières, et la troisième apportera les siennes. */
   elChapo.innerHTML = n
@@ -5281,7 +5238,7 @@ function menu(){
     p.style.cssText = "grid-column:1/-1;text-align:center;margin-top:6px";
     p.innerHTML = MISSIONS.map(m =>
       `<span title="${m.titre}" style="display:inline-block;width:9px;height:9px;margin:0 3px;
-       border-radius:50%;background:${acquis.has(m.id) ? "#6effb4" : "rgba(255,255,255,.15)"}"></span>`
+       border-radius:50%;background:${PROG.acquis.has(m.id) ? "#6effb4" : "rgba(255,255,255,.15)"}"></span>`
     ).join("") +
     `<div style="margin-top:11px"><button id="acc-oubli" style="font-size:10.5px;padding:5px 11px">
        ${T("accueil.oubli")}</button></div>`;
@@ -5329,8 +5286,8 @@ if(memoire){
   const iVol = [0.28, 0.5, 0.75, 1.0].indexOf(volumeVoix);
   [...boitierVol.children].forEach((c, i) => c.classList.toggle("actif", i === iVol));
   // reprendre là où on s'était arrêté
-  const suivante = MISSIONS.findIndex(m => !acquis.has(m.id));
-  iMission = suivante < 0 ? MISSIONS.length : suivante;
+  const suivante = MISSIONS.findIndex(m => !PROG.acquis.has(m.id));
+  PROG.iMission = suivante < 0 ? MISSIONS.length : suivante;
   majMission();
 }
 intro();
@@ -5502,7 +5459,7 @@ function dessineEcrans(){
     // La position du drone À CET INSTANT : `POSTE_LUMEN.c` n'est réécrit que
     // lorsqu'on vise, donc il est périmé dès que le pointeur s'arrête.
     lumen: ROBOT.boiteVisee(salon.horloge).c,
-    quete: { QUETE, iQuete, actif: queteActive, finie: queteFinie },
+    quete: { QUETE, iQuete: PROG.iQuete, actif: PROG.queteActive, finie: PROG.queteFinie },
     len, cadence, T, remplit, virgule, tempsFr, LOCALE,
     fabriqueToile: () => document.createElement("canvas"),
   });
@@ -5743,7 +5700,7 @@ function dessineHabitacle(){
     // Les deux noms se ressemblent, l'extraction a pris le mauvais, et rien ne
     // l'a dit — l'ancre de Lumen ne se recalcule qu'en s'éloignant de 2,4 m.
     personnage: PERSONNAGE, robot: ROBOT, joueur, regard: regardSalon,
-    quete: { QUETE, iQuete, actif: queteActive, finie: queteFinie },
+    quete: { QUETE, iQuete: PROG.iQuete, actif: PROG.queteActive, finie: PROG.queteFinie },
     projette: projetteSalon, vue: { W: vueW, H: vueH },
     bulle: elBulle, questionsOuvertes,
   });

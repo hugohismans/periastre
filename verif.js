@@ -1330,9 +1330,9 @@ function parcours(){
   salon.lacet = 0; salon.tangage = 0;
   t = avanceImages(700, t);
   point("on est dans le salon", salon.actif === true, true, salon.actif);
-  point("la quête a démarré", typeof queteActive !== "undefined" && queteActive, true,
-        typeof queteActive !== "undefined" ? queteActive : "?");
-  const etape = (typeof QUETE !== "undefined" && QUETE[iQuete]) ? QUETE[iQuete].id : null;
+  point("la quête a démarré", typeof PROG.queteActive !== "undefined" && PROG.queteActive, true,
+        typeof PROG.queteActive !== "undefined" ? PROG.queteActive : "?");
+  const etape = (typeof QUETE !== "undefined" && QUETE[PROG.iQuete]) ? QUETE[PROG.iQuete].id : null;
   point("l'étape de la baie s'est validée", etape === "a-lumen", "a-lumen", etape);
   return enCours;
 }
@@ -1350,7 +1350,7 @@ function voyage(){
   ouvre("L'aller-retour du télescope");
   if(!salon.actif) document.getElementById("b-salon").click();
   cinema.actif = false;
-  if(typeof queteActive !== "undefined"){ queteActive = false; queteFinie = true; }
+  if(typeof PROG.queteActive !== "undefined"){ PROG.queteActive = false; PROG.queteFinie = true; }
   const avant = REGISTRE.tout().length;
 
   ouvreTelescope();
