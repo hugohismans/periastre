@@ -36,7 +36,19 @@ enfler. **Les verdicts de la troisième séance sont à relire avec ça en tête
 
 ---
 
-## Trouvé en sortant le cockpit — un chiffre faux à l'écran
+## Deux choses trouvées en sortant le cockpit
+
+### La console du cockpit passe peut-être sous deux panneaux
+
+Mesuré le 8 août : les valeurs des cadrans tombent à **81 px du bas** sur grand
+écran et **55 px** sur téléphone ; les jauges à 66 et 48 px. Or le CSS pose
+`#lecture-flottant` à 82 px et `#mission` à 64 px du bas.
+
+Il y a donc de bonnes chances qu'un panneau HTML recouvre les cadrans dans
+certaines situations — pas la barre de boutons, qui est plus bas. Ça ne se
+tranche pas au calcul : il faut regarder, en vol, avec une mission en cours.
+
+### Un chiffre faux à l'écran
 
 **8 août 2026, découvert pendant l'extraction de `cockpit.js`.** Le cadran
 « ton temps s'écoule à » affiche `√(1 − 3M/r)`, qui est le rapport dτ/dt d'une
