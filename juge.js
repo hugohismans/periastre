@@ -79,7 +79,16 @@ function auSalon(x, z, lacet, tangage){
 }
 
 // ============================================================ les décisions
-const DECISIONS = [
+/* `ignore: true` retire une question de la file SANS effacer son code.
+
+   Une question répondue disparaît normalement d'ici, commentaire compris — on
+   ne garde pas de file morte. Mais l'arrivée du voyage est un cas différent :
+   elle est refusée en attendant une refonte, et son gréement (rejouer les deux
+   dernières secondes, neutraliser le panneau, rendre le monde comme on l'a
+   pris) resservira tel quel. L'effacer pour le réécrire dans trois jours serait
+   du gaspillage ; la laisser dans la file coûterait l'œil d'Hugo sur un verdict
+   qu'il a déjà rendu. */
+const TOUTES = [
 
   /* TROIS QUESTIONS ONT DISPARU D'ICI, ET C'EST LE BUT.
 
@@ -118,93 +127,68 @@ const DECISIONS = [
 
      Ce qui reste : une question, et c'est celle que j'avais mal posée. */
 
-  { id: "trou-noir-etude",
-    titre: "La rotation du trou noir d'étude",
-    libre: true,
+  /* LA ROTATION DU TROU NOIR D'ÉTUDE — POSÉE QUATRE FOIS, ENFIN RÉPONDUE.
 
-    /* QUATRE FOIS POSÉE, TROIS FOIS RATÉE, ET TOUJOURS PAR MA FAUTE.
+     7 août 2026 : « ça va ». Trois des quatre séances précédentes avaient été
+     gâchées par mes propres fautes — une fenêtre qui mangeait l'écran, des
+     boutons construits dans un panneau posé en vue libre, et une fois un moteur
+     qui n'était pas encore déployé, si bien qu'il a jugé le code d'avant.
 
-       Au matin, le verdict portait sur ma fenêtre qui mangeait l'écran. Puis sur
-       des boutons que je construisais dans le panneau du télescope en le posant,
-       lui, en vue libre — le défaut du drone, repayé. Puis sur une couture de
-       l'axe polaire. Et la quatrième fois, sur un moteur qui n'était pas encore
-       déployé : il a jugé le code d'avant.
+     La couture de l'axe est réglée, l'effet de rotation se voit, et la question
+     sort de la file. */
 
-       La couture est réglée — le moteur est en Kerr-Schild, où l'axe n'a rien de
-       singulier, et l'écart sur l'axe tombe de 78-310 niveaux à 2-26. On l'emmène
-       au télescope, panneau ouvert, réglages sous les yeux, et `montre` refuse de
-       poser la question s'ils n'y sont pas.
+  /* LA QUESTION SUR L'IMAGE APRÈS LA RÉÉCRITURE A ÉTÉ POSÉE, ET RÉPONDUE.
 
-       La question redevient donc celle qu'elle aurait toujours dû être. */
-    quoi: "Le moteur de rotation a été réécrit : la trace verticale que tu avais vue "
-        + "sur l'axe n'existe plus, c'est mesuré. Passe les quatre rotations et "
-        + "regarde l'astre par la baie — l'effet de la rotation se voit, ou pas ?",
-    pose: () => {
-      auSalon(0, 0.6, 0, -0.05);
-      ouvreTelescope();
-      poseEtude();
-    },
-    // Ce qu'il DOIT avoir sous les yeux. La séance refuse de poser la question
-    // si ce n'est pas le cas — voir `visible()`.
-    montre: () => $$("etude-spin"),
-    rend: () => { fermeTelescope(); },
-  },
+     7 août 2026 : « rien n'a bougé, tout a l'air conforme ». Aucune régression
+     visible après le passage en Kerr-Schild. Elle sort donc de la séance.
 
-  /* LA QUESTION QUE TOUTE RÉÉCRITURE APPELLE, ET QUE J'AVAIS OUBLIÉE.
+     ---------------------------------------------------------------------------
+     ET ELLE ÉTAIT MAL ÉCRITE, CE QUI VAUT D'ÊTRE GARDÉ.
 
-     J'ai fait juger la couture — le défaut que je cherchais. Mais le moteur a
-     été remplacé EN ENTIER : les géodésiques, la tétrade, la terminaison à
-     l'horizon, la traversée du plan du disque. Mes contrôles couvrent ce que je
-     savais mesurer, c'est-à-dire ce à quoi j'avais pensé.
+     Ses quatre variantes n'étaient pas des choix de conception : c'étaient
+     quatre points de vue pour inspecter la même chose. La séance a pourtant
+     produit sa consigne habituelle — « garde celle-ci, enlève les autres » —
+     qui, appliquée à la lettre, aurait supprimé les rotations 0,6, 0,9 et 0,95
+     du site. C'est-à-dire effacer une fonctionnalité parce qu'il a dit qu'elle
+     marchait.
 
-     Ce qu'ils ne couvrent pas : l'image. Le bord de l'ombre est-il toujours net,
-     le disque toujours à sa place, l'asymétrie prograde/rétrograde toujours du
-     bon côté ? Une régression y serait invisible à mes chiffres et évidente à
-     son œil — c'est précisément la répartition de ce projet.
+     Leçon : une question d'INSPECTION ne doit pas emprunter la forme d'une
+     question de CHOIX. Si l'on remet des variantes qui ne sont que des angles
+     de vue, il faudra un type distinct dans la séance, dont le rendu ne parle
+     ni de garder ni d'enlever. */
 
-     Les quatre rotations sur la même vue, pour qu'il compare sans mémoire. */
-  { id: "image-rotation",
-    titre: "L'image, maintenant que le moteur a changé",
-    libre: true,
-    quoi: "Tout le calcul de la rotation a été remplacé. Je n'ai vérifié que ce à quoi "
-        + "j'ai pensé. Bascule les quatre rotations sur la même vue et dis-moi si "
-        + "quelque chose a bougé qui ne devait pas — le bord de l'ombre, le disque, "
-        + "l'asymétrie gauche/droite.",
-    pose: () => rotationEnVue(0),
-    options: [
-      { nom: "aucune",   fait: () => rotationEnVue(0) },
-      { nom: "modérée",  fait: () => rotationEnVue(0.6) },
-      { nom: "rapide",   fait: () => rotationEnVue(0.9) },
-      { nom: "extrême",  fait: () => rotationEnVue(0.95) },
-    ],
-    rend: () => { spin = spinAvant; },
-  },
+  /* L'ARRIVÉE — LES DEUX VARIANTES ONT ÉTÉ REFUSÉES, ET C'ÉTAIT LA BONNE RÉPONSE.
 
-  /* CE QU'IL A RELEVÉ AU PASSAGE, ET QUE PERSONNE NE LUI DEMANDAIT.
+     Je cherchais ce qui « pop » à l'arrivée, et je lui proposais de trancher
+     entre deux mises en scène. Il a répondu à côté de mes boutons, et il a eu
+     raison de le faire :
 
-     « L'apparition du cercle d'orbite des étoiles autour du trou noir n'est pas
-     fluide, ça pop d'un coup à la fin. » Quatrième défaut trouvé par le champ
-     libre — celui qui ne répond à rien.
+       « Ça va pas. La trace des orbites est devant la vitre dans le vaisseau,
+         on n'a pas l'impression que c'est à l'extérieur. Et on doit vraiment
+         avoir l'impression qu'on s'éloigne : la taille des orbites doit être
+         relative à la distance à laquelle on est du trou noir pendant le
+         voyage. »
 
-     J'ai mesuré avant de demander : le fondu de la carte monte de 0,0059 par
-     image au plus, sur cinq secondes. Il est lisse. Ce qui saute est donc AUTRE
-     CHOSE, et je ne sais pas quoi.
+     Puis, le même jour : les orbites doivent se voir DÈS LE DÉBUT du recul et ne
+     se révéler en entier qu'à l'arrivée, naturellement. Et il veut lire pendant
+     le vol la vitesse en fraction de c, le décalage temporel, la distance au
+     point de départ — les deux phases, accélération et freinage.
 
-     Plutôt que de lui redemander « qu'est-ce qui saute ? » — question à laquelle
-     personne ne sait répondre en regardant une seconde et demie — on lui donne
-     de quoi TRANCHER : la même arrivée, avec et sans le panneau qui s'ouvre. Si
-     le saut disparaît avec le panneau, c'est le panneau. C'est une expérience,
-     pas un sondage.
+     Aucune de mes deux variantes ne pouvait répondre à ça : le défaut n'était
+     pas dans l'animation, il était dans le fait que la carte est un calque plat
+     posé par-dessus l'écran, sans lien ni avec la vitre ni avec le trajet.
 
-     Et on se pose à quatre-vingt-dix pour cent du trajet : personne ne doit
-     attendre vingt-deux secondes pour revoir deux secondes. */
-  { id: "arrivee",
+     LA QUESTION SORT DONC DE LA SÉANCE le temps que la partie voyage soit
+     refaite. La reposer sur les mêmes variantes coûterait son œil pour un
+     verdict qu'il a déjà rendu.
+
+     Le morceau qui existe déjà : `VOYAGE.etat(d, τ)` rend la position, les deux
+     horloges, β, γ et la phase, gardé par 54 contrôles. Le reste s'y branche. */
+
+  { id: "arrivee-hors-file", ignore: true,
     titre: "L'arrivée du voyage",
     libre: true,
-    quoi: "Tu as noté que le cercle d'orbite « pop » d'un coup. J'ai mesuré le fondu : "
-        + "il est lisse sur cinq secondes, donc ce qui saute est autre chose. "
-        + "Bascule entre les deux boutons — même arrivée, une fois avec le panneau qui "
-        + "s'ouvre, une fois sans. Est-ce que le saut est encore là sans lui ?",
+    quoi: "",
     pose: () => rejoueArrivee(false),
     options: [
       { nom: "l'arrivée telle quelle",   fait: () => rejoueArrivee(false) },
@@ -226,24 +210,12 @@ const DECISIONS = [
   },
 ];
 
+const DECISIONS = TOUTES.filter(d => !d.ignore);
+
 /* Rejouer les deux dernières secondes d'un voyage, en supprimant au besoin le
    panneau d'arrivée. On remplace `poseArrivee` plutôt que de l'empêcher d'être
    appelée : c'est le seul point par lequel le panneau se lève, et le rendre
    muet ne change rien d'autre à la scène. */
-/* La vue de comparaison des rotations. On se met dans le salon, cadré sur
-   l'astre, et l'on ne change QUE le spin d'un bouton à l'autre : c'est la seule
-   façon de voir une régression, puisqu'un jugement porté sur deux images à
-   vingt minutes d'intervalle ne vaut rien. */
-let spinAvant = 0;
-function rotationEnVue(s){
-  if(TELESCOPE.trajet){ TELESCOPE.trajet = null; TELESCOPE.retour = false; }
-  RECUL.etat.actif = false;
-  TELESCOPE.carte = 0;
-  fermeTelescope();
-  auSalon(0, 0.6, 0, -0.05);
-  spin = s;
-}
-
 let vraiePoseArrivee = null;
 function rendPoseArrivee(){
   if(vraiePoseArrivee){ global.poseArrivee = vraiePoseArrivee; vraiePoseArrivee = null; }
@@ -870,7 +842,6 @@ global.JUGE = { DECISIONS, verdicts, montre, repond, termine, rapport: null,
 function demarre(){
   boite.style.display = "";
   debut = Date.now();
-  spinAvant = spin;                      // on rendra le monde comme on l'a pris
   instrumentCasse = eprouve();          // avant la première question, jamais après
   montre();
 }

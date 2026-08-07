@@ -45,5 +45,36 @@ Hugo peut aussi le déclencher à tout moment : « on refait le cap ».
   trois niveaux, sourcé, et des curseurs pour essayer soi-même. Pas en chantier.
 - **`cap.html` créé** — la feuille de route pour Hugo, non liée et non indexée.
 
-État à la fin de la journée : 81 contrôles dans la page, 12 outils hors
+État en milieu de journée : 81 contrôles dans la page, 12 outils hors
 navigateur, tout au vert.
+
+### Le soir — la séance de jugement, et ce qu'elle a ouvert
+
+- **Deux questions closes.** La rotation du trou noir d'étude : « ça va », après
+  quatre tentatives dont trois gâchées par mes propres fautes. L'image après la
+  réécriture du moteur : « rien n'a bougé, tout a l'air conforme ».
+- **Ma question sur l'image était mal écrite.** Ses quatre variantes étaient des
+  points de vue d'inspection, pas des choix ; la séance a donc produit « garde
+  celle-ci, enlève les autres », ce qui appliqué à la lettre aurait supprimé les
+  rotations du site. Une question d'inspection ne doit pas emprunter la forme
+  d'une question de choix.
+- **La carte des orbites tournait toute seule** — `vue.azim += dt*0.05`, ajouté
+  par moi. Elle fabriquait un déplacement du vaisseau qui n'existe pas. Retiré,
+  gardé par `VERIF.carteFixe()`.
+- **Trois défauts de mes propres contrôles sont sortis en chemin** : un contrôle
+  qui n'exerçait rien, une bande de mesure en pixels durs qui rendait `couture()`
+  dépendante de la taille de la fenêtre — et qui aurait menti précisément sur un
+  téléphone — et un témoin posé sur le bord de l'ombre, qui n'est pas une
+  colonne mais une rampe.
+- **`VOYAGE.etat(d, τ)`** — la position, les deux horloges, β, γ et la phase à
+  chaque instant du vol. 54 contrôles dans `outil-verif-voyage.js`, qui a trouvé
+  au passage une annulation catastrophique vieille de plusieurs semaines dans
+  `trajet()` et `enChemin()`.
+- **Le cliquet de taille descend** de 4 310 à 4 298 lignes.
+
+**Chantier ouvert, et il est gros : refaire la partie voyage.** Cinq points,
+détaillés dans `A-REGARDER.md`. La fondation est posée ; le reste s'y branche.
+
+État à la fin de la journée : 86 contrôles dans la page, 13 outils hors
+navigateur, tout au vert. Séance de jugement vide — rien à faire juger tant que
+le voyage n'est pas refait.

@@ -36,12 +36,71 @@ enfler. **Les verdicts de la troisième séance sont à relire avec ça en tête
 
 ---
 
-## À regarder en priorité, parce que c'est neuf et jamais vu
+## Séance du 7 août 2026 — la file est vide
+
+**Deux questions sont closes, et la troisième a été refusée pour de bonnes
+raisons.** Il n'y a plus rien à faire juger tant que la partie voyage n'est pas
+refaite : reposer les mêmes variantes coûterait son œil pour un verdict déjà
+rendu.
+
+| quoi | verdict |
+|---|---|
+| **La rotation du trou noir d'étude** | ✅ « ça va ». Posée quatre fois, ratée trois fois par ma faute. Close. |
+| **L'image après la réécriture du moteur** | ✅ « rien n'a bougé, tout a l'air conforme ». Aucune régression visible après le passage en Kerr-Schild. Close. |
+| **L'arrivée du voyage** | ❌ **Les deux variantes refusées, et il a répondu à côté de mes boutons — à juste titre.** Voir le chantier ci-dessous. |
+| **La carte des orbites qui tourne** | ✅ **Corrigé le jour même.** « On a l'impression que le vaisseau tourne autour du trou noir. » Une dérive d'azimut que j'avais ajoutée « pour que le volume se lise » ; elle fabriquait un déplacement inexistant. Gardé par `VERIF.carteFixe()`. |
+
+### Le chantier qui sort de cette séance : refaire le voyage
+
+Ses mots, dans l'ordre où ils sont venus :
+
+> « La trace des orbites est devant la vitre dans le vaisseau, on n'a pas
+> l'impression que c'est à l'extérieur. Et on doit vraiment avoir l'impression
+> qu'on s'éloigne : la taille des orbites doit être relative à la distance à
+> laquelle on est du trou noir pendant le voyage. »
+
+> « Si on voit une trace d'orbite, on les voit depuis le début qu'on recule, et
+> c'est une fois qu'on arrive à la destination qu'on la voit en entier. Mais ça
+> doit se faire de manière très naturelle. »
+
+> « Il faudrait mettre notre vitesse actuelle pendant le voyage, en vitesse de la
+> lumière. La phase d'accélération, la phase de décélération. Le décalage
+> temporel pendant le voyage, à quelle distance on est de notre point de départ.
+> Je trouve que la partie voyage est à retravailler en tout cas. »
+
+**Cinq points, et le dernier commande les autres.**
+
+1. La carte des orbites est un **calque plat posé sur tout l'écran** — d'où le
+   fait qu'elle passe devant la vitre. Il faut la découper à l'ouverture de la
+   baie, dont `projetteSalon()` sait déjà donner les coins.
+2. Son échelle suit l'ouverture du panneau, pas la distance. Elle doit suivre
+   `RECUL.etat.distance`.
+3. Elle apparaît à la fin. Elle doit être là dès le début du recul et se révéler
+   en se resserrant.
+4. Il n'y a **aucune information de vol** : ni vitesse, ni facteur de dilatation,
+   ni distance parcourue.
+5. **Et la cause profonde** : le recul visible suivait une courbe de confort — un
+   lissage sur le logarithme de la distance — pendant que le chronomètre
+   calculait le vrai vol à 1 g. Afficher une vitesse tirée de cette courbe
+   donnerait un chiffre faux en mouvement à l'écran.
+
+Fait le 7 août : `VOYAGE.etat(d, τ)` rend la position, les deux horloges, β, γ et
+la phase, gardé par 54 contrôles dans `outil-verif-voyage.js`. Le reste s'y
+branche — c'est la fondation, elle est posée et prouvée.
+
+<details><summary>L'état d'avant cette séance, gardé pour mémoire</summary>
 
 | quoi | où | état |
 |---|---|---|
 | **L'arrivée du voyage** | fin du recul | ❗ **Neuf, 6 août au soir.** « L'apparition du cercle d'orbite des étoiles autour du trou noir n'est pas fluide, ça *pop* d'un coup à la fin. » Relevé au passage, pas en réponse à une question — c'est le quatrième défaut trouvé par ce champ libre. |
-| **La couture de l'axe polaire** | trou noir d'étude, en rotation | ❗ **La question a enfin été posée, et la réponse n'est pas celle que j'attendais.** « Il y a une trace verticale buguée quand on met une rotation. » C'est la couture de l'axe polaire — une dette connue, déclarée à **sept endroits** du contenu, dont le panneau qu'il avait sous les yeux. **Il l'a lue comme un bug malgré la déclaration.** Décision à prendre, voir plus bas. |
+| **La couture de l'axe polaire** | trou noir d'étude, en rotation | ❗ **La question a enfin été posée, et la réponse n'est pas celle que j'attendais.** « Il y a une trace verticale buguée quand on met une rotation. » C'est la couture de l'axe polaire — une dette connue, déclarée à **sept endroits** du contenu, dont le panneau qu'il avait sous les yeux. **Il l'a lue comme un bug malgré la déclaration.** |
+
+</details>
+
+## Ce qui reste en file, sans être une question de séance
+
+| quoi | où | état |
+|---|---|---|
 | **La carte des étoiles S** | arrivée du voyage | ❌ **Ça coince** aux trois séances. Le 6 août : « à discuter dans Claude Code avec Hugo ». Ce n'est plus une question à poser devant un écran — elle sort de la séance et devient une conversation. |
 | **La console de tir** | fosse du salon | Sortie de la séance. « Quand je dis agrandir, je veux dire agrandir LE VAISSEAU, et mettre le canon dans une nouvelle salle. » C'est une aile de plus, pas un choix de taille. |
 | **Les lampes du bord** | dans le salon | Question posée avec le mauvais bouton. L'interrupteur existe maintenant vraiment. À rejouer un jour. |
