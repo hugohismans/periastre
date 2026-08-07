@@ -170,7 +170,35 @@ const fs = require("fs"), path = require("path");
    invalide, bloc mort en silence. Trouvé en trente secondes par `vivant()`, qui
    existe exactement pour ça. C'est la troisième fois que ce mode de panne
    frappe, et la première où il ne coûte rien. */
-const PLAFOND = 3400;   // ... le registre, la caméra, le pilotage, les gestes, la progression
+/* 3 405 le 9 août — **LE PLAFOND MONTE POUR LA TROISIÈME FOIS**, et ça se
+   justifie ici comme cet outil l'exige.
+
+   Il était à 3 400 après la sortie de Lumen et de la manette. L'extraction de
+   l'accueil a trouvé, SANS MÊME ÊTRE BRANCHÉE, un défaut qui touche tout le
+   monde : **la question du niveau de lecture ne se posait plus à qui rechargeait
+   tôt.** Elle se décidait sur la PRÉSENCE de `niveau` en mémoire, or franchir la
+   porte d'entrée range déjà `niveau: 0` — la valeur du code, pas un choix. On
+   entrait, on rechargeait, et l'on restait en « Découverte » sans avoir rien
+   demandé.
+
+   La réparation demande un drapeau à part, posé au seul endroit où l'on répond
+   vraiment : une entrée dans `CHAMPS`, une variable, sa lecture, son écriture,
+   et de quoi expliquer pourquoi deux notions qui se ressemblent ne se
+   confondent pas.
+
+   CE QUI A ÉTÉ RENDU D'ABORD : `PR_DUREE` et sa minuterie, morts depuis qu'on ne
+   fait plus défiler la présentation tout seul — la durée n'était plus lue nulle
+   part, la minuterie jamais armée, seulement éteinte deux fois.
+
+   CE QUI N'A PAS ÉTÉ FAIT, et pourquoi : tailler dans les commentaires pour
+   repasser sous la barre. Ce compteur existe pour empêcher le bloc de grossir
+   sans qu'on le décide — pas pour faire disparaître l'explication d'un défaut
+   qu'on vient de mettre trois semaines à voir. Truquer le contrôle coûte plus
+   cher que cinq lignes.
+
+   Il redescendra quand `accueil.js` sera branché : sa chirurgie rend plus de
+   deux cents lignes, et elle attend d'être faite d'un bloc. */
+const PLAFOND = 3405;   // ... la caméra, le pilotage, les gestes, Lumen, la manette
 
 // Le nombre de modules déjà sortis. Il ne descend jamais non plus : un module
 // qu'on ferait rentrer dans le bloc serait le contraire exact du chantier.

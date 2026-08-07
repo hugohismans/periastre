@@ -163,6 +163,15 @@ const POURQUOI_PAS_BRANCHE = {
   "ncorps.js":
     "DETTE F3, en cours — décision d'Hugo du 6 août : on branche N corps, on "
     + "laisse la Lune. Usage retenu : un compagnon au trou noir d'étude.",
+  "accueil.js":
+    "ÉCRIT ET GARDÉ (148 contrôles), PAS ENCORE BRANCHÉ — neuf chemins d'entrée "
+    + "démêlés, dont quatre joués de bout en bout. Sa chirurgie tient en treize "
+    + "points DISPERSÉS dans le chemin d'entrée : c'est la première chose que "
+    + "voit chaque visiteur, et la seule extraction du chantier qu'on ne "
+    + "rattrape pas d'un `git revert` sans que quelqu'un soit tombé sur une "
+    + "porte cassée entre-temps. Elle se fait en début de session, d'un bloc. "
+    + "Le défaut qu'il a trouvé, lui, N'A PAS ATTENDU : la question du niveau "
+    + "de lecture ne se posait plus à qui rechargeait tôt (corrigé le 9 août).",
   "aveu.js":
     "ÉCRIT, EN ATTENTE DE SES BADGES — la moitié hors navigateur de F4 est "
     + "faite et gardée (21 contrôles) : le module rend les onze compromis par "

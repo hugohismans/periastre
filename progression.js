@@ -250,6 +250,20 @@ function etatNeuf(){
      relit  faux quand le champ est écrit mais délibérément jamais repris    */
 const CHAMPS = [
   { cle:"niveau",    nom:"iNiveau",            type:"entier"  },
+  /* A-T-ON RÉPONDU, ou est-on seulement déjà venu ? Deux questions différentes,
+     et la page les confondait.
+
+     Elle décidait de reposer la question du niveau de lecture d'après la
+     PRÉSENCE de `niveau` en mémoire. Or franchir la porte d'entrée range déjà
+     `niveau: 0` — la valeur du code, pas un choix. Quiconque entrait puis
+     rechargeait avant la fin de la quête n'avait donc plus jamais la question,
+     et restait en « Découverte » sans l'avoir demandé.
+
+     Un drapeau à part, posé au seul endroit où l'on choisit vraiment. Les
+     mémoires d'avant ne le portent pas : elles reposeront la question une fois,
+     ce qui est le bon défaut — on la repose à qui n'a peut-être pas répondu,
+     plutôt que de la taire à qui n'a pas pu. */
+  { cle:"niveauChoisi", nom:"niveauChoisi",    type:"booleen" },
   { cle:"voix",      nom:"voixActive",         type:"booleen" },
   { cle:"anecdotes", nom:"intervalleAnecdote", type:"nombre"  },
   { cle:"taille",    nom:"zoomSonde",          type:"nombre"  },

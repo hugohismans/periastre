@@ -4139,6 +4139,9 @@ const NIVEAUX = CONTENU.niveaux;
 const FICHES = CONTENU.fiches;
 
 let iNiveau = 0, iFiche = 0;
+// « A-t-on répondu », et non « est-on déjà venu ». Voir `progression.js`,
+// `CHAMPS` : les confondre privait de la question quiconque rechargeait tôt.
+let niveauChoisi = false;
 
 const boitierN = $("niveaux");
 NIVEAUX.forEach((nom, i) => {
@@ -4747,8 +4750,8 @@ const MEMOIRE = {
 // Les réglages vivent dans leurs domaines, pas ici : on les rassemble pour
 // l'écriture et on les repose à la lecture, un par un et nommément.
 const reglagesVivants = () => ({
-  iNiveau, voixActive, intervalleAnecdote, zoomSonde, volumeVoix, spin,
-  volumeMusique, modeBoutons, mascotte,
+  iNiveau, niveauChoisi, voixActive, intervalleAnecdote, zoomSonde, volumeVoix,
+  spin, volumeMusique, modeBoutons, mascotte,
 });
 
 function sauve(){
@@ -4760,6 +4763,7 @@ function charge(){
   if(!r) return null;
   const g = r.reglages;
   if("iNiveau"            in g) iNiveau            = g.iNiveau;
+  if("niveauChoisi"       in g) niveauChoisi       = g.niveauChoisi;
   if("voixActive"         in g) voixActive         = g.voixActive;
   if("intervalleAnecdote" in g) intervalleAnecdote = g.intervalleAnecdote;
   if("zoomSonde"          in g) zoomSonde          = g.zoomSonde;
@@ -5008,8 +5012,6 @@ function intro(){
 
    Elle se joue par-dessus le trou noir, qui tourne déjà. C'est lui l'argument ;
    le texte ne fait que le nommer. */
-const PR_DUREE = 5200;       // millisecondes par écran
-
 function jouePresentation(fin){
   const temps = (CONTENU.accueil && CONTENU.accueil.presentation) || [];
   if(!temps.length){ fin(); return; }        // un contenu plus ancien : on passe
@@ -5022,19 +5024,18 @@ function jouePresentation(fin){
   elAccueil.classList.add("parti");
   document.body.classList.remove("au-menu");
 
-  let i = -1, minuterie = null, fini = false;
+  // Ni `PR_DUREE` ni `minuterie` : morts depuis qu'on ne défile plus tout seul.
+  let i = -1, fini = false;
 
   const termine = () => {
     if(fini) return;                          // un double geste ne doit pas embarquer deux fois
     fini = true;
-    clearTimeout(minuterie);
     el.classList.remove("vu");
     fin();
   };
 
   const suivant = () => {
     if(fini) return;
-    clearTimeout(minuterie);
     i++;
     if(i >= temps.length){ termine(); return; }
     bloc.classList.remove("la");
@@ -5117,7 +5118,8 @@ function niveauDemande(){
     c.className = "carte";
     c.innerHTML = `<h2>${n.titre}</h2><p>${n.detail}</p>`;
     c.onclick = () => {
-      iNiveau = i; majFiche(); sauve();
+      // C'est ICI, et seulement ici, qu'on répond vraiment à la question.
+      iNiveau = i; niveauChoisi = true; majFiche(); sauve();
       [...boitierN.children].forEach((x, j) => x.classList.toggle("actif", j === i));
       departDemande();
     };
@@ -5230,7 +5232,10 @@ $("b-menu").onclick = () => { tais(); menu(); };
 // ---- restauration ----
 const memoire = charge();
 const dejaVenu = !!(memoire && memoire.deja);
-const dejaNiveau = !!(memoire && Number.isInteger(memoire.niveau));
+// A-t-on RÉPONDU, et non : est-on déjà venu. Cette ligne lisait la présence de
+// `niveau`, que la porte d'entrée range à 0 toute seule. Voir `progression.js`,
+// `CHAMPS`, pour ce que ça coûtait.
+const dejaNiveau = !!(memoire && memoire.niveauChoisi === true);
 if(memoire){
   majFiche();
   [...boitierN.children].forEach((c, i) => c.classList.toggle("actif", i === iNiveau));
