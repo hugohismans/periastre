@@ -36,7 +36,19 @@ enfler. **Les verdicts de la troisième séance sont à relire avec ça en tête
 
 ---
 
-## Séance du 7 août 2026 — la file est vide
+## La file est de nouveau pleine — le voyage refait attend ton œil
+
+Trois questions, le 7 août au soir. Le chantier ouvert plus bas est fait :
+
+| quoi | ce qu'il faut regarder |
+|---|---|
+| **Le voyage, refait** | Large exprès : quatre choses ont changé en même temps. Deux entrées, le trajet entier ou l'arrivée seule. |
+| **Les orbites ont-elles l'air d'être dehors ?** | J'ai mesuré qu'elles ne peignent plus un pixel hors du cadre de la baie. Mais « ne pas déborder » et « avoir l'air d'être dehors » sont deux choses différentes, et la seconde ne se mesure pas. |
+| **Ce qu'on lit pendant le vol** | La forme du bandeau que tu as demandé. Les chiffres sont vrais ; c'est la lisibilité qui se juge. |
+
+---
+
+## Séance du 7 août 2026, au matin — appliquée
 
 **Deux questions sont closes, et la troisième a été refusée pour de bonnes
 raisons.** Il n'y a plus rien à faire juger tant que la partie voyage n'est pas

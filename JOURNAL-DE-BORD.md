@@ -72,8 +72,28 @@ navigateur, tout au vert.
   `trajet()` et `enChemin()`.
 - **Le cliquet de taille descend** de 4 310 à 4 298 lignes.
 
-**Chantier ouvert, et il est gros : refaire la partie voyage.** Cinq points,
-détaillés dans `A-REGARDER.md`. La fondation est posée ; le reste s'y branche.
+### Le voyage refait, dans la foulée
+
+- **La carte passe dehors.** Découpée aux trois vitres, projetées avec la caméra
+  de la pièce. Mesuré par différence : elle ajoute 2 544 pixels dans la baie et
+  zéro dehors.
+- **Sa taille suit la distance** — 6 au départ, 1 à l'arrivée, interpolé en
+  logarithme. Pas une perspective, et c'est déclaré.
+- **Les traces se voient dès le départ**, le voile reste à l'arrivée.
+- **Le « pop » avait une cause** : le recul s'arrête avant que le voile ne monte,
+  et les traces retombaient à zéro dans l'intervalle. Chute maximale entre deux
+  images après correction : **zéro**.
+- **Le bandeau de vol** — vitesse en fraction de c, dilatation, distance
+  parcourue, phase. Les chiffres viennent de la **position**, pas du temps
+  d'écran.
+- **J'ai fait fausse route d'abord** en faisant suivre à la position le vrai
+  profil relativiste : fidèle, et mauvais — 2,7 décades dans la première moitié
+  de l'animation, 0,3 dans la seconde. `outil-verif-recul.js` l'a refusé.
+- **Le plafond de taille monte deux fois**, 4 298 → 4 343. Première hausse
+  depuis sa création, justifiée par écrit. La marge est consommée.
+
+**90 contrôles dans la page, 13 outils.** Séance de jugement remplie : trois
+questions sur le voyage refait.
 
 État à la fin de la journée : 86 contrôles dans la page, 13 outils hors
 navigateur, tout au vert. Séance de jugement vide — rien à faire juger tant que
