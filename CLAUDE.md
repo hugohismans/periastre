@@ -43,11 +43,18 @@ que son œil trancherait en trois secondes.
    ce qu'il surveille. Un test qui n'échoue jamais ne teste rien.
 3. **Un contrôle tire sa vérité d'ailleurs que de ce qu'il contrôle.** Deux fois
    je me suis fait avoir par un test qui s'adaptait au tableau qu'on lui donnait.
-4. **Aucune affirmation factuelle hors de `contenu.js`**, et chacune porte ses
+4. **Un contrôle maîtrise l'état d'où il mesure, et le vérifie avant de conclure.**
+   `couture()` réglait la caméra à 0,54 et l'ouverture cinématique la remettait à
+   1,05 sans rien dire : il mesurait un travelling depuis un point de vue qu'il
+   n'avait pas choisi. Le piège se referme sur soi — en rejouant le contrôle à la
+   main, les neuf secondes d'animation sont écoulées et tout paraît normal. Un
+   contrôle d'accord avec lui-même seulement quand on l'observe est un contrôle
+   qui ment.
+5. **Aucune affirmation factuelle hors de `contenu.js`**, et chacune porte ses
    clés de sources. `node outil-verif-contenu.js` refuse le reste.
-5. **Jamais de valeur recopiée de mémoire.** On la dérive d'une source, ou on la
+6. **Jamais de valeur recopiée de mémoire.** On la dérive d'une source, ou on la
    relève et on l'écrit dans un fichier de sources.
-6. **Git** : travailler sur `dev`, fusionner sur `main` en avance rapide.
+7. **Git** : travailler sur `dev`, fusionner sur `main` en avance rapide.
    `node outils/version.mjs` avant chaque publication, sinon le cache de GitHub
    Pages rend la correction invisible pendant dix minutes.
 
@@ -67,7 +74,13 @@ node outil-verif-lune.js     # la Lune remplacée
 node outil-verif-contenu.js  # le contrat : sources, liens, parité fr/en
 ```
 
-Dans la page : `?verif` puis `VERIF.sain()` — 71 contrôles. `?test` le protocole
+Ou tout d'un coup, ce qui évite d'avoir à connaître la liste :
+
+```bash
+node tout.js
+```
+
+Dans la page : `?verif` puis `VERIF.sain()` — 81 contrôles. `?test` le protocole
 joué, `?juge` la séance de jugement.
 
 ---
