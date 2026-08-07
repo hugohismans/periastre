@@ -43,18 +43,30 @@ que son œil trancherait en trois secondes.
    ce qu'il surveille. Un test qui n'échoue jamais ne teste rien.
 3. **Un contrôle tire sa vérité d'ailleurs que de ce qu'il contrôle.** Deux fois
    je me suis fait avoir par un test qui s'adaptait au tableau qu'on lui donnait.
-4. **Un contrôle maîtrise l'état d'où il mesure, et le vérifie avant de conclure.**
+4. **C'est une SIMULATION, pas une animation.** Aucune loi inventée, aucune
+   approximation exagérée, jamais une courbe choisie « parce qu'elle est jolie ».
+   Un gros compromis pour la performance peut s'entendre — il se déclare alors
+   dans `contrat.js`, avec son lieu et son aveu. Mais entre deux objets qui
+   décrivent le même espace il ne peut y avoir **qu'une seule loi** : le
+   quadrillage et les orbites en ont eu deux pendant une soirée, et l'œil d'Hugo
+   l'a vu avant que je le sache.
+
+   Et sa règle du 7 août 2026, qui va avec : **« ce genre de questions, tu peux
+   me les poser. N'hésite pas. »** Une hésitation entre le fidèle et le lisible
+   ne se tranche pas seul — on la lui pose, avec l'outil à boutons, et l'on
+   attend. Il l'a demandé explicitement, en notant que je ne le faisais pas assez.
+5. **Un contrôle maîtrise l'état d'où il mesure, et le vérifie avant de conclure.**
    `couture()` réglait la caméra à 0,54 et l'ouverture cinématique la remettait à
    1,05 sans rien dire : il mesurait un travelling depuis un point de vue qu'il
    n'avait pas choisi. Le piège se referme sur soi — en rejouant le contrôle à la
    main, les neuf secondes d'animation sont écoulées et tout paraît normal. Un
    contrôle d'accord avec lui-même seulement quand on l'observe est un contrôle
    qui ment.
-5. **Aucune affirmation factuelle hors de `contenu.js`**, et chacune porte ses
+6. **Aucune affirmation factuelle hors de `contenu.js`**, et chacune porte ses
    clés de sources. `node outil-verif-contenu.js` refuse le reste.
-6. **Jamais de valeur recopiée de mémoire.** On la dérive d'une source, ou on la
+7. **Jamais de valeur recopiée de mémoire.** On la dérive d'une source, ou on la
    relève et on l'écrit dans un fichier de sources.
-7. **Git** : travailler sur `dev`, fusionner sur `main` en avance rapide.
+8. **Git** : travailler sur `dev`, fusionner sur `main` en avance rapide.
    `node outils/version.mjs` avant chaque publication, sinon le cache de GitHub
    Pages rend la correction invisible pendant dix minutes.
 

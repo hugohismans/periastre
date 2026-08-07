@@ -810,6 +810,7 @@ function materiel(){
    de le traduire en travail, puis de s'en souvenir. Un message se colle, et le
    travail commence à la ligne suivante. */
 function termine(){
+  rendTout();                 // on rend le monde comme on l'a pris — voir `emprunte`
   const dits = verdicts.filter(v => v.verdict !== "passé");
   const l = ["Voilà ma séance de jugement sur Périastre. Applique ce qui suit.", ""];
 
@@ -911,9 +912,37 @@ global.JUGE = { DECISIONS, verdicts, montre, repond, termine, rapport: null,
    l'entrée du site au lieu de l'attendre.
 
    Trente millisecondes de patience valent mieux qu'un panneau qu'on cherche. */
+/* CE QUE LA SÉANCE EMPRUNTE AU SITE, ET QU'ELLE DOIT RENDRE.
+
+   Le 7 août au soir, Hugo : « c'est hyper lent, j'ai deux images par seconde ».
+   Cause trouvée en dix minutes de mesure : son réglage sauvegardé contenait
+   `"spin": 0.95`. Une séance de jugement lui avait fait comparer les quatre
+   rotations, la rotation est PERSISTÉE dans ses préférences, et personne ne
+   l'avait remise à zéro. Depuis, chaque chargement faisait tourner la branche
+   Kerr — huit fois plus chère que la branche immobile, 13,8 ms contre 1,6 sur
+   une machine de bureau. Sur un téléphone, ça vide l'écran.
+
+   La restauration existait, portée par une question ; j'ai retiré la question
+   le matin même et emporté la restauration avec elle. Une protection accrochée
+   à un cas particulier n'est pas une protection.
+
+   Elle vit donc ICI, au niveau de la séance : ce qu'on emprunte au monde pour
+   poser une question, on le rend en partant, quelle que soit la question. */
+let etatEmprunte = null;
+function emprunte(){
+  etatEmprunte = { spin, lieu };
+}
+function rendTout(){
+  if(!etatEmprunte) return;
+  spin = etatEmprunte.spin;
+  if(typeof sauve === "function") sauve();   // la rotation est persistée : il faut la RÉÉCRIRE
+  etatEmprunte = null;
+}
+
 function demarre(){
   boite.style.display = "";
   debut = Date.now();
+  emprunte();                           // avant tout, on note ce qu'on va déranger
   instrumentCasse = eprouve();          // avant la première question, jamais après
   montre();
 }

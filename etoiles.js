@@ -400,19 +400,36 @@ function entree(t){
 
    C'est un compromis de mise en scène, et il se déclare comme tel.            */
 function cadre(distance_m, depart_m, arrivee_m){
-  const a = Math.log(Math.max(arrivee_m, 1)), d = Math.log(Math.max(depart_m, 1));
-  const x = Math.log(Math.max(distance_m, 1));
-  // 0 à l'arrivée, 1 au départ. Si le trajet est nul, on reste au cadre final.
-  const f = Math.abs(a - d) < 1e-9 ? 0 : Math.max(0, Math.min(1, (a - x)/(a - d)));
+  const a = Math.max(arrivee_m, 1), x = Math.max(distance_m, 1);
 
   /* Au tout début d'un recul, le cadrage automatique REPREND LA BARRE. C'est le
      rôle que tenait `entree(t < 0.01)` : sans lui, une carte qu'on avait zoomée
-     à la main restait figée à cette échelle pour tous les voyages suivants —
-     et, à la première exécution, `pilotee` n'étant jamais passé à vrai, l'échelle
-     restait bloquée à 1. Mesuré, et c'est ce qui a rattrapé l'oubli. */
-  if(f > 0.999) vue.pilotee = true;
+     à la main restait figée à cette échelle pour tous les voyages suivants. */
+  if(x <= Math.max(depart_m, 1) * 1.02) vue.pilotee = true;
   if(!vue.pilotee) return;               // quelqu'un a zoomé : on ne lui reprend pas
-  vue.echelle = 1 + (ZOOM_ENTREE - 1)*f;
+
+  /* L'ÉCHELLE EST EXACTEMENT CELLE DU QUADRILLAGE, ET C'EST LA CORRECTION.
+
+     Hugo, 7 août au soir : « le quadrillage qui se dézoome devrait suivre
+     exactement les traces des orbites. Vu que le quadrillage, c'est pour avoir
+     un repère de l'espace, si c'est logique, un point de la courbe d'une orbite
+     devrait suivre parfaitement ce quadrillage. Et là ce n'est pas le cas. »
+
+     Il a raison, et le coupable est ce qu'il y avait ici : une interpolation de
+     six à un, choisie parce qu'elle était jolie. Deux lois sans rapport pour
+     décrire le même espace — donc deux objets qui glissent l'un sur l'autre, et
+     l'œil le voit tout de suite même sans savoir le nommer.
+
+     La bonne loi est la seule qui existe : la taille apparente est en 1/d. Le
+     quadrillage la suit déjà — sa maille rétrécit avec la distance et se
+     renumérote d'une décade à l'autre. Les orbites la suivent maintenant aussi,
+     et les deux ne peuvent plus diverger puisqu'elles n'ont plus qu'une loi.
+
+     Conséquence assumée, et c'est celle qu'il décrit : au départ on est DANS
+     l'essaim, l'échelle vaut mille et l'on ne voit qu'un morceau de trace.
+     L'orbite entière ne tient dans le champ qu'à l'arrivée — « c'est une fois
+     qu'on arrive à la destination qu'on la voit en entier ». */
+  vue.echelle = a / x;
 }
 
 global.ETOILES_S = { ETOILES, position, dessine, tourne, zoome, entree, cadre, vue,

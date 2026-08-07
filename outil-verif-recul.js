@@ -216,12 +216,26 @@ groupe("Le recul se compte en décades");
   const d0 = 16 * R.RS_M, d1 = 16000 * R.RS_M;
   Object.assign(R.etat, { actif:true, d0, d1, t:0, duree:10, distance:d0 });
   for(let i = 0; i < 300; i++) R.avance(10/600);      // la moitié du trajet
-  const attendu = Math.sqrt(d0 * d1);                 // moyenne GÉOMÉTRIQUE
-  ok("à mi-course, on est à la moyenne géométrique",
-     Math.abs(R.etat.distance - attendu) / attendu < 1e-6,
+  /* CE CONTRÔLE A CHANGÉ DE CIBLE LE 7 AOÛT 2026, ET IL FAUT DIRE POURQUOI.
+
+     Il exigeait la moyenne GÉOMÉTRIQUE à mi-course : la signature d'un recul
+     uniforme en décades, qui était la mise en scène d'alors. Hugo a tranché
+     autrement le soir même — « on reste dans l'idée de la simulation, donc il
+     faut que ce soit précis. Au début ça va aller doucement, puis au milieu à
+     sa vitesse maximale, puis ça va re-ralentir parce qu'on décélère. »
+
+     Un vol à 1 g couvre la MOITIÉ DE LA DISTANCE à la moitié du temps propre,
+     par symétrie entre l'accélération et le freinage. C'est donc la moyenne
+     ARITHMÉTIQUE qu'on attend maintenant, et l'ancienne exigence est devenue
+     l'erreur à détecter : si elle revenait, c'est qu'une courbe de confort
+     serait rentrée par la fenêtre. */
+  const attendu = (d0 + d1)/2;                        // moyenne ARITHMÉTIQUE
+  ok("à mi-course, on a franchi la moitié du chemin",
+     Math.abs(R.etat.distance - attendu) / attendu < 1e-4,
      attendu.toExponential(4), R.etat.distance.toExponential(4),
-     "en interpolation linéaire on serait à " + ((d0 + d1)/2).toExponential(4)
-     + " — soit déjà presque arrivé, et trois décades sautées sans rien voir");
+     "c'est la symétrie du vol à 1 g : freiner coûte ce qu'a coûté d'accélérer. "
+     + "La moyenne géométrique, " + Math.sqrt(d0*d1).toExponential(4)
+     + ", signerait le retour d'un lissage");
 
   for(let i = 0; i < 300; i++) R.avance(10/600);
   ok("on arrive exactement où l'on visait",

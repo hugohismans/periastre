@@ -71,55 +71,55 @@ function lance(vers_m, secondesEcran){
   return v;
 }
 
-// Une courbe d'accélération douce aux deux bouts : on ne démarre pas un
-// vaisseau d'un coup, et l'on n'arrive pas en pile.
-const adouci = x => x < 0.5 ? 4*x*x*x : 1 - Math.pow(-2*x + 2, 3)/2;
-
 /* ---------------------------------------------------------------------------
-   LE RYTHME EST CELUI DE L'ŒIL, LES CHIFFRES SONT CEUX DE LA PHYSIQUE.
+   LA POSITION EST CELLE DU VRAI VOL À 1 g. IL N'Y A PLUS DE COURBE DE CONFORT.
 
-   Hugo, 7 août 2026 : « il faudrait mettre notre vitesse actuelle pendant le
-   voyage, en vitesse de la lumière. » Or la position à l'écran suivait une
-   courbe choisie pour être agréable, pendant que le chronomètre calculait le
-   vrai vol à 1 g : une vitesse tirée de cette courbe aurait été un chiffre faux
-   EN MOUVEMENT, ce qui se croit bien mieux qu'un chiffre faux immobile.
+   Il y avait ici une interpolation lissée du logarithme de la distance, choisie
+   parce qu'elle était agréable, pendant que le chronomètre calculait le vrai
+   vol relativiste. Deux descriptions du même voyage, qui ne se ressemblaient
+   pas.
 
-   J'AI D'ABORD ESSAYÉ L'INVERSE, ET C'ÉTAIT UNE ERREUR. Faire suivre à la
-   position le vrai profil relativiste donne, sur ce trajet, deux virgule sept
-   décades dans la première moitié de l'animation et zéro virgule trois dans la
-   seconde : la seconde moitié ne bouge plus. C'est exactement ce que le recul
-   logarithmique existait pour éviter — « un recul proportionnel au temps
-   passerait quatre-vingt-dix-neuf pour cent du trajet à ne plus rien voir » —
-   et ça contredit le « on doit vraiment avoir l'impression qu'on s'éloigne » de
-   la même dictée. `outil-verif-recul.js` l'a refusé, à juste titre.
+   J'AI HÉSITÉ, ET JE ME SUIS TROMPÉ DANS LES DEUX SENS. D'abord j'ai basculé
+   sur le profil physique, puis je suis revenu à la courbe de confort en voyant
+   que la seconde moitié du trajet couvrait à peine trois dixièmes de décade
+   contre deux virgule sept pour la première — j'ai lu ça comme « la seconde
+   moitié ne bouge plus ».
 
-   On sépare donc les deux choses :
+   C'était la DÉCÉLÉRATION, et c'est le sujet. Hugo, 7 août au soir : « on reste
+   dans l'idée de la simulation, donc il faut que ce soit précis. Au début ça va
+   aller doucement, puis au milieu du trajet à sa vitesse maximale, puis ça va
+   re-ralentir parce qu'on décélère jusqu'à l'arrivée. » Ce que je prenais pour
+   un défaut d'animation est exactement ce qu'un vaisseau qui freine donne à
+   voir.
 
-   - LE RYTHME reste logarithmique et adouci. C'est une décision de mise en
-     scène, et elle est déjà déclarée : quatorze secondes d'écran pour des mois
-     de vol, le site le dit.
-   - LES CHIFFRES se déduisent de la POSITION, pas du temps d'écran. On demande
-     à `enChemin` quel temps propre correspond à la distance déjà franchie, puis
-     à `etat` la vitesse et la dilatation à cet instant-là.
+   Le temps d'écran est donc proportionnel au temps PROPRE, et la position vient
+   de `VOYAGE.etat`. Trois conséquences :
 
-   Ce qui s'affiche est donc VRAI : le vaisseau a réellement cette vitesse quand
-   il est là. Le seul artifice est la cadence à laquelle on parcourt le trajet,
-   et c'est un artifice assumé, pas un chiffre inventé.                        */
+   - le mouvement vu et le chiffre affiché ne peuvent plus diverger, puisqu'ils
+     sortent du même calcul ;
+   - le départ et l'arrivée sont doux GRATUITEMENT, la vitesse valant zéro aux
+     deux bouts — c'est ce que l'ancienne courbe imitait à la main ;
+   - le seul artifice restant est la COMPRESSION du temps, quatorze secondes
+     d'écran pour des mois de vol, et le site le déclare déjà.                */
 function avance(dt){
   if(!etat.actif) return;
   etat.t = Math.min(1, etat.t + dt/etat.duree);
-  const k = adouci(etat.t);
-  // interpolation en logarithme : c'est le nombre de chiffres qui croît
-  // linéairement, pas la distance.
-  const l0 = Math.log10(etat.d0), l1 = Math.log10(etat.d1);
-  etat.distance = Math.pow(10, l0 + (l1 - l0)*k);
 
   const D = Math.abs(etat.d1 - etat.d0);
-  etat.parcouru = Math.min(D, Math.abs(etat.distance - etat.d0));
+  const sens = etat.d1 >= etat.d0 ? 1 : -1;
   if(D > 0 && global.VOYAGE && global.VOYAGE.etat){
-    const tau = global.VOYAGE.enChemin(D, etat.parcouru).tau;
-    etat.vol = global.VOYAGE.etat(D, tau);
-  } else etat.vol = null;
+    // Le temps d'écran est proportionnel au temps PROPRE : une seconde
+    // d'animation vaut toujours la même tranche d'horloge du bord.
+    const tauTotal = global.VOYAGE.etat(D, 0).tauTotal;
+    const e = global.VOYAGE.etat(D, etat.t * tauTotal);
+    etat.vol = e;
+    etat.parcouru = e.s;
+    etat.distance = etat.d0 + sens*e.s;
+  } else {
+    etat.vol = null;
+    etat.parcouru = 0;
+    etat.distance = etat.d1;
+  }
 
   if(etat.t >= 1) etat.actif = false;
 }

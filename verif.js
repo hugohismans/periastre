@@ -875,6 +875,177 @@ function carteDehors(){
   return enCours;
 }
 
+/* 5 quinquies. UNE SÉANCE DE JUGEMENT NE DOIT RIEN LAISSER DERRIÈRE ELLE.
+
+   Le 7 août au soir : « c'est hyper lent, j'ai deux images par seconde ». Son
+   réglage sauvegardé contenait `"spin": 0.95`. Une séance lui avait fait
+   comparer les quatre rotations, la rotation est PERSISTÉE — et personne ne
+   l'avait remise. Depuis, chaque chargement faisait tourner la branche Kerr,
+   huit fois plus chère que la branche immobile.
+
+   Le coût de cette faute est le pire du projet : elle ne casse rien, elle ne
+   lève aucune erreur, et elle abîme le site de la personne qui l'a aidé — en
+   punition d'avoir aidé.
+
+   Ce contrôle joue une séance entière et compare le RÉGLAGE ENREGISTRÉ avant et
+   après, octet pour octet. Il ne suppose pas quelles clés comptent : il les
+   compare toutes, parce que la prochaine fuite portera sur une autre.          */
+function seanceSansTrace(){
+  ouvre("Une séance de jugement ne laisse pas de trace");
+  if(typeof JUGE === "undefined"){
+    point("la séance est chargée", false, "JUGE", "absent",
+          "ouvrir `?verif&juge` pour jouer ce contrôle");
+    return enCours;
+  }
+  spin = 0; sauve();                       // un état de départ propre et connu
+  const av = { spin, lieu, stock: localStorage.getItem(CLE) };
+  try {
+    JUGE.demarre();
+
+    /* ON SALIT NOUS-MÊMES, ET C'EST TOUT L'INTÉRÊT.
+
+       Première version : on jouait la séance telle quelle et l'on regardait
+       l'état après. Elle passait AVEC ET SANS la réparation — parce qu'aucune
+       des questions du jour ne touche à la rotation, celle qui le faisait ayant
+       été retirée le matin même. Un contrôle accroché au contenu de la file ne
+       protège que tant que la file contient le cas.
+
+       On dérange donc le monde nous-même, exactement comme le fait le bouton
+       d'une question de comparaison, et l'on exige que la séance le rende. Ce
+       qui est éprouvé est le MÉCANISME, qui survivra au prochain remaniement
+       des questions. */
+    spin = 0.95; sauve();
+    let n = 0;
+    while(JUGE.DECISIONS.length && n++ < 40 && JUGE.rapport === null) JUGE.repond("passé");
+
+    const apres = localStorage.getItem(CLE);
+    point("le réglage enregistré est rendu intact", apres === av.stock,
+          "identique", apres === av.stock ? "identique" : "MODIFIÉ",
+          "c'est ce qui a laissé la rotation à 0,95 dans les préférences d'Hugo "
+          + "et divisé sa cadence par huit sur toutes les pages — 13,8 ms par "
+          + "image contre 1,6");
+    point("la rotation est rendue", spin === av.spin, av.spin, spin);
+    point("et la séance s'est bien jouée", JUGE.rapport !== null || JUGE.DECISIONS.length === 0,
+          "un rapport", JUGE.rapport === null ? "aucun" : "rendu",
+          "sans ça les deux points ci-dessus passeraient sans avoir rien exercé");
+  } finally {
+    spin = av.spin;
+    if(av.stock !== null) localStorage.setItem(CLE, av.stock);
+    if(lieu !== av.lieu) vaAu(av.lieu);
+    avanceImages(2);
+  }
+  return enCours;
+}
+
+/* 5 sexies. LA ROTATION NE S'INVITE PAS TOUTE SEULE.
+
+   Le 7 août 2026, Hugo : « c'est hyper lent, j'ai deux images par seconde ».
+   Son réglage enregistré contenait `"spin": 0.95`, laissé par une séance de
+   jugement. La rotation bascule le nuanceur sur la branche Kerr-Schild, qui
+   coûte **13,8 ms par image contre 1,6** — huit fois plus. Appliquée à toutes
+   les vues, elle vidait l'écran d'un téléphone.
+
+   Sa décision : les trous noirs de PRÉSENTATION ne tournent pas. La rotation
+   garde son poste — le trou noir d'étude — où elle se règle et où son coût est
+   payé volontairement.
+
+   Ce contrôle écrit une rotation dans les préférences, recharge l'état, et
+   exige que l'entrée reste immobile. Il mesure aussi l'écart de coût, pour que
+   le chiffre qui justifie la règle ne soit pas une croyance.                  */
+function rotationCalme(){
+  ouvre("La rotation ne s'invite pas toute seule");
+  const av = { spin, stock: localStorage.getItem(CLE) };
+  const degele = fige();
+  try {
+    spin = 0.95; sauve();                  // l'état exact dans lequel il s'est retrouvé
+    spin = 0;
+    charge();
+    point("un réglage enregistré ne remet pas la rotation", spin === 0, 0, spin,
+          "c'est ce qui l'a fait tomber à deux images par seconde, sur toutes "
+          + "les pages, sans qu'aucune erreur ne soit levée");
+
+    // Et le chiffre qui justifie la règle, mesuré et non supposé.
+    /* On prend le MINIMUM de plusieurs passages, pas une mesure unique.
+
+       La première version en prenait une seule et rendait 54 ms pour la branche
+       immobile quand elle tournait au milieu de la suite — le pipeline
+       graphique chauffait encore après les contrôles précédents, et le rapport
+       sortait à 0,2 au lieu de 9. Le minimum est la bonne statistique pour un
+       coût : il écarte les à-coups sans rien inventer. */
+    const un = new Uint8Array(4);
+    const cout = s => {
+      spin = s;
+      let mieux = Infinity;
+      for(let k = 0; k < 3; k++){
+        avanceImages(8);                       // on chauffe avant CHAQUE passage
+        const t0 = performance.now();
+        avanceImages(10);
+        gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, un);  // force la synchro
+        mieux = Math.min(mieux, (performance.now() - t0)/10);
+      }
+      return mieux;
+    };
+    const immobile = cout(0), tourne = cout(0.95);
+    point("et elle coûte bien plus cher qu'immobile", tourne > immobile * 1.8,
+          "> 1,8 fois", (tourne/immobile).toFixed(1) + " fois   ("
+          + immobile.toFixed(1) + " → " + tourne.toFixed(1) + " ms)",
+          "si ce rapport tombait à 1, la règle n'aurait plus de raison d'être "
+          + "et il faudrait rendre la rotation partout");
+  } finally {
+    spin = av.spin;
+    if(av.stock !== null) localStorage.setItem(CLE, av.stock);
+    degele();
+    avanceImages(2);
+  }
+  return enCours;
+}
+
+/* 5 septies. LES ORBITES ET LE QUADRILLAGE DÉCRIVENT LE MÊME ESPACE.
+
+   Hugo, 7 août au soir : « le quadrillage qui se dézoome devrait suivre
+   exactement les traces des orbites. Si c'est logique, un point de la courbe
+   d'une orbite devrait suivre parfaitement ce quadrillage. Et là ce n'est pas
+   le cas. »
+
+   Il y avait deux lois pour un seul espace : le quadrillage en 1/d, et une
+   interpolation de six à un pour la carte, choisie parce qu'elle était jolie.
+   Deux objets qui glissent l'un sur l'autre, et l'œil le voit sans savoir le
+   nommer.
+
+   On exige donc que `échelle × distance` soit CONSTANT — c'est la signature de
+   la loi en 1/d, et elle interdit qu'on réintroduise un lissage — et qu'elle
+   vaille exactement un à l'arrivée, sans quoi le cadre final aurait bougé.   */
+function memeEspace(){
+  ouvre("Les orbites suivent la même loi que le quadrillage");
+  const av = { etat: Object.assign({}, RECUL.etat), echelle: ETOILES_S.vue.echelle,
+               pilotee: ETOILES_S.vue.pilotee };
+  try {
+    const d0 = 16*RECUL.RS_M, d1 = 1000*d0;
+    const produits = [];
+    let arrivee = null;
+    for(let i = 0; i <= 12; i++){
+      const d = Math.pow(10, Math.log10(d0) + (Math.log10(d1) - Math.log10(d0))*i/12);
+      Object.assign(RECUL.etat, { actif:true, d0, d1, distance:d });
+      ETOILES_S.vue.pilotee = true;
+      ETOILES_S.cadre(d, d0, d1);
+      produits.push(ETOILES_S.vue.echelle * d);
+      if(i === 12) arrivee = ETOILES_S.vue.echelle;
+    }
+    const lo = Math.min(...produits), hi = Math.max(...produits);
+    point("échelle × distance est constant", (hi - lo)/hi < 1e-9,
+          "constant à 1e-9 près", ((hi - lo)/hi).toExponential(1),
+          "c'est la signature de la loi en 1/d — un lissage la casserait "
+          + "immédiatement, et c'est ce que le quadrillage suit déjà");
+    point("et le cadre final vaut exactement un", Math.abs(arrivee - 1) < 1e-12,
+          1, arrivee,
+          "sinon les orbites n'arriveraient plus à la taille où elles ont été réglées");
+  } finally {
+    Object.assign(RECUL.etat, av.etat);
+    ETOILES_S.vue.echelle = av.echelle; ETOILES_S.vue.pilotee = av.pilotee;
+  }
+  return enCours;
+}
+
 function couture(){
   ouvre("L'axe de rotation ne porte pas de couture");
   const av = { spin, dist: cam.dist, elev: cam.elev, azim: cam.azim, lieu };
@@ -1246,7 +1417,7 @@ function texte(){
 function sain(){
   resultats.length = 0;
   vivant(); coherence(); lieux(); tempsJuste(); resolution(); saisieLibre(); nuanceurs();
-  clesNues(); banc(); pixels(); couture(); carteFixe(); carteDehors(); mesurePage(); budget();
+  clesNues(); banc(); pixels(); couture(); carteFixe(); carteDehors(); rotationCalme(); memeEspace(); mesurePage(); budget();
   return bilan();
 }
 
@@ -1255,14 +1426,14 @@ function sain(){
 function tout(){
   resultats.length = 0;
   vivant(); coherence(); lieux(); tempsJuste(); resolution(); saisieLibre(); nuanceurs();
-  clesNues(); banc(); pixels(); couture(); carteFixe(); carteDehors(); mesurePage(); budget();
+  clesNues(); banc(); pixels(); couture(); carteFixe(); carteDehors(); rotationCalme(); memeEspace(); mesurePage(); budget();
   parcours(); voyage();
   return bilan();
 }
 
 global.VERIF = {
   vivant, coherence, lieux, tempsJuste, resolution, saisieLibre, nuanceurs, clesNues,
-  banc, pixels, couture, carteFixe, carteDehors, mesurePage, parcours, voyage, budget,
+  banc, pixels, couture, carteFixe, carteDehors, seanceSansTrace, rotationCalme, memeEspace, mesurePage, parcours, voyage, budget,
   sain, tout, bilan, texte, resultats, FORMATS, OR,
   // outillage exposé : d'autres contrôles pourront s'y adosser
   pose, fige, avanceImages,
