@@ -170,7 +170,7 @@ const fs = require("fs"), path = require("path");
    invalide, bloc mort en silence. Trouvé en trente secondes par `vivant()`, qui
    existe exactement pour ça. C'est la troisième fois que ce mode de panne
    frappe, et la première où il ne coûte rien. */
-const PLAFOND = 3448;   // ... le registre, la caméra, le pilotage, les gestes, la progression
+const PLAFOND = 3435;   // ... le registre, la caméra, le pilotage, les gestes, la progression
 
 // Le nombre de modules déjà sortis. Il ne descend jamais non plus : un module
 // qu'on ferait rentrer dans le bloc serait le contraire exact du chantier.

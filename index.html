@@ -2321,6 +2321,7 @@ void main(){
 <script src="camera.js?v=4ee4594"></script>
 <script src="gestes.js?v=4ee4594"></script>
 <script src="progression.js?v=4ee4594"></script>
+<script src="lieux.js?v=4ee4594"></script>
 <script>
 "use strict";
 
@@ -3201,86 +3202,73 @@ $("b-traj").onclick   = () => {
 
 /* ============ ALLER QUELQUE PART ============
 
-   Le seul chemin. Tout ce qui déplaçait le joueur passait auparavant par une
-   bascule de drapeau suivie d'une liste de conséquences recopiée à chaque
-   appelant — et il suffisait d'en oublier une pour laisser un état mort.
+   Le domaine vit dans `lieux.js`. C'est la PREMIÈRE FONDATION du projet : tout
+   ce qui déplaçait le joueur passait autrefois par une bascule de drapeau suivie
+   d'une liste de conséquences recopiée à chaque appelant, et il suffisait d'en
+   oublier une pour laisser un état mort.
 
-   Ici, quitter un lieu et entrer dans un autre sont deux fonctions, écrites une
-   fois. Ajouter un lieu, c'est ajouter deux `case`. */
-function quitteLieu(ancien){
-  if(ancien === "salon"){
-    /* Un voyage en cours meurt avec le salon.
+   POURQUOI IL SORT MAINTENANT, ET PAS PLUS TÔT. Sa garantie — « où l'on se
+   trouve n'a qu'un seul écrivain » — était affirmée dans `CHANTIERS.md` et dans
+   le code, et elle était FAUSSE : `majCamera` écrivait aussi, en
+   court-circuitant les trois fonctions de transition. On ne l'a su qu'en
+   extrayant la caméra, le 8 août. Une garantie qu'on ne peut pas mesurer finit
+   par mentir.
 
-       `majVoyage` n'est appelée que depuis la branche du salon : en sortir
-       pendant un trajet le laissait armé pour toujours, sans jamais avancer, et
-       la carte des étoiles restait figée à l'opacité qu'elle avait. On ne
-       pouvait plus ni arriver ni revenir. */
-    if(TELESCOPE.trajet){
-      TELESCOPE.trajet = null;
-      TELESCOPE.retour = false;
-      RECUL.etat.actif = false;
-      $("chrono").classList.remove("vu");
-    }
-    fermeTelescope();
-    /* La capture du pointeur n'a de sens que dans le salon : la vue libre se
-       pilote à la souris, et la garder prisonnière oblige à deviner Échap pour
-       récupérer le curseur. */
-    if(document.exitPointerLock) document.exitPointerLock();
-  }
-  /* On vide la sonde ICI, directement, sans repasser par `embarque` — qui
-     rappellerait `vaAu` en pleine transition. Le cycle serait silencieux et
-     sans fin : exactement le genre de piège que cette refonte doit supprimer,
-     pas déplacer. */
-  if(ancien === "sonde"){
-    sondeSuivie = null;
-    majBoutonSonde();
-  }
+   `outil-verif-lieux.js` la mesure maintenant, et de dehors : il monte un monde
+   espion dont l'accesseur COMPTE les écritures de `lieu`, et exige exactement
+   une par transition. Il éprouve les neuf couples de lieux un par un — pas ceux
+   qui paraissent intéressants, les neuf — et casse le module de treize façons
+   pour vérifier que ses contrôles savent tomber.
+
+   L'ADAPTATEUR. `lieu` et `sondeSuivie` sont deux `let` du bloc A, lus à des
+   dizaines d'endroits ; les accesseurs les exposent au module sans les déplacer.
+   C'est exactement le motif que la page emploie déjà pour `salon.actif`, et il
+   laisse le compte des écritures là où F1 l'a mis : une seule, dans le module.
+
+   Le module n'écrit JAMAIS `salon.actif` : c'est une vue sur `lieu` dont le
+   `set` rappelle `vaAu`, donc y écrire d'ici serait une récursion muette. */
+const MONDE = { telescope: TELESCOPE, recul: RECUL.etat, cinema };
+Object.defineProperty(MONDE, "lieu", {
+  get(){ return lieu; }, set(v){ lieu = v; } });
+Object.defineProperty(MONDE, "sondeSuivie", {
+  get(){ return sondeSuivie; }, set(v){ sondeSuivie = v; } });
+
+/* La barre du bas reflète le lieu, elle ne le décide pas. Le module rend un
+   descripteur — un booléen et une clé de libellé — et la page peint les trois
+   bascules. Un contrôle peut alors exiger, pour chaque lieu connu, que le
+   descripteur s'accorde au lieu, sans avoir à charger une table de langue. */
+function peintBarre(b){
+  $("b-salon").classList.toggle("actif", b.auSalon);
+  $("b-salon").textContent = T(b.cle);
+  document.body.classList.toggle("au-salon", b.auSalon);
+}
+const majBarreLieu = () => peintBarre(LIEUX.barre(MONDE));
+
+/* Les ordres. Le module DÉCIDE, la page AGIT — tout ce qui suit touche au
+   document, au son ou à la caméra, et rien de tout cela ne peut entrer dans un
+   fichier qu'on veut éprouver sans navigateur.
+
+   `poseSalon` avant `majCamera`, et ce n'est pas un détail de style : `poseSalon`
+   place le vaisseau, `majCamera` lit cette place. Les inverser donnerait, à
+   l'entrée du salon, une image de l'orbite précédente. */
+function executeLieu(ordres){
+  if(ordres.cacheChrono) $("chrono").classList.remove("vu");
+  if(ordres.fermeInstrument) $("instrument").classList.remove("vu", "arrivee");
+  if(ordres.relachePointeur && document.exitPointerLock) document.exitPointerLock();
+  if(ordres.boutonSonde) majBoutonSonde();
+  if(ordres.poseSalon) poseSalon();
+  if(ordres.reaction) reagit(ordres.reaction);
+  if(ordres.barre) peintBarre(ordres.barre);
+  if(ordres.majCamera) majCamera();
 }
 
-function entreLieu(nouveau){
-  // Toute prise de commande interrompt le plan d'ouverture : on n'impose pas
-  // d'attendre la fin d'une animation à quelqu'un qui a touché quelque chose.
-  if(nouveau !== "libre") cinema.actif = false;
-  if(nouveau === "salon"){
-    poseSalon();
-    if(!ouvreLaQuete) reagit("salon");
-  }
-}
-
-/* La barre du bas reflète le lieu, elle ne le décide pas. */
-function majBarreLieu(){
-  const auSalon = salon.actif;
-  $("b-salon").classList.toggle("actif", auSalon);
-  $("b-salon").textContent = T(auSalon ? "dock.salon.quitter" : "dock.salon");
-  document.body.classList.toggle("au-salon", auSalon);
-}
-
+/* `vaAu` garde son nom et son unique argument : les quarante et un appels du
+   dépôt n'ont pas une ligne à changer. Ce qui change est dessous — la décision
+   est ailleurs, éprouvée, et ce qui reste ici est l'exécution. */
 function vaAu(nouveau){
-  if(nouveau === lieu) return;
-
-  /* UN LIEU PEUT REFUSER QU'ON Y ENTRE.
-
-     `embarque()` pose `sondeSuivie` AVANT d'appeler `vaAu`, et c'est le seul
-     chemin légitime — mais rien ne l'imposait. `vaAu("sonde")` appelé seul
-     laissait `lieu === "sonde"` avec `sondeSuivie === null`, c'est-à-dire
-     exactement l'état que l'invariant de `coherence()` déclare impossible.
-
-     Le trou n'était atteignable que depuis la console, aujourd'hui. Il ne le
-     serait plus le jour où un quatrième lieu s'ajoute avec sa propre condition
-     d'entrée — et c'est ce jour-là qu'on ne veut pas avoir à y penser. La
-     précondition vit donc ici, à côté de l'unique écriture qu'elle protège. */
-  if(nouveau === "sonde" && sondeSuivie === null){
-    const i = (typeof meilleureSonde === "function") ? meilleureSonde() : null;
-    if(i === null) return;               // aucune sonde : on ne bouge pas
-    sondeSuivie = i;
-  }
-
-  const ancien = lieu;
-  quitteLieu(ancien);
-  lieu = nouveau;                       // ← la porte. Il en existe UNE AUTRE, ligne 2949
-  entreLieu(nouveau);
-  majBarreLieu();
-  majCamera();
+  const r = LIEUX.vaAu(MONDE, nouveau, { meilleureSonde, ouvreLaQuete });
+  executeLieu(r.ordres);
+  return r;
 }
 
 // Le salon : on n'est plus devant le trou noir, on est quelque part.
