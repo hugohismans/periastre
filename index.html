@@ -2244,11 +2244,11 @@ void main(){
     l = /^fr/i.test(navigator.language || "fr") ? "fr" : "en";
   window.LANGUE = l;
   document.documentElement.lang = l;
-  document.write('<script src="' + (l === "en" ? "contenu.en.js" : "contenu.js") + '?v=8d468db"><\/script>');
+  document.write('<script src="' + (l === "en" ? "contenu.en.js" : "contenu.js") + '?v=c0bf75f"><\/script>');
   // Les chaînes d'interface : le français TOUJOURS, l'anglais par-dessus. Une
   // clé oubliée retombe ainsi sur une phrase, jamais sur un identifiant nu.
-  document.write('<script src="ui.fr.js?v=8d468db"><\/script>');
-  if(l === "en") document.write('<script src="ui.en.js?v=8d468db"><\/script>');
+  document.write('<script src="ui.fr.js?v=c0bf75f"><\/script>');
+  if(l === "en") document.write('<script src="ui.en.js?v=c0bf75f"><\/script>');
 })();
 </script>
 <!-- ══════════════════════════════════════════════════════════════════════════
@@ -2267,16 +2267,16 @@ void main(){
 <!-- La physique, sortie du bloc principal. Elle ne touche ni au document ni à
      WebGL, et son extraction rend le banc d'essai exécutable en ligne de
      commande — donc vérifiable sans navigateur. Premier morceau du chantier F2. -->
-<script src="physique.js?v=8d468db"></script>
+<script src="physique.js?v=c0bf75f"></script>
 <!-- Ce qui vole. Deuxième morceau de F2, et le socle de la salle de tir
      balistique : elle ne sera que `destin()` avec une vitesse choisie. -->
-<script src="vol.js?v=8d468db"></script>
+<script src="vol.js?v=c0bf75f"></script>
 <!-- L'horloge. Troisième morceau de F2, et celui qui rend structurellement
      impossible le défaut du disque à 622× : le temps simulé n'y est accessible
      qu'en lecture, et un second écrivain devient indicible. -->
-<script src="temps.js?v=8d468db"></script>
-<script src="kerr.js?v=8d468db"></script>
-<script src="vaisseau.js?v=8d468db"></script>
+<script src="temps.js?v=c0bf75f"></script>
+<script src="kerr.js?v=c0bf75f"></script>
+<script src="vaisseau.js?v=c0bf75f"></script>
 <!-- Marcher dans la pièce. Quatrième morceau de F2 : une fois sorti du bloc, on
      peut promener un corps dans le décor SANS navigateur — et le premier
      balayage a trouvé qu'on traversait le télescope.
@@ -2284,8 +2284,8 @@ void main(){
      APRÈS `vaisseau.js`, et l'ordre n'est pas négociable : le mobilier se
      construit à partir de la géométrie de la pièce, dès le chargement. Placé
      avant, il ne trouvait rien et emportait tout le bloc principal avec lui. -->
-<script src="arpente.js?v=8d468db"></script>
-<script src="personnage.js?v=8d468db"></script>
+<script src="arpente.js?v=c0bf75f"></script>
+<script src="personnage.js?v=c0bf75f"></script>
 <!-- `pantheon.js` N'EST PLUS CHARGÉ, et c'est délibéré.
 
      Il était chargé à chaque visite et `PANTHEON` n'était appelé nulle part —
@@ -2297,21 +2297,23 @@ void main(){
      pas encore — voir CHUTE.md, écrit et jamais branché. Le jour où la salle de
      tir existera, cette ligne revient telle quelle.
 
-     <script src="pantheon.js?v=8d468db"></script> -->
+     <script src="pantheon.js?v=c0bf75f"></script> -->
 
-<script src="robot.js?v=8d468db"></script>
-<script src="musique.js?v=8d468db"></script>
+<script src="robot.js?v=c0bf75f"></script>
+<script src="musique.js?v=c0bf75f"></script>
 
 <!-- Le voyage. L'ordre compte : recul.js appelle VOYAGE.entre au chargement de
      ses propres constantes, donc voyage1g.js doit être passé avant lui. -->
-<script src="voyage1g.js?v=8d468db"></script>
-<script src="recul.js?v=8d468db"></script>
-<script src="etoiles.js?v=8d468db"></script>
-<script src="format.js?v=8d468db"></script>
-<script src="spectre.js?v=8d468db"></script>
-<script src="banc.js?v=8d468db"></script>
-<script src="ecrans.js?v=8d468db"></script>
-<script src="cockpit.js?v=8d468db"></script>
+<script src="voyage1g.js?v=c0bf75f"></script>
+<script src="recul.js?v=c0bf75f"></script>
+<script src="etoiles.js?v=c0bf75f"></script>
+<script src="format.js?v=c0bf75f"></script>
+<script src="spectre.js?v=c0bf75f"></script>
+<script src="banc.js?v=c0bf75f"></script>
+<script src="ecrans.js?v=c0bf75f"></script>
+<script src="dossier.js?v=c0bf75f"></script>
+<script src="calque.js?v=c0bf75f"></script>
+<script src="cockpit.js?v=c0bf75f"></script>
 <script>
 "use strict";
 
@@ -4367,7 +4369,7 @@ function majFiche(){
   [...boitierN.children].forEach((c,i) => c.classList.toggle("actif", i === iNiveau));
   [...boitierP.children].forEach((c,i) => c.classList.toggle("actif", i === iFiche));
 }
-const vaFiche = d => { iFiche = (iFiche + d + FICHES.length) % FICHES.length; majFiche(); };
+const vaFiche = d => { iFiche = DOSSIER.suivante(iFiche, d, FICHES.length); majFiche(); };
 $("f-prec").onclick = () => vaFiche(-1);
 $("f-suiv").onclick = () => vaFiche(1);
 majFiche();
@@ -5639,107 +5641,24 @@ $("b-lancer").onclick = () => {
 };
 
 // ============ dessin du calque ============
-function trace(pts, sur, alpha, ep){
-  if(pts.length < 2) return;
-  ctx.strokeStyle = `rgba(${sur[0]},${sur[1]},${sur[2]},${alpha})`;
-  ctx.lineWidth = ep;
-  ctx.beginPath();
-  let ouvert = false;
-  for(let i = 0; i < pts.length; i++){
-    const q = projette(pts[i]);
-    if(!q){ ouvert = false; continue; }
-    if(ouvert) ctx.lineTo(q[0], q[1]); else { ctx.moveTo(q[0], q[1]); ouvert = true; }
-  }
-  ctx.stroke();
-}
+// Le calque vit dans `calque.js` : trois cents lignes de dessin pur, sans DOM
+// ni WebGL, donc éprouvables sans navigateur. L'ORDRE des passes lui
+// appartient — les écrans remplacent la passe du salon, le cockpit la ferme —
+// et il le tient par deux points d'extension plutôt que de le laisser se
+// décider à deux endroits qui devraient s'accorder sans se voir.
+const trace = (pts, sur, alpha, ep) => CALQUE.trace(ctx, pts, sur, alpha, ep, projette);
 
 function dessine(){
-  ctx.clearRect(0, 0, ui.clientWidth, ui.clientHeight);
-  ctx.globalCompositeOperation = "lighter";
-
-  // Depuis le salon on regarde par une fenêtre, pas un instrument : les
-  // repères du simulateur — cercle de l'ISCO, traînées des sondes — n'ont
-  // rien à y faire. Vu par la tranche, ce cercle devenait un mystérieux
-  // trait pointillé en travers de l'astre.
-  if(salon.actif){
-    ctx.globalCompositeOperation = "source-over";
-    dessineEcrans();
-    return;
-  }
-
-  // cercle repère : la dernière orbite stable
-  ctx.globalCompositeOperation = "source-over";
-  const cercle = [];
-  for(let i = 0; i <= 96; i++){
-    const a = i/96*6.2832;
-    cercle.push([Math.cos(a)*R_ISCO, 0, Math.sin(a)*R_ISCO]);
-  }
-  ctx.setLineDash([2, 7]);
-  trace(cercle, [255,255,255], 0.13, 1);
-  ctx.setLineDash([]);
-  ctx.globalCompositeOperation = "lighter";
-
-  // trajectoires complètes, calculées au lancement
-  const ep = Math.sqrt(zoomSonde);
-  if(montreTraj) for(const s of sondes) trace(s.chemin, TEINTES[s.sort], 0.17, ep);
-
-  // traînées vives
-  for(const s of sondes) trace(s.trace, TEINTES[s.sort], 0.30, 1.1*ep);
-  for(const f of photons) trace(f.trace, [255,250,235], 0.30, 1.1*ep);
-
-  // têtes
-  for(let i = 0; i < sondes.length; i++){
-    const s = sondes[i];
-    if(i === sondeSuivie) continue;          // on est dedans
-    if(occulte(s.p)) continue;
-    const q = projette(s.p);
-    if(!q) continue;
-    let c = TEINTES[s.sort], a = 1;
-    if(s.gel){
-      // figée à l'horizon : elle rougit et son flux s'éteint exponentiellement
-      const t = Math.min(1, s.gel/5);
-      a = Math.exp(-s.gel/4.5);
-      c = [ c[0]+(255-c[0])*t, c[1]+(38-c[1])*t, c[2]+(18-c[2])*t ];
-    }
-    ctx.fillStyle = `rgba(${c[0]|0},${c[1]|0},${c[2]|0},${(0.20*a).toFixed(3)})`;
-    ctx.beginPath(); ctx.arc(q[0], q[1], 4.2*zoomSonde, 0, 6.2832); ctx.fill();
-    ctx.fillStyle = `rgba(${c[0]|0},${c[1]|0},${c[2]|0},${(0.95*a).toFixed(3)})`;
-    ctx.beginPath(); ctx.arc(q[0], q[1], 1.5*zoomSonde, 0, 6.2832); ctx.fill();
-  }
-
-  // visée
-  if(visee){
-    const a = projette(visee.depart);
-    const g = vitesseDepuisGlisse(visee);
-    if(a){
-      const r0 = Math.hypot(visee.depart[0], visee.depart[2]);
-      const bon = g ? Math.max(0, 1 - Math.abs(g.vitesse/vCirc(r0) - 1)*1.6) : 0;
-      const c = [Math.round(255-128*bon), Math.round(120+96*bon), Math.round(140+115*bon)];
-      if(g){
-        ctx.setLineDash([4, 5]);
-        trace(destin(visee.depart, g.v).chemin, c, 0.6, 1.2);
-        ctx.setLineDash([]);
-      }
-      trace([visee.depart], c, 0, 1);
-      ctx.strokeStyle = `rgba(${c[0]},${c[1]},${c[2]},0.85)`;
-      ctx.lineWidth = 1.4;
-      ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(visee.x, visee.y); ctx.stroke();
-      ctx.fillStyle = `rgba(${c[0]},${c[1]},${c[2]},1)`;
-      ctx.beginPath(); ctx.arc(a[0], a[1], 3.5, 0, 6.2832); ctx.fill();
-    }
-  }
-
-  ctx.globalCompositeOperation = "source-over";
-  // Le cockpit vit dans `cockpit.js` : tout ce dont il a besoin passe par cet
-  // objet, ce qui le rend éprouvable sans navigateur — voir `or-cockpit.json`.
-  if(sondeSuivie !== null)
-    COCKPIT.dessine(ctx, ui.clientWidth, ui.clientHeight,
+  return CALQUE.dessine(ctx, ui.clientWidth, ui.clientHeight, {
+    salon, sondes, photons, TEINTES, destin,
+    projette, occulte, vCirc,
+    sondeSuivie, montreTraj, zoomSonde, visee,
+    vitesseDepuisGlisse, R_ISCO,
+    ecrans:  () => dessineEcrans(),
+    cockpit: () => COCKPIT.dessine(ctx, ui.clientWidth, ui.clientHeight,
       { sonde: sondes[sondeSuivie], vitesseLocale, horloge,
-        len, T, remplit, virgule, tempsFr });
-  /* Il y avait ici un second `if(salon.actif) dessineEcrans();` — INATTEIGNABLE.
-     La fonction sort plus haut, dès que le salon est actif, après avoir déjà
-     posé les écrans. Trouvé en extrayant le domaine, retiré ici : une ligne
-     morte finit toujours par être réveillée par quelqu'un. */
+        len, T, remplit, virgule, tempsFr }),
+  });
 }
 
 // ============ les écrans de bord ============
@@ -6177,7 +6096,7 @@ requestAnimationFrame(boucle);
 <script>
 if(/[?&]verif\b/.test(location.search)){
   var s = document.createElement("script");
-  s.src = "verif.js?v=8d468db";
+  s.src = "verif.js?v=c0bf75f";
   document.body.appendChild(s);
 }
 /* Et le protocole d'essai joué : `?test`. Il pose ses questions au moment où la
@@ -6187,7 +6106,7 @@ if(/[?&]verif\b/.test(location.search)){
    script contrôle mieux. */
 if(/[?&]test\b/.test(location.search)){
   var e = document.createElement("script");
-  e.src = "essai.js?v=8d468db";
+  e.src = "essai.js?v=c0bf75f";
   document.body.appendChild(e);
 }
 /* Et la séance de jugement : `?juge`. Elle ne demande QUE ce qu'aucun calcul ne
@@ -6196,7 +6115,7 @@ if(/[?&]test\b/.test(location.search)){
    Claude, prêt à coller. On ne lit rien, on ne navigue pas. */
 if(/[?&]juge\b/.test(location.search)){
   var j = document.createElement("script");
-  j.src = "juge.js?v=8d468db";
+  j.src = "juge.js?v=c0bf75f";
   document.body.appendChild(j);
 }
 </script>

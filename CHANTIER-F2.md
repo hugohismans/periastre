@@ -33,7 +33,7 @@ Le détail de chaque étape est dans le plan approuvé. Ici, seulement l'état.
 - [x] 2.2 formateurs → `format.js` + son outil
 - [x] 2.3 spectre → `spectre.js` + son outil
 - [x] 2.4 banc d'essai → `banc.js` + son outil
-- [ ] 2.5 dossier et fiches → `dossier.js` + son outil
+- [x] 2.5 dossier et fiches → `dossier.js` + son outil
 
 ## Étape 3 — le nœud de l'état partagé
 
@@ -45,7 +45,7 @@ Le détail de chaque étape est dans le plan approuvé. Ici, seulement l'état.
 
 - [x] 4.1 écrans de bord → `ecrans.js`
 - [ ] 4.1 bis l'outil des écrans de bord
-- [ ] 4.2 calque → `calque.js` + son outil
+- [x] 4.2 calque → `calque.js` + son outil
 - [ ] 4.3 habitacle → `habitacle.js` + son outil
 - [ ] 4.4 résolution adaptative → `resolution.js` + son outil
 

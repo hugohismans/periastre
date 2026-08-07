@@ -36,6 +36,26 @@ enfler. **Les verdicts de la troisième séance sont à relire avec ça en tête
 
 ---
 
+## Trouvé en sortant le calque — la couleur qui enseigne sature en blanc
+
+**8 août 2026.** Quand on tire une sonde, la trajectoire prévue change de
+couleur — du rose au vert — selon qu'elle tombera, tournera ou s'échappera.
+C'est le seul endroit du site où l'on apprend qu'une orbite est un **accord
+entre une distance et une vitesse**.
+
+Or toute la visée est dessinée en mode **additif**. La couleur s'ajoute donc au
+disque d'accrétion, qui est lumineux — et elle **sature en blanc précisément là
+où l'on vise le plus**, c'est-à-dire près de l'astre. L'information disparaît à
+l'endroit exact où elle compte.
+
+Deux autres, plus légères, au même endroit :
+- les têtes de sondes grossissent **linéairement** avec le réglage de taille
+  alors que leurs traînées suivent une **racine carrée** : à fond, les têtes
+  quadruplent et les traînées ne font que doubler.
+- deux tracés sont morts — un point unique, et une opacité nulle.
+
+---
+
 ## Trouvé en sortant le spectre — deux réglages portent un fait
 
 **8 août 2026.** Le panneau du spectre enseigne un fait central : à 1,3 mm le gaz
