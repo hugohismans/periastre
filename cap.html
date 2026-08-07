@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Le cap — Périastre</title>
+<style>
+:root{
+  --fond:#0a0b0f; --fond2:#11131a; --bord:#232734;
+  --texte:#e8e6e1; --doux:#9aa0ae; --tres-doux:#666d7c;
+  --ambre:#e8a33d; --bleu:#7aa7d8; --vert:#7ec894; --rouge:#d97f7f;
+}
+*{box-sizing:border-box;}
+html{-webkit-text-size-adjust:100%;}
+body{
+  margin:0; background:var(--fond); color:var(--texte);
+  font:17px/1.65 ui-sans-serif,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  padding:0 0 6rem;
+}
+.enveloppe{max-width:46rem; margin:0 auto; padding:0 1.15rem;}
+
+/* ---------------------------------------------------------------- en-tete */
+header{padding:3.5rem 0 1.5rem; border-bottom:1px solid var(--bord); margin-bottom:2.5rem;}
+.sur-titre{
+  font-size:.72rem; letter-spacing:.18em; text-transform:uppercase;
+  color:var(--ambre); margin:0 0 .9rem;
+}
+h1{font-size:2.5rem; line-height:1.1; margin:0 0 .8rem; font-weight:600; letter-spacing:-.02em;}
+h1 .fin{display:block; color:var(--doux); font-weight:400; font-size:1.5rem; margin-top:.2rem;}
+.chapeau{color:var(--doux); margin:0; max-width:34rem;}
+.date{
+  margin-top:1.4rem; font-size:.82rem; color:var(--tres-doux);
+  border-left:2px solid var(--bord); padding-left:.8rem;
+}
+
+/* --------------------------------------------------------------- sections */
+section{margin:0 0 3.6rem; scroll-margin-top:1rem;}
+h2{
+  font-size:.75rem; letter-spacing:.16em; text-transform:uppercase;
+  color:var(--ambre); margin:0 0 1.2rem; font-weight:600;
+}
+h3{font-size:1.18rem; margin:2rem 0 .6rem; font-weight:600; letter-spacing:-.01em;}
+p{margin:0 0 1rem;}
+.doux{color:var(--doux);}
+.petit{font-size:.88rem;}
+
+/* ----------------------------------------------------------------- le but */
+.but{
+  background:linear-gradient(160deg,#141824,#0d0f16);
+  border:1px solid var(--bord); border-radius:14px; padding:1.6rem 1.4rem;
+}
+.but p:last-child{margin-bottom:0;}
+.but .phrase{font-size:1.2rem; line-height:1.5;}
+.but em{color:var(--ambre); font-style:normal;}
+
+/* --------------------------------------------------------- ligne du temps */
+.ligne{position:relative; padding-left:1.9rem; margin-top:1.5rem;}
+.ligne::before{
+  content:""; position:absolute; left:.34rem; top:.5rem; bottom:.5rem;
+  width:2px; background:linear-gradient(var(--bord),var(--ambre),var(--bord));
+}
+.etape{position:relative; margin-bottom:2.1rem;}
+.etape::before{
+  content:""; position:absolute; left:-1.9rem; top:.42rem;
+  width:.82rem; height:.82rem; border-radius:50%;
+  background:var(--fond); border:2px solid var(--tres-doux);
+}
+.etape.faite::before{background:var(--vert); border-color:var(--vert);}
+.etape.ici::before{
+  background:var(--ambre); border-color:var(--ambre);
+  box-shadow:0 0 0 5px rgba(232,163,61,.16);
+}
+.etape .quand{
+  font-size:.72rem; letter-spacing:.12em; text-transform:uppercase;
+  color:var(--tres-doux); display:block; margin-bottom:.15rem;
+}
+.etape .quoi{font-weight:600; display:block; margin-bottom:.3rem;}
+.etape p{margin:0; color:var(--doux); font-size:.94rem;}
+.etape.ici .quand{color:var(--ambre);}
+
+/* -------------------------------------------------------------- les cartes */
+.cartes{display:grid; gap:.8rem;}
+.carte{
+  background:var(--fond2); border:1px solid var(--bord);
+  border-radius:11px; padding:1rem 1.1rem;
+  border-left:3px solid var(--tres-doux);
+}
+.carte.ok{border-left-color:var(--vert);}
+.carte.cours{border-left-color:var(--ambre);}
+.carte.ouvert{border-left-color:var(--bleu);}
+.carte.dette{border-left-color:var(--rouge);}
+.carte .titre{font-weight:600; display:block; margin-bottom:.3rem;}
+.carte p{margin:0; font-size:.92rem; color:var(--doux);}
+.carte p + p{margin-top:.5rem;}
+.etat{
+  display:inline-block; font-size:.66rem; letter-spacing:.11em;
+  text-transform:uppercase; padding:.16rem .5rem; border-radius:4px;
+  vertical-align:2px; margin-left:.45rem; font-weight:600;
+}
+.etat.ok{background:rgba(126,200,148,.14); color:var(--vert);}
+.etat.cours{background:rgba(232,163,61,.14); color:var(--ambre);}
+.etat.ouvert{background:rgba(122,167,216,.14); color:var(--bleu);}
+.etat.dette{background:rgba(217,127,127,.14); color:var(--rouge);}
+
+/* ------------------------------------------------------------- les chiffres */
+.compteurs{display:grid; grid-template-columns:repeat(auto-fit,minmax(7.5rem,1fr)); gap:.7rem;}
+.compteur{
+  background:var(--fond2); border:1px solid var(--bord);
+  border-radius:11px; padding:.9rem 1rem; text-align:center;
+}
+.compteur .n{display:block; font-size:1.75rem; font-weight:600; color:var(--ambre); line-height:1.1;}
+.compteur .l{display:block; font-size:.74rem; color:var(--doux); margin-top:.25rem;}
+
+/* --------------------------------------------------------------- les replis */
+details{
+  border:1px solid var(--bord); border-radius:11px;
+  background:var(--fond2); margin-bottom:.8rem; overflow:hidden;
+}
+summary{
+  cursor:pointer; padding:.85rem 1.1rem; font-weight:600; font-size:.96rem;
+  list-style:none; display:flex; justify-content:space-between; align-items:center; gap:1rem;
+}
+summary::-webkit-details-marker{display:none;}
+summary::after{content:"+"; color:var(--ambre); font-size:1.2rem; line-height:1; flex:none;}
+details[open] summary::after{content:"–";}
+details[open] summary{border-bottom:1px solid var(--bord);}
+.dedans{padding:1rem 1.1rem 1.1rem;}
+.dedans p:last-child, .dedans ul:last-child, .dedans .cartes:last-child{margin-bottom:0;}
+ul{margin:0 0 1rem; padding-left:1.15rem;}
+li{margin-bottom:.5rem; color:var(--doux);}
+li strong{color:var(--texte); font-weight:600;}
+
+/* ----------------------------------------------------------------- ma boite */
+.mienne{border-left:3px solid var(--bleu);}
+.mienne .cout{
+  display:inline-block; font-size:.7rem; color:var(--bleu);
+  border:1px solid rgba(122,167,216,.35); border-radius:4px;
+  padding:.1rem .45rem; margin-bottom:.5rem;
+}
+
+/* -------------------------------------------------------------------- liens */
+a{color:var(--bleu); text-decoration:none; border-bottom:1px solid rgba(122,167,216,.3);}
+a:hover{border-bottom-color:var(--bleu);}
+.gros-lien{
+  display:block; background:rgba(232,163,61,.08); border:1px solid rgba(232,163,61,.3);
+  border-radius:11px; padding:1rem 1.1rem; margin-top:1rem;
+  color:var(--ambre); border-bottom:1px solid rgba(232,163,61,.3);
+}
+.gros-lien strong{display:block; margin-bottom:.2rem;}
+.gros-lien span{display:block; font-size:.88rem; color:var(--doux);}
+
+/* ------------------------------------------------------------- raccourcis */
+nav.sauts{display:flex; flex-wrap:wrap; gap:.4rem; margin:1.6rem 0 0;}
+nav.sauts a{
+  font-size:.78rem; padding:.32rem .7rem; border-radius:999px;
+  background:var(--fond2); border:1px solid var(--bord);
+  color:var(--doux); text-decoration:none; white-space:nowrap;
+}
+nav.sauts a:hover{border-color:var(--ambre); color:var(--ambre);}
+
+footer{
+  margin-top:4rem; padding-top:1.6rem; border-top:1px solid var(--bord);
+  color:var(--tres-doux); font-size:.85rem;
+}
+@media (max-width:480px){
+  body{font-size:16px;}
+  h1{font-size:2rem;}
+  h1 .fin{font-size:1.25rem;}
+}
+</style>
+</head>
+<body>
+<div class="enveloppe">
+
+<header>
+  <p class="sur-titre">Feuille de route · page privée</p>
+  <h1>Le cap<span class="fin">où on est, où on va, et pourquoi</span></h1>
+  <p class="chapeau">Cette page n'est pas dans le site. Elle n'est liée depuis nulle
+  part et demande à ne pas être indexée : elle est écrite pour une seule personne.</p>
+  <p class="date">À jour au <strong>7 août 2026</strong>. Elle ne se met pas à jour
+  toute seule — je tiens un journal de bord au fil de l'eau, et je te propose de
+  temps en temps qu'on refasse le point ici.</p>
+
+  <nav class="sauts">
+    <a href="#but">Le but</a>
+    <a href="#temps">La ligne du temps</a>
+    <a href="#fondations">Les fondations</a>
+    <a href="#chantiers">Les chantiers</a>
+    <a href="#tes-idees">Tes idées</a>
+    <a href="#oeil">Ton œil</a>
+    <a href="#mes-idees">Ma boîte à idées</a>
+  </nav>
+</header>
+
+<!-- ==================================================== LE BUT =========== -->
+<section id="but">
+  <h2>Le but, en une page</h2>
+  <div class="but">
+    <p class="phrase">On arrive dans le <em>salon d'un vaisseau</em>. D'autres
+    personnes y sont. Par le hublot, l'objet du moment — en <em>temps réel</em>,
+    jamais accéléré, comme dans la vraie vie.</p>
+    <p class="phrase">Ce salon a une destination, et elle change. Il orbite un trou
+    noir cette semaine ; le mois prochain il fait route ailleurs. <em>Le voyage est
+    l'événement</em>, et il donne son rythme au site.</p>
+    <p class="phrase">À côté, une porte : le <em>simulateur</em>. Là on triche avec
+    le temps, on lance des sondes, on monte la rotation. Le salon reste honnête,
+    le simulateur est le bac à sable.</p>
+  </div>
+
+  <h3>Ce que le joueur emporte à la fin</h3>
+  <p class="doux">Un seul voyage continu, de l'horizon de Sagittarius A* jusqu'à
+  l'univers observable. Dix-sept décades sur un axe unique. Et une chose qu'on
+  n'oublie pas : <strong>S2 frôle le trou noir à 120 unités astronomiques</strong> —
+  à peu près la taille de la bulle du système solaire. La même distance, aux deux
+  bouts du voyage.</p>
+  <p class="doux">Le reste découle de là. On ne débloque rien en cliquant : on
+  débloque en comprenant. C'est ce qui empêche le site de devenir un jeu à
+  récompenses où l'on clique au lieu d'apprendre.</p>
+</section>
+
+<!-- ================================================ OÙ ON EN EST ========= -->
+<section>
+  <h2>Où on en est, en chiffres</h2>
+  <div class="compteurs">
+    <div class="compteur"><span class="n">81</span><span class="l">contrôles dans la page</span></div>
+    <div class="compteur"><span class="n">12</span><span class="l">outils hors navigateur</span></div>
+    <div class="compteur"><span class="n">4/5</span><span class="l">fondations closes</span></div>
+    <div class="compteur"><span class="n">3</span><span class="l">langues au journal</span></div>
+  </div>
+  <p class="doux petit" style="margin-top:1rem">Ces chiffres ne disent pas que
+  c'est beau — aucun ne le peut. Ils disent qu'on ne peut plus casser ce qui
+  marche sans qu'une machine le crie.</p>
+</section>
+
+<!-- ============================================ LA LIGNE DU TEMPS ======== -->
+<section id="temps">
+  <h2>La ligne du temps</h2>
+  <div class="ligne">
+
+    <div class="etape faite">
+      <span class="quand">Le point de départ</span>
+      <span class="quoi">Un trou noir qu'on regarde</span>
+      <p>Un simulateur : géodésiques calculées par pixel, disque, Doppler, images
+      multiples. Beau, exact, et passif.</p>
+    </div>
+
+    <div class="etape faite">
+      <span class="quand">Le basculement</span>
+      <span class="quoi">Le vaisseau devient un lieu</span>
+      <p>On ne regarde plus un objet : on est quelque part. On marche, on descend
+      dans la fosse, on entre au télescope. Le trou noir passe derrière une vitre —
+      et c'est ce qui change tout le reste.</p>
+    </div>
+
+    <div class="etape faite">
+      <span class="quand">La conséquence</span>
+      <span class="quoi">Le voyage, et le temps qu'il coûte</span>
+      <p>On choisit une destination, le vaisseau part, et deux horloges ne disent
+      plus la même chose. Le recul logarithmique fait le reste : de l'horizon aux
+      grandes structures, sans coupure.</p>
+    </div>
+
+    <div class="etape faite">
+      <span class="quand">Ces derniers jours</span>
+      <span class="quoi">Les fondations, et rien d'autre</span>
+      <p>Le passage qui ne se voit pas et qui décide de tout : un seul endroit qui
+      décide où l'on est, un filet de contrôles qui tient en une commande, la
+      frontière du simulable écrite noir sur blanc, et le moteur de rotation
+      réécrit pour tuer la couture que tu avais vue.</p>
+    </div>
+
+    <div class="etape ici">
+      <span class="quand">Ici, maintenant</span>
+      <span class="quoi">Une fondation encore ouverte, et ton œil qui manque</span>
+      <p>Il reste <strong>F3</strong> : un moteur à N corps écrit et éprouvé, mais
+      branché à rien. Et une séance de jugement qui t'attend — le moteur de rotation
+      a changé sous l'image et personne n'a encore regardé le reste.</p>
+    </div>
+
+    <div class="etape">
+      <span class="quand">Juste après</span>
+      <span class="quoi">Deux rendus au choix : simulation ou cinéma</span>
+      <p>Ton idée du 5 août, et je pense que c'est la plus structurante qui reste.
+      Le site promet que tout est calculé ; c'est vrai de la géométrie et faux du
+      fond de ciel. Séparer les deux rend la promesse enfin lisible.</p>
+    </div>
+
+    <div class="etape">
+      <span class="quand">Ensuite</span>
+      <span class="quoi">Le cours attaché à l'expérience</span>
+      <p>Ton idée d'aujourd'hui. On vit une expérience, on appuie sur H, et un
+      petit cours s'ouvre sur ce qu'on vient de vivre — avec des curseurs pour
+      essayer soi-même. La machine existe déjà à moitié.</p>
+    </div>
+
+    <div class="etape">
+      <span class="quand">Au bout</span>
+      <span class="quoi">Le salon partagé</span>
+      <p>D'autres gens réellement présents, une destination commune qui change avec
+      le calendrier, des avatars, et Lumen en gardien qui remet les tenues à ceux
+      qui ont compris quelque chose.</p>
+    </div>
+
+  </div>
+</section>
+
+<!-- ================================================ LES FONDATIONS ======= -->
+<section id="fondations">
+  <h2>Les fondations — la réponse à « est-ce qu'on dérive ? »</h2>
+  <p class="doux">Cinq chantiers invisibles. Aucun n'ajoute une fonctionnalité ;
+  tous décident si la suite est possible. C'est ce sur quoi on a passé les derniers
+  jours, et c'est fini à quatre cinquièmes.</p>
+
+  <div class="cartes">
+    <div class="carte ok">
+      <span class="titre">F1 — Un seul endroit décide où l'on est<span class="etat ok">fait</span></span>
+      <p>Il y avait une soupe de drapeaux qui pouvaient se contredire. Maintenant une
+      seule écriture dans tout le fichier, neuf transitions énumérées, et un contrôle
+      qui les rejoue toutes.</p>
+    </div>
+    <div class="carte cours">
+      <span class="titre">F2 — Le bloc de code géant<span class="etat cours">sous cliquet</span></span>
+      <p>4 310 lignes d'un seul tenant. Il est mort deux fois en silence. On n'exige
+      pas de le découper aujourd'hui — on exige qu'il <strong>ne grossisse plus</strong>,
+      et le plafond descend tout seul dès qu'il descend.</p>
+    </div>
+    <div class="carte ouvert">
+      <span class="titre">F3 — Le moteur à N corps<span class="etat ouvert">ouvert</span></span>
+      <p>Mille lignes écrites, éprouvées — énergie, moment cinétique, résonances — et
+      <strong>branchées à rien</strong>. C'est la pire forme de dette : au tableau ça
+      compte comme un acquis, dans la page ça n'existe pas.</p>
+      <p>Tu as tranché : on branche N corps, on laisse la Lune. Reste à décider de
+      quoi il sera l'usage <em>visible</em>. Ma proposition est plus bas.</p>
+    </div>
+    <div class="carte ok">
+      <span class="titre">F4 — La frontière du simulable<span class="etat ok">fait</span></span>
+      <p>Un seul document dit ce qui est calculé, ce qui est approché, ce qui est
+      décor. Neuf compromis assumés, chacun avec son lieu et son aveu — et une machine
+      qui refuse un compromis sans lieu.</p>
+      <p>Reste la <strong>forme visuelle</strong> de l'aveu. C'est un choix d'œil, il
+      passera par une séance.</p>
+    </div>
+    <div class="carte ok">
+      <span class="titre">F5 — Le filet en une commande<span class="etat ok">fait</span></span>
+      <p>Une commande joue tout et fabrique elle-même la liste de ce qui n'est gardé
+      par personne. C'était la vraie raison de l'écrire : un module a vécu un mois
+      sans le moindre contrôle et rien ne disait qu'il n'en avait pas.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================== EN PRODUCTION ========== -->
+<section>
+  <h2>Ce qui marche, en ligne, aujourd'hui</h2>
+  <details>
+    <summary>Six choses qu'un visiteur peut faire</summary>
+    <div class="dedans">
+      <div class="cartes">
+        <div class="carte ok"><span class="titre">Le salon est un lieu</span>
+          <p>Marche, course, saut, chute, première et troisième personne. La commande du
+          temps et le télescope sont des endroits où l'on se rend, pas des boutons.</p></div>
+        <div class="carte ok"><span class="titre">Le voyage à 1 g</span>
+          <p>On choisit une destination, le vaisseau part, et le chronomètre dit ce que le
+          trajet coûte aux deux horloges. Chaque trajet inscrit son écart au carnet de bord.</p></div>
+        <div class="carte ok"><span class="titre">Le recul logarithmique</span>
+          <p>Vécu depuis le salon, par la baie, avec un quadrillage en volume qui se
+          renumérote à chaque décade — sans quoi on ne verrait pas qu'on bouge.</p></div>
+        <div class="carte ok"><span class="titre">Les étoiles S</span>
+          <p>Dix orbites sourcées, avec étalon et date, et la mention franche qu'il s'agit
+          d'une reconstruction.</p></div>
+        <div class="carte ok"><span class="titre">Le trou noir d'étude</span>
+          <p>Un objet distinct, nommé comme tel, à rotation libre — et le panneau explique
+          pourquoi le fait que sa masse n'y soit pas est le point le plus instructif.</p></div>
+        <div class="carte ok"><span class="titre">Le journal</span>
+          <p>Trois niveaux de lecture, trois langues, les formules, et des graphiques
+          calculés depuis les mêmes équations que le simulateur — pas dessinés à la main.</p></div>
+      </div>
+    </div>
+  </details>
+</section>
+
+<!-- ================================================ LES CHANTIERS ======== -->
+<section id="chantiers">
+  <h2>Les chantiers</h2>
+
+  <details open>
+    <summary>En cours</summary>
+    <div class="dedans">
+      <ul>
+        <li><strong>Le bilingue</strong> — sélecteur fait, contenu traduit, les unités
+        et la ponctuation des nombres suivent la langue. Restent environ cent quarante
+        chaînes en dur, toutes inventoriées avec leur traduction. C'est du travail
+        mécanique, pas de la conception.</li>
+        <li><strong>Le chemin de progression</strong> — la base est posée, rien de plus.</li>
+      </ul>
+    </div>
+  </details>
+
+  <details>
+    <summary>Le prochain, et il est important</summary>
+    <div class="dedans">
+      <p><strong>Deux rendus au choix : simulation ou cinéma.</strong> Le choix se
+      poserait au premier passage, à côté de celui de la langue, et se changerait
+      ensuite dans les réglages.</p>
+      <ul>
+        <li><strong>Fond de ciel</strong> — champ d'étoiles dense et sans nébuleuse
+        inventée, contre nébuleuse et bandes colorées.</li>
+        <li><strong>Exposition</strong> — mesurée et sans halo, contre halo et éclat.</li>
+        <li><strong>Disque</strong> — son éclat réel selon la bande observée, contre
+        rehaussé pour qu'on le voie.</li>
+        <li><strong>Étoiles</strong> — la densité de l'amas nucléaire, contre une
+        densité choisie pour la lisibilité.</li>
+      </ul>
+      <p>Un chiffre manque avant de coder : la densité réelle du champ d'étoiles vu
+      depuis l'orbite du salon, qui est à l'intérieur de l'amas. C'est le seul du
+      tableau qui demande une source, et il décide de tout le mode simulation.</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>Ensuite</summary>
+    <div class="dedans">
+      <ul>
+        <li><strong>Voix anglaise</strong> — dix mégaoctets à synthétiser, après
+        relecture des textes anglais.</li>
+        <li><strong>Carnet d'apprentissage</strong> — le relevé de ce qui a été lu.</li>
+        <li><strong>Questionnaire diagnostique</strong> — sans note, avec une porte de
+        sortie.</li>
+        <li><strong>Renvois de lecture par langue</strong> — distincts des sources.</li>
+        <li><strong>Le panthéon gravé</strong> — la paroi ; la base est prête.</li>
+        <li><strong>La chute derrière l'horizon</strong> — le document est écrit.</li>
+      </ul>
+    </div>
+  </details>
+
+  <details>
+    <summary>Plus tard — la réserve</summary>
+    <div class="dedans">
+      <p class="doux petit">Rien ici n'est engagé. C'est la liste qui existe pour ne
+      pas perdre les idées.</p>
+      <ul>
+        <li>Hub à plusieurs ponts · deux vaisseaux dont un commun</li>
+        <li>Le système solaire planète par planète</li>
+        <li>Vitre en réalité augmentée</li>
+        <li>Avatars et garde-robe</li>
+        <li>Mesurer l'expansion au peigne de raies</li>
+        <li>Cours sur les jumeaux au diagramme de Minkowski</li>
+        <li>Sondes réelles et assistance gravitationnelle</li>
+        <li>Musique · carte des vaisseaux</li>
+      </ul>
+    </div>
+  </details>
+
+  <details>
+    <summary>Les dettes connues</summary>
+    <div class="dedans">
+      <ul>
+        <li><strong>Écrans du bord en deux dimensions</strong> — pas de perspective
+        vraie, rien ne les occulte.</li>
+        <li><strong>Cockpit enfermé dans une bande</strong> sur écran large et court.</li>
+        <li><strong>Saut d'image une fois par orbite</strong> — jamais reproduit de mon
+        côté. Il faudrait que tu presses <strong>C</strong> au moment où ça saute.</li>
+        <li><strong>Orientation des étoiles S</strong> — un signe reste ouvert, et le
+        site n'affirme donc rien là-dessus. Voir ma boîte à idées.</li>
+        <li><strong>Le titre de la page</strong> reste français dans les deux langues.</li>
+      </ul>
+    </div>
+  </details>
+</section>
+
+<!-- ================================================== TES IDÉES ========== -->
+<section id="tes-idees">
+  <h2>Tes idées, pour t'en souvenir</h2>
+  <p class="doux">Celles que tu as posées et qui ne sont pas encore des chantiers.
+  Elles sont archivées en détail dans le carnet du dépôt ; voici de quoi les
+  reconnaître.</p>
+
+  <div class="cartes">
+    <div class="carte ouvert">
+      <span class="titre">Le cours attaché à l'expérience<span class="etat ouvert">7 août</span></span>
+      <p>On vit quelque chose dans le jeu, on appuie sur <strong>H</strong>, et un petit
+      cours s'ouvre sur le sujet qu'on est en train de vivre. Trois niveaux, sourcé, et
+      surtout <strong>des curseurs pour essayer soi-même</strong> — « si je vais là,
+      ça fait quoi ». Plus un index de tous les cours écrits.</p>
+      <p>Le premier candidat est évident : le voyage. Le décalage est déjà affiché dans
+      le jeu et expliqué nulle part.</p>
+    </div>
+    <div class="carte ouvert">
+      <span class="titre">Chaque compromis se déclare là où on le rencontre<span class="etat ouvert">5 août</span></span>
+      <p>Pas une liste rangée ailleurs qu'on ouvre rarement : un aveu au moment où l'on
+      regarde la chose. Le fond de ciel se dénonce quand on le fixe. La machine est
+      faite ; c'est la forme visuelle qui reste, et c'est ton œil qui tranchera.</p>
+    </div>
+    <div class="carte ouvert">
+      <span class="titre">Agrandir le vaisseau, pas la console<span class="etat ouvert">6 août</span></span>
+      <p>« Quand je dis agrandir, je veux dire agrandir LE VAISSEAU, et mettre le canon
+      dans une nouvelle salle. » C'est une aile de plus, pas un réglage de taille.</p>
+    </div>
+    <div class="carte ouvert">
+      <span class="titre">On ne débloque qu'en comprenant<span class="etat ouvert">principe</span></span>
+      <p>La monnaie ne se gagne ni au temps passé ni au nombre de clics, mais à la
+      mission validée, à la question posée, au « d'où ça sort ? » ouvert. C'est ce qui
+      protège le site de devenir une machine à cliquer.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ==================================================== TON ŒIL ========== -->
+<section id="oeil">
+  <h2>Ce qui attend ton œil</h2>
+  <p class="doux">Aucune machine ne peut trancher ces questions-là. Elles ne bloquent
+  rien — c'est une file, pas une dette.</p>
+  <ul>
+    <li><strong>L'image après la réécriture du moteur</strong> — neuf. Tout le calcul
+    de la rotation a été remplacé et personne n'a regardé le reste.</li>
+    <li><strong>L'arrivée du voyage</strong> — les orbites apparaissent d'un coup à la
+    fin au lieu de se dézoomer.</li>
+    <li><strong>La carte des étoiles S</strong> — ça coince aux trois séances. Ce n'est
+    plus une question à poser devant un écran : c'est une conversation à avoir.</li>
+    <li><strong>Les lampes du bord</strong> — la question t'avait été posée avec le
+    mauvais bouton. L'interrupteur existe vraiment maintenant.</li>
+  </ul>
+  <a class="gros-lien" href="https://hugohismans.github.io/periastre/?juge">
+    <strong>Ouvrir une séance de jugement →</strong>
+    <span>Compte dix minutes. La séance va chercher la chose et la pose sous tes yeux ;
+    à la fin, un bouton copie un message prêt à me coller.</span>
+  </a>
+</section>
+
+<!-- =================================================== MA BOÎTE ========== -->
+<section id="mes-idees">
+  <h2>Ma boîte à idées</h2>
+  <p class="doux">Des directions que je trouve intéressantes. Rien ici n'est décidé
+  ni commencé — c'est de la matière à réagir, et tu as le droit de tout jeter.</p>
+
+  <div class="cartes">
+    <div class="carte mienne">
+      <span class="cout">petit · s'appuie sur ce qui existe</span>
+      <span class="titre">Le carnet du voyageur</span>
+      <p>Chaque trajet inscrit déjà son écart de temps. Et si on les <strong>cumulait</strong> ?
+      « Depuis ta première mission tu as vécu quatre ans. La Terre en a vécu trente et
+      un mille. » La relativité cesse d'être un tableau et devient ta biographie.
+      C'est le genre de chose qu'on raconte à quelqu'un d'autre.</p>
+    </div>
+
+    <div class="carte mienne">
+      <span class="cout">petit · fort émotionnellement</span>
+      <span class="titre">Le seuil du non-retour</span>
+      <p>Pendant un voyage, marquer l'instant précis au-delà duquel faire demi-tour
+      signifie que ceux qu'on connaît seront morts à l'arrivée. Il se calcule à partir
+      des chiffres du trajet lui-même. Je n'ai jamais vu un simulateur poser ce moment —
+      c'est pourtant le cœur de ce que coûte un voyage relativiste.</p>
+    </div>
+
+    <div class="carte mienne">
+      <span class="cout">petit · le raisonnement est déjà écrit</span>
+      <span class="titre">Montrer ce qu'on n'a pas su trancher</span>
+      <p>Sur l'orientation des étoiles S, un signe reste ouvert. On a cherché, on a
+      buté sur le fait que l'information n'est dans le texte d'aucun article consulté —
+      seulement sur une figure — et le site n'affirme donc rien.</p>
+      <p>Ça, dit franchement à un visiteur, serait rare : presque aucun site de science
+      ne montre une question ouverte. Ce serait aussi la meilleure illustration de ce
+      qui rend ce projet différent.</p>
+    </div>
+
+    <div class="carte mienne">
+      <span class="cout">moyen · débloque F3</span>
+      <span class="titre">Un compagnon au trou noir d'étude</span>
+      <p>Le moteur à N corps a besoin d'un usage qu'on voit. Le trou noir d'étude est
+      déjà un objet distinct, orientable, posé là pour qu'on joue avec. Lui donner un
+      compagnon en orbite ne demande aucun lieu nouveau et rend visible d'un coup mille
+      lignes déjà éprouvées.</p>
+      <p>Ça demande ton œil avant d'être codé : c'est un ajout à une scène que tu
+      connais.</p>
+    </div>
+
+    <div class="carte mienne">
+      <span class="cout">petit · prépare le cours</span>
+      <span class="titre">Les deux horloges pendant tout le trajet</span>
+      <p>Aujourd'hui l'écart se lit à l'arrivée. Le montrer <strong>diverger en direct</strong>
+      pendant le voyage transforme un résultat en spectacle — et ça devient le premier
+      instrument du cours de relativité restreinte, gratuitement.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================== COMMENT ÇA VIT ========= -->
+<section>
+  <h2>Comment cette page vit</h2>
+  <p class="doux">Tu as dit que la mettre à jour à chaque fois serait trop lourd, et
+  tu as raison. Donc :</p>
+  <ul>
+    <li>Je tiens un <strong>journal de bord</strong> dans le dépôt, au fil de l'eau —
+    on a fait ci, on a fait ça. Ça ne coûte rien.</li>
+    <li>De temps en temps, je te propose qu'on <strong>refasse le point ici</strong>, et
+    on remet cette page d'aplomb ensemble.</li>
+    <li>Tu peux me le demander à tout moment : « on refait le cap ».</li>
+  </ul>
+  <p class="doux petit">Cette page a le même défaut que tous les documents du projet :
+  elle peut se périmer sans prévenir. C'est déjà arrivé — une feuille de route t'a
+  affiché une fondation en rouge alors qu'elle était finie depuis des jours. Si quelque
+  chose ici te paraît faux, c'est probablement la page qui a tort, pas le code.</p>
+</section>
+
+<footer>
+  Périastre · page privée, non liée et non indexée · dernière remise à plat le 7 août 2026
+</footer>
+
+</div>
+</body>
+</html>
