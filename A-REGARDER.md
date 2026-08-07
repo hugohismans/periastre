@@ -40,29 +40,76 @@ enfler. **Les verdicts de la troisième séance sont à relire avec ça en tête
 
 Les deux sont sorties du même chantier, et aucune ne se tranche par un calcul.
 
-### 1. Le quadrillage se lève trop tôt sur ton téléphone, et c'est mesurable
+### 1. Le quadrillage se lève encore trop tôt sur ton téléphone — à moitié réparé
 
 Tu m'avais dit : *« le quadrillage se levait alors qu'on regardait encore
 ailleurs… une apparition buguée »*. On avait réglé ça avec un seuil : le
 quadrillage n'apparaît que si le trou noir est **dans le champ**.
 
-Le seuil vaut un angle de **56,6°**. Sur un écran d'ordinateur en 16:9, le coin
-de l'image est à 52,8° — le seuil tombe donc juste au-delà du coin, et c'est
-parfaitement réglé. C'est ton œil qui l'a posé, sur ton écran.
+Ton seuil valait un angle fixe de 56,6°. J'ai joué le même trajet dans deux
+fenêtres et chronométré, au lieu de raisonner :
 
-**En portrait sur iPhone, le coin descend à 35,4°.** Le quadrillage se lève donc
-alors que le trou noir est encore à **vingt et un degrés hors de l'écran**.
-C'est exactement le défaut que tu avais signalé, revenu par la porte du format.
+| | le quadrillage monte | le trou noir est alors | il entre | quadrillage |
+|---|---|---|---|---|
+| **ton écran 16:9** | image 86 | 187 px hors bord | image 97 | 36 % |
+| **iPhone en portrait** | image 86 | **745 px hors bord** | image 177 | **97 %** |
 
-La règle juste se déduit : le seuil devrait suivre la focale et la forme de
-l'écran, au lieu d'être un nombre fixe. Ça reproduirait ton réglage à
-l'identique sur ordinateur, et ne changerait la chose que là où elle est
-fausse.
+Sur ton téléphone, le quadrillage arrivait donc **en entier une seconde et demie
+avant** qu'il y ait quoi que ce soit à quadriller.
 
-**Je ne l'ai pas fait, parce que c'est ton chiffre.** Dis-moi si je le rends
-automatique.
+**J'ai changé la règle, et je te dois de le dire clairement** : ton chiffre
+n'était pas mauvais, il était incomplet. Un angle fixe ne peut pas être juste
+sur deux formes d'écran — la mesure a même montré qu'en très large (2560×1080)
+il faisait l'inverse, le quadrillage refusait de monter alors que le trou noir
+était visible dans le coin. Le seuil se calcule maintenant à partir de la forme
+de l'écran, **en partant de ton réglage** : sur ton 16:9 il vaut 0,551 au lieu
+de 0,55, et le trajet s'y déroule image pour image comme avant. Rien n'a bougé
+là où tu l'avais réglé.
 
-### 2. Le salon devrait-il avoir sa propre aberration ?
+**Ce n'est réparé qu'à moitié, et je préfère te le dire.** En portrait, on passe
+de 745 px à 322 px hors bord, et de 91 images d'avance à 64. Mieux, pas bon : le
+quadrillage est encore à 91 % quand le trou noir entre.
+
+La raison est ailleurs et je ne l'ai pas touchée : **le quadrillage monte trois
+fois plus vite que la pièce ne se retourne** (2,2 contre 0,8 par seconde). Sur
+ton écran ça tombe bien. Sur un écran étroit, il a le temps de finir avant que
+l'astre arrive.
+
+**La question est pour toi : est-ce que 91 % te choque encore ?** Si oui, ce qui
+reste à faire est de ralentir la montée du quadrillage, et c'est un réglage de
+sensation — donc le tien.
+
+### 2. Le lancer de sonde se retourne quand tu passes au-dessus du disque
+
+Trouvé en sortant les gestes dans leur propre fichier, puis mesuré dans la page.
+
+Tu tires vers le haut pour lancer une sonde. **Le cap du lancer bascule de 180°
+quand la caméra traverse le plan du disque** :
+
+| hauteur de caméra | cap du lancer, pour le MÊME geste |
+|---|---|
+| +0,001 rad (au-dessus) | −145,6° |
+| −0,001 rad (en dessous) | **+34,4°** |
+
+Un millième de radian d'écart, et la sonde part exactement à l'opposé.
+
+Et tu traverses ce plan **chaque fois que tu fais glisser la vue au-delà de
+l'horizontale** — c'est un geste ordinaire, pas une acrobatie.
+
+**Ce n'est pas forcément un défaut.** Vu de dessous, « le haut de l'écran »
+pointe pour de vrai dans l'autre sens : le code fait ce qu'il annonce. Mais le
+basculement est instantané et rien ne le signale.
+
+Il y a un vrai bug, en revanche, exactement dans le plan : à cette hauteur-là,
+l'interface annonce une vitesse de 0,356 c et la sonde part **à l'arrêt**. Le
+cas est essentiellement injoignable — il faut tomber pile sur zéro — mais les
+deux sorties du calcul se contredisent, et c'est écrit maintenant.
+
+**La question est pour toi : est-ce que ce retournement t'a déjà surpris en
+jouant ?** Si oui, on peut faire suivre le lancer au geste plutôt qu'à l'écran.
+C'est un choix de sensation, donc le tien.
+
+### 3. Le salon devrait-il avoir sa propre aberration ?
 
 Le vaisseau du salon orbite pour de vrai. Physiquement, le ciel vu par la baie
 devrait donc être **déformé par sa vitesse à lui** — les couleurs poussées vers

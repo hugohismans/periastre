@@ -264,9 +264,33 @@ const CHAMPS = [
   { cle:"mascotte",  nom:"mascotte",           type:"booleen" },
 ];
 
+/* `Number.isFinite` ET NON `typeof === "number"`, et ça compte.
+
+   `JSON.parse('{"volume":1e400}')` rend `Infinity`. C'est du JSON parfaitement
+   valide : l'adaptateur le plus fidèle du monde le rendra tel quel, et
+   `typeof Infinity === "number"` disait oui. Quatre réglages relus étaient
+   exposés — l'intervalle des anecdotes, la taille des sondes, le volume de la
+   voix, celui de la musique — et ce module promet en clair que « la page
+   applique ce qu'elle reçoit, sans avoir à revérifier ». Elle appliquait donc un
+   zoom infini ou un intervalle infini.
+
+   C'est exactement le mode de panne du 7 août 2026 : un réglage qui survit au
+   rechargement est un réglage qu'on ne pense plus à soupçonner. Ce jour-là, une
+   séance de jugement a laissé un réglage lourd dans cette mémoire et divisé par
+   huit la cadence du site sur le téléphone d'Hugo.
+
+   Et `registre.js`, qui écrit dans la MÊME mémoire, refuse déjà les infinis à la
+   lecture. Deux modules qui décrivent le même espace ne peuvent pas avoir deux
+   lois — c'est la maladie que ce dépôt traque en premier.
+
+   Les champs « entier » étaient protégés par accident : `Number.isInteger` dit
+   déjà non à l'infini. Par accident n'est pas une garantie ; c'est écrit ici.
+
+   Trouvé par l'outil de ce module, qui a rendu ROUGE sur le dépôt réel plutôt
+   que de se plier. C'est pour ça qu'il existe. */
 function estDuType(v, type){
   if(type === "entier")  return Number.isInteger(v);
-  if(type === "nombre")  return typeof v === "number";
+  if(type === "nombre")  return Number.isFinite(v);
   if(type === "booleen") return typeof v === "boolean";
   return false;
 }

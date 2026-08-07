@@ -146,7 +146,14 @@ const fs = require("fs"), path = require("path");
    le recul en deux. Elles vivaient dans une page qu'aucun outil ne lisait.
    Elles ont maintenant vingt-cinq contrôles, dont quatre sabotages qui prouvent
    qu'ils mordent, et deux cent mille tirages qui démontrent que rien n'a bougé. */
-const PLAFOND = 3507;   // ... les libelles, la resolution, le registre, la caméra, le pilotage
+/* 3 492 — les gestes dans `gestes.js`. La zone morte du doigt, le plafond de
+   vitesse, le rabattement du repère écran dans le plan du disque, et le regard
+   borné. Dix-sept lignes, et quatre-vingt-un contrôles là où il n'y en avait
+   aucun : le seuil de la zone morte se trouve par bissection, le lancer ne
+   dépasse jamais la vitesse de la lumière, le tangage touche sa borne quatorze
+   mille fois sans jamais la franchir, et le lacet fait mille dix-huit tours
+   sans être serré. */
+const PLAFOND = 3492;   // ... la resolution, le registre, la caméra, le pilotage, les gestes
 
 // Le nombre de modules déjà sortis. Il ne descend jamais non plus : un module
 // qu'on ferait rentrer dans le bloc serait le contraire exact du chantier.

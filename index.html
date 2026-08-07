@@ -2319,6 +2319,7 @@ void main(){
 <script src="registre.js?v=bfb0e44"></script>
 <script src="cockpit.js?v=bfb0e44"></script>
 <script src="camera.js?v=bfb0e44"></script>
+<script src="gestes.js?v=bfb0e44"></script>
 <script>
 "use strict";
 
@@ -3594,17 +3595,18 @@ function majVoyage(dt){
   salon.p = [u[0]*r, u[1]*r, u[2]*r];
 
   /* Le PILOTAGE vit dans `recul.js` — recentrage, quadrillage, carte des
-     étoiles. Les trois règles y sont écrites au long, avec le défaut qu'Hugo a
-     vu derrière chacune, et `outil-verif-recul.js` les éprouve sans navigateur.
+     étoiles, et le seuil de champ qui suit la forme de l'écran. Les règles y
+     sont écrites au long, avec le défaut d'Hugo derrière chacune et les mesures.
 
      L'ORDRE N'EST PAS INTERCHANGEABLE : `regardSalon()` se lit APRÈS le
      recentrage, pour que le quadrillage juge la visée qu'on AURA et non celle
      qu'on avait — sinon il commente avec une image de retard. */
-  const va = salon.versAstre;
+  const va = salon.versAstre, im = vue();
   const vise = RECUL.recentre(va, salon.lacet, salon.tangage, dt);
   salon.lacet = vise.lacet;
   salon.tangage = vise.tangage;
-  RECUL.fondus(TELESCOPE, dt, RECUL.enVue(regardSalon().av, va));
+  RECUL.fondus(TELESCOPE, dt, RECUL.enVue(regardSalon().av, va),
+               RECUL.seuilEnVue(cam.focale, im.W, im.H));
 
   majChrono();
 
@@ -3799,20 +3801,13 @@ $("b-temps").onclick = () => {
 boitierV.children[TEMPS.cran].classList.add("actif");
 
 // ---- souris ----
-const K_GLISSE = 1.6;   // hauteurs d'écran par unité de vitesse
-
-// Le glissement se lit en repère écran, pas dans le plan du disque : vu presque
-// par la tranche, quelques pixels vers le haut valent des dizaines d'unités.
+/* Le CALCUL du geste vit dans `gestes.js` : la zone morte, le plafond et le
+   rabattement du repère écran dans le plan du disque s'y éprouvent sans
+   navigateur — c'est là qu'on voit un seuil mal placé, jamais en jouant. Ne
+   restent ici que les deux choses qui ne peuvent pas en sortir : la mesure de
+   l'image, qui change sous les pieds, et la caméra du moment. */
 function vitesseDepuisGlisse(v){
-  const H = cv.clientHeight;
-  const dx = (v.x - v.x0)/H, dy = (v.y0 - v.y)/H;
-  const l = Math.hypot(dx, dy);
-  if(l < 0.012) return null;
-  const rp = norm([cam.base.d[0], 0, cam.base.d[2]]);   // axes de l'écran rabattus
-  const hp = norm([cam.base.h[0], 0, cam.base.h[2]]);   // dans le plan du disque
-  const dir = norm([ rp[0]*dx + hp[0]*dy, 0, rp[2]*dx + hp[2]*dy ]);
-  const vitesse = Math.min(l*K_GLISSE, 0.9);
-  return { v:[dir[0]*vitesse, 0, dir[2]*vitesse], vitesse };
+  return GESTES.vitesseDepuisGlisse(cam, v, { H: cv.clientHeight }, norm);
 }
 
 const pointeur = e => { const r = cv.getBoundingClientRect(); return [e.clientX-r.left, e.clientY-r.top]; };
@@ -3824,15 +3819,11 @@ cv.addEventListener("contextmenu", e => e.preventDefault());
 const doigts = new Map();
 let pince = null;
 
-function centreDoigts(){
-  let x = 0, y = 0;
-  for(const p of doigts.values()){ x += p[0]; y += p[1]; }
-  return [x/doigts.size, y/doigts.size];
-}
-function ecartDoigts(){
-  const [a, b] = [...doigts.values()];
-  return Math.hypot(a[0]-b[0], a[1]-b[1]);
-}
+/* Le calcul est dans `gestes.js` ; ce qui reste ici, c'est la `Map` que le
+   navigateur remplit. Les deux relais gardent leur nom et leur absence
+   d'argument : les quatre appels d'en dessous n'ont pas une ligne à changer. */
+const centreDoigts = () => GESTES.centreDoigts(doigts);
+const ecartDoigts  = () => GESTES.ecartDoigts(doigts);
 
 cv.addEventListener("pointerdown", e => {
   // Au salon, ce même geste sert à tourner la tête. Sans ce garde-fou, un
@@ -3913,11 +3904,6 @@ cv.addEventListener("pointercancel", relache);
    regard vers la droite déclencherait ce qui traîne sous le pointeur. */
 let posteDepart = null, glisse = null;
 
-// Sensibilité du regard, en radians par pixel. Assez lent pour qu'on puisse
-// viser un objet, assez vif pour faire demi-tour d'un geste.
-const SENS = 0.0032;
-const TANGAGE_MAX = 1.15;      // on ne se casse pas la nuque
-
 /* Ce qui sépare une tape d'un glissé, en pixels.
 
    UNE SEULE définition, parce que deux endroits s'en servent — le blocage de la
@@ -3936,8 +3922,8 @@ function tourne(dx, dy){
   // qu'on regarde, et une reconstruction en volume ne se lit que si l'on peut
   // en faire le tour — sans quoi on ne voit que dix ellipses plates.
   if(TELESCOPE.carte > 0.5){ ETOILES_S.tourne(dx, dy); return; }
-  salon.lacet += dx*SENS;
-  salon.tangage = Math.max(-TANGAGE_MAX, Math.min(TANGAGE_MAX, salon.tangage - dy*SENS));
+  const r = GESTES.regard(salon.lacet, salon.tangage, dx, dy, GESTES.SENS);
+  salon.lacet = r.lacet; salon.tangage = r.tangage;
 }
 
 /* Deux façons de regarder, et il en faut deux.

@@ -746,13 +746,117 @@ groupe("Ces contrôles savent tomber");
        : (epreuveBornes(sansPlafondF).ok ? "elle reste verte"
           : epreuveBornes(sansPlafondF).ecart));
 
-  const sansChamp = casse(["(etat.actif && vue > DANS_LE_CHAMP)", "(etat.actif)"]);
+  const sansChamp = casse(["(etat.actif && vue > s)", "(etat.actif)"]);
   ok("sans la condition de champ, l'apparition buguée est vue",
      sansChamp !== null && epreuveChamp(sansChamp).ok === false,
      "l'épreuve tombe",
      sansChamp === null ? "ANCRE INTROUVABLE dans recul.js"
        : (epreuveChamp(sansChamp).ok ? "elle reste verte" : "quadrillage à "
           + epreuveChamp(sansChamp).cas.baisse.toFixed(3) + " le regard détourné"));
+}
+
+/* ═══════════ LE SEUIL DU CHAMP SUIT LA FORME DE L'ÉCRAN
+
+   Le défaut, mesuré dans la page le 8 août : un angle fixe de 56,6° tombe juste
+   au-delà du coin d'un écran 16:9 (52,8°) — parfait, c'est là qu'Hugo l'a réglé
+   — mais très loin au-delà du coin d'un téléphone en portrait (35,4°). Le
+   quadrillage y paraissait EN ENTIER une seconde et demie avant que l'astre
+   n'entre dans l'image : mot pour mot le défaut qu'il avait signalé.
+
+   LA VÉRITÉ VIENT D'AILLEURS : on ne relit pas la formule du module. On
+   fabrique la direction du coin de l'image en INVERSANT `projette` — dont le
+   pixel vaut (x/z·F·H + W)/2 — et l'on interroge son cosinus. Deux propriétés
+   suffisent, et elles valent pour n'importe quelle forme d'écran :
+
+     · le coin de l'image est dans le champ (sinon le quadrillage ne monte pas
+       alors qu'on voit l'astre) ;
+     · une direction bien au-delà du coin ne l'est pas (c'est l'apparition
+       buguée : lever sur ce qu'on ne voit pas).
+
+   C'est la seconde que l'angle fixe viole, et sur les écrans étroits seulement. */
+{
+  groupe("Le seuil du champ suit la forme de l'écran");
+
+  // Le réglage d'Hugo, sur l'écran où il l'a posé. Ce n'est pas une tolérance de
+  // confort : si ce chiffre bouge, c'est qu'on a défait son travail.
+  const bureau = R.seuilEnVue(1.55, 1280, 720);
+  ok("sur un 16:9, on retrouve le 0,55 d'Hugo", Math.abs(bureau - 0.55) < 0.002,
+     "0,55 ± 0,002", bureau.toFixed(4),
+     "la règle PART de son réglage — un écart ici voudrait dire qu'on l'a perdu");
+
+  const tel = R.seuilEnVue(1.55, 375, 812);
+  ok("en portrait, le seuil se resserre", tel > bureau + 0.15,
+     "> " + (bureau + 0.15).toFixed(3), tel.toFixed(4),
+     "un écran plus étroit voit moins loin : le seuil DOIT monter, sinon rien n'a changé");
+
+  // Le cosinus de la direction du coin, pour une forme d'écran donnée.
+  const cosDuCoin = (F, W, H) => F / Math.hypot(W/H, 1, F);
+
+  const formes = [[1280,720], [375,812], [900,900], [2560,1080], [768,1024]];
+  const juge = seuil => {
+    let coin = null, dehors = null;
+    for(const [W, H] of formes){
+      const F = 1.55, s = seuil(F, W, H), c = cosDuCoin(F, W, H);
+      if(!(c > s)) coin = coin || { W, H, cos: +c.toFixed(4), seuil: +s.toFixed(4) };
+      // Une fois et demie l'écart angulaire au coin : franchement dehors.
+      const loin = Math.cos(Math.acos(c) * 1.5);
+      if(!(loin < s)) dehors = dehors || { W, H, cos: +loin.toFixed(4), seuil: +s.toFixed(4) };
+    }
+    return { coin, dehors };
+  };
+
+  const v = juge(R.seuilEnVue);
+  ok("le coin de l'image est TOUJOURS dans le champ — 5 formes",
+     v.coin === null, "aucune forme en défaut", v.coin ? JSON.stringify(v.coin) : "aucune");
+  ok("et une direction bien au-delà du coin ne l'est jamais — 5 formes",
+     v.dehors === null, "aucune forme en défaut",
+     v.dehors ? JSON.stringify(v.dehors) : "aucune");
+
+  ok("une mesure absurde retombe sur le réglage d'origine",
+     R.seuilEnVue(0, 1280, 720) === 0.55 && R.seuilEnVue(1.55, 0, 0) === 0.55,
+     "0,55", R.seuilEnVue(1.55, 0, 0),
+     "la page mesure 0×0 tant que la fenêtre n'a pas été mesurée : pas de NaN là");
+
+  /* LE SABOTAGE, ET IL DOIT ÊTRE PRÉCIS. On rejoue le même jugement avec
+     l'ancienne règle — l'angle fixe. Elle doit violer la seconde propriété, et
+     seulement elle : un contrôle qui la rejetterait EN BLOC condamnerait le
+     réglage d'Hugo au lieu de condamner le défaut. */
+  const ancienne = juge(() => 0.55);
+
+  /* L'ANGLE FIXE FAUTE DES DEUX CÔTÉS, ET JE M'ATTENDAIS À UN SEUL.
+
+     J'avais écrit « le défaut est d'un seul côté : trop large sur écran
+     étroit ». C'est faux, et c'est la mesure qui l'a dit. Le cosinus du coin,
+     par forme :
+
+         2560 × 1080   0,516   coin à 58,9°   SOUS le seuil fixe
+         1280 ×  720   0,605   coin à 52,8°   au-dessus — le réglage d'Hugo
+          900 ×  900   0,739   coin à 42,4°
+          768 × 1024   0,778   coin à 38,9°
+          375 ×  812   0,815   coin à 35,4°   très au-dessus
+
+     Sur un écran très large, le coin est à 58,9° — au-DELÀ des 56,6° du seuil
+     fixe. Le quadrillage refuse alors de monter alors que l'astre est visible
+     dans le coin : le défaut exactement inverse de celui du téléphone, et tout
+     aussi réel.
+
+     Un angle fixe ne peut pas être juste sur deux formes d'écran différentes.
+     Ce n'est pas un réglage à retoucher, c'est une grandeur qui manquait. */
+  ok("l'angle fixe laisse passer ce qui est HORS de l'écran — écran étroit",
+     ancienne.dehors !== null, "au moins une forme en défaut",
+     ancienne.dehors ? JSON.stringify(ancienne.dehors) : "AUCUNE — le contrôle ne mord pas",
+     "sans ça, ce groupe surveillerait une règle que l'ancienne satisfaisait déjà");
+  ok("et il refuse le coin de l'écran alors qu'on l'y voit — écran très large",
+     ancienne.coin !== null, "au moins une forme en défaut",
+     ancienne.coin ? JSON.stringify(ancienne.coin) : "AUCUNE",
+     "le défaut inverse, sur 2560×1080 : le quadrillage ne monte pas du tout");
+  ok("le 16:9 d'Hugo n'est en défaut d'aucun des deux côtés",
+     (!ancienne.coin   || !(ancienne.coin.W   === 1280 && ancienne.coin.H   === 720)) &&
+     (!ancienne.dehors || !(ancienne.dehors.W === 1280 && ancienne.dehors.H === 720)),
+     "le bureau hors de cause",
+     "coin : " + (ancienne.coin ? ancienne.coin.W + "×" + ancienne.coin.H : "—")
+     + " · dehors : " + (ancienne.dehors ? ancienne.dehors.W + "×" + ancienne.dehors.H : "—"),
+     "c'est ce qui prouve qu'on corrige un défaut de format, pas un choix d'œil");
 }
 
 console.log("\n  " + (echecs ? "❌  " + echecs + " ÉCHECS sur " + n + " contrôles"

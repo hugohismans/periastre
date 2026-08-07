@@ -270,7 +270,47 @@ function avance(dt){
 const RECENTRAGE  = 0.8;    // par seconde — la visée revient d'elle-même
 const LEVE_GRILLE = 2.2;    // par seconde — le quadrillage paraît vite
 const LEVE_CARTE  = 0.85;   // par seconde — la carte prend son temps
-const DANS_LE_CHAMP = 0.55; // cosinus : au-delà, l'astre est vraiment devant
+/* LE SEUIL « DANS LE CHAMP » SUIT LA FORME DE L'ÉCRAN, IL N'EST PLUS UN NOMBRE.
+
+   Hugo avait posé 0,55 — un cosinus, donc un angle de 56,6°. Sur son écran en
+   16:9 le coin de l'image est à 52,8° : le seuil tombait quatre degrés au-delà
+   du coin, et le quadrillage commençait à monter juste avant que l'astre
+   n'entre. Réglage d'œil, et il est juste.
+
+   MAIS UN ANGLE FIXE NE SAIT RIEN DE L'ÉCRAN. Mesuré le 8 août, en jouant le
+   même trajet dans deux fenêtres :
+
+     1280 × 720   coin à 52,8°   quadrillage à l'image 86, astre à 187 px du
+                                 bord, il entre à l'image 97 — 0,18 s plus tard,
+                                 le quadrillage est alors à 36 %. C'est bien.
+
+     375 × 812    coin à 35,4°   quadrillage à l'image 86, astre à 745 px du
+                                 bord — DEUX largeurs d'écran dehors. Il entre à
+                                 l'image 177, une seconde et demie plus tard, et
+                                 le quadrillage est déjà à 97 %.
+
+   Sur un téléphone en portrait, le quadrillage paraît donc en entier une
+   seconde et demie avant qu'il y ait quoi que ce soit à quadriller. C'est mot
+   pour mot le défaut qu'Hugo avait signalé — « il se levait alors qu'on
+   regardait encore ailleurs, une apparition buguée » — revenu par la porte du
+   format. Et il est sur iPhone.
+
+   On garde donc son réglage, mais on garde ce qu'il VOULAIT dire : « un peu
+   au-delà du coin de l'image ». Les quatre degrés sont à lui ; le coin, lui, se
+   calcule. Sur son écran, la valeur rendue est 0,5505 — son 0,55 à un
+   demi-millième près, et ce n'est pas un hasard, c'est de là qu'on part.
+
+   Reverser tient en une ligne : rendre MARGE_CHAMP puis `Math.cos` d'un angle
+   fixe. Le chiffre n'est pas perdu, il est devenu une règle. */
+const MARGE_CHAMP = 0.0663;   // radians — 3,8°, l'écart d'Hugo au coin de SON écran
+
+function seuilEnVue(focale, W, H){
+  // Le demi-champ DIAGONAL : c'est le coin qui décide, pas le bord. tan du
+  // demi-champ vertical vaut 1/F, l'horizontal (W/H)/F, et la diagonale les
+  // compose — même géométrie que `projette`, qui divise par F et multiplie par H.
+  if(!(focale > 0) || !(W > 0) || !(H > 0)) return 0.55;   // repli sur le réglage d'origine
+  return Math.cos(Math.atan(Math.hypot(1, W/H) / focale) + MARGE_CHAMP);
+}
 
 /* Un fondu de premier ordre, borné PAR CONSTRUCTION.
 
@@ -305,8 +345,13 @@ function enVue(av, va){
   return c > 0 ? c : 0;
 }
 
-function fondus(tele, dt, vue){
-  const veutGrille = (etat.actif && vue > DANS_LE_CHAMP) ? 1 : 0;
+/* `seuil` arrive de l'appelant parce qu'il dépend de la TAILLE DE L'IMAGE, que
+   ce module ne connaît pas et ne doit pas connaître — même raison que la `vue`
+   de `camera.js`. Il est facultatif : sans lui, on retombe sur le réglage
+   d'origine, ce qui garde un appelant ancien exact au lieu de le casser. */
+function fondus(tele, dt, vue, seuil){
+  const s = Number.isFinite(seuil) ? seuil : 0.55;
+  const veutGrille = (etat.actif && vue > s) ? 1 : 0;
   const veutCarte  = (!etat.actif && !tele.retour) ? 1 : 0;
   tele.grille = fondu(tele.grille, veutGrille, dt, LEVE_GRILLE);
   tele.carte  = fondu(tele.carte,  veutCarte,  dt, LEVE_CARTE);
@@ -502,7 +547,7 @@ function dessineQuadrillage(ctx, W, H, projette, force){
 
 global.RECUL = { etat, lance, avance, decade, etiquette, dessineQuadrillage,
                  poseRythme, RS_M, UA_M,
-                 recentre, enVue, fondu, fondus,
+                 recentre, enVue, fondu, fondus, seuilEnVue,
                  get rythme(){ return rythme; },
                  get actif(){ return etat.actif; } };
 
