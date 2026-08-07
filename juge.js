@@ -122,30 +122,18 @@ const DECISIONS = [
     titre: "La rotation du trou noir d'étude",
     libre: true,
 
-    /* CETTE QUESTION A ÉTÉ POSÉE DEUX FOIS, ET RATÉE DEUX FOIS.
+    /* QUATRE FOIS POSÉE, TROIS FOIS RATÉE, ET TOUJOURS PAR MA FAUTE.
 
-       Le 6 août au matin, le verdict portait sur ma fenêtre qui mangeait
-       l'écran. Le soir, sur autre chose encore : « je ne vois pas où modifier la
-       rotation du trou noir ».
+       Au matin, le verdict portait sur ma fenêtre qui mangeait l'écran. Puis sur
+       des boutons que je construisais dans le panneau du télescope en le posant,
+       lui, en vue libre — le défaut du drone, repayé. Puis sur une couture de
+       l'axe polaire. Et la quatrième fois, sur un moteur qui n'était pas encore
+       déployé : il a jugé le code d'avant.
 
-       Il avait raison, et c'était grossier. `poseEtude()` remplit le panneau du
-       TÉLESCOPE — quatre boutons de rotation, bien là — et ma `pose()` l'envoyait
-       en vue libre, où ce panneau n'existe pas. Je construisais le réglage puis
-       je le posais ailleurs, et je lui demandais de juger ce qu'il ne pouvait
-       pas voir. C'est exactement le défaut du drone, repayé.
-
-       On l'emmène donc au télescope, panneau ouvert, réglages sous les yeux. */
-    /* TROISIÈME FOIS QUE CETTE QUESTION EST POSÉE, ET LA PREMIÈRE OÙ ELLE PORTE
-       SUR CE QU'ELLE PRÉTEND.
-
-       Le matin, le verdict a porté sur ma fenêtre qui mangeait l'écran. Le soir,
-       sur des boutons que je posais hors de vue. À la troisième, il a enfin pu
-       regarder l'astre — et il a vu une trace verticale qu'il a appelée « buguée ».
-
-       C'était la couture de l'axe polaire, déclarée sept fois dans le contenu,
-       dont dans le panneau ouvert devant lui. Il l'a lue comme un bug quand même,
-       et il avait raison : une déclaration qu'il faut lire ne répare pas ce qu'on
-       voit. Le moteur a donc été réécrit en Kerr-Schild.
+       La couture est réglée — le moteur est en Kerr-Schild, où l'axe n'a rien de
+       singulier, et l'écart sur l'axe tombe de 78-310 niveaux à 2-26. On l'emmène
+       au télescope, panneau ouvert, réglages sous les yeux, et `montre` refuse de
+       poser la question s'ils n'y sont pas.
 
        La question redevient donc celle qu'elle aurait toujours dû être. */
     quoi: "Le moteur de rotation a été réécrit : la trace verticale que tu avais vue "
@@ -160,6 +148,36 @@ const DECISIONS = [
     // si ce n'est pas le cas — voir `visible()`.
     montre: () => $$("etude-spin"),
     rend: () => { fermeTelescope(); },
+  },
+
+  /* LA QUESTION QUE TOUTE RÉÉCRITURE APPELLE, ET QUE J'AVAIS OUBLIÉE.
+
+     J'ai fait juger la couture — le défaut que je cherchais. Mais le moteur a
+     été remplacé EN ENTIER : les géodésiques, la tétrade, la terminaison à
+     l'horizon, la traversée du plan du disque. Mes contrôles couvrent ce que je
+     savais mesurer, c'est-à-dire ce à quoi j'avais pensé.
+
+     Ce qu'ils ne couvrent pas : l'image. Le bord de l'ombre est-il toujours net,
+     le disque toujours à sa place, l'asymétrie prograde/rétrograde toujours du
+     bon côté ? Une régression y serait invisible à mes chiffres et évidente à
+     son œil — c'est précisément la répartition de ce projet.
+
+     Les quatre rotations sur la même vue, pour qu'il compare sans mémoire. */
+  { id: "image-rotation",
+    titre: "L'image, maintenant que le moteur a changé",
+    libre: true,
+    quoi: "Tout le calcul de la rotation a été remplacé. Je n'ai vérifié que ce à quoi "
+        + "j'ai pensé. Bascule les quatre rotations sur la même vue et dis-moi si "
+        + "quelque chose a bougé qui ne devait pas — le bord de l'ombre, le disque, "
+        + "l'asymétrie gauche/droite.",
+    pose: () => rotationEnVue(0),
+    options: [
+      { nom: "aucune",   fait: () => rotationEnVue(0) },
+      { nom: "modérée",  fait: () => rotationEnVue(0.6) },
+      { nom: "rapide",   fait: () => rotationEnVue(0.9) },
+      { nom: "extrême",  fait: () => rotationEnVue(0.95) },
+    ],
+    rend: () => { spin = spinAvant; },
   },
 
   /* CE QU'IL A RELEVÉ AU PASSAGE, ET QUE PERSONNE NE LUI DEMANDAIT.
@@ -212,6 +230,20 @@ const DECISIONS = [
    panneau d'arrivée. On remplace `poseArrivee` plutôt que de l'empêcher d'être
    appelée : c'est le seul point par lequel le panneau se lève, et le rendre
    muet ne change rien d'autre à la scène. */
+/* La vue de comparaison des rotations. On se met dans le salon, cadré sur
+   l'astre, et l'on ne change QUE le spin d'un bouton à l'autre : c'est la seule
+   façon de voir une régression, puisqu'un jugement porté sur deux images à
+   vingt minutes d'intervalle ne vaut rien. */
+let spinAvant = 0;
+function rotationEnVue(s){
+  if(TELESCOPE.trajet){ TELESCOPE.trajet = null; TELESCOPE.retour = false; }
+  RECUL.etat.actif = false;
+  TELESCOPE.carte = 0;
+  fermeTelescope();
+  auSalon(0, 0.6, 0, -0.05);
+  spin = s;
+}
+
 let vraiePoseArrivee = null;
 function rendPoseArrivee(){
   if(vraiePoseArrivee){ global.poseArrivee = vraiePoseArrivee; vraiePoseArrivee = null; }
@@ -838,6 +870,7 @@ global.JUGE = { DECISIONS, verdicts, montre, repond, termine, rapport: null,
 function demarre(){
   boite.style.display = "";
   debut = Date.now();
+  spinAvant = spin;                      // on rendra le monde comme on l'a pris
   instrumentCasse = eprouve();          // avant la première question, jamais après
   montre();
 }
