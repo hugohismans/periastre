@@ -2244,11 +2244,11 @@ void main(){
     l = /^fr/i.test(navigator.language || "fr") ? "fr" : "en";
   window.LANGUE = l;
   document.documentElement.lang = l;
-  document.write('<script src="' + (l === "en" ? "contenu.en.js" : "contenu.js") + '?v=33e82af"><\/script>');
+  document.write('<script src="' + (l === "en" ? "contenu.en.js" : "contenu.js") + '?v=8d468db"><\/script>');
   // Les chaînes d'interface : le français TOUJOURS, l'anglais par-dessus. Une
   // clé oubliée retombe ainsi sur une phrase, jamais sur un identifiant nu.
-  document.write('<script src="ui.fr.js?v=33e82af"><\/script>');
-  if(l === "en") document.write('<script src="ui.en.js?v=33e82af"><\/script>');
+  document.write('<script src="ui.fr.js?v=8d468db"><\/script>');
+  if(l === "en") document.write('<script src="ui.en.js?v=8d468db"><\/script>');
 })();
 </script>
 <!-- ══════════════════════════════════════════════════════════════════════════
@@ -2267,16 +2267,16 @@ void main(){
 <!-- La physique, sortie du bloc principal. Elle ne touche ni au document ni à
      WebGL, et son extraction rend le banc d'essai exécutable en ligne de
      commande — donc vérifiable sans navigateur. Premier morceau du chantier F2. -->
-<script src="physique.js?v=33e82af"></script>
+<script src="physique.js?v=8d468db"></script>
 <!-- Ce qui vole. Deuxième morceau de F2, et le socle de la salle de tir
      balistique : elle ne sera que `destin()` avec une vitesse choisie. -->
-<script src="vol.js?v=33e82af"></script>
+<script src="vol.js?v=8d468db"></script>
 <!-- L'horloge. Troisième morceau de F2, et celui qui rend structurellement
      impossible le défaut du disque à 622× : le temps simulé n'y est accessible
      qu'en lecture, et un second écrivain devient indicible. -->
-<script src="temps.js?v=33e82af"></script>
-<script src="kerr.js?v=33e82af"></script>
-<script src="vaisseau.js?v=33e82af"></script>
+<script src="temps.js?v=8d468db"></script>
+<script src="kerr.js?v=8d468db"></script>
+<script src="vaisseau.js?v=8d468db"></script>
 <!-- Marcher dans la pièce. Quatrième morceau de F2 : une fois sorti du bloc, on
      peut promener un corps dans le décor SANS navigateur — et le premier
      balayage a trouvé qu'on traversait le télescope.
@@ -2284,8 +2284,8 @@ void main(){
      APRÈS `vaisseau.js`, et l'ordre n'est pas négociable : le mobilier se
      construit à partir de la géométrie de la pièce, dès le chargement. Placé
      avant, il ne trouvait rien et emportait tout le bloc principal avec lui. -->
-<script src="arpente.js?v=33e82af"></script>
-<script src="personnage.js?v=33e82af"></script>
+<script src="arpente.js?v=8d468db"></script>
+<script src="personnage.js?v=8d468db"></script>
 <!-- `pantheon.js` N'EST PLUS CHARGÉ, et c'est délibéré.
 
      Il était chargé à chaque visite et `PANTHEON` n'était appelé nulle part —
@@ -2297,20 +2297,21 @@ void main(){
      pas encore — voir CHUTE.md, écrit et jamais branché. Le jour où la salle de
      tir existera, cette ligne revient telle quelle.
 
-     <script src="pantheon.js?v=33e82af"></script> -->
+     <script src="pantheon.js?v=8d468db"></script> -->
 
-<script src="robot.js?v=33e82af"></script>
-<script src="musique.js?v=33e82af"></script>
+<script src="robot.js?v=8d468db"></script>
+<script src="musique.js?v=8d468db"></script>
 
 <!-- Le voyage. L'ordre compte : recul.js appelle VOYAGE.entre au chargement de
      ses propres constantes, donc voyage1g.js doit être passé avant lui. -->
-<script src="voyage1g.js?v=33e82af"></script>
-<script src="recul.js?v=33e82af"></script>
-<script src="etoiles.js?v=33e82af"></script>
-<script src="format.js?v=33e82af"></script>
-<script src="spectre.js?v=33e82af"></script>
-<script src="banc.js?v=33e82af"></script>
-<script src="cockpit.js?v=33e82af"></script>
+<script src="voyage1g.js?v=8d468db"></script>
+<script src="recul.js?v=8d468db"></script>
+<script src="etoiles.js?v=8d468db"></script>
+<script src="format.js?v=8d468db"></script>
+<script src="spectre.js?v=8d468db"></script>
+<script src="banc.js?v=8d468db"></script>
+<script src="ecrans.js?v=8d468db"></script>
+<script src="cockpit.js?v=8d468db"></script>
 <script>
 "use strict";
 
@@ -5735,346 +5736,30 @@ function dessine(){
     COCKPIT.dessine(ctx, ui.clientWidth, ui.clientHeight,
       { sonde: sondes[sondeSuivie], vitesseLocale, horloge,
         len, T, remplit, virgule, tempsFr });
-  if(salon.actif) dessineEcrans();
+  /* Il y avait ici un second `if(salon.actif) dessineEcrans();` — INATTEIGNABLE.
+     La fonction sort plus haut, dès que le salon est actif, après avoir déjà
+     posé les écrans. Trouvé en extrayant le domaine, retiré ici : une ligne
+     morte finit toujours par être réveillée par quelqu'un. */
 }
 
 // ============ les écrans de bord ============
-// Ils sont dessinés sur le calque 2D mais projetés par la MÊME matrice que
-// l'habitacle : ils sont donc réellement posés sur les parois et suivent le
-// regard. Une transformation affine sur trois coins suffit à y écrire droit.
-
-// Point de la pièce -> pixel. Rend null derrière la caméra.
-function projetteSalon(p, M){
-  const w = M[3]*p[0] + M[7]*p[1] + M[11]*p[2] + M[15];
-  if(w <= 0.02) return null;
-  const x = (M[0]*p[0] + M[4]*p[1] + M[8]*p[2]  + M[12]) / w;
-  const y = (M[1]*p[0] + M[5]*p[1] + M[9]*p[2]  + M[13]) / w;
-  return [(x + 1)/2 * ui.clientWidth, (1 - y)/2 * ui.clientHeight];
-}
-
-function tempsDepuis(iso){
-  const s = Math.max(0, (Date.now() - Date.parse(iso))/1000);
-  const j = Math.floor(s/86400), h = Math.floor(s%86400/3600), mn = Math.floor(s%3600/60);
-  return j ? `${j} ${T("u.jourCourt")} ${h} h ${mn} min` : `${h} h ${mn} min`;
-}
-
-// Écran plaqué sur une paroi. Un vrai écran dans une pièce sombre n'est pas un
-// rectangle noir : il a un biseau, il émet de la lumière autour de lui, et sa
-// dalle se trahit par un balayage. Sans ça on lit un panneau de débogage.
-/* Les écrans se rasterisent HORS CHAMP, et pas soixante fois par seconde.
-
-   Mesuré : `dessineEcrans()` coûtait 0,417 ms sur 1,757 ms de boucle — un quart
-   du temps processeur, sur une machine rapide. Sur téléphone, où le texte en
-   Canvas 2D est bien plus lent, c'est la première cause de saccade.
-
-   Or leur contenu ne change pas à la cadence de l'affichage : l'horloge avance
-   à la seconde, le tracé d'orbite d'un point tous les quelques dixièmes. On les
-   dessine donc dans une toile hors champ quatre fois par seconde, et chaque
-   image ne fait plus qu'un `drawImage` déformé — ce que le processeur graphique
-   sait faire pour rien.
-
-   Le balayage y est cuit aussi : c'étaient quatre-vingt-quatre rectangles par
-   écran et par image, soit cent soixante-huit qu'on refaisait pour un motif
-   rigoureusement identique.
-
-   Le suréchantillonnage à deux compense la déformation : la toile est tracée à
-   600 × 400 pour être posée sur un quadrilatère qui, de près, dépasse la taille
-   nominale. */
-const TOILES = new Map();
-const SUR_ECH = 2;              // suréchantillonnage de la toile hors champ
-const RAFRAICHI = 250;          // millisecondes entre deux rasterisations
-const EC_LARG = 300, EC_HAUT = 200;
-
-function toileEcran(cle, dedans){
-  let e = TOILES.get(cle);
-  if(!e){
-    const c = document.createElement("canvas");
-    c.width = EC_LARG*SUR_ECH; c.height = EC_HAUT*SUR_ECH;
-    e = { c, o: c.getContext("2d"), quand: -1e9 };
-    TOILES.set(cle, e);
-  }
-  const now = performance.now();
-  if(now - e.quand > RAFRAICHI){
-    e.quand = now;
-    const o = e.o;
-    o.setTransform(SUR_ECH, 0, 0, SUR_ECH, 0, 0);
-    o.clearRect(0, 0, EC_LARG, EC_HAUT);
-    dedans(o);
-    // le balayage, cuit une fois pour toutes dans la toile
-    o.fillStyle = "rgba(0,0,0,0.16)";
-    for(let y = 0; y < EC_HAUT; y += EC_HAUT*0.012) o.fillRect(0, y, EC_LARG, EC_HAUT*0.006);
-  }
-  return e.c;
-}
-
-function ecran(M, coins, dessineDedans, cle){
-  /* Un écran est plaqué sur une cloison : on ne doit pas le voir depuis
-     l'autre côté. Le tracé se fait sur un calque à deux dimensions, sans
-     tampon de profondeur, donc rien ne l'occulte tout seul — d'où ces deux
-     garde-fous, qui sont la géométrie que le calque n'a pas.
-
-     D'abord la face arrière : la normale du quadrilatère contre la direction
-     de l'œil. Ensuite l'aire projetée : quand un coin frôle le plan de
-     coupure, la projection explose et l'écran s'étale sur toute l'image. */
-  const u = [coins[1][0]-coins[0][0], coins[1][1]-coins[0][1], coins[1][2]-coins[0][2]];
-  const v = [coins[3][0]-coins[0][0], coins[3][1]-coins[0][1], coins[3][2]-coins[0][2]];
-  const nrm = [u[1]*v[2]-u[2]*v[1], u[2]*v[0]-u[0]*v[2], u[0]*v[1]-u[1]*v[0]];
-  /* On ne suppose RIEN de l'enroulement des sommets : selon l'ordre où ils
-     sont donnés, la normale sort de la pièce ou y entre, et un test de signe
-     en dur rejette alors précisément les écrans visibles — ce qu'il faisait.
-     On compare donc au centre de la pièce, qui est à l'intérieur par
-     construction : l'écran se voit si l'œil est du même côté que lui. */
-  const oe = oeilSalon();
-  const cote = q => nrm[0]*(q[0]-coins[0][0]) + nrm[1]*(q[1]-coins[0][1])
-                  + nrm[2]*(q[2]-coins[0][2]);
-  if(cote(oe) * cote([0, VAISSEAU.H/2, 0]) <= 0) return;
-
-  /* Un écran vu de biais s'efface.
-
-     Ce n'est pas un caprice : la toile à deux dimensions ne sait faire que des
-     transformations affines, qui envoient un rectangle sur un parallélogramme.
-     Un panneau vu sous un angle rasant demande une vraie perspective — le bord
-     lointain doit rétrécir — et l'approximation se voit alors franchement : le
-     cadre suit la paroi, le contenu non.
-
-     Plutôt que de mentir sur la géométrie, on éteint. C'est d'ailleurs ce que
-     fait une dalle réelle : au-delà de soixante degrés hors axe, un écran plat
-     se délave et devient illisible. On rend donc le défaut invisible en le
-     remplaçant par un comportement vrai. */
-  const ln = Math.hypot(nrm[0], nrm[1], nrm[2]) || 1;
-  const centre = [(coins[0][0]+coins[2][0])/2, (coins[0][1]+coins[2][1])/2,
-                  (coins[0][2]+coins[2][2])/2];
-  const vv = [oe[0]-centre[0], oe[1]-centre[1], oe[2]-centre[2]];
-  const lv = Math.hypot(vv[0], vv[1], vv[2]) || 1;
-  const face = Math.abs(nrm[0]*vv[0] + nrm[1]*vv[1] + nrm[2]*vv[2]) / (ln*lv);
-  const lisible = Math.min(1, Math.max(0, (face - 0.34) / 0.26));   // 0 à 70°, 1 à 45°
-  if(lisible <= 0.01) return;
-
-  const a = projetteSalon(coins[0], M), b = projetteSalon(coins[1], M),
-        c = projetteSalon(coins[2], M), d = projetteSalon(coins[3], M);
-  if(!a || !b || !c || !d) return;
-
-  const aire = Math.abs((b[0]-a[0])*(d[1]-a[1]) - (d[0]-a[0])*(b[1]-a[1]));
-  if(aire > 9 * ui.clientWidth * ui.clientHeight) return;
-
-  /* L'erreur de perspective, mesurée plutôt que devinée.
-
-     Le premier garde-fou regardait l'angle de vue, et il visait à côté : de
-     près, un écran occupe un grand angle, donc son bord proche et son bord
-     lointain diffèrent beaucoup — et une affine ne peut pas rendre ça, même
-     vu de face. Or l'affine envoie un rectangle sur un PARALLÉLOGRAMME, dont
-     les côtés opposés sont égaux par définition. Il suffit donc de comparer
-     les deux côtés opposés du quadrilatère réellement projeté : leur écart
-     EST l'erreur qu'on commettrait. On mesure le défaut au lieu d'en deviner
-     la cause, et cette fois le critère attrape les deux situations. */
-  const cote1 = [b[0]-a[0], b[1]-a[1]], cote2 = [c[0]-d[0], c[1]-d[1]];
-  const l1 = Math.hypot(cote1[0], cote1[1]) || 1;
-  const gauchi = Math.hypot(cote1[0]-cote2[0], cote1[1]-cote2[1]) / l1;
-  const droit = Math.min(1, Math.max(0, (0.26 - gauchi) / 0.14));   // 1 sous 12 %, 0 au-delà de 26 %
-  if(droit <= 0.01) return;
-
-  const chemin = () => {
-    ctx.beginPath();
-    ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]);
-    ctx.lineTo(c[0], c[1]); ctx.lineTo(d[0], d[1]); ctx.closePath();
-  };
-  const cx = (a[0]+b[0]+c[0]+d[0])/4, cy = (a[1]+b[1]+c[1]+d[1])/4;
-  const rayon = Math.hypot(b[0]-a[0], b[1]-a[1]);
-
-  // La lueur que la dalle jette sur la cloison
-  ctx.save();
-  const halo = ctx.createRadialGradient(cx, cy, rayon*0.25, cx, cy, rayon*0.95);
-  halo.addColorStop(0, "rgba(120,180,255,0.11)");
-  halo.addColorStop(1, "rgba(120,180,255,0)");
-  ctx.fillStyle = halo;
-  ctx.fillRect(cx - rayon, cy - rayon*0.9, rayon*2, rayon*1.8);
-  ctx.restore();
-
-  ctx.save();
-  ctx.globalAlpha *= Math.min(lisible, droit);
-  // biseau : un liseré clair en haut, sombre en bas, comme un cadre encastré
-  chemin();
-  ctx.lineWidth = 3.5; ctx.strokeStyle = "rgba(28,25,42,0.95)"; ctx.stroke();
-  ctx.lineWidth = 1.1; ctx.strokeStyle = "rgba(150,160,190,0.22)"; ctx.stroke();
-
-  chemin(); ctx.clip();
-
-  // dalle : pas un noir plat, un dégradé bleuté
-  const g = ctx.createLinearGradient(a[0], a[1], d[0], d[1]);
-  g.addColorStop(0, "rgba(11,16,30,0.97)");
-  g.addColorStop(1, "rgba(6,9,19,0.97)");
-  ctx.fillStyle = g; ctx.fill();
-
-  // (0,0)->a, (1,0)->b, (0,1)->d : l'affine qui redresse l'écriture
-  ctx.transform(b[0]-a[0], b[1]-a[1], d[0]-a[0], d[1]-a[1], a[0], a[1]);
-  // Une seule image posée, balayage compris — voir `toileEcran`.
-  ctx.imageSmoothingQuality = "high";
-  ctx.drawImage(toileEcran(cle, dessineDedans), 0, 0, 1, 1);
-  ctx.restore();
-}
+// Ils vivent dans `ecrans.js` : 338 lignes de dessin pur, sans WebGL, donc
+// éprouvables sans navigateur. Ne restent ici que le relais de projection —
+// trois autres endroits s'en servent — et l'objet qui porte tout au module.
+const projetteSalon = (p, M) => ECRANS.projette(p, M, { W: ui.clientWidth, H: ui.clientHeight });
 
 function dessineEcrans(){
-  const M = mvpSalon();
-  const D = CONTENU.destination;
-  const z = -VAISSEAU.P/2 + 0.012, y0 = 0.86, y1 = 2.34;
-  const g0 = -4.42, g1 = -2.80, d0 = 2.80, d1 = 4.42;
-
-  /* Repère local commun : 300 × 200 « pixels d'écran », marge de 22.
-
-     La toile hors champ étant DÉJÀ dans ce repère, il n'y a plus de mise à
-     l'échelle à faire ici — c'était le rôle de `local()`, devenu inutile.
-
-     Et le contexte arrive en PARAMÈTRE, nommé `ctx` : il masque le global dans
-     tout le corps des deux fonctions ci-dessous, qui n'ont donc pas eu à
-     changer d'une ligne alors qu'elles dessinent désormais ailleurs. */
-  const LARG = EC_LARG, HAUT = EC_HAUT, MG = 22;
-  const titre = (ctx, t) => {
-    ctx.textAlign = "left";
-    ctx.fillStyle = "#5f7ba8"; ctx.font = "10px ui-monospace, monospace";
-    ctx.fillText(t, MG, 26);
-    ctx.strokeStyle = "rgba(120,160,220,0.18)"; ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(MG, 36); ctx.lineTo(LARG-MG, 36); ctx.stroke();
-  };
-
-  // --- écran de gauche : où sommes-nous ---
-  ecran(M, [[g0,y1,z], [g1,y1,z], [g1,y0,z], [g0,y0,z]], ctx => {
-    titre(ctx, T("salon.ecran.position"));
-
-    ctx.fillStyle = "#dce6f5"; ctx.font = "22px KaTeX_Main, Georgia, serif";
-    ctx.fillText(D.nom, MG, 68);
-    ctx.fillStyle = "#5f7ba8"; ctx.font = "9.5px ui-monospace, monospace";
-    ctx.fillText(T("salon.ecran.orbite"), MG, 86);
-    ctx.fillStyle = "#9fd4ff"; ctx.font = "13px ui-monospace, monospace";
-    ctx.fillText(virgule(len(salon.p).toFixed(1)) + " r\u209B", MG, 106);
-
-    // Schéma d'orbite vu de dessus. L'ombre au centre, l'orbite en pointillé,
-    // le vaisseau qui avance pour de bon.
-    const cx = LARG/2, cy = 143, R = 42;
-    ctx.strokeStyle = "rgba(120,160,220,0.30)"; ctx.lineWidth = 1;
-    // La vraie trajectoire, pas un cercle de convention : on trace le chemin
-    // parcouru. C'est aussi ainsi qu'on voit le périastre précesser.
-    const ech0 = R/salon.apo;
-    if(salon.trace.length > 2){
-      ctx.beginPath();
-      salon.trace.forEach(([px, pz], i) => {
-        const X = cx + px*ech0, Y = cy + pz*ech0;
-        i ? ctx.lineTo(X, Y) : ctx.moveTo(X, Y);
-      });
-      ctx.strokeStyle = "rgba(120,160,220,0.30)"; ctx.lineWidth = 1;
-      ctx.stroke();
-    }
-
-    const lueur = ctx.createRadialGradient(cx, cy, 6, cx, cy, 22);
-    lueur.addColorStop(0, "rgba(255,157,77,0.55)");
-    lueur.addColorStop(1, "rgba(255,157,77,0)");
-    ctx.fillStyle = lueur;
-    ctx.beginPath(); ctx.arc(cx, cy, 22, 0, 6.2832); ctx.fill();
-    ctx.fillStyle = "#04040a";
-    ctx.beginPath(); ctx.arc(cx, cy, 8.5, 0, 6.2832); ctx.fill();
-
-    const rr = len(salon.p), ech = R/salon.apo;
-    const vx = cx + salon.p[0]*ech, vy = cy + salon.p[2]*ech;
-    ctx.strokeStyle = "rgba(160,210,255,0.30)"; ctx.lineWidth = 1;
-    ctx.beginPath(); ctx.moveTo(cx, cy); ctx.lineTo(vx, vy); ctx.stroke();
-    ctx.fillStyle = "#9fd4ff";
-    ctx.beginPath(); ctx.arc(vx, vy, 3.6, 0, 6.2832); ctx.fill();
-    ctx.fillStyle = "#5f7ba8"; ctx.font = "8px ui-monospace, monospace";
-    ctx.textAlign = "center";
-    ctx.fillText(T("salon.ecran.nous"), vx, vy - 9);
-  }, "position");
-
-  /* L'aura de ce qu'il faut toucher.
-
-     La pulsation de l'objet lui-même ne suffisait pas : sur un petit écran, un
-     drone qui brille un peu plus reste un drone qui brille. Il faut un signe
-     qui n'appartienne pas au décor — un anneau qui se resserre, comme on en
-     pose autour de ce qu'on désigne du doigt.
-
-     Il ne s'affiche que pendant l'étape qui demande cet objet-là, et il
-     disparaît dès qu'on le vise : une fois qu'on a compris, l'insistance
-     devient du bruit. */
-  if(queteActive && QUETE[iQuete] && !queteFinie){
-    const ou = {
-      "a-lumen":     () => ROBOT.boiteVisee(salon.horloge).c,
-      "a-temps":     () => [2.85, 0.56, -2.78],
-      "a-telescope": () => [VAISSEAU.TELESCOPE.x, VAISSEAU.FOSSE + 1.05, VAISSEAU.TELESCOPE.z],
-    }[QUETE[iQuete].id];
-    const deja = (QUETE[iQuete].id === "a-lumen"  && salon.vise === POSTE_LUMEN)
-              || (QUETE[iQuete].id === "a-temps"  && salon.vise && salon.vise.id === "vitesse")
-              || (QUETE[iQuete].id === "a-telescope" && salon.vise && salon.vise.id === "telescope");
-    const q = ou && !deja ? projetteSalon(ou(), M) : null;
-    if(q){
-      const ph = (salon.horloge * 0.9) % 1;          // un cycle par seconde environ
-      const r = 62 - 30*ph;                          // l'anneau se resserre
-      ctx.save();
-      ctx.globalAlpha = 0.55 * Math.min(1, ph*4) * (1 - ph);
-      ctx.strokeStyle = "#ffb163"; ctx.lineWidth = 2;
-      ctx.beginPath(); ctx.arc(q[0], q[1], r, 0, 6.2832); ctx.stroke();
-      ctx.globalAlpha = 0.30;
-      ctx.beginPath(); ctx.arc(q[0], q[1], 30, 0, 6.2832); ctx.stroke();
-      ctx.restore();
-    }
-  }
-
-  // --- écran de droite : le temps, et l'aveu ---
-  ecran(M, [[d0,y1,z], [d1,y1,z], [d1,y0,z], [d0,y0,z]], ctx => {
-    titre(ctx, T("salon.ecran.temps"));
-
-    const filet = y => {
-      ctx.strokeStyle = "rgba(120,160,220,0.12)";
-      ctx.beginPath(); ctx.moveTo(MG, y); ctx.lineTo(LARG-MG, y); ctx.stroke();
-    };
-    const etiq = (t, y) => {
-      ctx.textAlign = "left"; ctx.fillStyle = "#5f7ba8";
-      ctx.font = "8.5px ui-monospace, monospace"; ctx.fillText(t, MG, y);
-    };
-
-    ctx.textAlign = "left";
-    etiq(T("salon.ecran.depuis"), 50);
-    ctx.fillStyle = "#ff9d4d"; ctx.font = "20px ui-monospace, monospace";
-    ctx.fillText(tempsDepuis(D.arrivee), MG, 72);
-    filet(84);
-
-    /* Les deux dates. Elles ne partent pas d'une origine inventée : le zéro est
-       l'heure vraie de la machine à l'instant où l'on est monté à bord. On lit
-       donc une date réelle qui défile, et celle du bord qui prend du retard —
-       le paradoxe des jumeaux cesse d'être un chapitre pour devenir un cadran.
-
-       Le retard vient de √(1 − r_s/r), accumulé image par image : il grandit
-       vite au périastre et lentement à l'apoastre, ce qui est le phénomène
-       lui-même et non une moyenne commode. */
-    const t0 = salon.t0 || Date.now();
-    const dTerre = new Date(t0 + (salon.tTerre || 0)*1000);
-    const dBord  = new Date(t0 + (salon.tBord  || 0)*1000);
-    /* Les deux horloges sont côte à côte et se comparent au caractère près :
-       elles prennent donc la MÊME convention, celle de la langue lue. */
-    const jour = d => d.toLocaleDateString(LOCALE(),
-                        { day:"numeric", month:"short", year:"numeric" });
-    const heure = d => d.toLocaleTimeString(LOCALE());
-
-    const pendule = (nom, d, teinte, y) => {
-      ctx.textAlign = "left"; ctx.fillStyle = teinte;
-      ctx.font = "9px ui-monospace, monospace"; ctx.fillText(nom, MG, y);
-      ctx.textAlign = "right"; ctx.fillStyle = "#8ea6c8";
-      ctx.font = "9px ui-monospace, monospace"; ctx.fillText(jour(d), LARG-MG, y);
-      ctx.textAlign = "left"; ctx.fillStyle = "#dce6f5";
-      ctx.font = "15px ui-monospace, monospace"; ctx.fillText(heure(d), MG, y + 18);
-    };
-
-    etiq(T("salon.ecran.pendant"), 100);
-    pendule(T("salon.ecran.terre"), dTerre, "#ffd08a", 116);
-    pendule(T("salon.ecran.bord"),  dBord,  "#7fd8ff", 152);
-    filet(166);
-
-    const retard = (salon.tTerre || 0) - (salon.tBord || 0);
-    ctx.textAlign = "left"; ctx.fillStyle = "#4d6389";
-    ctx.font = "8.5px -apple-system, sans-serif";
-    ctx.fillText(remplit("salon.ecran.retard", {
-      t: tempsFr(retard),
-      x: virgule((cadence(len(salon.p))*100).toFixed(1)),
-    }), MG, 180);
-    ctx.fillText(remplit("salon.ecran.accelere", { f: salon.facteur }), MG, 193);
-  }, "temps");
+  return ECRANS.dessine(ctx, ui.clientWidth, ui.clientHeight, {
+    M: mvpSalon(), oeil: oeilSalon(), salon, vaisseau: VAISSEAU,
+    postes: { POSTE_LUMEN }, telescope: VAISSEAU.TELESCOPE,
+    destination: CONTENU.destination,
+    // La position du drone À CET INSTANT : `POSTE_LUMEN.c` n'est réécrit que
+    // lorsqu'on vise, donc il est périmé dès que le pointeur s'arrête.
+    lumen: ROBOT.boiteVisee(salon.horloge).c,
+    quete: { QUETE, iQuete, actif: queteActive, finie: queteFinie },
+    len, cadence, T, remplit, virgule, tempsFr, LOCALE,
+    fabriqueToile: () => document.createElement("canvas"),
+  });
 }
 
 // ============ boucle ============
@@ -6492,7 +6177,7 @@ requestAnimationFrame(boucle);
 <script>
 if(/[?&]verif\b/.test(location.search)){
   var s = document.createElement("script");
-  s.src = "verif.js?v=33e82af";
+  s.src = "verif.js?v=8d468db";
   document.body.appendChild(s);
 }
 /* Et le protocole d'essai joué : `?test`. Il pose ses questions au moment où la
@@ -6502,7 +6187,7 @@ if(/[?&]verif\b/.test(location.search)){
    script contrôle mieux. */
 if(/[?&]test\b/.test(location.search)){
   var e = document.createElement("script");
-  e.src = "essai.js?v=33e82af";
+  e.src = "essai.js?v=8d468db";
   document.body.appendChild(e);
 }
 /* Et la séance de jugement : `?juge`. Elle ne demande QUE ce qu'aucun calcul ne
@@ -6511,7 +6196,7 @@ if(/[?&]test\b/.test(location.search)){
    Claude, prêt à coller. On ne lit rien, on ne navigue pas. */
 if(/[?&]juge\b/.test(location.search)){
   var j = document.createElement("script");
-  j.src = "juge.js?v=33e82af";
+  j.src = "juge.js?v=8d468db";
   document.body.appendChild(j);
 }
 </script>

@@ -106,8 +106,12 @@ const fs = require("fs"), path = require("path");
 
    4 208 — le banc d'essai dans `banc.js`. Le gain en lignes est petit ; ce qui
    sort vaut mieux que sa taille : les deux seuils qui prononcent « juste » ou
-   « faux » à l'écran vivaient dans une page qu'aucun outil ne lisait. */
-const PLAFOND = 4208;
+   « faux » à l'écran vivaient dans une page qu'aucun outil ne lisait.
+
+   3 892 — les écrans de bord dans `ecrans.js`. Le plus gros morceau du
+   chantier : trois cent dix-neuf lignes d'un coup, et une ligne morte retirée
+   au passage. Sous la barre des quatre mille pour la première fois. */
+const PLAFOND = 3892;
 
 // Le nombre de modules déjà sortis. Il ne descend jamais non plus : un module
 // qu'on ferait rentrer dans le bloc serait le contraire exact du chantier.
