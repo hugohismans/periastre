@@ -36,6 +36,48 @@ enfler. **Les verdicts de la troisième séance sont à relire avec ça en tête
 
 ---
 
+## ❓ DEUX CHOSES QUI T'APPARTIENNENT — 9 août 2026
+
+### Lumen n'a rien à dire quand on touche le poste horaire
+
+Le salon a un poste pour le temps. On le manipule, et **Lumen reste muet** :
+le code lui demande de réagir, mais la réplique n'a jamais été écrite. Les deux
+crans suivants sont muets pareillement.
+
+C'est le geste le plus manipulé de la quête d'accueil, et c'est le seul des
+douze motifs du site qui n'a pas de réponse. Trouvé en sortant le domaine dans
+son fichier, puis vérifié dans la page : douze motifs déclenchés, quinze
+répliques écrites, et « vitesse » n'est pas dedans.
+
+**Je ne l'écris pas à ta place** — c'est du contenu, il porte ta voix et il doit
+être sourcé. Dis-moi ce que Lumen doit répondre quand on accélère le temps, et
+je le pose.
+
+### Le manche : plus tu pousses loin, moins tu marches vite
+
+Sur téléphone, le manche de marche a un anneau. Au bord de l'anneau tu vas à
+pleine vitesse. **Au-delà, tu ralentis** :
+
+| pouce à | vitesse |
+|---|---|
+| 46 px — le bord de l'anneau | 100 % |
+| 60 px | 77 % |
+| 100 px | 46 % |
+| 300 px | 15 % |
+
+Et le disque **dessiné**, lui, reste collé au bord : l'image dit « à fond »
+pendant que le personnage ralentit. C'est mesuré dans la page, pas déduit.
+
+Autrement dit : la pleine vitesse n'existe qu'à 46 pixels pile, au pixel près.
+En pratique tu marches presque toujours en dessous, et plus ton geste est ample
+plus tu es lent — l'inverse de ce que le pouce attend.
+
+**Je n'y ai pas touché** : c'est un réglage de pouce, et le corriger changerait
+la marche que tu connais. Trois contrôles épinglent le comportement actuel, donc
+on saura le jour où quelqu'un y touche.
+
+---
+
 ## ❓ DEUX QUESTIONS POUR TOI — 8 août 2026
 
 Les deux sont sorties du même chantier, et aucune ne se tranche par un calcul.

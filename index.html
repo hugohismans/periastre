@@ -2320,6 +2320,8 @@ void main(){
 <script src="cockpit.js?v=1db941c"></script>
 <script src="camera.js?v=1db941c"></script>
 <script src="gestes.js?v=1db941c"></script>
+<script src="manette.js?v=1db941c"></script>
+<script src="lumen.js?v=1db941c"></script>
 <script src="progression.js?v=1db941c"></script>
 <script src="lieux.js?v=1db941c"></script>
 <script>
@@ -2607,7 +2609,17 @@ const { joueur, MEUBLES, TAILLE, RAYON, MARCHE, VITESSE, COURSE, SAUT, PESANTEUR
    dernier moyen réellement employé, et la manette apparaît ou s'efface avec
    lui — y compris sur les appareils hybrides, où l'on passe de l'un à l'autre
    au cours de la même session. */
-function moyen(doigt){ document.body.classList.toggle("tactile", doigt); }
+/* La règle vit dans `manette.js` ; ici on ne fait qu'observer et poser la classe.
+
+   L'ÉTAT EST DANS LA CLASSE CSS, et nulle part ailleurs. Le module le reçoit et
+   le rend, donc il reste pur — mais la page doit relire son propre état avec
+   `contains`. C'est inconfortable et c'est honnête : l'état est vraiment là. Une
+   variable de page qui le doublerait serait un second écrivain, et c'est la
+   maladie que ce dépôt traque en premier. */
+function moyen(usage){
+  const b = document.body.classList;
+  b.toggle("tactile", MANETTE.moyen(b.contains("tactile"), usage));
+}
 
 /* EST-ON EN TRAIN D'ÉCRIRE ? Une seule définition, et il en fallait une.
 
@@ -2622,17 +2634,11 @@ function moyen(doigt){ document.body.classList.toggle("tactile", doigt); }
 
    La règle vaut aussi pour `contenteditable`, qui n'est ni un `input` ni un
    `textarea` et que les deux anciens tests laissaient passer. */
-const enSaisie = e => {
-  const c = e.target;
-  return !!c && (/^(input|textarea|select)$/i.test(c.tagName || "") || c.isContentEditable);
-};
-addEventListener("pointerdown", e => {
-  if(e.pointerType === "touch") moyen(true);
-  else if(e.pointerType === "mouse") moyen(false);
-}, true);
+const enSaisie = e => MANETTE.enSaisie(e && e.target);
+addEventListener("pointerdown", e => moyen(e.pointerType), true);
 // Une touche de déplacement prouve un clavier : la manette n'a plus lieu d'être.
 addEventListener("keydown", e => {
-  if(TOUCHES_JEU.has(e.key.toLowerCase())) moyen(false);
+  if(TOUCHES_JEU.has(e.key.toLowerCase())) moyen("clavier");
 }, true);
 
 const axe = { x:0, y:0 };
@@ -2643,7 +2649,6 @@ const axe = { x:0, y:0 };
    avec celui qui oriente le regard — on doit pouvoir faire les deux à la fois,
    et c'est même tout l'intérêt du partage en deux moitiés. */
 let pouceMarche = null;
-const R_STICK = 46;
 
 function poseStick(x, y){
   const base = document.getElementById("stick");
@@ -2652,17 +2657,13 @@ function poseStick(x, y){
 }
 
 function bougeStick(x, y){
-  const base = document.getElementById("stick");
-  const pouce = base.querySelector("i");
-  let dx = x - pouceMarche.x, dy = y - pouceMarche.y;
-  const d = Math.hypot(dx, dy);
-  if(d > R_STICK){ dx = dx/d*R_STICK; dy = dy/d*R_STICK; }
-  pouce.style.transform = `translate(${dx}px, ${dy}px)`;
-  // Zone morte : sans elle, un doigt simplement posé fait dériver le personnage.
-  const n = Math.hypot(dx, dy)/R_STICK;
-  const g = n < 0.14 ? 0 : (n - 0.14)/0.86;
-  axe.x = d ? dx/Math.max(d, 1e-3)*g : 0;
-  axe.y = d ? dy/Math.max(d, 1e-3)*g : 0;
+  const pouce = document.getElementById("stick").querySelector("i");
+  const r = MANETTE.bougeStick(pouceMarche, x, y);
+  pouce.style.transform = `translate(${r.dx}px, ${r.dy}px)`;
+  // L'axe se REMPLIT, il ne se remplace pas : `arpente.js` relit CET objet-ci à
+  // chaque image, et lui en poser un neuf figerait la valeur du moment. C'est la
+  // leçon de `nChute`, payée une fois, écrite partout depuis.
+  axe.x = r.axe.x; axe.y = r.axe.y;
 }
 
 function lacheStick(){
@@ -4193,41 +4194,16 @@ majFiche();
 // ============ Lumen ============
 // Un tableau = tirage au sort. { niv:[...] } = une version par niveau.
 // Chaque réplique est un objet { id, t, dire?, sources? } venu de contenu.js.
-/* Un sac de tirage, pas un dé.
+/* Le sac de tirage — « toutes les répliques passent avant qu'aucune revienne »,
+   et la première d'un nouveau paquet n'est jamais la dernière de l'ancien — et
+   le choix de la version par niveau sont partis dans `lumen.js` : ce sont des
+   décisions, pas de l'affichage.
 
-   Tirer au sort à chaque fois paraît juste et ne l'est pas : avec onze
-   répliques, c'est une chance sur onze de répéter la précédente aussitôt, et
-   par l'effet anniversaire on entend un doublon au bout de quelques tirages.
-   Ce n'est pas une impression — c'est ce que fait une loi uniforme, et c'est
-   exactement ce qu'on ne veut pas d'un guide qui parle tout seul.
-
-   On mélange donc le paquet et on le vide avant d'en refaire un : toutes les
-   répliques passent avant qu'aucune revienne. Et la première du nouveau sac
-   n'est jamais la dernière de l'ancien, sans quoi la couture entre deux
-   paquets rendrait le seul doublon audible qu'on cherchait à éviter. */
-const sacs = new WeakMap();
-
-function tire(liste){
-  if(liste.length < 2) return liste[0];
-  let sac = sacs.get(liste);
-  if(!sac || !sac.reste.length){
-    const ordre = liste.slice();
-    for(let i = ordre.length - 1; i > 0; i--){       // mélange de Fisher-Yates
-      const j = Math.floor(Math.random()*(i + 1));
-      const t = ordre[i]; ordre[i] = ordre[j]; ordre[j] = t;
-    }
-    const dernier = sac ? sac.dernier : null;
-    if(ordre[0] === dernier){ ordre[0] = ordre[1]; ordre[1] = dernier; }
-    sac = { reste: ordre, dernier };
-    sacs.set(liste, sac);
-  }
-  sac.dernier = sac.reste.shift();
-  return sac.dernier;
-}
-
-const resous = x =>
-  Array.isArray(x) ? resous(tire(x)) :
-  (x && x.niv)     ? resous(x.niv[iNiveau]) : x;
+   L'ÉTAT DU SAC RESTE ICI. Un module qui garderait sa propre mémoire de tirage
+   ne pourrait pas être rejoué par un contrôle, et deux parties se le
+   disputeraient — c'est la maladie qui a donné le disque à 622×. */
+const etatLumen = LUMEN.etatNeuf();
+const resous = x => LUMEN.resous(etatLumen, x, { iNiveau });
 
 /* La langue du contenu chargé. Une seule pour l'instant, mais le chemin des
    voix la traverse déjà : ajouter l'anglais ne demandera pas de retoucher la
@@ -4317,13 +4293,13 @@ function dit(o, duree, avant, prioritaire){
   composeMaths(elBulleTxt);
   elBulle.classList.add("vu");
   parle(o, prioritaire);
-  const n = html.replace(/<[^>]+>/g, "").length;
-  tMasque = performance.now() + (duree || Math.min(16000, Math.max(5200, 3000 + n*54)));
+  // La durée suit la longueur du texte SANS ses balises, entre 5,2 et 16 s. Les
+  // trois bornes et la pente sont dans `lumen.js`, où elles s'éprouvent ; ici on
+  // ne saurait pas dire qu'un texte enrobé de `<b>` doit durer autant que le nu.
+  tMasque = performance.now() + (duree || LUMEN.duree(html));
   tDernier = performance.now();
 }
 
-// `doux` : réaction déclenchée par le monde et non par un clic — elle ne coupe
-// jamais une bulle déjà à l'écran.
 // Le détail d'une affirmation : le raisonnement d'abord, la référence ensuite.
 function justification(o){
   const d = document.createElement("div");
@@ -4349,29 +4325,20 @@ function justification(o){
 
 /* Une réplique ne se redit pas tout de suite.
 
-   Hugo, en lançant des photons à la chaîne : « ils balancent toujours la même
-   phrase, c'est super chiant, moi je veux juste mettre des photons ». Le geste
-   se répète, donc la réaction se répétait avec lui — et un guide qui redit la
-   même chose quand on insiste est pire que silencieux, parce qu'il transforme
-   une action en punition.
+   La règle, son histoire — « ils balancent toujours la même phrase, c'est super
+   chiant, moi je veux juste mettre des photons » — et les soixante-quinze
+   secondes de repos PAR MOTIF vivent dans `lumen.js`, où `outil-verif-lumen.js`
+   les éprouve des deux côtés du seuil : muet à 74 999 ms, parlant à 75 000.
 
-   On retient donc la dernière fois qu'un motif a parlé. Le délai est long à
-   dessein : ce n'est pas un anti-rebond de quelques secondes, c'est
-   l'engagement de ne pas se répéter tant qu'on n'a pas eu le temps d'oublier.
-   Le geste reste possible autant qu'on veut ; c'est le commentaire qui se
-   tait. */
-const derniereFois = new Map();
-const REPOS = 75000;
+   PAR MOTIF, et c'est la moitié du sens : lancer un photon ne doit pas museler
+   la réaction d'une sonde. Rien ne le vérifiait avant aujourd'hui.
 
+   Ne reste ici que le branchement. */
 function reagit(cle, doux){
-  if(questionsOuvertes) return;
-  const now = performance.now();
-  if(doux && tMasque && now < tMasque) return;
-  if(now - (derniereFois.get(cle) || -1e9) < REPOS) return;
-  const t = REACTIONS[cle];
-  if(!t) return;
-  derniereFois.set(cle, now);
-  dit(resous(t));
+  const o = LUMEN.reagit(etatLumen, {
+    cle, doux, reactions: REACTIONS, iNiveau, questionsOuvertes, tMasque,
+  }, performance.now());
+  if(o) dit(o.bulle.replique, o.bulle.ms, "", o.bulle.prioritaire);
 }
 
 function ouvreQuestions(){
