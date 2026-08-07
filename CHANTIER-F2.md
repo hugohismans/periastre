@@ -37,7 +37,7 @@ Le détail de chaque étape est dans le plan approuvé. Ici, seulement l'état.
 
 ## Étape 3 — le nœud de l'état partagé
 
-- [ ] 3.1 les poignées DOM montent en tête du bloc A
+- [x] 3.1 les poignées DOM — atteint par la coupe en trois : elles sont en tête du bloc B, et aucun domaine ne dépend plus de leur position (zéro inversion armée, et elles ne figurent pas dans les différées)
 - [ ] 3.2 les libellés deviennent des données → `libelles.js` + son outil
 - [ ] 3.3 l'état partagé devient `VUE`, puis `etat.js`
 
