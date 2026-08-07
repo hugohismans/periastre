@@ -252,8 +252,17 @@ function ecran(ctx, taille, M, coins, dessineDedans, cle, e){
   const cx = (a[0]+b[0]+c[0]+d[0])/4, cy = (a[1]+b[1]+c[1]+d[1])/4;
   const rayon = Math.hypot(b[0]-a[0], b[1]-a[1]);
 
-  // La lueur que la dalle jette sur la cloison
+  /* LA LUEUR SUIT LE FONDU, DEPUIS LE 8 AOÛT.
+
+     Elle était peinte AVANT l'atténuation, donc elle restait à pleine intensité
+     pendant toute l'extinction, puis disparaissait d'un coup avec l'écran. Le
+     fondu soigné du contenu était annulé par la seule chose qui, elle, sautait
+     — une auréole sans écran, sur un cadre devenu invisible.
+
+     Défaut d'origine, trouvé par `outil-verif-ecrans.js` le jour de son
+     écriture. Corrigé à part de l'extraction, qui l'avait déplacé tel quel. */
   ctx.save();
+  ctx.globalAlpha *= Math.min(lisible, droit);
   const halo = ctx.createRadialGradient(cx, cy, rayon*0.25, cx, cy, rayon*0.95);
   halo.addColorStop(0, "rgba(120,180,255,0.11)");
   halo.addColorStop(1, "rgba(120,180,255,0)");
@@ -292,7 +301,22 @@ function dessine(ctx, W, H, e){
   const taille = { W, H };
   const D = e.destination;
   const z = -vaisseau.P/2 + 0.012, y0 = 0.86, y1 = 2.34;
-  const g0 = -4.42, g1 = -2.80, d0 = 2.80, d1 = 4.42;
+  /* LES DALLES TIENNENT SUR LE MÉTAL, DEPUIS LE 8 AOÛT.
+
+     Elles allaient de ±2,80 à ±4,42, alors que l'ouverture de la baie s'arrête
+     à ±3,10 : trente centimètres de chaque dalle — dix-neuf pour cent de sa
+     surface, quatre-vingt-neuf décimètres carrés en tout — étaient peints sur
+     le VIDE, c'est-à-dire par-dessus le trou noir. Le calque à deux dimensions
+     n'a pas de profondeur, et le découpage à la baie n'enveloppe que la carte
+     des orbites, pas cette passe-ci.
+
+     Ce n'était pas un choix : l'en-tête de ce module dit que les écrans sont
+     « réellement posés sur les parois ». La bande pleine fait 1,90 m de large
+     entre le bord de la baie et l'angle ; une dalle de 1,62 m y tient, décalée
+     de quarante-quatre centimètres vers l'extérieur.
+
+     Trouvé par `outil-verif-ecrans.js`, corrigé à part de l'extraction. */
+  const g0 = -4.86, g1 = -3.24, d0 = 3.24, d1 = 4.86;
   let poses = 0;
 
   /* Repère local commun : 300 × 200 « pixels d'écran », marge de 22.

@@ -44,7 +44,7 @@ Le détail de chaque étape est dans le plan approuvé. Ici, seulement l'état.
 ## Étape 4 — les gros de dessin
 
 - [x] 4.1 écrans de bord → `ecrans.js`
-- [ ] 4.1 bis l'outil des écrans de bord
+- [x] 4.1 bis l'outil des écrans de bord — 79 contrôles, et deux vrais défauts corrigés
 - [x] 4.2 calque → `calque.js` + son outil
 - [x] 4.3 habitacle → `habitacle.js` + son outil
 - [x] 4.4 résolution adaptative → `resolution.js` + son outil

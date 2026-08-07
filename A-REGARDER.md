@@ -36,6 +36,37 @@ enfler. **Les verdicts de la troisième séance sont à relire avec ça en tête
 
 ---
 
+## ❗ À CONFIRMER DE TON ŒIL — les écrans du salon ont bougé de 44 cm
+
+**8 août 2026.** Le contrôle des écrans de bord a trouvé que chaque dalle
+**débordait de trente centimètres sur l'ouverture de la baie** : dix-neuf pour
+cent de sa surface était peinte sur le vide, c'est-à-dire par-dessus le trou
+noir, au lieu d'être sur du métal.
+
+Ce n'était pas un choix : le module dit lui-même que les écrans sont
+« réellement posés sur les parois ». **J'ai corrigé** — les dalles reculent de
+44 cm vers l'extérieur et tiennent entièrement sur la bande pleine, qui fait
+1,90 m pour une dalle de 1,62 m.
+
+**Ce qu'il faut que tu regardes :** est-ce que le salon est toujours équilibré
+avec les écrans plus près des angles ? C'est le seul aspect qui relève de l'œil ;
+le reste est de la géométrie.
+
+Corrigé aussi, sans discussion possible : **la lueur que chaque dalle jette sur
+la cloison ne suivait pas le fondu.** Elle restait à pleine intensité pendant
+toute l'extinction, puis disparaissait d'un coup — une auréole sans écran.
+
+### Et un chiffre pour ta décision, qui n'est pas un défaut
+
+Les deux garde-fous de lisibilité — l'angle de vue et l'erreur de plaquage —
+font que les écrans **ne se lisent que depuis 56 % du sol du salon**, au meilleur
+cas. Se planter à 2,5 m d'un écran et se décaler de 30° suffit à l'éteindre.
+C'est le prix déclaré du compromis (une toile 2D ne sait pas faire de vraie
+perspective), pas un bogue. Mais c'est peut-être trop sévère, et ça se juge à
+l'œil.
+
+---
+
 ## Trouvé en sortant la progression — sept choses, dont la maladie connue
 
 **8 août 2026.** Le domaine des missions et de la quête d'accueil est le plus
