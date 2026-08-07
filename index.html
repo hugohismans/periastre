@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr">
 <head>
 <meta charset="utf-8">
@@ -2244,11 +2244,11 @@ void main(){
     l = /^fr/i.test(navigator.language || "fr") ? "fr" : "en";
   window.LANGUE = l;
   document.documentElement.lang = l;
-  document.write('<script src="' + (l === "en" ? "contenu.en.js" : "contenu.js") + '?v=7c37bd9"><\/script>');
+  document.write('<script src="' + (l === "en" ? "contenu.en.js" : "contenu.js") + '?v=eb7f9fc"><\/script>');
   // Les chaînes d'interface : le français TOUJOURS, l'anglais par-dessus. Une
   // clé oubliée retombe ainsi sur une phrase, jamais sur un identifiant nu.
-  document.write('<script src="ui.fr.js?v=7c37bd9"><\/script>');
-  if(l === "en") document.write('<script src="ui.en.js?v=7c37bd9"><\/script>');
+  document.write('<script src="ui.fr.js?v=eb7f9fc"><\/script>');
+  if(l === "en") document.write('<script src="ui.en.js?v=eb7f9fc"><\/script>');
 })();
 </script>
 <!-- ══════════════════════════════════════════════════════════════════════════
@@ -2267,16 +2267,16 @@ void main(){
 <!-- La physique, sortie du bloc principal. Elle ne touche ni au document ni à
      WebGL, et son extraction rend le banc d'essai exécutable en ligne de
      commande — donc vérifiable sans navigateur. Premier morceau du chantier F2. -->
-<script src="physique.js?v=7c37bd9"></script>
+<script src="physique.js?v=eb7f9fc"></script>
 <!-- Ce qui vole. Deuxième morceau de F2, et le socle de la salle de tir
      balistique : elle ne sera que `destin()` avec une vitesse choisie. -->
-<script src="vol.js?v=7c37bd9"></script>
+<script src="vol.js?v=eb7f9fc"></script>
 <!-- L'horloge. Troisième morceau de F2, et celui qui rend structurellement
      impossible le défaut du disque à 622× : le temps simulé n'y est accessible
      qu'en lecture, et un second écrivain devient indicible. -->
-<script src="temps.js?v=7c37bd9"></script>
-<script src="kerr.js?v=7c37bd9"></script>
-<script src="vaisseau.js?v=7c37bd9"></script>
+<script src="temps.js?v=eb7f9fc"></script>
+<script src="kerr.js?v=eb7f9fc"></script>
+<script src="vaisseau.js?v=eb7f9fc"></script>
 <!-- Marcher dans la pièce. Quatrième morceau de F2 : une fois sorti du bloc, on
      peut promener un corps dans le décor SANS navigateur — et le premier
      balayage a trouvé qu'on traversait le télescope.
@@ -2284,8 +2284,8 @@ void main(){
      APRÈS `vaisseau.js`, et l'ordre n'est pas négociable : le mobilier se
      construit à partir de la géométrie de la pièce, dès le chargement. Placé
      avant, il ne trouvait rien et emportait tout le bloc principal avec lui. -->
-<script src="arpente.js?v=7c37bd9"></script>
-<script src="personnage.js?v=7c37bd9"></script>
+<script src="arpente.js?v=eb7f9fc"></script>
+<script src="personnage.js?v=eb7f9fc"></script>
 <!-- `pantheon.js` N'EST PLUS CHARGÉ, et c'est délibéré.
 
      Il était chargé à chaque visite et `PANTHEON` n'était appelé nulle part —
@@ -2297,16 +2297,17 @@ void main(){
      pas encore — voir CHUTE.md, écrit et jamais branché. Le jour où la salle de
      tir existera, cette ligne revient telle quelle.
 
-     <script src="pantheon.js?v=7c37bd9"></script> -->
+     <script src="pantheon.js?v=eb7f9fc"></script> -->
 
-<script src="robot.js?v=7c37bd9"></script>
-<script src="musique.js?v=7c37bd9"></script>
+<script src="robot.js?v=eb7f9fc"></script>
+<script src="musique.js?v=eb7f9fc"></script>
 
 <!-- Le voyage. L'ordre compte : recul.js appelle VOYAGE.entre au chargement de
      ses propres constantes, donc voyage1g.js doit être passé avant lui. -->
-<script src="voyage1g.js?v=7c37bd9"></script>
-<script src="recul.js?v=7c37bd9"></script>
-<script src="etoiles.js?v=7c37bd9"></script>
+<script src="voyage1g.js?v=eb7f9fc"></script>
+<script src="recul.js?v=eb7f9fc"></script>
+<script src="etoiles.js?v=eb7f9fc"></script>
+<script src="cockpit.js?v=eb7f9fc"></script>
 <script>
 "use strict";
 
@@ -3154,6 +3155,11 @@ function avanceCorps(dtGeo, dtSec){
   }
 }
 
+// FIN DU BLOC A. La page est coupée en trois pour qu'une mort silencieuse
+// n'emporte plus qu'un tiers — le pourquoi est dans `outil-verif-ordre.js`.
+</script>
+<script>
+"use strict";   // BLOC B — interface, lieux, panneaux
 // ============ interface ============
 const ui  = document.getElementById("ui");
 const ctx = ui.getContext("2d");
@@ -5538,6 +5544,11 @@ if(memoire){
 }
 intro();
 
+// FIN DU BLOC B. La couture tombe juste après `intro()` : les dix-neuf lignes
+// ci-dessus lisent douze noms de cinq domaines, tous déclarés au-dessus d'elles.
+</script>
+<script>
+"use strict";   // BLOC C — dossier, dessins, boucle
 // ============ dossier « pourquoi c'est exact » ============
 const METHODE = CONTENU.methode;
 
@@ -5762,7 +5773,12 @@ function dessine(){
   }
 
   ctx.globalCompositeOperation = "source-over";
-  if(sondeSuivie !== null) dessineCockpit();
+  // Le cockpit vit dans `cockpit.js` : tout ce dont il a besoin passe par cet
+  // objet, ce qui le rend éprouvable sans navigateur — voir `or-cockpit.json`.
+  if(sondeSuivie !== null)
+    COCKPIT.dessine(ctx, ui.clientWidth, ui.clientHeight,
+      { sonde: sondes[sondeSuivie], vitesseLocale, horloge,
+        len, T, remplit, virgule, tempsFr });
   if(salon.actif) dessineEcrans();
 }
 
@@ -6103,146 +6119,6 @@ function dessineEcrans(){
     }), MG, 180);
     ctx.fillText(remplit("salon.ecran.accelere", { f: salon.facteur }), MG, 193);
   }, "temps");
-}
-
-// ============ cockpit ============
-// Tout ce qui est affiché ici est calculé, pas décoratif : la vitesse locale,
-// le facteur de dilatation du temps et la marée sortent de la position réelle
-// de la sonde.
-function dessineCockpit(){
-  const s = sondes[sondeSuivie];
-  if(!s) return;
-  const W = ui.clientWidth, H = ui.clientHeight;
-  const r = len(s.p);
-  const v = len(vitesseLocale);
-  // orbite circulaire en Schwarzschild : dτ/dt = √(1 − 3M/r)
-  const tau = Math.sqrt(Math.max(0, 1 - 1.5/r));
-  const maree = 1.0/(r*r*r);                  // ∝ M/r³, en unités du site
-
-  const m  = Math.min(W, H);
-  // on réserve la bande basse pour la barre d'actions, qui est en HTML par-dessus
-  const bx = m*0.055, by = m*0.045, bas = m*0.115 + 72;
-
-  // ---- hublot : on assombrit hors du cadre ----
-  ctx.save();
-  ctx.beginPath();
-  ctx.rect(0, 0, W, H);
-  const rc = m*0.05;
-  ctx.moveTo(bx + rc, by);
-  ctx.arcTo(W - bx, by,        W - bx, H - bas,  rc);
-  ctx.arcTo(W - bx, H - bas,   bx,     H - bas,  rc);
-  ctx.arcTo(bx,     H - bas,   bx,     by,       rc);
-  ctx.arcTo(bx,     by,        W - bx, by,       rc);
-  ctx.closePath();
-  ctx.fillStyle = "rgba(6,5,12,0.97)";
-  ctx.fill("evenodd");
-  ctx.restore();
-
-  // ---- montants ----
-  ctx.strokeStyle = "rgba(150,150,175,0.16)";
-  ctx.lineWidth = m*0.011;
-  for(const c of [-1, 1]){
-    ctx.beginPath();
-    ctx.moveTo(W/2 + c*W*0.30, by);
-    ctx.lineTo(W/2 + c*W*0.40, H - bas);
-    ctx.stroke();
-  }
-  ctx.strokeStyle = "rgba(190,190,215,0.22)";
-  ctx.lineWidth = 1.5;
-  ctx.strokeRect(bx, by, W - 2*bx, H - bas - by);
-
-  // ---- console ----
-  const cy = H - bas/2;
-  ctx.fillStyle = "rgba(9,8,18,0.94)";
-  ctx.fillRect(0, H - bas, W, bas);
-  ctx.strokeStyle = "rgba(127,216,255,0.18)";
-  ctx.beginPath(); ctx.moveTo(0, H - bas); ctx.lineTo(W, H - bas); ctx.stroke();
-
-  // « Temps qui passe » d'abord : c'est le cadran qui explique les horloges.
-  // La marée disparaît quand elle est négligeable — un cadran qui affiche
-  // toujours « négligeable » n'apprend rien et prend la place.
-  const cadrans = [
-    [T("cockpit.temps"),    virgule((tau*100).toFixed(1)) + " %",  1 - tau],
-    [T("cockpit.vitesse"),  virgule(v.toFixed(3)) + " c",          v],
-    [T("cockpit.altitude"), virgule(r.toFixed(2)) + " rₛ",    Math.min(1, 3/r)],
-  ];
-  if(maree > 0.01) cadrans.push([T("cockpit.maree"), virgule(maree.toFixed(3)), Math.min(1, maree*20)]);
-  const larg = Math.min(W/cadrans.length, m*0.34);
-  const gauche = W/2 - larg*cadrans.length/2;
-  cadrans.forEach(([nom, val, jauge], i) => {
-    const x = gauche + larg*i + larg/2;
-    ctx.textAlign = "center";
-    ctx.fillStyle = "#7d7894";
-    ctx.font = `${(m*0.0125).toFixed(1)}px -apple-system, Segoe UI, sans-serif`;
-    ctx.fillText(nom.toUpperCase(), x, cy - m*0.022);
-    ctx.fillStyle = "#dcd8ea";
-    ctx.font = `500 ${(m*0.026).toFixed(1)}px -apple-system, Segoe UI, sans-serif`;
-    ctx.fillText(val, x, cy + m*0.008);
-    // jauge
-    const jw = larg*0.52;
-    ctx.fillStyle = "rgba(255,255,255,0.10)";
-    ctx.fillRect(x - jw/2, cy + m*0.022, jw, 2);
-    ctx.fillStyle = jauge > 0.72 ? "#ff5d7a" : "#7fd8ff";
-    ctx.fillRect(x - jw/2, cy + m*0.022, jw*Math.max(0.02, Math.min(1, jauge)), 2);
-  });
-  ctx.textAlign = "center";
-
-  // ---- les deux horloges ----
-  // Quand elles tournent, c'est LE sujet : on leur donne la taille et les mots
-  // qui vont avec, au lieu de les glisser entre deux cadrans.
-  const ecart = horloge.mere - horloge.bord;
-  if(horloge.mere > 1){
-    const hy = H - bas - m*0.105;
-    const dx = m*0.155;
-
-    ctx.fillStyle = "rgba(6,5,13,0.86)";
-    ctx.fillRect(W/2 - m*0.30, hy - m*0.05, m*0.60, m*0.115);
-    ctx.strokeStyle = "rgba(255,157,77,0.22)";
-    ctx.lineWidth = 1;
-    ctx.strokeRect(W/2 - m*0.30, hy - m*0.05, m*0.60, m*0.115);
-
-    ctx.font = `${(m*0.0135).toFixed(1)}px -apple-system, Segoe UI, sans-serif`;
-    ctx.fillStyle = "#8f8aa6";
-    ctx.fillText(T("cockpit.toi"), W/2 - dx, hy - m*0.028);
-    ctx.fillStyle = "#8f8aa6";
-    ctx.fillText(T("cockpit.jumeau"), W/2 + dx, hy - m*0.028);
-
-    ctx.font = `500 ${(m*0.036).toFixed(1)}px ui-monospace, Consolas, monospace`;
-    ctx.fillStyle = "#7fd8ff"; ctx.fillText(tempsFr(horloge.bord), W/2 - dx, hy + m*0.008);
-    ctx.fillStyle = "#ffd08a"; ctx.fillText(tempsFr(horloge.mere), W/2 + dx, hy + m*0.008);
-
-    // le séparateur, pour qu'on lise deux colonnes et non une phrase
-    ctx.strokeStyle = "rgba(255,255,255,0.10)";
-    ctx.beginPath(); ctx.moveTo(W/2, hy - m*0.038); ctx.lineTo(W/2, hy + m*0.018); ctx.stroke();
-
-    ctx.font = `${(m*0.0155).toFixed(1)}px -apple-system, Segoe UI, sans-serif`;
-    if(ecart > 20){
-      ctx.fillStyle = "#ff9d4d";
-      ctx.fillText(remplit("cockpit.ecart", { t: tempsFr(ecart) }), W/2, hy + m*0.048);
-    } else {
-      ctx.fillStyle = "#6a6580";
-      ctx.fillText(T("cockpit.invite"), W/2, hy + m*0.048);
-    }
-  }
-  ctx.textAlign = "left";
-
-  // ---- l'occupant, vu de dos ----
-  const px = W - bx - m*0.10, py = H - bas - m*0.005;
-  const t = m*0.052;
-  ctx.fillStyle = "rgba(18,16,32,0.96)";
-  ctx.beginPath();                                   // épaules
-  ctx.moveTo(px - t, py);
-  ctx.quadraticCurveTo(px - t*0.92, py - t*0.62, px, py - t*0.66);
-  ctx.quadraticCurveTo(px + t*0.92, py - t*0.62, px + t, py);
-  ctx.closePath(); ctx.fill();
-  ctx.beginPath();                                   // casque
-  ctx.arc(px, py - t*0.86, t*0.46, 0, 6.2832);
-  ctx.fill();
-  ctx.strokeStyle = "rgba(140,200,255,0.30)";        // reflet sur la visière
-  ctx.lineWidth = 1.6;
-  ctx.beginPath();
-  ctx.arc(px, py - t*0.86, t*0.46, Math.PI*1.08, Math.PI*1.52);
-  ctx.stroke();
 }
 
 // ============ boucle ============
@@ -6660,7 +6536,7 @@ requestAnimationFrame(boucle);
 <script>
 if(/[?&]verif\b/.test(location.search)){
   var s = document.createElement("script");
-  s.src = "verif.js?v=7c37bd9";
+  s.src = "verif.js?v=eb7f9fc";
   document.body.appendChild(s);
 }
 /* Et le protocole d'essai joué : `?test`. Il pose ses questions au moment où la
@@ -6670,7 +6546,7 @@ if(/[?&]verif\b/.test(location.search)){
    script contrôle mieux. */
 if(/[?&]test\b/.test(location.search)){
   var e = document.createElement("script");
-  e.src = "essai.js?v=7c37bd9";
+  e.src = "essai.js?v=eb7f9fc";
   document.body.appendChild(e);
 }
 /* Et la séance de jugement : `?juge`. Elle ne demande QUE ce qu'aucun calcul ne
@@ -6679,7 +6555,7 @@ if(/[?&]test\b/.test(location.search)){
    Claude, prêt à coller. On ne lit rien, on ne navigue pas. */
 if(/[?&]juge\b/.test(location.search)){
   var j = document.createElement("script");
-  j.src = "juge.js?v=7c37bd9";
+  j.src = "juge.js?v=eb7f9fc";
   document.body.appendChild(j);
 }
 </script>

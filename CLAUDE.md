@@ -119,8 +119,16 @@ Il peut aussi le déclencher lui-même : « on refait le cap ».
 
 ## Architecture
 
-Le gros de l'application est encore dans `index.html`. Le chantier **F2** en
-extrait des domaines un par un ; quatre sont sortis.
+Le gros de l'application est encore dans `index.html`, **coupé en trois blocs**
+depuis le 8 août 2026 : A (jusqu'à la physique), B (interface, lieux, panneaux),
+C (dessins, boucle). Ils partagent la même portée — `verif.js` lit `salon`
+depuis dehors — mais **un bloc qui meurt n'emporte plus les précédents**, et
+`VERIF.vivant()` teste un témoin par bloc, donc il dit lequel est tombé.
+
+Deux outils gardent ce découpage : `outil-verif-taille.js` compte la **somme**
+des blocs (le maximum se truquerait en déplaçant une frontière) et
+`outil-verif-ordre.js` refuse toute inversion armée et fait descendre le compte
+des inversions différées. Le chantier **F2** sort les domaines un par un.
 
 | fichier | ce qu'il tient |
 |---|---|

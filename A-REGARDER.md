@@ -36,6 +36,25 @@ enfler. **Les verdicts de la troisième séance sont à relire avec ça en tête
 
 ---
 
+## Trouvé en sortant le cockpit — un chiffre faux à l'écran
+
+**8 août 2026, découvert pendant l'extraction de `cockpit.js`.** Le cadran
+« ton temps s'écoule à » affiche `√(1 − 3M/r)`, qui est le rapport dτ/dt d'une
+orbite **circulaire**. Or le cadran paraît pour n'importe quelle sonde : chute
+radiale, ellipse, trajectoire de fuite. Pour toutes celles-là, le chiffre est
+faux — et l'étiquette est une affirmation sur l'observateur, pas sur une orbite
+hypothétique.
+
+La vitesse réelle est affichée juste à côté, dans le cadran voisin. De quoi le
+calculer honnêtement.
+
+**Pas corrigé volontairement** : une extraction est un déplacement, pas une
+correction, et mélanger les deux rend la trace d'or inutilisable. À traiter
+comme son propre chantier, avec sa mesure. C'est un manquement à la quatrième
+règle dure — *c'est une simulation, pas une animation*.
+
+---
+
 ## La file est de nouveau pleine — le voyage refait attend ton œil
 
 Trois questions, le 7 août au soir. Le chantier ouvert plus bas est fait :

@@ -94,8 +94,13 @@ const fs = require("fs"), path = require("path");
    ~2 400 sans que rien ne sorte du fichier. Un cliquet qu'on désarme en
    déplaçant une frontière ne cliquette pas.
 
-   À partir d'ici il ne fait plus que descendre. Cible du chantier : ~2 300. */
-const PLAFOND = 4382;
+   À partir d'ici il ne fait plus que descendre. Cible du chantier : ~2 300.
+
+   4 255 le 8 août — LA PREMIÈRE DESCENTE DU CHANTIER. La coupe en trois blocs
+   avait coûté huit lignes (deux `"use strict"` et deux commentaires de deux
+   lignes) ; sortir le cockpit en rend cent trente-cinq. Le solde est payé dans
+   le même commit, pour ne pas laisser une marge traîner. */
+const PLAFOND = 4255;
 
 // Le nombre de modules déjà sortis. Il ne descend jamais non plus : un module
 // qu'on ferait rentrer dans le bloc serait le contraire exact du chantier.

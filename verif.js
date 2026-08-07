@@ -142,21 +142,37 @@ function avanceImages(n, horloge){
 
 // ============================================================ les contrôles
 
-/* 1. LE BLOC DE SCRIPT VIT.
+/* 1. LES TROIS BLOCS DE SCRIPT VIVENT.
 
-   Le contrôle le plus rentable du dépôt. Le bloc principal fait trois mille
-   cinq cents lignes en portée globale ; une variable employée avant sa ligne de
-   déclaration le tue ENTIÈREMENT, et le symptôme est muet — la moitié du site
-   disparaît sans un message dans la console. C'est arrivé deux fois.
+   Le contrôle le plus rentable du dépôt. Une variable employée avant sa ligne
+   de déclaration tue le bloc où elle vit, ENTIÈREMENT, et le symptôme est muet
+   — la moitié du site disparaît sans un message dans la console. C'est arrivé
+   deux fois.
 
-   On teste donc des noms déclarés TARD dans le fichier : s'ils répondent, tout
-   ce qui précède a été évalué. */
+   ---------------------------------------------------------------------------
+   UN TÉMOIN PAR BLOC, DEPUIS LE 8 AOÛT 2026
+
+   Le code de la page est maintenant coupé en trois, précisément pour qu'une
+   panne n'emporte plus qu'un tiers. Mais les huit noms que ce contrôle testait
+   étaient TOUS dans le dernier tiers : une mort du premier bloc et une mort du
+   troisième rendaient le même verdict.
+
+   On prend donc le DERNIER nom déclaré de chaque bloc. S'il répond, tout ce qui
+   le précède dans son bloc a été évalué — et l'on sait lequel est tombé.
+
+   `T` reste à part : il est le tout premier nom du premier bloc, et s'il manque
+   c'est que rien n'a démarré du tout. */
 function vivant(){
-  ouvre("Le bloc de script vit");
+  ouvre("Les trois blocs de script vivent");
   const tardifs = {
-    vueW: "number", boucle: "function", redimensionne: "function",
-    dessine: "function", finBoucle: "function", dessineHabitacle: "function",
-    T: "function", toileEcran: "function", seuilTape: "function",
+    // bloc A — se termine sur la physique et le temps
+    avanceCorps: "function", surLePlan: "function",
+    // bloc B — se termine sur l'écran d'accueil
+    detail: "function", menu: "function",
+    // bloc C — se termine sur la boucle
+    finBoucle: "function", boucle: "function", vueW: "number",
+    // le tout premier nom du tout premier bloc
+    T: "function",
   };
   for(const [nom, type] of Object.entries(tardifs)){
     let vu = "absent";
