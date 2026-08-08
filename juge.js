@@ -256,20 +256,30 @@ const TOUTES = [
      Ce qui est déjà tranché et n'a pas à l'être : le texte est LISIBLE et non
      replié derrière un bouton. Un aveu qu'il faut déplier pour lire est un aveu
      qu'on ne lit pas, et c'est le défaut même que F4 répare. */
+  /* REPOSÉE APRÈS SON VERDICT DU 9 AOÛT : « ça se voit pas assez, fais un genre
+     de centre des notifications, ce genre d'info doit être comme une
+     notification ».
+
+     Le badge dans le panneau n'a pas bougé — un compromis se déclare là où on le
+     rencontre, c'est sa règle du 5 août. Ce qui s'ajoute, c'est de le remarquer.
+     La question porte donc sur ce qui est NEUF, et lui montre les trois formes
+     ensemble : la bulle qui prévient, la pastille qui compte, le centre qui
+     garde. */
   { id: "forme-aveu",
-    titre: "Les aveux, là où on les rencontre",
+    titre: "Les aveux, en notification",
     libre: true,
     inspection: true,
-    quoi: "Tu disais : « chaque compromis doit se déclarer là où on le "
-        + "rencontre, pas seulement dans une liste rangée ailleurs. » Les onze "
-        + "sont maintenant posés dans leur panneau — le losange orange. Regarde "
-        + "les trois endroits ci-dessous : est-ce que ça se lit, est-ce que ça "
-        + "gêne, est-ce que ça se remarque assez ?",
-    pose: () => montreAveux("reglages"),
+    quoi: "Tu disais que ça ne se voyait pas assez. Maintenant une bulle prévient "
+        + "quand tu arrives quelque part où la simulation s'autorise un écart, "
+        + "une pastille sur le losange compte ce qui te reste à croiser, et le "
+        + "centre garde les onze rangés par endroit. Le badge dans le panneau "
+        + "n'a pas bougé. Est-ce que ça se remarque, maintenant — et est-ce que "
+        + "ça dérange ?",
+    pose: () => montreAveux("bulle"),
     options: [
-      { nom: "dans les réglages",  fait: () => montreAveux("reglages") },
-      { nom: "au télescope",       fait: () => montreAveux("telescope") },
-      { nom: "au réglage du temps", fait: () => montreAveux("reglage-temps") },
+      { nom: "la bulle qui prévient", fait: () => montreAveux("bulle") },
+      { nom: "le centre",             fait: () => montreAveux("centre") },
+      { nom: "le badge du panneau",   fait: () => montreAveux("telescope") },
     ],
     rend: () => rangeAveux(),
   },
@@ -398,17 +408,33 @@ function rangeVoyage(){
    On passe par les VRAIS boutons, jamais par `poseAveux` en direct : ce qu'il
    doit juger est ce qu'il verra en jouant, pas ce qu'une fonction de contrôle
    sait fabriquer. Une séance qui montre une scène montée n'apprend rien. */
-function montreAveux(ou){
+/* Montrer une des trois formes de l'aveu.
+
+   On passe par les VRAIS boutons, jamais par les fonctions de peinture : ce
+   qu'il doit juger est ce qu'il verra en jouant. Une séance qui montre une scène
+   montée n'apprend rien.
+
+   `bulle` OUBLIE d'abord ce qui a été croisé : la notification ne sort que sur du
+   neuf, et sans ça il jugerait une bulle qui ne vient pas. C'est le seul endroit
+   du dépôt qui efface cette mémoire, et c'est pour la lui montrer. */
+function montreAveux(quoi){
   rangeAveux();
-  if(ou === "reglages")           $$("rouage").click();
-  else if(ou === "reglage-temps") $$("b-temps").click();
-  else if(ou === "telescope")     ouvreTelescope();
+  if(quoi === "bulle"){
+    if(typeof aveuxVus !== "undefined"){ aveuxVus.clear(); majPastilleAveux(); }
+    $$("rouage").click();
+  }
+  else if(quoi === "centre")         ouvreAveux();
+  else if(quoi === "reglage-temps")  $$("b-temps").click();
+  else if(quoi === "telescope")      ouvreTelescope();
+  else                               $$("rouage").click();
 }
 
 function rangeAveux(){
   fermeTelescope();
   if($$("panneau").classList.contains("vu")) $$("rouage").click();
   if($$("temps").classList.contains("vu"))   $$("b-temps").click();
+  $$("aveux").classList.remove("vu");
+  $$("notif").classList.remove("vu");
 }
 
 function rejoueVoyageTourne(ecart){
