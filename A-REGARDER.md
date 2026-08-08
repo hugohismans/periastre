@@ -118,7 +118,42 @@ ta scène, je ne l'ai pas vue.** Ça marche maintenant.
 
 ---
 
-## ❓ LE CERCLE DE LA DERNIÈRE ORBITE STABLE NE SUIT PAS LA ROTATION
+## ✅ SÉANCE DU 9 AOÛT, LE SOIR — CINQ « ÇA VA », TOUT EST RAYÉ
+
+Hugo a jugé sur son PC, écran 3440 × 1440. Les cinq questions qui attendaient son
+œil sont réglées :
+
+| | verdict | regardé |
+|---|---|---|
+| le trou noir reste-t-il en place | ✅ ça va | en partant de dos |
+| les orbites ont-elles l'air d'être dehors | ✅ ça va | juste avant l'arrivée |
+| le cercle de la dernière orbite stable | ✅ ça va | rotation rapide |
+| les aveux, en notification | ✅ ça va | la bulle qui prévient |
+| le quadrillage arrive-t-il trop tôt | ✅ ça va | en le regardant |
+
+**Deux précisions honnêtes, parce qu'un verdict se lit avec ce qu'il a vu.**
+
+**Le quadrillage a été jugé sur le cas « en le regardant »** — celui où l'on part
+face au trou noir. C'est justement celui que j'avais mesuré à **zéro image
+d'avance** : il n'y avait rien à voir. Le cas qui restait imparfait est « en
+partant de côté », à 64 images. La question est rayée puisqu'il a tranché, mais
+si ça le gêne un jour en jouant, elle peut revenir — le réglage qui reste est la
+vitesse de montée du quadrillage.
+
+**Et son écran valide la réparation dans l'autre sens.** Sur un 3440 × 1305, le
+coin de l'image est à **61,2°**, au-delà de l'ancien seuil fixe de 56,6°. Avec
+l'ancien code, le quadrillage aurait **refusé de monter** alors que le trou noir
+était visible dans le coin — le défaut exactement inverse de celui du téléphone.
+Le seuil dérivé donne 65,0°, qui le couvre. Il a donc validé, sans le savoir, la
+correction qui le concernait lui.
+
+**Le cercle de la dernière orbite stable reste donc où il est**, avec son écart à
+la rotation. C'était un choix de vérité entre les sondes et la lumière : il a
+choisi de ne rien changer. La section ci-dessous est gardée pour mémoire.
+
+---
+
+## ~~❓ LE CERCLE DE LA DERNIÈRE ORBITE STABLE NE SUIT PAS LA ROTATION~~ — jugé « ça va » le 9 août
 
 Trouvé le 9 août en mesurant si F3 était possible, et vérifié dans la page.
 

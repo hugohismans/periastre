@@ -516,6 +516,29 @@
   .grille { display:grid; grid-template-columns:1fr 1fr; gap:6px; }
   .grille button { padding:6px 4px; font-size:10.5px; }
 
+  /* LE CURSEUR DE ROTATION. La valeur est à droite, en chiffres fixes, parce
+     qu'un curseur sans nombre ne se compare pas d'une session à l'autre — et
+     c'est le trou noir d'ÉTUDE : on y vient pour relever des valeurs. */
+  .curseur-spin { display:flex; align-items:center; gap:9px; }
+  .curseur-spin input[type=range] {
+    flex:1; height:3px; -webkit-appearance:none; appearance:none;
+    background:linear-gradient(90deg, var(--filet), var(--braise));
+    border-radius:2px; outline:none;
+  }
+  .curseur-spin input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance:none; appearance:none; width:15px; height:15px;
+    border-radius:50%; background:var(--braise); cursor:pointer;
+    border:2px solid #12101d;
+  }
+  .curseur-spin input[type=range]::-moz-range-thumb {
+    width:15px; height:15px; border-radius:50%; background:var(--braise);
+    cursor:pointer; border:2px solid #12101d;
+  }
+  .curseur-val {
+    min-width:42px; text-align:right; font-family:var(--mono);
+    font-size:11px; color:var(--braise);
+  }
+
   #lecture {
     font-size:10.5px; line-height:1.65; color:var(--pale); font-variant-numeric:tabular-nums;
     border-top:1px solid var(--filet); padding-top:11px;
@@ -2406,6 +2429,7 @@ void main(){
 <script src="ecrans.js?v=c55c208"></script>
 <script src="dossier.js?v=c55c208"></script>
 <script src="aveu.js?v=c55c208"></script>
+<script src="spin.js?v=c55c208"></script>
 <script src="calque.js?v=c55c208"></script>
 <script src="habitacle.js?v=c55c208"></script>
 <script src="libelles.js?v=c55c208"></script>
@@ -3709,23 +3733,15 @@ function poseEtude(){
   bloc.querySelector(".etiq").textContent = T("etude.rotation");
   liste.appendChild(bloc);
 
-  const boitier = $("etude-spin");
-  SPINS.forEach(([nom, v, note], i) => {
-    const b = document.createElement("button");
-    b.textContent = T(nom);
-    b.onclick = () => {
-      spin = v;
-      $("etude-note").textContent = noteSpin(note, v);
-      [...boitier.children].forEach((c, j) => c.classList.toggle("actif", j === i));
-      // les deux réglages commandent la même grandeur : ils doivent s'accorder
-      [...boitierSpin.children].forEach((c, j) => c.classList.toggle("actif", j === i));
-      sauve();
-    };
-    boitier.appendChild(b);
-  });
-  const courant = Math.max(0, SPINS.findIndex(s => s[1] === spin));
-  boitier.children[courant].classList.add("actif");
-  $("etude-note").textContent = SPINS[courant][2];
+  /* La MÊME fabrique que celle des réglages. Les deux commandent une seule
+     grandeur : deux fabriques, c'est la garantie qu'un jour l'une des deux
+     affichera autre chose que l'autre. Elles se repeignent l'une l'autre.
+
+     Ce panneau se reconstruit à chaque ouverture, donc son curseur aussi : la
+     fabrique retient sa fonction de peinture dans une liste qu'on purge ici,
+     sinon on repeindrait des nœuds arrachés du document. */
+  CURSEURS_SPIN.length = 1;                  // on garde celui des réglages
+  poseCurseurSpin($("etude-spin"), "etude-note");
 
   const retour = document.createElement("button");
   retour.className = "carte";
@@ -4742,28 +4758,66 @@ poseChoixLangue($("acc-langue"), true);
 /* Les quatre hypothèses de rotation. La grille porte des CLÉS, pas des mots :
    les mêmes quatre lignes servent aux réglages et au trou noir d'étude, et
    traduire deux fois le même libellé finit toujours par en oublier un. */
-const SPINS = [
-  ["panneau.spin.aucune",  0,    "panneau.spin.aucune.note"],
-  ["panneau.spin.moderee", 0.6,  "panneau.spin.moderee.note"],
-  ["panneau.spin.rapide",  0.9,  "panneau.spin.rapide.note"],
-  ["panneau.spin.extreme", 0.95, "panneau.spin.extreme.note"],
-];
 // La couture n'apparaît que si le spin est non nul : elle s'ajoute à la note.
 const noteSpin = (cle, v) => T(cle) + (v > 0 ? T("panneau.spin.couture") : "");
 
-const boitierSpin = $("spin-choix");
-SPINS.forEach(([nom, v, note], i) => {
-  const b = document.createElement("button");
-  b.textContent = T(nom);
-  b.onclick = () => {
-    spin = v;
-    $("spin-note").textContent = noteSpin(note, v);
-    [...boitierSpin.children].forEach((c, j) => c.classList.toggle("actif", j === i));
-    sauve();
+/* LE CURSEUR DE ROTATION — demandé le 9 août.
+
+   « J'aimerais que ce soit un slider, pas des valeurs fixes, qu'on puisse
+   mettre de zéro jusqu'à une valeur extrême, et vraiment tester toutes les
+   valeurs du spin. »
+
+   Quatre boutons donnaient quatre points d'un continuum, alors que le continuum
+   est justement le sujet : on veut voir l'ISCO se resserrer en glissant.
+
+   UNE SEULE FABRIQUE POUR DEUX PANNEAUX. Le réglage existe à deux endroits — les
+   réglages généraux et le trou noir d'étude — et c'est exactement la forme qui
+   garantit qu'un jour l'un des deux oubliera d'enregistrer, ou affichera une
+   autre valeur que l'autre. Le sélecteur de langue avait le même défaut, réparé
+   de la même façon.
+
+   ON N'ENREGISTRE QU'AU RELÂCHEMENT. `input` part à chaque pixel de glissement ;
+   y appeler `sauve()` écrirait cent fois dans la mémoire du navigateur pour un
+   seul geste. C'est la leçon du 7 août, où un réglage laissé dans cette mémoire
+   a divisé par huit la cadence sur le téléphone d'Hugo. */
+const CURSEURS_SPIN = [];
+
+function poseCurseurSpin(hote, idNote){
+  if(!hote) return;
+  hote.innerHTML = "";
+  hote.classList.remove("grille");
+  hote.classList.add("curseur-spin");
+
+  const c = document.createElement("input");
+  c.type = "range";
+  c.min = 0; c.max = SPIN.MAX; c.step = SPIN.PAS; c.value = spin;
+  c.setAttribute("aria-label", T("panneau.spin"));
+
+  const val = document.createElement("span");
+  val.className = "curseur-val";
+
+  const peint = () => {
+    const d = SPIN.descripteur(spin);
+    c.value = d.valeur;
+    val.textContent = d.texte;
+    const n = document.getElementById(idNote);
+    if(n) n.textContent = noteSpin(d.bande.cle, d.valeur);
   };
-  boitierSpin.appendChild(b);
-});
-boitierSpin.children[0].classList.add("actif");
+
+  // `input` : on suit le doigt, on repeint, on ne range rien.
+  c.oninput = () => {
+    spin = SPIN.borne(c.value);
+    CURSEURS_SPIN.forEach(f => f());
+  };
+  // `change` : le geste est fini, ON RANGE. Une seule écriture par geste.
+  c.onchange = () => { spin = SPIN.borne(c.value); sauve(); };
+
+  hote.append(c, val);
+  CURSEURS_SPIN.push(peint);
+  peint();
+}
+
+poseCurseurSpin($("spin-choix"), "spin-note");
 
 const boitierVol = $("volume");
 [["panneau.volume.discret", 0.28], ["panneau.volume.normal", 0.5],

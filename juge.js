@@ -291,14 +291,14 @@ const TOUTES = [
         + "trop loin. Il dit vrai pour les sondes que tu lances, qui ignorent la "
         + "rotation, et faux pour la lumière, qui la voit. Est-ce que l'écart se "
         + "voit, et est-ce qu'il gêne ?",
-    /* Les indices sont ceux de `SPINS` dans la page, et les noms sont les
-       siens : aucune (0) · modérée (0,6) · rapide (0,9) · extrême (0,95). On ne
-       réinvente pas un vocabulaire pour une séance de jugement. */
-    pose: () => montreEtude(2),
+    /* Des VALEURS depuis que la rotation est un curseur. On garde les trois que
+       les anciens boutons proposaient, plus la borne : c'est là qu'on voit le
+       plus, et il reconnaît les nombres qu'il manipulait avant. */
+    pose: () => montreEtude(0.9),
     options: [
-      { nom: "rotation rapide",  fait: () => montreEtude(2) },
-      { nom: "rotation extrême", fait: () => montreEtude(3) },
-      { nom: "sans rotation",    fait: () => montreEtude(0) },
+      { nom: "rotation 0,9",         fait: () => montreEtude(0.9) },
+      { nom: "à la limite — 0,998",  fait: () => montreEtude(SPIN.MAX) },
+      { nom: "sans rotation",        fait: () => montreEtude(0) },
     ],
     rend: () => rangeEtude(),
   },
@@ -460,12 +460,21 @@ function rangeVoyage(){
    `poseEtude` construit les boutons de rotation à chaque ouverture ; on clique
    celui qu'on veut, exactement comme lui. Une séance qui poserait `spin` en
    direct montrerait une scène que le site ne sait pas produire. */
-function montreEtude(i){
+/* Poser le trou noir d'étude à une rotation donnée.
+
+   Depuis le 9 août la rotation est un CURSEUR et non quatre boutons : on pose
+   donc une valeur et l'on déclenche les mêmes événements que le doigt — `input`
+   pour repeindre, `change` pour ranger. Poser `spin` en direct montrerait une
+   scène que le site ne sait pas produire. */
+function montreEtude(v){
   rangeEtude();
   ouvreTelescope();
   poseEtude();
-  const b = $$("etude-spin");
-  if(b && b.children[i]) b.children[i].click();
+  const c = $$("etude-spin") && $$("etude-spin").querySelector("input[type=range]");
+  if(!c) return;
+  c.value = v;
+  c.dispatchEvent(new Event("input"));
+  c.dispatchEvent(new Event("change"));
 }
 
 function rangeEtude(){
