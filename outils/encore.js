@@ -41,8 +41,37 @@ let entree = "";
 process.stdin.setEncoding("utf8");
 process.stdin.on("data", c => entree += c);
 process.stdin.on("end", () => {
-  let data = {};
-  try { data = JSON.parse(entree || "{}"); } catch(e){ /* pas de JSON : on ne bloque pas */ }
+  /* CE QUI ARRIVE SUR L'ENTRÉE DÉCIDE DU GARDE-FOU, DONC ON NE DEVINE PAS.
+
+     Le commentaire disait « pas de JSON : on ne bloque pas », et le code faisait
+     l'inverse : il laissait `data` vide et tombait dans la logique de blocage.
+     Un objet vide n'a pas de `stop_hook_active`, donc une entrée illisible
+     supprimait précisément la protection contre la boucle sans fin.
+
+     Trouvé le 9 août en éprouvant le hook avant de le brancher — le BOM que
+     PowerShell colle en tête d'un fichier suffisait à casser la lecture. Ce
+     n'était qu'un artefact de test, mais il a montré le vrai défaut derrière.
+
+     Deux réparations : on retire le BOM, et une entrée qu'on ne sait pas lire
+     ne bloque JAMAIS. Un hook qui ne comprend pas ce qu'on lui dit doit se
+     taire, pas insister. */
+  /* UNE ENTRÉE VIDE VEUT DIRE « JE NE SAIS PAS », ET ON SE TAIT.
+
+     Elle devenait `{}` par le `|| "{}"` d'origine : un objet valide, sans
+     `stop_hook_active`, donc un blocage. Or c'est exactement le cas où l'on
+     ignore si l'on est déjà en continuation forcée — le seul renseignement qui
+     protège de la boucle sans fin.
+
+     Le pire des deux côtés n'est pas le même. Un hook muet à tort ne coûte
+     qu'une continuation manquée, qu'on voit tout de suite. Un hook qui insiste
+     à tort tourne jusqu'aux huit blocages du garde-fou de Claude Code, en
+     produisant du remplissage. Dans le doute, on se tait. */
+  const brut = (entree || "").replace(/^﻿/, "").trim();
+  if(!brut) return process.exit(0);
+  let data = null;
+  try { data = JSON.parse(brut); }
+  catch(e){ return process.exit(0); }
+  if(!data || typeof data !== "object") return process.exit(0);
 
   // 1. déjà en continuation forcée : on laisse finir, sinon c'est sans fin.
   if(data.stop_hook_active) return process.exit(0);
@@ -51,19 +80,43 @@ process.stdin.on("end", () => {
   try { texte = fs.readFileSync(LISTE, "utf8"); }
   catch(e){ return process.exit(0); }        // pas de liste : pas de chantier
 
-  // 3. la porte de sortie, lue avant tout le reste.
-  if(/^##\s*ARRÊT/m.test(texte)){
-    const quoi = (texte.match(/^##\s*ARRÊT.*$/m) || [""])[0];
+  /* 3. la porte de sortie, lue avant tout le reste.
+
+     ELLE ACCEPTE « ARRET » SANS ACCENT, et ce n'est pas une coquetterie : c'est
+     une issue de secours. On l'écrit quand quelque chose est cassé ou qu'une
+     décision revient à Hugo — c'est-à-dire au pire moment pour se tromper d'une
+     touche. Éprouvée le 9 août avant branchement : elle ne répondait qu'à la
+     forme accentuée, et mon propre essai est resté dehors. */
+  if(/^##\s*ARR[EÊ]T/mi.test(texte)){
+    const quoi = (texte.match(/^##\s*ARR[EÊ]T.*$/mi) || [""])[0];
     console.error("  ⏸  " + quoi.replace(/^##\s*/, ""));
     return process.exit(0);
   }
 
-  // 2. la condition réelle : reste-t-il une case vide ?
-  const restantes = (texte.match(/^\s*-\s*\[ \]/gm) || []).length;
-  const faites    = (texte.match(/^\s*-\s*\[x\]/gmi) || []).length;
-  if(restantes === 0) return process.exit(0);
+  /* 2. la condition réelle : reste-t-il une case vide QUI SOIT LA MIENNE ?
 
-  const suivante = (texte.match(/^\s*-\s*\[ \]\s*(.+)$/m) || [, "?"])[1];
+     LES CASES D'HUGO SONT ÉCARTÉES, et c'est le point 2 de l'en-tête pris au
+     sérieux : « un blocage adossé à rien ne se termine jamais ». Une séance de
+     jugement, un choix de forme, une réplique à écrire de sa voix — ce sont des
+     cases que je ne peux pas cocher. Me pousser dessus ne rapprocherait pas la
+     fin, ça produirait du remplissage jusqu'aux huit blocages du garde-fou.
+
+     La marque est `(HUGO)` en fin de ligne. Elle se lit d'un coup d'œil dans le
+     fichier, et elle dit à qui appartient chaque case — ce qui est utile bien
+     au-delà de ce script. */
+  const lignes = texte.split("\n");
+  const vides = lignes.filter(l => /^\s*-\s*\[ \]/.test(l));
+  const miennes = vides.filter(l => !/\(HUGO\)/.test(l));
+  const faites = lignes.filter(l => /^\s*-\s*\[x\]/i.test(l)).length;
+  const restantes = miennes.length;
+
+  if(restantes === 0){
+    const attente = vides.length;
+    if(attente) console.error("  ⏸  " + attente + " case(s) attendent Hugo — rien à enchaîner de mon côté.");
+    return process.exit(0);
+  }
+
+  const suivante = (miennes[0].match(/^\s*-\s*\[ \]\s*(.+)$/) || [, "?"])[1];
 
   console.log(JSON.stringify({
     decision: "block",

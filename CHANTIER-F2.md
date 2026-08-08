@@ -65,7 +65,7 @@ Le détail de chaque étape est dans le plan approuvé. Ici, seulement l'état.
 
 ## Les deux fondations qui restent
 
-- [ ] F3 — un compagnon au trou noir d'étude, pour brancher `ncorps.js`
+- [x] F3 — **mesuré et refusé le 9 août.** Un compagnon newtonien dérive d'une largeur d'ombre par tour, à TOUTES les distances : la dérive tend vers une constante pendant que l'objet rétrécit. `outil-verif-compagnon.js`, 66 contrôles. Ce qui reste possible est écrit dans `CHANTIERS.md`
 - [x] F4 — la forme visuelle de l'aveu, et le contrôle qui l'exige. Les onze compromis s'affichent là où on les rencontre ; `VERIF.aveux()` ouvre chaque panneau et exige d'y trouver le texte annoncé. Éprouvé faillible : neutraliser le poseur de badges fait tomber neuf contrôles. Reste à faire juger la FORME par son œil
 
 ## La cible est-elle atteignable ? — mesuré le 8 août, à 3 539
@@ -135,4 +135,11 @@ garantie — pas un chiffre d'arrivée.
       monte jamais sans raison écrite, et il est descendu chaque fois qu'un
       domaine est sorti
 - [x] `CHANTIERS.md` remis d'aplomb le 9 août — `cap.html` reste à faire
-- [ ] une séance `?juge` sur ce qui reste à l'œil
+- [ ] une séance `?juge` sur ce qui reste à l'œil **(HUGO)**
+- [ ] la forme du badge d'aveu, et la réplique de Lumen au poste horaire **(HUGO)**
+- [ ] le cercle de la dernière orbite stable suit-il la rotation ? **(HUGO)**
+
+> Les cases marquées **(HUGO)** ne sont pas les miennes : elles demandent son
+> œil, sa voix, ou une décision de vérité. `outils/encore.js` les écarte de son
+> compte — me pousser dessus ne rapprocherait pas la fin, ça produirait du
+> remplissage. Elles restent ici parce qu'elles font partie du chantier.
