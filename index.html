@@ -2321,11 +2321,11 @@ void main(){
     l = /^fr/i.test(navigator.language || "fr") ? "fr" : "en";
   window.LANGUE = l;
   document.documentElement.lang = l;
-  document.write('<script src="' + (l === "en" ? "contenu.en.js" : "contenu.js") + '?v=4da86e0"><\/script>');
+  document.write('<script src="' + (l === "en" ? "contenu.en.js" : "contenu.js") + '?v=f1c1436"><\/script>');
   // Les chaînes d'interface : le français TOUJOURS, l'anglais par-dessus. Une
   // clé oubliée retombe ainsi sur une phrase, jamais sur un identifiant nu.
-  document.write('<script src="ui.fr.js?v=4da86e0"><\/script>');
-  if(l === "en") document.write('<script src="ui.en.js?v=4da86e0"><\/script>');
+  document.write('<script src="ui.fr.js?v=f1c1436"><\/script>');
+  if(l === "en") document.write('<script src="ui.en.js?v=f1c1436"><\/script>');
 })();
 </script>
 <!-- ══════════════════════════════════════════════════════════════════════════
@@ -2344,16 +2344,16 @@ void main(){
 <!-- La physique, sortie du bloc principal. Elle ne touche ni au document ni à
      WebGL, et son extraction rend le banc d'essai exécutable en ligne de
      commande — donc vérifiable sans navigateur. Premier morceau du chantier F2. -->
-<script src="physique.js?v=4da86e0"></script>
+<script src="physique.js?v=f1c1436"></script>
 <!-- Ce qui vole. Deuxième morceau de F2, et le socle de la salle de tir
      balistique : elle ne sera que `destin()` avec une vitesse choisie. -->
-<script src="vol.js?v=4da86e0"></script>
+<script src="vol.js?v=f1c1436"></script>
 <!-- L'horloge. Troisième morceau de F2, et celui qui rend structurellement
      impossible le défaut du disque à 622× : le temps simulé n'y est accessible
      qu'en lecture, et un second écrivain devient indicible. -->
-<script src="temps.js?v=4da86e0"></script>
-<script src="kerr.js?v=4da86e0"></script>
-<script src="vaisseau.js?v=4da86e0"></script>
+<script src="temps.js?v=f1c1436"></script>
+<script src="kerr.js?v=f1c1436"></script>
+<script src="vaisseau.js?v=f1c1436"></script>
 <!-- Marcher dans la pièce. Quatrième morceau de F2 : une fois sorti du bloc, on
      peut promener un corps dans le décor SANS navigateur — et le premier
      balayage a trouvé qu'on traversait le télescope.
@@ -2361,8 +2361,8 @@ void main(){
      APRÈS `vaisseau.js`, et l'ordre n'est pas négociable : le mobilier se
      construit à partir de la géométrie de la pièce, dès le chargement. Placé
      avant, il ne trouvait rien et emportait tout le bloc principal avec lui. -->
-<script src="arpente.js?v=4da86e0"></script>
-<script src="personnage.js?v=4da86e0"></script>
+<script src="arpente.js?v=f1c1436"></script>
+<script src="personnage.js?v=f1c1436"></script>
 <!-- `pantheon.js` N'EST PLUS CHARGÉ, et c'est délibéré.
 
      Il était chargé à chaque visite et `PANTHEON` n'était appelé nulle part —
@@ -2374,34 +2374,34 @@ void main(){
      pas encore — voir CHUTE.md, écrit et jamais branché. Le jour où la salle de
      tir existera, cette ligne revient telle quelle.
 
-     <script src="pantheon.js?v=4da86e0"></script> -->
+     <script src="pantheon.js?v=f1c1436"></script> -->
 
-<script src="robot.js?v=4da86e0"></script>
-<script src="musique.js?v=4da86e0"></script>
+<script src="robot.js?v=f1c1436"></script>
+<script src="musique.js?v=f1c1436"></script>
 
 <!-- Le voyage. L'ordre compte : recul.js appelle VOYAGE.entre au chargement de
      ses propres constantes, donc voyage1g.js doit être passé avant lui. -->
-<script src="voyage1g.js?v=4da86e0"></script>
-<script src="recul.js?v=4da86e0"></script>
-<script src="etoiles.js?v=4da86e0"></script>
-<script src="format.js?v=4da86e0"></script>
-<script src="spectre.js?v=4da86e0"></script>
-<script src="banc.js?v=4da86e0"></script>
-<script src="ecrans.js?v=4da86e0"></script>
-<script src="dossier.js?v=4da86e0"></script>
-<script src="aveu.js?v=4da86e0"></script>
-<script src="calque.js?v=4da86e0"></script>
-<script src="habitacle.js?v=4da86e0"></script>
-<script src="libelles.js?v=4da86e0"></script>
-<script src="resolution.js?v=4da86e0"></script>
-<script src="registre.js?v=4da86e0"></script>
-<script src="cockpit.js?v=4da86e0"></script>
-<script src="camera.js?v=4da86e0"></script>
-<script src="gestes.js?v=4da86e0"></script>
-<script src="manette.js?v=4da86e0"></script>
-<script src="lumen.js?v=4da86e0"></script>
-<script src="progression.js?v=4da86e0"></script>
-<script src="lieux.js?v=4da86e0"></script>
+<script src="voyage1g.js?v=f1c1436"></script>
+<script src="recul.js?v=f1c1436"></script>
+<script src="etoiles.js?v=f1c1436"></script>
+<script src="format.js?v=f1c1436"></script>
+<script src="spectre.js?v=f1c1436"></script>
+<script src="banc.js?v=f1c1436"></script>
+<script src="ecrans.js?v=f1c1436"></script>
+<script src="dossier.js?v=f1c1436"></script>
+<script src="aveu.js?v=f1c1436"></script>
+<script src="calque.js?v=f1c1436"></script>
+<script src="habitacle.js?v=f1c1436"></script>
+<script src="libelles.js?v=f1c1436"></script>
+<script src="resolution.js?v=f1c1436"></script>
+<script src="registre.js?v=f1c1436"></script>
+<script src="cockpit.js?v=f1c1436"></script>
+<script src="camera.js?v=f1c1436"></script>
+<script src="gestes.js?v=f1c1436"></script>
+<script src="manette.js?v=f1c1436"></script>
+<script src="lumen.js?v=f1c1436"></script>
+<script src="progression.js?v=f1c1436"></script>
+<script src="lieux.js?v=f1c1436"></script>
 <script>
 "use strict";
 
@@ -6009,7 +6009,7 @@ requestAnimationFrame(boucle);
 <script>
 if(/[?&]verif\b/.test(location.search)){
   var s = document.createElement("script");
-  s.src = "verif.js?v=4da86e0";
+  s.src = "verif.js?v=f1c1436";
   document.body.appendChild(s);
 }
 /* Et le protocole d'essai joué : `?test`. Il pose ses questions au moment où la
@@ -6019,7 +6019,7 @@ if(/[?&]verif\b/.test(location.search)){
    script contrôle mieux. */
 if(/[?&]test\b/.test(location.search)){
   var e = document.createElement("script");
-  e.src = "essai.js?v=4da86e0";
+  e.src = "essai.js?v=f1c1436";
   document.body.appendChild(e);
 }
 /* Et la séance de jugement : `?juge`. Elle ne demande QUE ce qu'aucun calcul ne
@@ -6028,7 +6028,7 @@ if(/[?&]test\b/.test(location.search)){
    Claude, prêt à coller. On ne lit rien, on ne navigue pas. */
 if(/[?&]juge\b/.test(location.search)){
   var j = document.createElement("script");
-  j.src = "juge.js?v=4da86e0";
+  j.src = "juge.js?v=f1c1436";
   document.body.appendChild(j);
 }
 </script>
