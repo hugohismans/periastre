@@ -2313,19 +2313,35 @@ void main(){
      Le choix se propose d'après la langue du navigateur, se modifie, et se
      retient. Jamais il ne s'impose : quelqu'un dont le navigateur est en anglais
      peut très bien vouloir lire en français. -->
+<!-- `accueil.js` est chargé ICI, et pas avec les autres modules plus bas : c'est
+     lui qui décide de la langue, et cette décision doit précéder le
+     `document.write` des fichiers de contenu. Il ne dépend de rien. -->
+<script src="accueil.js?v=f3440f7"></script>
 <script>
 (function(){
-  var l = null;
-  try { l = localStorage.getItem("periastre.langue"); } catch(e){}
-  if(l !== "fr" && l !== "en")
-    l = /^fr/i.test(navigator.language || "fr") ? "fr" : "en";
-  window.LANGUE = l;
-  document.documentElement.lang = l;
-  document.write('<script src="' + (l === "en" ? "contenu.en.js" : "contenu.js") + '?v=f3440f7"><\/script>');
+  /* L'adaptateur de la mémoire de la langue. Il porte la clé et les `try` de la
+     navigation privée ; le module ne connaît ni l'une ni les autres — c'est ce
+     qui permet à un outil de lui tendre une fausse mémoire et d'éprouver les
+     deux chemins sans navigateur.
+
+     UN DÉTAIL QUI SE VOIT DANS LES CONTRÔLES ET NULLE PART AILLEURS : le repli
+     sur le français se fait AVANT le test du navigateur, donc un navigateur
+     muet donne du français et non de l'anglais. À l'écran les deux chemins
+     donnent la même page ; c'est `source` qui les distingue. */
+  var m = {
+    lit:   function(){ try { return localStorage.getItem("periastre.langue"); } catch(e){ return null; } },
+    ecrit: function(c){ try { localStorage.setItem("periastre.langue", c); } catch(e){} },
+  };
+  var d = ACCUEIL.langue({ memoire: m, navigateur: navigator.language });
+  window.LANGUE = d.code;
+  window.MEMOIRE_LANGUE = m;                  // le sélecteur de langue s'en ressert
+  document.documentElement.lang = d.html;
+  document.write('<script src="' + d.fichierContenu + '?v=f3440f7"><\/script>');
   // Les chaînes d'interface : le français TOUJOURS, l'anglais par-dessus. Une
   // clé oubliée retombe ainsi sur une phrase, jamais sur un identifiant nu.
-  document.write('<script src="ui.fr.js?v=f3440f7"><\/script>');
-  if(l === "en") document.write('<script src="ui.en.js?v=f3440f7"><\/script>');
+  d.fichiersInterface.forEach(function(f){
+    document.write('<script src="' + f + '?v=f3440f7"><\/script>');
+  });
 })();
 </script>
 <!-- ══════════════════════════════════════════════════════════════════════════
@@ -2400,7 +2416,8 @@ void main(){
 <script src="gestes.js?v=f3440f7"></script>
 <script src="manette.js?v=f3440f7"></script>
 <script src="lumen.js?v=f3440f7"></script>
-<script src="accueil.js?v=f3440f7"></script>
+<!-- `accueil.js` n'est pas ici : il est chargé en tête de page, avant le choix
+     de la langue, parce que c'est lui qui le décide. -->
 <script src="progression.js?v=f3440f7"></script>
 <script src="lieux.js?v=f3440f7"></script>
 <script>
@@ -4691,19 +4708,26 @@ CONTENU.voix.forEach((v, i) => {
    des deux oubliera d'enregistrer, ou affichera l'actif au mauvais endroit. */
 function poseChoixLangue(hote, court){
   if(!hote) return;
-  [["Français", "fr"], ["English", "en"]].forEach(([nom, code]) => {
-    const b = document.createElement("button");
-    b.textContent = court ? code.toUpperCase() : nom;
-    b.lang = code;
-    if(court) b.title = nom;
-    b.classList.toggle("actif", window.LANGUE === code);
-    b.onclick = () => {
-      if(window.LANGUE === code) return;
-      try { localStorage.setItem("periastre.langue", code); } catch(e){}
-      location.reload();
+  /* La page pose DEUX exemplaires de ce sélecteur — un dans les réglages, un sur
+     l'accueil. Deux fabriques pour un seul réglage, c'est la garantie qu'un jour
+     l'une des deux oubliera d'enregistrer, ou marquera l'actif au mauvais
+     endroit. Le module en donne une seule liste, et `choisitLangue` refuse une
+     langue inconnue ou celle qui est déjà en cours. */
+  for(const b of ACCUEIL.boutonsLangue(window.LANGUE)){
+    const el = document.createElement("button");
+    el.textContent = court ? b.court : b.nom;
+    el.lang = b.code;
+    if(court) el.title = b.nom;
+    el.classList.toggle("actif", b.actif);
+    el.onclick = () => {
+      const o = ACCUEIL.choisitLangue({ code: b.code, courante: window.LANGUE });
+      if(!o) return;
+      MEMOIRE_LANGUE.ecrit(o.range);
+      // Changer de langue change le fichier de CONTENU : il faut recharger.
+      if(o.recharge) location.reload();
     };
-    hote.appendChild(b);
-  });
+    hote.appendChild(el);
+  }
 }
 poseChoixLangue($("langue-choix"), false);
 poseChoixLangue($("acc-langue"), true);

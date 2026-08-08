@@ -99,7 +99,25 @@ const sourcesOutils = outils.map(o => fs.readFileSync(path.join(ici, o), "utf8")
    `outils/version.mjs`, corrigé le même jour : dès qu'une seconde page existe,
    tout outil qui n'en connaît qu'une ment. */
 const PAGES = fs.readdirSync(ici).filter(f => f.endsWith(".html"));
-const page = PAGES.map(f => fs.readFileSync(path.join(ici, f), "utf8")).join("\n");
+
+/* LE CHARGEUR DE LANGUE COMPTE COMME UNE PAGE, ET IL A FALLU L'APPRENDRE.
+
+   Les quatre fichiers de contenu — `contenu.js`, `contenu.en.js`, `ui.fr.js`,
+   `ui.en.js` — étaient nommés dans `index.html`, dans le `document.write` qui
+   choisit la langue. Le 9 août ce choix est parti dans `accueil.js` : la page ne
+   nomme plus que le résultat, `d.fichierContenu`.
+
+   Cet inventaire les a donc déclarés « hors page et sans raison écrite », tous
+   les quatre, d'un coup. Il avait raison de crier — leurs noms n'étaient plus là
+   où il regardait — et il aurait été facile de le faire taire en leur inventant
+   une raison dans la table plus bas. C'aurait été un mensonge : ils SONT
+   chargés, à chaque visite, avant tout le reste.
+
+   On lui apprend donc où regarder. Le chargeur nomme les fichiers qu'il écrit ;
+   c'est une source de chargement au même titre qu'une balise. */
+const CHARGEURS = ["accueil.js"].filter(f => fs.existsSync(path.join(ici, f)));
+const page = PAGES.concat(CHARGEURS)
+  .map(f => fs.readFileSync(path.join(ici, f), "utf8")).join("\n");
 
 /* UN MODULE PEUT ÊTRE GARDÉ DE DEUX FAÇONS, ET LA PREMIÈRE VERSION N'EN VOYAIT
    QU'UNE. Elle cherchait le nom de FICHIER dans les outils, et déclarait donc
