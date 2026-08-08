@@ -593,13 +593,26 @@ function controleCorruption(A){
     { nom: "un tableau",                brut: [1, 2, 3],   venu: false, niv: false },
     { nom: "un objet vide",             brut: {},          venu: false, niv: false },
     { nom: "`deja` en chaîne",          brut: { deja: "peut-être" },   venu: true,  niv: false },
-    { nom: "`deja` à faux",             brut: { deja: false, niveau: 1 }, venu: false, niv: true },
+    { nom: "`deja` à faux",             brut: { deja: false, niveau: 1 }, venu: false, niv: false },
     { nom: "un niveau en toutes lettres", brut: { deja: true, niveau: "deux" }, venu: true, niv: false },
     { nom: "un niveau à virgule",       brut: { deja: true, niveau: 1.5 },     venu: true, niv: false },
     { nom: "un niveau infini",          brut: { deja: true, niveau: Infinity }, venu: true, niv: false },
     { nom: "un niveau NaN",             brut: { deja: true, niveau: NaN },      venu: true, niv: false },
-    { nom: "un niveau négatif",         brut: { deja: true, niveau: -5 },       venu: true, niv: true },
-    { nom: "un niveau trop grand",      brut: { deja: true, niveau: 999 },      venu: true, niv: true },
+    { nom: "un niveau négatif",         brut: { deja: true, niveau: -5 },       venu: true, niv: false },
+    { nom: "un niveau trop grand",      brut: { deja: true, niveau: 999 },      venu: true, niv: false },
+
+    /* LES TROIS QUI DISENT LA LOI RÉPARÉE — 9 août.
+
+       « A-t-on répondu » ne se déduit plus de la présence de `niveau`. Franchir
+       la porte range `niveau: 0` tout seul, et le déduire de là privait de la
+       question quiconque rechargeait tôt. Le drapeau est maintenant explicite,
+       posé au seul endroit où l'on répond vraiment. */
+    { nom: "sortie de porte : un niveau rangé, mais pas de choix",
+      brut: { deja: true, niveau: 0 },                        venu: true, niv: false },
+    { nom: "on a vraiment répondu",
+      brut: { deja: true, niveau: 2, niveauChoisi: true },     venu: true, niv: true },
+    { nom: "un drapeau de réponse mal formé ne compte pas",
+      brut: { deja: true, niveau: 2, niveauChoisi: "oui" },    venu: true, niv: false },
     { nom: "une version d'il y a six mois", brut: { v: 0, level: 2, unlocked: ["m-chute"] },
       venu: false, niv: false },
   ];
@@ -619,8 +632,10 @@ function controleCorruption(A){
        r.dejaVenu === c.venu && r.dejaNiveau === c.niv,
        "déjà venu " + c.venu + ", niveau connu " + c.niv,
        "déjà venu " + r.dejaVenu + ", niveau connu " + r.dejaNiveau,
-       "les deux expressions sont celles d'`index.html` au caractère près : "
-       + "`!!(m && m.deja)` et `Number.isInteger(m.niveau)`");
+       "`!!(m && m.deja)` pour l'un ; pour l'autre `m.niveauChoisi === true`, et "
+       + "PLUS `Number.isInteger(m.niveau)` — la porte d'entrée range `niveau: 0` "
+       + "toute seule, donc le déduire de là privait de la question quiconque "
+       + "rechargeait avant la fin de la quête");
     const sale = malsain(r);
     ok("mémoire « " + c.nom + " » — rien de non fini ne sort", sale.length === 0,
        "aucun", sale.length ? sale.join(", ") : "aucun");
@@ -815,14 +830,28 @@ function controleNiveau(A){
   // ── une seule fois : la garde tient sur la mémoire.
   {
     const etat = A.etatNeuf();
-    A.arrivee(etat, { brut: { deja: true, niveau: 1 }, iNiveau: 1, nNiveaux: NIVEAUX.length });
-    ok("une mémoire qui porte déjà un niveau ne redemande rien",
+    A.arrivee(etat, { brut: { deja: true, niveau: 1, niveauChoisi: true },
+                      iNiveau: 1, nNiveaux: NIVEAUX.length });
+    ok("une mémoire où l'on a RÉPONDU ne redemande rien",
        A.faudraDemanderNiveau(etat) === false, "false", A.faudraDemanderNiveau(etat),
-       "c'est la garde d'`index.html`, au caractère près : `if(!dejaNiveau)`");
+       "c'est la garde d'`index.html` : `if(!dejaNiveau)`");
     const neuf = A.etatNeuf();
     A.arrivee(neuf, { brut: { deja: true }, iNiveau: 0, nNiveaux: NIVEAUX.length });
-    ok("une mémoire sans niveau, elle, pose la question",
+    ok("une mémoire sans réponse, elle, pose la question",
        A.faudraDemanderNiveau(neuf) === true, "true", A.faudraDemanderNiveau(neuf));
+
+    /* LE CONTRÔLE DE LA RÉPARATION, et c'est celui qui compte.
+
+       Franchir la porte appelle `sauve()`, qui range `niveau: 0` — la valeur du
+       code, pas un choix. Avant le 9 août, cette seule mémoire-là suffisait à
+       taire la question pour toujours : on entrait, on rechargeait, on restait
+       en « Découverte » sans avoir rien demandé. */
+    const porte = A.etatNeuf();
+    A.arrivee(porte, { brut: { deja: true, niveau: 0 }, iNiveau: 0, nNiveaux: NIVEAUX.length });
+    ok("sortir par la porte ne vaut PAS avoir répondu",
+       A.faudraDemanderNiveau(porte) === true, "true", A.faudraDemanderNiveau(porte),
+       "`niveau: 0` est ce que la porte range toute seule ; le confondre avec un "
+       + "choix privait de la question quiconque rechargeait tôt");
   }
   // ── la réponse se range, et au passage suivant la question ne revient plus.
   {
@@ -834,11 +863,14 @@ function controleNiveau(A){
        "{ iNiveau:2, enregistre, repeintFiche }",
        ch ? JSON.stringify({ i: ch.iNiveau, e: ch.enregistre, f: ch.repeintFiche })
           : "la question n'a jamais été posée");
-    // La page range `niveau: iNiveau` : c'est cette mémoire-là qu'on relit.
+    /* La page range `niveau: iNiveau` ET `niveauChoisi: true` — c'est cette
+       mémoire-là qu'on relit. Le second champ est ce que la réparation du 9 août
+       a ajouté : sans lui, on ne saurait pas distinguer « a répondu 0 » de
+       « a franchi la porte », puisque la porte range zéro toute seule. */
     const range = ch ? ch.iNiveau : 2;
     const suivant = A.etatNeuf();
-    A.arrivee(suivant, { brut: { deja: true, niveau: range }, iNiveau: range,
-                         nNiveaux: NIVEAUX.length });
+    A.arrivee(suivant, { brut: { deja: true, niveau: range, niveauChoisi: true },
+                         iNiveau: range, nNiveaux: NIVEAUX.length });
     ok("et au rechargement suivant, on ne la repose pas",
        A.faudraDemanderNiveau(suivant) === false, "false",
        A.faudraDemanderNiveau(suivant),

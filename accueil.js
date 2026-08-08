@@ -266,7 +266,23 @@ function arrivee(etat, e){
   const brut = e.brut;
   const objet = !!brut && typeof brut === "object";
   const dejaVenu   = !!(brut && brut.deja);
-  const dejaNiveau = !!(brut && Number.isInteger(brut.niveau));
+  /* `niveauChoisi`, ET NON la présence de `niveau`.
+
+     Ce module avait été écrit pour reproduire la page à la lettre, défaut
+     compris — et le défaut était ici. « A-t-on répondu ? » se décidait sur la
+     PRÉSENCE de `niveau` en mémoire, or franchir la porte d'entrée range déjà
+     `niveau: 0` : la valeur du code, pas un choix. Quiconque entrait puis
+     rechargeait avant la fin de la quête n'avait plus jamais la question, et
+     restait en « Découverte » sans l'avoir demandé.
+
+     Réparé dans la page le 9 août, avec un drapeau posé au seul endroit où l'on
+     répond vraiment. Le module suit — sinon le brancher réintroduirait ce qu'on
+     vient de corriger, ce qui est la pire façon de déménager du code.
+
+     Les mémoires d'avant ne portent pas ce drapeau : elles reposeront la
+     question une fois. C'est le bon défaut — on la repose à qui n'a peut-être
+     pas répondu, plutôt que de la taire à qui n'a pas pu. */
+  const dejaNiveau = !!(brut && brut.niveauChoisi === true);
 
   etat.dejaVenu = dejaVenu;
   etat.dejaNiveau = dejaNiveau;
