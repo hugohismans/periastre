@@ -265,6 +265,17 @@ Object.assign(window.UI, {
 
 /* THE ADMISSIONS CENTRE — 9 August 2026. The word "admission" never appears on
    screen: we don't apologise, we state what the simulation allows itself. */
+/* The render — simulation or cinema, 10 August. Both are exact where it
+   matters; one adds what a film would add, the other declines. */
+"rendu.etiq":            "Render",
+"rendu.cinema":          "Cinema",
+"rendu.simulation":      "Simulation",
+"rendu.cinema.note":     "The image adds what a film would add: the background "
+                       + "nebula is scenery, and it is admitted as such.",
+"rendu.simulation.note": "Only what can be computed: the nebula goes dark. The "
+                       + "stars remain — they are truly there, and their honest "
+                       + "density will arrive sourced, not guessed.",
+
 "aveu.notif":            "what the simulation allows itself",
 "aveu.reste":            "and {n} more here",
 "aveu.centre.titre":     "What we allow ourselves",

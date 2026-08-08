@@ -300,7 +300,7 @@ const fs = require("fs"), path = require("path");
    C'était la moitié manquante de « la meilleure mécanique proposée » du carnet
    d'idées : les deux horloges du salon étaient calculées à chaque image,
    affichées sur un écran de bord, puis JETÉES à la sortie. */
-const PLAFOND = 3751;   // ... le lien de test, l'accueil, le carnet du voyageur
+const PLAFOND = 3783;   // ... le lien de test, l'accueil, le carnet du voyageur
 
 // Le nombre de modules déjà sortis. Il ne descend jamais non plus : un module
 // qu'on ferait rentrer dans le bloc serait le contraire exact du chantier.

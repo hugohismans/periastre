@@ -263,6 +263,17 @@ window.UI = {
 /* LE CENTRE DES AVEUX — 9 août 2026. « Ce genre d'info doit être comme une
    notification. » Le mot « aveu » n'apparaît nulle part à l'écran : on ne
    s'excuse pas, on dit ce que la simulation s'autorise. */
+/* Le rendu — simulation ou cinéma, 10 août. Les deux sont exacts là où ça
+   compte ; l'un ajoute ce qu'un film ajouterait, l'autre s'en prive. */
+"rendu.etiq":            "Rendu",
+"rendu.cinema":          "Cinéma",
+"rendu.simulation":      "Simulation",
+"rendu.cinema.note":     "L'image ajoute ce qu'un film ajouterait : la nébuleuse "
+                       + "du fond est un décor, et elle est avouée comme tel.",
+"rendu.simulation.note": "Rien que ce qui se calcule : la nébuleuse s'éteint. "
+                       + "Les étoiles restent — il y en a vraiment, et leur "
+                       + "juste densité arrivera sourcée, pas au jugé.",
+
 "aveu.notif":            "ce que la simulation s'autorise",
 "aveu.reste":            "et {n} autre(s) à cet endroit",
 "aveu.centre.titre":     "Ce qu'on s'autorise",

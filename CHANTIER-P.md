@@ -22,7 +22,7 @@ Une ligne `## ARRÊT — <pourquoi>` en tête de ce fichier suspend le hook.
 ## P2 — Simulation / cinéma
 
 - [ ] 2.1 sourcer la densité du champ d'étoiles depuis l'amas nucléaire → `contenu.js`, gardé par `outil-verif-contenu.js`
-- [ ] 2.2 le module du mode (quels uniformes chaque mode commande), avec son outil
+- [x] 2.2 le module du mode (quels uniformes chaque mode commande), avec son outil
 - [ ] 2.3 le choix au premier passage, à côté de la langue (`accueil.js`)
 - [ ] 2.4 le sort du bouton « Lumière réelle » — un cran du mode
 - [ ] 2.5 les aveux disent ce que « cinéma » ajoute (`aveu.js`)

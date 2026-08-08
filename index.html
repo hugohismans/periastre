@@ -1380,6 +1380,15 @@ body.au-salon:not(.mode-boutons) #dock { opacity:0; pointer-events:none; }
     <div class="etiq">Langue — Language</div>
     <div class="grille" id="langue-choix"></div>
   </div>
+  <!-- LE RENDU — simulation ou cinéma. L'idée d'Hugo du 5 août : le site promet
+       que tout est calculé, c'est vrai de la géométrie et faux du fond de ciel.
+       Deux rendus séparés rendent la promesse lisible. La décision vit dans
+       `rendu.js` ; ici on peint et on retient. -->
+  <div class="bloc">
+    <div class="etiq" id="rendu-etiq"></div>
+    <div class="grille" id="rendu-choix"></div>
+    <div id="rendu-note"></div>
+  </div>
   <div class="bloc">
     <div class="etiq">Voix de Lumen</div>
     <div class="grille" id="voix-choix"></div>
@@ -1728,6 +1737,7 @@ uniform vec3  uPhotons[4];
 uniform int   uNbPhotons;
 uniform vec3  uVitesse;      // vitesse de la caméra mesurée par l'observateur statique local
 uniform float uReel;         // 0 = image travaillée, 1 = ce que verrait un œil humain
+uniform float uNebuleuse;    // 1 = cinéma (nébuleuse décorative), 0 = simulation
 uniform float uSpectre;      // 1 = on observe dans une bande précise
 uniform float uRphoto;       // rayon où le flux devient opaque à cette longueur d'onde
 uniform vec3  uTeinte;       // fausse couleur de la bande
@@ -1850,7 +1860,10 @@ vec3 ciel(vec3 d){
   vec3 e = couche(d,  95.0, 0.070)
          + couche(d, 205.0, 0.060) * 0.75
          + couche(d, 410.0, 0.050) * 0.48;
-  return neb + e*2.3;
+  // La nébuleuse est un DÉCOR — l'aveu « fond-ciel » le dit depuis le début.
+  // Le mode simulation l'éteint ; les étoiles, elles, restent : il y en a
+  // vraiment, et leur densité honnête arrivera sourcée, pas au jugé.
+  return neb * uNebuleuse + e*2.3;
 }
 
 // ---------- disque d'accrétion ----------
@@ -2434,6 +2447,7 @@ void main(){
 <script src="dossier.js?v=c4484aa"></script>
 <script src="aveu.js?v=c4484aa"></script>
 <script src="spin.js?v=c4484aa"></script>
+<script src="rendu.js?v=c4484aa"></script>
 <script src="calque.js?v=c4484aa"></script>
 <script src="habitacle.js?v=c4484aa"></script>
 <script src="libelles.js?v=c4484aa"></script>
@@ -2538,7 +2552,7 @@ gl.bindVertexArray(null);
 const U = n => gl.getUniformLocation(prog, n);
 const uRes = U("uRes"), uTemps = U("uTemps"), uCam = U("uCam"), uBasis = U("uBasis"),
       uFocal = U("uFocal"), uPhotons = U("uPhotons"), uNbPhotons = U("uNbPhotons"),
-      uVitesse = U("uVitesse"), uReel = U("uReel"),
+      uVitesse = U("uVitesse"), uReel = U("uReel"), uNebuleuse = U("uNebuleuse"),
       uSpectre = U("uSpectre"), uRphoto = U("uRphoto"),
       uTeinte = U("uTeinte"), uEclat = U("uEclat"), uSpin = U("uSpin"),
       uSteps = U("uSteps"), uPas = U("uPas"), uSeuilCapture = U("uSeuilCapture"),
@@ -4857,6 +4871,37 @@ function poseCurseurSpin(hote, idNote){
 
 poseCurseurSpin($("spin-choix"), "spin-note");
 
+/* LE RENDU — simulation ou cinéma. La décision de ce que chaque mode commande
+   vit dans `rendu.js` ; ici on retient le choix et on peint le sélecteur.
+
+   Sa propre clé de mémoire, comme les aveux : le mode est une CHAÎNE, et la
+   table `CHAMPS` de `progression.js` ne connaît que entiers, nombres et
+   booléens. Quatre lignes ici coûtent moins qu'un type là-bas — l'argument est
+   écrit dans `progression.js` même, et il a déjà servi. `RENDU.borne` avale
+   n'importe quelle mémoire abîmée. */
+const CLE_RENDU = "periastre.rendu";
+let modeRendu = RENDU.DEFAUT;
+try { modeRendu = RENDU.borne(localStorage.getItem(CLE_RENDU)); } catch(e){}
+
+function poseChoixRendu(){
+  const hote = $("rendu-choix");
+  $("rendu-etiq").textContent = T("rendu.etiq");
+  RENDU.MODES.forEach(m => {
+    const b = document.createElement("button");
+    b.textContent = T("rendu." + m);
+    b.classList.toggle("actif", m === modeRendu);
+    b.onclick = () => {
+      modeRendu = RENDU.borne(m);
+      try { localStorage.setItem(CLE_RENDU, modeRendu); } catch(e){}
+      [...hote.children].forEach(c => c.classList.toggle("actif", c === b));
+      $("rendu-note").textContent = T("rendu." + modeRendu + ".note");
+    };
+    hote.appendChild(b);
+  });
+  $("rendu-note").textContent = T("rendu." + modeRendu + ".note");
+}
+poseChoixRendu();
+
 const boitierVol = $("volume");
 [["panneau.volume.discret", 0.28], ["panneau.volume.normal", 0.5],
  ["panneau.volume.fort", 0.75], ["panneau.volume.tresfort", 1.0]].forEach(([cle, v], i) => {
@@ -6064,6 +6109,7 @@ function boucle(now){
   gl.uniform1i(uNbPhotons, Math.min(photons.length, 4));
   gl.uniform3fv(uVitesse, cam.vitesse);
   gl.uniform1f(uReel, reel);
+  gl.uniform1f(uNebuleuse, RENDU.uniformes(modeRendu).nebuleuse);
   gl.uniform1f(uSpectre, spectreActif ? 1 : 0);
   gl.uniform1f(uSpin, spin*M);            // spin réduit a* -> a
   gl.uniform1i(uSteps, nbPas);
