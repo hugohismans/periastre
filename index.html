@@ -2860,11 +2860,23 @@ addEventListener("keydown", e => {
   });
 });
 
-// Rouvrir un lien de position remet la scène exactement où elle était.
-if(location.hash.startsWith("#etat=")){
-  try{ appliqueEtat(JSON.parse(decodeURIComponent(location.hash.slice(6)))); }
-  catch(_){ /* rien : on entre normalement */ }
-}
+/* La RESTAURATION du lien `#etat=` ne se fait plus ici : elle a été descendue
+   à la fin du démarrage, après `intro()`.
+
+   Elle vivait à cet endroit et elle ne marchait pas. `appliqueEtat` lit `$`, qui
+   est déclaré dans le bloc de script SUIVANT : deux balises partagent la portée
+   globale mais pas le moment, et quand ce bloc-ci s'exécute, le `const $` de
+   l'autre n'existe pas encore. Zone morte, exception — avalée par le `try` qui
+   est là pour qu'un lien abîmé n'empêche pas d'entrer, et qui a donc masqué le
+   défaut pendant tout ce temps. Le lien s'ouvrait, ne restaurait rien, et ne
+   disait rien.
+
+   Ça n'a pas tué la page, et c'est bien pire : c'est le protocole de test
+   d'Hugo. La touche C fabrique un lien de la scène pour qu'il me le recolle, et
+   ce lien ne remettait pas la scène.
+
+   Trouvé le 9 août par `outil-verif-ordre.js`, le jour où il a appris à suivre
+   les appels — il ne le voyait pas la veille. */
 // Après les déclarations, jamais avant : `axe` est un const, et l'appeler plus
 // haut lèverait une erreur de zone morte qui emporterait tout le script.
 brancheManette();
@@ -5531,6 +5543,21 @@ if(memoire){
   majMission();
 }
 intro();
+
+/* Rouvrir un lien de position remet la scène exactement où elle était.
+
+   ICI, et plus dans le bloc A où ça ne marchait pas : il faut que `$` existe,
+   que `vaAu` existe, ET que le `onclick` du bouton du salon soit posé — sans
+   quoi le `click()` d'`appliqueEtat` ne déclenche rien. Les trois ne sont vrais
+   qu'à la fin du démarrage.
+
+   Après `intro()` et non avant : la scène se remet en place derrière l'écran
+   d'accueil, qui garde son mot à dire. Un lien ne doit pas court-circuiter la
+   porte d'entrée — il doit décider ce qu'on trouve en la franchissant. */
+if(location.hash.startsWith("#etat=")){
+  try{ appliqueEtat(JSON.parse(decodeURIComponent(location.hash.slice(6)))); }
+  catch(_){ /* rien : on entre normalement */ }
+}
 
 // FIN DU BLOC B. La couture tombe juste après `intro()` : les dix-neuf lignes
 // ci-dessus lisent douze noms de cinq domaines, tous déclarés au-dessus d'elles.

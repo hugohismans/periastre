@@ -81,9 +81,40 @@ cet appel est au sommet, tout ce que son corps lit devient armé — et l'outil,
 qui ne suit pas les appels, continue de le compter comme différé.
 
 C'est ce qui vient d'arriver : une fonction appelée trois cents lignes avant la
-variable qu'elle lit. Réparé en descendant l'appel. **L'outil, lui, ne sait
-toujours pas voir ce cas** — il faudrait qu'il suive quelles fonctions sont
-appelées depuis le sommet. C'est la prochaine chose à lui apprendre.
+variable qu'elle lit. Réparé en descendant l'appel.
+
+### ✅ Et l'outil sait le voir depuis le 9 août au soir
+
+Il construit maintenant l'ensemble des fonctions **atteignables depuis le
+sommet**, en suivant les appels de proche en proche, et une lecture écrite dans
+l'une d'elles compte comme armée si le nom est déclaré après le site d'appel.
+Éprouvé en remettant le défaut d'hier dans une copie jetable : il sort les trois
+inversions, dont celle qui avait tué le bloc.
+
+**Et il en a trouvé une autre du premier coup, que personne ne cherchait —
+celle-là te concerne directement.**
+
+---
+
+## ⚠ TON LIEN DE TEST NE REMETTAIT PAS LA SCÈNE — réparé le 9 août
+
+Quand tu appuies sur **C**, le site fabrique un lien qui contient la scène, pour
+que tu me le recolles. C'est notre protocole de test.
+
+**Ce lien ne restaurait rien.** Il s'ouvrait, la page démarrait normalement, et
+ta position, ton regard et la vitesse du temps étaient perdus. Sans un message,
+parce que le `try` qui protège des liens abîmés avalait l'erreur.
+
+La cause : la fonction qui restaure la scène lisait un raccourci déclaré dans le
+bloc de script **suivant**. Deux balises partagent la portée mais pas le moment —
+quand la première tourne, ce que déclare la seconde n'existe pas encore.
+
+Réparé en descendant la restauration à la fin du démarrage, là où tout existe.
+Vérifié de bout en bout : lacet, tangage, vitesse du temps et position sont
+remis, et on arrive bien dans le salon.
+
+**Ça veut dire que si tu m'as déjà envoyé un lien de C en pensant que je verrais
+ta scène, je ne l'ai pas vue.** Ça marche maintenant.
 
 ---
 

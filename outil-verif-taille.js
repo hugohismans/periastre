@@ -242,14 +242,35 @@ const fs = require("fs"), path = require("path");
    son appel au sommet marchait — mais son corps lit un `let` déclaré trois cents
    lignes plus bas. Zone morte, exception, moitié du site éteinte.
 
-   `outil-verif-ordre.js` est resté vert, et c'est son angle mort : la lecture
-   est dans un corps de fonction, donc « différée » — il ne sait pas que cette
+   `outil-verif-ordre.js` est resté vert, et c'était son angle mort : la lecture
+   est dans un corps de fonction, donc « différée » — il ne savait pas que cette
    fonction est APPELÉE au sommet. Un appel hissé transforme une différée en
-   armée, et rien ne le mesure encore. C'est écrit dans `A-REGARDER.md`.
+   armée.
+
+   IL SAIT LE VOIR DEPUIS LE MÊME SOIR : il suit les appels de proche en proche,
+   et compte une troisième catégorie, `ARMEES_PAR_APPEL`, tenue à zéro. Il a
+   trouvé du premier coup un second cas que personne ne cherchait — le lien
+   `#etat=` de la touche C, qui ne remettait plus la scène depuis le découpage
+   du bloc. C'est le protocole de test d'Hugo, et il était muet.
 
    Le plafond redescendra au branchement d'`accueil.js`, qui rend plus de deux
    cents lignes. */
-const PLAFOND = 3607;   // ... Lumen, la manette, les aveux, et leur centre
+/* 3 634 — sixième hausse, vingt-sept lignes, et c'est le prix d'un défaut
+   qu'on vient de comprendre.
+
+   Le lien `#etat=` de la touche C ne remettait plus la scène : `appliqueEtat`
+   lisait un raccourci déclaré dans le bloc de script SUIVANT, l'exception était
+   avalée par le `try` qui protège des liens abîmés, et le lien s'ouvrait sans
+   rien restaurer. C'est le protocole de test d'Hugo — il me recolle un lien pour
+   que je voie sa scène — et il était muet depuis le découpage du bloc.
+
+   La restauration descend à la fin du démarrage, là où `$`, `vaAu` ET le
+   `onclick` du bouton du salon existent tous les trois. Le reste des vingt-sept
+   lignes explique pourquoi elle n'est plus là-haut, à l'endroit même où
+   quelqu'un voudra la remonter.
+
+   Le plafond redescendra au branchement d'`accueil.js`. */
+const PLAFOND = 3634;   // ... la manette, les aveux, leur centre, et le lien de test
 
 // Le nombre de modules déjà sortis. Il ne descend jamais non plus : un module
 // qu'on ferait rentrer dans le bloc serait le contraire exact du chantier.
