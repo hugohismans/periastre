@@ -224,7 +224,32 @@ const fs = require("fs"), path = require("path");
    et on ferme une fondation en échange.
 
    Il redescendra de plus de deux cents lignes au branchement d'`accueil.js`. */
-const PLAFOND = 3457;   // ... les gestes, Lumen, la manette, et les aveux de F4
+/* 3 607 le 9 août au soir — **CINQUIÈME HAUSSE**, la plus grosse, et la seule
+   demandée par Hugo lui-même.
+
+   Séance de jugement : « ça se voit pas assez, fais un genre de centre des
+   notifications, ce genre d'info doit être comme une notification ». Les badges
+   de F4 étaient posés au bon endroit et personne ne les voyait — un badge dans
+   un panneau qu'on a ouvert pour autre chose ne se lit pas.
+
+   Ce qui est arrivé : une bulle qui prévient à l'arrivée quelque part, un centre
+   qui garde tout ce qu'on a croisé, une pastille qui compte ce qui reste. Cent
+   cinquante lignes, presque toutes du DOM — la construction des nœuds, les deux
+   panneaux, la mémoire du déjà-vu. La DÉCISION, elle, est partie dans `aveu.js`
+   avec le reste : `neufs`, `annonce`, `centre`, `resteAVoir`.
+
+   ET CE CHANTIER-LÀ A TUÉ LE BLOC UNE QUATRIÈME FOIS. `poseAveux` est hissée,
+   son appel au sommet marchait — mais son corps lit un `let` déclaré trois cents
+   lignes plus bas. Zone morte, exception, moitié du site éteinte.
+
+   `outil-verif-ordre.js` est resté vert, et c'est son angle mort : la lecture
+   est dans un corps de fonction, donc « différée » — il ne sait pas que cette
+   fonction est APPELÉE au sommet. Un appel hissé transforme une différée en
+   armée, et rien ne le mesure encore. C'est écrit dans `A-REGARDER.md`.
+
+   Le plafond redescendra au branchement d'`accueil.js`, qui rend plus de deux
+   cents lignes. */
+const PLAFOND = 3607;   // ... Lumen, la manette, les aveux, et leur centre
 
 // Le nombre de modules déjà sortis. Il ne descend jamais non plus : un module
 // qu'on ferait rentrer dans le bloc serait le contraire exact du chantier.

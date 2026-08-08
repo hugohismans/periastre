@@ -36,6 +36,57 @@ enfler. **Les verdicts de la troisième séance sont à relire avec ça en tête
 
 ---
 
+## Séance du 9 août 2026 — appliquée
+
+Cinq verdicts, tous traités.
+
+**Le trou noir suivait ton regard.** *« Il est toujours au centre du regard du
+joueur, pas au centre de la vitre. Si je regarde à gauche, il part à gauche. »*
+C'est la trouvaille de la séance. La carte des étoiles est un diagramme : elle se
+centrait sur le milieu de l'image. Découpée à la baie elle paraissait bien
+derrière la vitre, mais elle restait collée à la tête. Elle se pose maintenant
+sur la position réelle du trou noir — mesuré : à 40° d'écart elle se décale de
+468 px avec lui, et à 90° il est derrière toi, donc plus rien ne se dessine.
+
+C'est aussi pour ça que tu ne voyais pas si « le trajet entier » relançait le
+voyage : rien ne semblait bouger, puisque l'astre suivait.
+
+**Le quadrillage déborde de la vitre.** *« Il faut qu'on le voie que derrière la
+vitre, comme pour les orbites. »* Fait — même découpage que les traces.
+
+**Les orbites, juste avant l'arrivée.** L'autre entrée est retirée ; la question
+se pose maintenant à 0,86.
+
+**Le bandeau de vol : ça va.** Rayé.
+
+**Les aveux ne se voyaient pas assez.** *« Fais un genre de centre des
+notifications. »* Fait, et le badge reste où il était — un compromis se déclare
+là où on le rencontre, c'était ta règle du 5 août. Ce qui manquait, c'était de
+le remarquer : une bulle prévient en arrivant quelque part, un centre garde les
+onze, une pastille compte ce qui reste à croiser.
+
+---
+
+## ⚠ UN ANGLE MORT DANS UN OUTIL, ET IL A MORDU
+
+L'outil qui surveille l'ordre des déclarations est resté vert pendant que le bloc
+mourait — pour la quatrième fois.
+
+Il classe une lecture selon l'endroit où elle est ÉCRITE : au sommet, c'est
+« armé », mortel tout de suite ; dans un corps de fonction, c'est « différé »,
+inoffensif jusqu'à ce qu'on déplace quelque chose.
+
+Mais une fonction déclarée est **hissée** : on peut l'appeler avant sa ligne. Si
+cet appel est au sommet, tout ce que son corps lit devient armé — et l'outil,
+qui ne suit pas les appels, continue de le compter comme différé.
+
+C'est ce qui vient d'arriver : une fonction appelée trois cents lignes avant la
+variable qu'elle lit. Réparé en descendant l'appel. **L'outil, lui, ne sait
+toujours pas voir ce cas** — il faudrait qu'il suive quelles fonctions sont
+appelées depuis le sommet. C'est la prochaine chose à lui apprendre.
+
+---
+
 ## ❓ DEUX CHOSES QUI T'APPARTIENNENT — 9 août 2026
 
 ### Lumen n'a rien à dire quand on touche le poste horaire
@@ -378,9 +429,9 @@ Trois questions, le 7 août au soir. Le chantier ouvert plus bas est fait :
 
 | quoi | ce qu'il faut regarder |
 |---|---|
-| **Le voyage, refait** | Large exprès : quatre choses ont changé en même temps. Deux entrées, le trajet entier ou l'arrivée seule. |
-| **Les orbites ont-elles l'air d'être dehors ?** | J'ai mesuré qu'elles ne peignent plus un pixel hors du cadre de la baie. Mais « ne pas déborder » et « avoir l'air d'être dehors » sont deux choses différentes, et la seconde ne se mesure pas. |
-| **Ce qu'on lit pendant le vol** | La forme du bandeau que tu as demandé. Les chiffres sont vrais ; c'est la lisibilité qui se juge. |
+| **Le voyage, refait** | ✅ **Jugé le 9 août** — et c'est de là qu'est sortie la trouvaille de la séance : le trou noir suivait ton regard. Réparé. La question devient « le trou noir reste-t-il en place ? ». |
+| **Les orbites ont-elles l'air d'être dehors ?** | ✅ **Jugé le 9 août** — tu gardes « juste avant l'arrivée ». La question s'y pose maintenant, et l'autre entrée est retirée. |
+| ~~**Ce qu'on lit pendant le vol**~~ | ✅ **Ça va — 9 août.** Le bandeau se lit, rien ne manque. Rayé, comme tu l'as demandé. |
 
 ---
 

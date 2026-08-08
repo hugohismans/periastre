@@ -254,6 +254,24 @@ window.UI = {
   "lumen.voix.couper":     "Couper la voix",
   "lumen.voix.activer":    "Activer la voix",
   "lumen.justif":          "d'où ça sort ?",
+
+/* LE CENTRE DES AVEUX — 9 août 2026. « Ce genre d'info doit être comme une
+   notification. » Le mot « aveu » n'apparaît nulle part à l'écran : on ne
+   s'excuse pas, on dit ce que la simulation s'autorise. */
+"aveu.notif":            "ce que la simulation s'autorise",
+"aveu.reste":            "et {n} autre(s) à cet endroit",
+"aveu.centre.titre":     "Ce qu'on s'autorise",
+"aveu.centre.pied":      "Tout le reste est calculé. Ces écarts-là sont assumés, "
+                       + "et chacun est écrit à l'endroit où on le rencontre.",
+"aveu.ou.salon":         "Dans le salon",
+"aveu.ou.reglages":      "Dans les réglages",
+"aveu.ou.reglage-temps": "Sur la vitesse du temps",
+"aveu.ou.telescope":     "Au télescope",
+"aveu.ou.spectre":       "Sur le spectre",
+"aveu.ou.recul":         "Pendant le voyage",
+"aveu.ou.arrivee":       "À l'arrivée",
+"aveu.ou.etude":         "Sur le trou noir d'étude",
+"aveu.ou.partout":       "Partout",
   "lumen.questions":       "Vas-y, demande :",
 
   // ---- la quête d'accueil ----

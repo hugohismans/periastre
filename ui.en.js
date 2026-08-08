@@ -257,6 +257,23 @@ Object.assign(window.UI, {
   "lumen.voix.couper":     "Mute the voice",
   "lumen.voix.activer":    "Turn the voice on",
   "lumen.justif":          "where's that from?",
+
+/* THE ADMISSIONS CENTRE — 9 August 2026. The word "admission" never appears on
+   screen: we don't apologise, we state what the simulation allows itself. */
+"aveu.notif":            "what the simulation allows itself",
+"aveu.reste":            "and {n} more here",
+"aveu.centre.titre":     "What we allow ourselves",
+"aveu.centre.pied":      "Everything else is computed. These departures are "
+                       + "deliberate, and each one is stated where you meet it.",
+"aveu.ou.salon":         "In the lounge",
+"aveu.ou.reglages":      "In the settings",
+"aveu.ou.reglage-temps": "On the speed of time",
+"aveu.ou.telescope":     "At the telescope",
+"aveu.ou.spectre":       "On the spectrum",
+"aveu.ou.recul":         "During the journey",
+"aveu.ou.arrivee":       "On arrival",
+"aveu.ou.etude":         "On the study black hole",
+"aveu.ou.partout":       "Everywhere",
   "lumen.questions":       "Go ahead, ask:",
 
   // ---- the opening quest ----

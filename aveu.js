@@ -124,6 +124,70 @@ function descripteur(c){
            titre: c.titre || null, detail: c.detail || c.texte || null };
 }
 
-global.AVEU = { LIEUX, tous, pour, descripteur };
+/* ---------------------------------------------------------------------------
+   LE CENTRE DES AVEUX — demandé le 9 août 2026
+
+   Hugo, séance de jugement : « ça se voit pas assez, fais un genre de centre des
+   notifications, ce genre d'info doit être comme une notification ».
+
+   Le badge dans le panneau ne bouge pas — un compromis se déclare là où on le
+   rencontre, c'est sa demande du 5 août et elle tient. Ce qui manquait, c'est de
+   le REMARQUER : un badge posé dans un panneau qu'on a ouvert pour autre chose
+   ne se lit pas. On prévient donc à l'arrivée, et l'on garde.
+
+   La DÉCISION est ici — qu'est-ce qui est neuf, qu'est-ce qu'on annonce — pour
+   qu'un contrôle puisse l'éprouver sans navigateur. La page ne fait que peindre
+   et tenir la mémoire du déjà-vu. */
+
+/* Ce qu'on n'a jamais croisé, à ce lieu-là. `vus` est un `Set` d'identifiants
+   que l'appelant garde ; le module ne le modifie pas — il dit, il ne range pas.
+
+   `partout` est ÉCARTÉ de l'annonce, et c'est délibéré : il accompagne chaque
+   lieu, donc il se rappellerait à chaque arrivée. Une notification qui revient
+   partout devient un bruit qu'on apprend à ignorer, ce qui est le contraire du
+   but. Il reste dans le centre, et son badge reste sur chaque panneau. */
+function neufs(contenu, ou, vus){
+  const vu = vus || new Set();
+  return pour(contenu, ou).filter(c => c.ou !== "partout" && !vu.has(c.id || c.aveu));
+}
+
+/* Ce que la bulle doit dire. Un seul compromis : deux à la fois se
+   chevaucheraient, et l'on n'en lirait aucun. Le reste attend le centre — c'est
+   à ça qu'il sert.
+
+   Rend `null` quand il n'y a rien de neuf, ce qui est le cas de l'écrasante
+   majorité des arrivées. */
+function annonce(contenu, ou, vus){
+  const n = neufs(contenu, ou, vus);
+  if(!n.length) return null;
+  return { descripteur: descripteur(n[0]), reste: n.length - 1,
+           ids: n.map(c => c.id || c.aveu) };
+}
+
+/* Tout le contenu du centre, groupé par lieu, dans l'ordre des lieux connus.
+   Chaque entrée porte son état : croisé ou pas. C'est ce qui permet au centre de
+   montrer ce qu'on n'a pas encore vu sans le cacher pour autant — un aveu qu'on
+   n'a pas croisé n'est pas un secret, c'est juste un endroit où l'on n'est pas
+   allé. */
+function centre(contenu, vus){
+  const vu = vus || new Set();
+  const groupes = [];
+  for(const ou of LIEUX){
+    const l = tous(contenu).filter(c => c.ou === ou);
+    if(!l.length) continue;
+    groupes.push({ ou, entrees: l.map(c => Object.assign(descripteur(c),
+                     { vu: vu.has(c.id || c.aveu) })) });
+  }
+  return groupes;
+}
+
+// Combien reste-t-il à croiser ? Le chiffre de la pastille. « partout » compte :
+// il est dans le centre, donc il se compte comme les autres.
+function resteAVoir(contenu, vus){
+  const vu = vus || new Set();
+  return tous(contenu).filter(c => !vu.has(c.id || c.aveu)).length;
+}
+
+global.AVEU = { LIEUX, tous, pour, descripteur, neufs, annonce, centre, resteAVoir };
 
 })(window);

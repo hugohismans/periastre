@@ -235,7 +235,18 @@ function dessine(ctx, W, H, dt, fond){
   ctx.save();
   if(fond !== undefined) ctx.globalAlpha = fond;
   ctx.fillStyle = "#05050a";
-  ctx.fillRect(0, 0, W, H);
+  /* LE VOILE DÉBORDE LARGEMENT, ET IL LE DOIT DEPUIS LE 9 AOÛT.
+
+     La page décale maintenant ce diagramme pour le poser là où le trou noir se
+     trouve vraiment, au lieu du milieu de l'image — sans quoi il suivait le
+     regard, ce qu'Hugo a vu tout de suite. Un voile à la taille exacte de
+     l'image laisserait donc un bord clair du côté opposé au décalage, et ce bord
+     tomberait pile dans la baie, c'est-à-dire au seul endroit qu'on regarde.
+
+     Deux images de large de chaque côté : le décalage vaut la distance entre le
+     centre de l'image et l'astre, qui n'est visible que s'il est dans le champ.
+     Au-delà, `projette` rend `null` et la page ne dessine plus rien. */
+  ctx.fillRect(-2*W, -2*H, 5*W, 5*H);
   ctx.restore();
 
   const c = projette([0,0,0], W, H);

@@ -687,6 +687,45 @@
   }
   .aveu-titre { display:block; color:var(--braise); letter-spacing:.05em; font-size:9px;
                 text-transform:uppercase; margin-bottom:2px; }
+  .aveu.deja { opacity:.5; }
+
+  /* LA BULLE. Elle se pose en haut, loin du dock et des panneaux : c'est le seul
+     bandeau horizontal libre, et sur un téléphone en paysage c'est le seul
+     endroit qui ne recouvre pas ce qu'on est en train de regarder. */
+  #notif {
+    position:fixed; z-index:70; left:50%; top:10px; transform:translate(-50%,-14px);
+    width:min(360px, 92vw); padding:9px 12px; pointer-events:auto; cursor:pointer;
+    background:color-mix(in srgb, #12101d 94%, transparent); backdrop-filter:blur(14px);
+    border:1px solid var(--braise-b); border-left:3px solid var(--braise);
+    border-radius:8px; font-size:11px; line-height:1.5; color:var(--pale);
+    opacity:0; visibility:hidden; transition:opacity .35s, transform .35s, visibility .35s;
+  }
+  #notif.vu { opacity:1; visibility:visible; transform:translate(-50%,0); }
+  #notif .notif-titre { color:var(--braise); font-size:9px; letter-spacing:.09em;
+                        text-transform:uppercase; margin-bottom:3px; }
+  #notif .notif-reste { margin-top:5px; font-size:9.5px; color:var(--sourd); }
+
+  #aveux {
+    position:fixed; z-index:72; right:14px; bottom:74px;
+    width:min(340px, calc(100vw - 28px)); max-height:min(62vh, 460px);
+    display:flex; flex-direction:column;
+    background:color-mix(in srgb, #0b0a16 95%, transparent); backdrop-filter:blur(16px);
+    border:1px solid var(--filet); border-radius:10px; padding:12px 13px;
+    opacity:0; visibility:hidden; transform:translateY(8px);
+    transition:opacity .25s, transform .25s, visibility .25s;
+  }
+  #aveux.vu { opacity:1; visibility:visible; transform:none; }
+  #av-tete { display:flex; align-items:center; justify-content:space-between; }
+  #av-titre { font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--braise); }
+  #av-fermer { background:none; border:none; color:var(--sourd); font-size:13px; padding:2px 5px; }
+  #av-liste { overflow-y:auto; margin-top:8px; }
+  #av-liste .av-groupe { margin-bottom:10px; }
+  #av-liste .av-ou { font-size:9px; letter-spacing:.08em; text-transform:uppercase;
+                     color:var(--sourd); border-bottom:1px solid var(--filet); padding-bottom:3px; }
+  #av-pied { margin-top:8px; padding-top:7px; border-top:1px solid var(--filet);
+             font-size:9.5px; line-height:1.5; color:var(--sourd); }
+  #b-aveux.reste { color:var(--braise); border-color:var(--braise-b); }
+  #b-aveux-n { font-size:9px; margin-left:3px; vertical-align:super; }
 
   #bulle .q {
     display:block; width:100%; text-align:left; margin:3px 0 0; padding:6px 9px;
@@ -1215,7 +1254,29 @@ body.au-salon:not(.mode-boutons) #dock { opacity:0; pointer-events:none; }
   <div class="groupe">
     <button id="b-salon">Le salon</button>
     <button id="b-sonde">Monter à bord</button>
+    <button id="b-aveux" title="Ce que la simulation s'autorise">◆<span id="b-aveux-n"></span></button>
   </div>
+</div>
+
+<!-- LE CENTRE DES AVEUX — demandé le 9 août.
+
+     « Ça se voit pas assez, fais un genre de centre des notifications, ce genre
+     d'info doit être comme une notification. »
+
+     Le badge dans le panneau reste : c'est la demande du 5 août, un compromis se
+     déclare là où on le rencontre. Ce qui manquait, c'est de le REMARQUER. La
+     bulle prévient au moment où l'on arrive quelque part, et le centre garde
+     tout ce qu'on a croisé — pour qu'un aveu vu trois secondes ne soit pas un
+     aveu perdu. -->
+<div id="notif"></div>
+
+<div id="aveux">
+  <div id="av-tete">
+    <div id="av-titre"></div>
+    <button id="av-fermer" title="Fermer">✕</button>
+  </div>
+  <div id="av-liste"></div>
+  <div id="av-pied"></div>
 </div>
 
 <div id="temps">
@@ -3203,6 +3264,30 @@ $("dossier").querySelector(".chapeau").textContent = T("dossier.chapeau");
    aveux — la gravité magique et le décor dessiné — se posent donc dans le
    dossier, qui est l'endroit du site où l'on vient demander d'où ça sort. Le
    « partout » les accompagne, comme à chaque lieu. */
+/* CES TROIS-LÀ SONT ICI, ET PAS À CÔTÉ DE `poseAveux`, POUR UNE RAISON PAYÉE.
+
+   Elles vivaient à côté de la fonction qui les lit, trois cents lignes plus bas.
+   `poseAveux` est une déclaration de fonction, donc hissée — l'appel juste en
+   dessous marchait. Mais son corps lit `aveuxVus`, un `let` déclaré APRÈS :
+   zone morte, exception, et tout le bloc est mort avec la moitié du site.
+
+   `outil-verif-ordre.js` NE POUVAIT PAS le voir, et c'est son angle mort : la
+   lecture est dans un corps de fonction, donc classée « différée » — il ne sait
+   pas que cette fonction-là est appelée au sommet. Un appel hissé transforme une
+   différée en armée, et rien ne le mesure. C'est noté dans `A-REGARDER.md`.
+
+   La règle qui aurait suffi, et qui est celle du dépôt : on ne remonte pas, on
+   sort. Ici on descend l'appel, ce qui revient au même. */
+const CLE_AVEUX = "periastre.aveux";
+let aveuxVus = new Set();
+try {
+  const l = JSON.parse(localStorage.getItem(CLE_AVEUX) || "[]");
+  if(Array.isArray(l)) aveuxVus = new Set(l.filter(x => typeof x === "string"));
+} catch(e){ /* mémoire refusée : on repart d'une page neuve */ }
+const rangeAveuxVus = () => {
+  try { localStorage.setItem(CLE_AVEUX, JSON.stringify([...aveuxVus])); } catch(e){}
+};
+
 poseAveux($("dossier"), "salon");
 
 $("in-titre").textContent  = T("tele.titre");
@@ -3339,8 +3424,103 @@ function distanceVaisseau(){ return len(salon.p) * KM_PAR_UNITE * 1000; }   // e
    Elle est IDEMPOTENTE : elle enlève ses propres badges avant d'en poser. Les
    panneaux se repeignent, et deux aveux identiques l'un sous l'autre se
    liraient comme un défaut d'affichage. */
+/* Ce qu'on a déjà croisé.
+
+   Sa propre clé, et pas un champ de `progression.js` : `CHAMPS` ne connaît que
+   des entiers, des nombres et des booléens, et un `Set` n'en est pas un. L'y
+   forcer demanderait un type de plus dans une table dont toute la valeur est
+   d'être petite. Quatre lignes ici coûtent moins qu'un type là-bas.
+
+   Elle porte son `try` : en navigation privée l'écriture lève, et un aveu qui ne
+   se souvient pas vaut mieux qu'une page morte. */
+
+/* LA BULLE, ET LE CENTRE — demandés le 9 août.
+
+   « Ça se voit pas assez, fais un genre de centre des notifications, ce genre
+   d'info doit être comme une notification. »
+
+   La décision — qu'est-ce qui est neuf, qu'est-ce qu'on annonce — est dans
+   `aveu.js`, donc éprouvable sans navigateur. Ici on peint, et on range. */
+function annonceAveux(ou){
+  const a = AVEU.annonce(CONTENU, ou, aveuxVus);
+  if(!a) return;
+  a.ids.forEach(id => aveuxVus.add(id));
+  rangeAveuxVus();
+  majPastilleAveux();
+  const n = $("notif");
+  n.innerHTML = "";
+  const t = document.createElement("div");
+  t.className = "notif-titre";
+  t.textContent = T("aveu.notif");
+  const c = document.createElement("div");
+  c.textContent = a.descripteur.aveu;
+  n.append(t, c);
+  if(a.reste > 0){
+    const p = document.createElement("div");
+    p.className = "notif-reste";
+    p.textContent = remplit("aveu.reste", { n: a.reste });
+    n.appendChild(p);
+  }
+  n.classList.add("vu");
+  n.onclick = () => { n.classList.remove("vu"); ouvreAveux(); };
+  clearTimeout(annonceAveux.minuterie);
+  // Sept secondes : le temps de lire deux lignes sans avoir à se dépêcher, et
+  // pas assez pour qu'elle traîne sur ce qu'on est venu regarder.
+  annonceAveux.minuterie = setTimeout(() => n.classList.remove("vu"), 7000);
+}
+
+function majPastilleAveux(){
+  const reste = AVEU.resteAVoir(CONTENU, aveuxVus);
+  const el = $("b-aveux-n");
+  el.textContent = reste || "";
+  $("b-aveux").classList.toggle("reste", reste > 0);
+}
+
+function ouvreAveux(){
+  const el = $("aveux");
+  $("av-titre").textContent = T("aveu.centre.titre");
+  $("av-pied").textContent  = T("aveu.centre.pied");
+  const liste = $("av-liste");
+  liste.innerHTML = "";
+  for(const g of AVEU.centre(CONTENU, aveuxVus)){
+    const bloc = document.createElement("div");
+    bloc.className = "av-groupe";
+    const t = document.createElement("div");
+    t.className = "av-ou";
+    t.textContent = T("aveu.ou." + g.ou);
+    bloc.appendChild(t);
+    for(const e of g.entrees){
+      const d = document.createElement("div");
+      d.className = "aveu" + (e.vu ? " deja" : "");
+      d.dataset.aveu = e.id || "";
+      if(e.titre){
+        const s = document.createElement("span");
+        s.className = "aveu-titre";
+        s.textContent = e.titre;
+        d.appendChild(s);
+      }
+      d.appendChild(document.createTextNode(e.aveu));
+      bloc.appendChild(d);
+    }
+    liste.appendChild(bloc);
+  }
+  el.classList.add("vu");
+}
+
+$("b-aveux").onclick = () => {
+  const el = $("aveux");
+  if(el.classList.contains("vu")) el.classList.remove("vu");
+  else ouvreAveux();
+  $("b-aveux").classList.toggle("actif", el.classList.contains("vu"));
+};
+$("av-fermer").onclick = () => {
+  $("aveux").classList.remove("vu");
+  $("b-aveux").classList.remove("actif");
+};
+
 function poseAveux(hote, ou){
   if(!hote) return 0;
+  annonceAveux(ou);
   [...hote.querySelectorAll(".aveu")].forEach(n => n.remove());
   const liste = AVEU.pour(CONTENU, ou);
   for(const c of liste){
@@ -3798,18 +3978,49 @@ function dessineVoyage(dt){
   const enRoute = E.trajet ? 0.12 + 0.30*RECUL.etat.t : 0;   // `trajet`, pas `RECUL.actif` : sinon trou entre le recul et le voile
   const orbite  = Math.max(enRoute, Math.max(0, (E.carte - 0.30) / 0.70));
 
-  if(orbite > 0.005){
+  /* LA CARTE SE POSE OÙ EST LE TROU NOIR, PAS AU MILIEU DE L'ÉCRAN.
+
+     Verdict d'Hugo, 9 août : « le trou noir est toujours au centre du regard du
+     joueur, pas au centre de la vitre. Si je regarde à gauche, le trou noir suit
+     la caméra et part à gauche. »
+
+     Il avait raison, et la cause était nette : `ETOILES_S` est un diagramme, il
+     se centre sur W/2, H/2 — le milieu de l'IMAGE. Le découpage à la baie le
+     faisait bien apparaître derrière la vitre, mais il restait collé au regard.
+     On tournait la tête, et l'astre qu'on venait de quitter tournait avec.
+
+     On le décale donc sur sa position RÉELLE, celle que `projette` rend pour
+     l'origine du monde — la même fonction qui place les sondes et les traces.
+     Le trou noir cesse de suivre : il reste où il est, et sort du champ quand on
+     regarde ailleurs, ce qui est exactement ce qu'on voit par une fenêtre.
+
+     `projette` rend `null` derrière le plan de coupure : l'astre est alors dans
+     le dos, et l'on ne dessine rien du tout plutôt que de le rabattre au centre.
+     C'est ce rabattement qui ÉTAIT le défaut. */
+  const ou = projette([0, 0, 0]);
+  if(orbite > 0.005 && ou){
     ctx.save();
     decoupeBaie();                      // pour que ça se voie DEHORS, pas devant la vitre
     ctx.globalAlpha = orbite;
+    ctx.translate(ou[0] - W/2, ou[1] - H/2);
     /* Pas de dérive d'azimut ici : elle fabriquait un mouvement du vaisseau qui
        n'existe pas. Le pourquoi est dans `VERIF.carteFixe()`, qui l'interdit. */
     ETOILES_S.cadre(RECUL.etat.distance, RECUL.etat.d0, RECUL.etat.d1);
     ETOILES_S.dessine(ctx, W, H, dt, fond);
     ctx.restore();
   }
-  if(E.grille > 0.005 && trame > 0.005)
+  /* LE QUADRILLAGE AUSSI SE VOIT PAR LA VITRE, ET PAS AILLEURS.
+
+     « Il faut qu'on voie le quadrillage que derrière la vitre, comme pour les
+     orbites » — même séance. Il débordait sur la coque et sur le plancher, ce
+     qui le faisait lire comme un calque posé sur l'écran au lieu d'un repère
+     tendu dans l'espace du dehors. C'est le même remède qu'aux traces. */
+  if(E.grille > 0.005 && trame > 0.005){
+    ctx.save();
+    decoupeBaie();
     RECUL.dessineQuadrillage(ctx, W, H, projette, E.grille * trame);
+    ctx.restore();
+  }
 }
 
 let reel = 0, reelCible = 0;

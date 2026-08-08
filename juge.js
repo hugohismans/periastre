@@ -161,17 +161,34 @@ const TOUTES = [
      quatre choses ont changé en même temps et je ne sais pas laquelle il verra
      en premier. Deux entrées, parce que quatorze secondes pour rejuger deux
      secondes d'arrivée serait une insulte à son temps. */
+  /* RÉPONDUE, ET C'EST LA RÉPONSE LA PLUS UTILE DE LA SÉANCE. 9 août :
+
+       « le trou noir est toujours au centre du regard du joueur, pas au centre
+         de la vitre. Si je regarde à gauche, le trou noir suit la caméra et part
+         à gauche. »
+
+     La carte des étoiles est un DIAGRAMME : elle se centrait sur le milieu de
+     l'image. Découpée à la baie, elle paraissait bien derrière la vitre — mais
+     elle restait collée au regard, et l'astre qu'on venait de quitter tournait
+     avec la tête. Réparé : elle se pose sur la position réelle du trou noir.
+
+     Il a aussi dit ne pas savoir si « le trajet entier » relançait le voyage.
+     C'est la même cause : rien ne semblait bouger, puisque l'astre suivait. La
+     question repart donc DE DOS, où le mouvement est indiscutable — et son
+     verdict tranchera les deux d'un coup. */
   { id: "voyage-refait",
-    titre: "Le voyage, refait",
+    titre: "Le trou noir reste-t-il en place ?",
     libre: true,
-    quoi: "Les traces d'orbites se voient maintenant dès le départ et se resserrent "
-        + "à mesure qu'on s'éloigne ; elles sont découpées à la vitre ; et le "
-        + "chronomètre affiche la vitesse en fraction de c, la dilatation et la "
-        + "distance parcourue. Regarde le trajet et dis-moi ce qui ne va pas.",
-    pose: () => rejoueVoyage(0),
+    inspection: true,
+    quoi: "Tu avais vu que le trou noir suivait ton regard : tu tournais la tête "
+        + "et il partait avec. Il reste maintenant où il est, comme ce qu'on voit "
+        + "par une fenêtre — tourne la tête pendant le trajet et il doit sortir du "
+        + "champ. Le quadrillage aussi est découpé à la vitre, désormais.",
+    pose: () => rejoueVoyageTourne(120),
     options: [
-      { nom: "le trajet entier",  fait: () => rejoueVoyage(0) },
-      { nom: "l'arrivée seule",   fait: () => rejoueVoyage(0.90) },
+      { nom: "en partant de dos",   fait: () => rejoueVoyageTourne(180) },
+      { nom: "de trois quarts",     fait: () => rejoueVoyageTourne(120) },
+      { nom: "l'arrivée seule",     fait: () => rejoueVoyage(0.90) },
     ],
     rend: () => rangeVoyage(),
   },
@@ -180,35 +197,30 @@ const TOUTES = [
      peint plus un pixel hors du cadre de la baie — mais « ne pas déborder » et
      « avoir l'air d'être dehors » sont deux choses différentes, et la seconde
      ne se mesure pas. */
+  /* RÉPONDUE LE 9 AOÛT : « je garde juste avant l'arrivée ». Les deux variantes
+     deviennent une, et la question se pose désormais à 0,86 — le moment qu'il a
+     retenu, celui où la carte est montée et où le découpage se juge vraiment.
+     Le milieu du trajet ne montrait presque rien : la carte y est encore à
+     peine levée, et l'on jugeait un fondu au lieu d'un cadrage. */
   { id: "carte-dehors",
     titre: "Les orbites ont-elles l'air d'être dehors ?",
     libre: true,
     quoi: "Tu disais : « la trace des orbites est devant la vitre, on n'a pas "
-        + "l'impression que c'est à l'extérieur. » Elle est maintenant découpée aux "
-        + "trois vitres — elle ne peut plus déborder sur la coque. Est-ce que ça "
-        + "suffit à la faire passer dehors, ou il manque encore quelque chose ?",
-    pose: () => rejoueVoyage(0.45),
-    options: [
-      { nom: "au milieu du trajet", fait: () => rejoueVoyage(0.45) },
-      { nom: "juste avant l'arrivée", fait: () => rejoueVoyage(0.86) },
-    ],
+        + "l'impression que c'est à l'extérieur. » Elle est découpée aux trois "
+        + "vitres, et depuis le 9 août elle reste POSÉE SUR LE TROU NOIR au lieu "
+        + "de suivre ton regard. Est-ce que ça suffit à la faire passer dehors ?",
+    pose: () => rejoueVoyage(0.86),
     rend: () => rangeVoyage(),
   },
 
-  /* LE BANDEAU, qu'il a demandé et dont il n'a pas vu la forme. `montre` refuse
-     la question s'il n'est pas à l'écran : c'est la garde qui a évité qu'on lui
-     fasse juger des boutons qu'il n'avait pas sous les yeux. */
-  { id: "bandeau-vol",
-    titre: "Ce qu'on lit pendant le vol",
-    libre: true,
-    quoi: "Vitesse en fraction de c, dilatation du temps, distance parcourue, et la "
-        + "phase — on accélère, puis on freine. Les chiffres sont vrais : ils viennent "
-        + "de la position, pas de la durée de l'animation. Est-ce que ça se lit, et "
-        + "est-ce qu'il manque une information ?",
-    pose: () => rejoueVoyage(0.30),
-    montre: () => $$("ch-vol"),
-    rend: () => rangeVoyage(),
-  },
+  /* LE BANDEAU — RÉPONDU LE 9 AOÛT : « ça va ». Vitesse en fraction de c,
+     dilatation, distance parcourue, phase : ça se lit, et rien ne manque. La
+     question sort de la séance ; ce qu'elle gardait de vrai est dans le contrôle
+     du bandeau, pas dans une question qu'on repose à quelqu'un qui a répondu.
+
+     `montre` reste dans le harnais pour les suivantes : c'est la garde qui a
+     évité, le 7 août, qu'on lui fasse juger des boutons qu'il n'avait pas sous
+     les yeux. */
 
   /* LE QUADRILLAGE QUI SE LÈVE AVANT QU'ON VOIE QUOI QUE CE SOIT.
 
