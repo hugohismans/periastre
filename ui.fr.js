@@ -125,6 +125,11 @@ window.UI = {
   // ---- le carnet de bord ----
   "carnet.titre":          "Votre carnet de bord",
   "carnet.total":          "d'avance sur ceux qui sont restés",
+  // Le carnet du voyageur — 10 août. « Séjour en orbite » nomme les lignes que
+  // le salon inscrit en partant ; la phrase du vécu ne paraît que quand il y a
+  // vraiment quelque chose à raconter.
+  "carnet.sejour":         "Séjour en orbite",
+  "carnet.vecu":           "Depuis ta première mission, tu as vécu {toi} — la Terre a vécu {terre}.",
 
   // ---- le chronomètre du trajet ----
   "chrono.abord":          "à bord",

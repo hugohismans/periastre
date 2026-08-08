@@ -43,17 +43,41 @@ const MAX = 40;
 let lignes = [];
 let memoire = null;
 
+/* LE TOTAL VÉCU — ajouté le 10 août pour le carnet du voyageur.
+
+   Les lignes sortent par le début passé quarante ; le total, lui, ne perd
+   jamais rien. C'est lui qui permet la phrase à la première personne — « depuis
+   ta première mission tu as vécu…, la Terre a vécu… » — sans mentir sur ce que
+   les quarante dernières lignes ne couvrent plus. */
+let total = { tau: 0, t: 0 };
+
 /* `pose` accepte une mémoire absente : en navigation privée, `localStorage`
    lève à la première écriture. Le registre marche alors le temps de la visite
-   et s'oublie en partant, ce qui vaut mieux qu'une page morte. */
+   et s'oublie en partant, ce qui vaut mieux qu'une page morte.
+
+   DEUX FORMES DE MÉMOIRE COHABITENT, et c'est voulu. Avant le 10 août on
+   rangeait le tableau nu ; depuis, `{ lignes, total }`. Une mémoire ancienne se
+   relit donc encore, et son total se RECONSTRUIT en sommant ce qui reste — ce
+   qui est la meilleure vérité disponible, pas la vérité entière, et un
+   commentaire ne suffirait pas à la distinguer : le total reconstruit repart
+   simplement de là. */
 function pose(m){
   memoire = m || null;
   lignes = [];
+  total = { tau: 0, t: 0 };
   if(!memoire) return lignes;
   try {
     const lu = memoire.lit();
-    if(Array.isArray(lu)) lignes = lu.filter(estLigne).slice(-MAX);
-  } catch(e){ lignes = []; }
+    const brutes = Array.isArray(lu) ? lu
+                 : (lu && Array.isArray(lu.lignes)) ? lu.lignes : [];
+    lignes = brutes.filter(estLigne).slice(-MAX);
+    if(lu && lu.total && Number.isFinite(lu.total.tau) && Number.isFinite(lu.total.t)
+       && lu.total.tau >= 0 && lu.total.t >= 0){
+      total = { tau: lu.total.tau, t: lu.total.t };
+    } else {
+      for(const e of lignes){ total.tau += e.tau; total.t += e.t; }
+    }
+  } catch(e){ lignes = []; total = { tau: 0, t: 0 }; }
   return lignes;
 }
 
@@ -73,10 +97,17 @@ function estLigne(e){
 function inscrit(quoi, v){
   if(!v || !Number.isFinite(v.tau) || !Number.isFinite(v.t)) return false;
   lignes.push({ q: quoi, tau: v.tau, t: v.t, d: v.d_m, quand: Date.now() });
+  total.tau += v.tau;
+  total.t   += v.t;
   if(lignes.length > MAX) lignes.shift();
-  if(memoire){ try { memoire.ecrit(lignes); } catch(e){ /* mémoire pleine ou refusée */ } }
+  if(memoire){ try { memoire.ecrit({ lignes, total }); } catch(e){ /* mémoire pleine ou refusée */ } }
   return true;
 }
+
+/* Ce qu'on a vécu en tout — la somme de TOUTES les lignes, y compris celles
+   que le plafond a fait sortir. Une copie, comme `tout()` : deux écrivains pour
+   une valeur est la maladie du dépôt. */
+function vecu(){ return { tau: total.tau, t: total.t }; }
 
 /* L'écart accumulé entre les deux horloges, en secondes.
 
@@ -94,6 +125,6 @@ function ecart(){
 // suivrait pas. Deux écrivains pour une valeur, la maladie du dépôt.
 function tout(){ return lignes.map(e => Object.assign({}, e)); }
 
-global.REGISTRE = { pose, inscrit, ecart, tout, MAX };
+global.REGISTRE = { pose, inscrit, ecart, tout, vecu, MAX };
 
 })(window);

@@ -110,6 +110,11 @@ Object.assign(window.UI, {
   // ---- the logbook ----
   "carnet.titre":          "Your logbook",
   "carnet.total":          "ahead of everyone who stayed behind",
+  // The traveller's log — 10 August. "Stay in orbit" names the lines the lounge
+  // writes on the way out; the lived-time sentence only appears once there is
+  // truly something to tell.
+  "carnet.sejour":         "Stay in orbit",
+  "carnet.vecu":           "Since your first mission you have lived {toi} — Earth has lived {terre}.",
 
   // ---- the trip clock ----
   "chrono.abord":          "aboard",

@@ -35,7 +35,10 @@
 "use strict";
 const fs = require("fs"), path = require("path");
 
-const LISTE = path.join(__dirname, "..", "CHANTIER-F2.md");
+/* Le chantier des fondations est fini (10 août) : le hook lit désormais la
+   liste de la Descente au périastre. Une seule liste à la fois — deux fichiers
+   de cases seraient deux vérités. */
+const LISTE = path.join(__dirname, "..", "CHANTIER-P.md");
 
 let entree = "";
 process.stdin.setEncoding("utf8");

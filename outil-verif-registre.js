@@ -65,9 +65,57 @@ groupe("Chaque trajet laisse sa trace");
   ok("trois voyages, trois lignes", R.tout().length === 3, 3, R.tout().length);
   ok("et trois écritures en mémoire", m.ecritures === 3, 3, m.ecritures,
      "une écriture manquante ne se verrait qu'au rechargement suivant");
+  /* Depuis le 10 août la mémoire porte `{ lignes, total }` et non plus le
+     tableau nu : le total vécu survit au plafond des quarante lignes, c'est lui
+     qui permet la phrase à la première personne du carnet du voyageur. */
   ok("la mémoire contient bien ce qu'on croit",
-     Array.isArray(m.contenu) && m.contenu.length === 3, 3,
-     Array.isArray(m.contenu) ? m.contenu.length : typeof m.contenu);
+     m.contenu && Array.isArray(m.contenu.lignes) && m.contenu.lignes.length === 3, 3,
+     m.contenu && m.contenu.lignes ? m.contenu.lignes.length : typeof m.contenu);
+  ok("et le total vécu est la somme des trois, aux deux horloges",
+     Math.abs(R.vecu().tau - trajets.reduce((a,t)=>a+t.tau, 0)) < 1e-9
+     && Math.abs(R.vecu().t - trajets.reduce((a,t)=>a+t.t, 0)) < 1e-9,
+     "Σtau et Σt", JSON.stringify({ tau: R.vecu().tau, t: R.vecu().t }));
+}
+
+// ═══════════════════ 1 bis. le total survit à ce que le plafond fait sortir
+/* C'est sa raison d'être : les lignes sortent par le début passé quarante, le
+   total ne perd jamais rien. La vérité vient d'un compteur tenu À CÔTÉ du
+   module, pas de sa propre somme. */
+groupe("Le total vécu survit au plafond");
+{
+  const m = fausseMemoire();
+  R.pose(m);
+  let sommeTau = 0, sommeT = 0;
+  for(let i = 0; i < R.MAX + 15; i++){
+    const t = V.trajet((1 + i) * V.AL);
+    R.inscrit("t" + i, t);
+    sommeTau += t.tau; sommeT += t.t;
+  }
+  ok("les lignes sont plafonnées", R.tout().length === R.MAX, R.MAX, R.tout().length);
+  ok("le total, lui, garde les " + (R.MAX + 15) + " voyages",
+     Math.abs(R.vecu().tau - sommeTau) < 1e-6 && Math.abs(R.vecu().t - sommeT) < 1e-6,
+     "la somme entière", "écart tau " + Math.abs(R.vecu().tau - sommeTau).toExponential(1),
+     "sans lui, « depuis ta première mission » mentirait dès la quarante et unième");
+  // Et il se relit : une nouvelle pose sur la même mémoire retrouve le total.
+  R.pose(m);
+  ok("et il survit au rechargement",
+     Math.abs(R.vecu().tau - sommeTau) < 1e-6, "conservé",
+     "écart " + Math.abs(R.vecu().tau - sommeTau).toExponential(1));
+}
+
+// ═══════════════════ 1 ter. une mémoire d'AVANT le total se relit encore
+groupe("Une mémoire ancienne — le tableau nu — se relit");
+{
+  const m = fausseMemoire([ { q: "vieux", tau: 100, t: 250, quand: 1 },
+                            { q: "vieux2", tau: 50, t: 80, quand: 2 } ]);
+  R.pose(m);
+  ok("les deux lignes anciennes sont là", R.tout().length === 2, 2, R.tout().length,
+     "avant le 10 août la mémoire rangeait le tableau nu ; la jeter aurait effacé "
+     + "le carnet de qui a joué avant");
+  ok("et le total se reconstruit en les sommant",
+     R.vecu().tau === 150 && R.vecu().t === 330,
+     "{tau:150, t:330}", JSON.stringify(R.vecu()),
+     "la meilleure vérité disponible — pas la vérité entière, et on ne prétend pas plus");
 }
 
 // ═══════════════════════════════ 2. l'écart, contre le calcul indépendant

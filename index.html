@@ -398,6 +398,10 @@
     font-size:11.5px; color:var(--pale); padding:3px 0;
   }
   .reg-val { font-family:var(--chiffre); font-size:11px; color:var(--braise); font-variant-numeric:tabular-nums; white-space:nowrap; }
+  .reg-vecu {
+    margin-top:9px; padding-top:8px; border-top:1px solid var(--filet);
+    font-size:10.5px; line-height:1.55; color:var(--pale); font-style:italic;
+  }
   .reg-total {
     margin-top:9px; padding-top:9px; border-top:1px solid var(--filet);
     font-family:var(--chiffre); font-size:11.5px; color:#8fb6ff;
@@ -3421,6 +3425,8 @@ const majBarreLieu = () => peintBarre(LIEUX.barre(MONDE));
    place le vaisseau, `majCamera` lit cette place. Les inverser donnerait, à
    l'entrée du salon, une image de l'orbite précédente. */
 function executeLieu(ordres){
+  // EN PREMIER : il lit les horloges du salon, que `poseSalon` remettrait à zéro.
+  if(ordres.inscritSejour) inscritSejour();
   if(ordres.cacheChrono) $("chrono").classList.remove("vu");
   if(ordres.fermeInstrument) $("instrument").classList.remove("vu", "arrivee");
   if(ordres.relachePointeur && document.exitPointerLock) document.exitPointerLock();
@@ -3704,6 +3710,19 @@ function blocRegistre(){
   });
   d.querySelector(".reg-total").textContent =
     VOYAGE.joli.duree(ecartRegistre()) + " " + T("carnet.total");
+  /* LA PHRASE À LA PREMIÈRE PERSONNE — l'idée d'origine du carnet du voyageur :
+     « depuis ta première mission tu as vécu…, la Terre a vécu… ». Le total
+     vient de `REGISTRE.vecu()`, qui survit au plafond des quarante lignes —
+     sans lui, la phrase mentirait dès la quarante et unième. Elle ne paraît
+     que lorsqu'il y a vraiment un vécu à raconter. */
+  const v = REGISTRE.vecu();
+  if(v.t - v.tau >= 30){
+    const p = document.createElement("div");
+    p.className = "reg-vecu";
+    p.textContent = remplit("carnet.vecu",
+      { toi: VOYAGE.joli.duree(v.tau), terre: VOYAGE.joli.duree(v.t) });
+    d.appendChild(p);
+  }
   return d;
 }
 
@@ -3812,6 +3831,25 @@ REGISTRE.pose({
 });
 const inscritRegistre = (quoi, v) => REGISTRE.inscrit(quoi, v);
 const ecartRegistre   = () => REGISTRE.ecart();
+
+/* LE SÉJOUR S'INSCRIT AU CARNET — la moitié manquante du carnet du voyageur.
+
+   Les deux horloges tournent depuis l'entrée au salon (`poseSalon` les remet à
+   zéro) et s'affichent sur un écran de bord ; leur contenu était jeté à la
+   sortie. Calculé, montré, perdu. `lieux.js` rend maintenant l'ordre
+   `inscritSejour` à chaque sortie du salon, et c'est ici qu'il s'exécute —
+   les horloges et le registre appartiennent à la page.
+
+   LE SEUIL EST CELUI DE L'AFFICHAGE, pas un réglage : `joli.duree` plancher à
+   la minute, donc un écart sous trente secondes s'écrirait « +0 min ». Une
+   ligne qui affiche zéro n'apprend rien — on ne l'écrit pas. À seize rayons
+   (4,8 % d'écart), le seuil correspond à une dizaine de minutes de séjour
+   simulé : un vrai passage s'inscrit, un coup d'œil non. */
+function inscritSejour(){
+  const t = salon.tTerre || 0, tau = salon.tBord || 0;
+  if(!(t - tau >= 30)) return;
+  inscritRegistre(T("carnet.sejour"), { tau, t });
+}
 
 /* ---- le voyage ----
 

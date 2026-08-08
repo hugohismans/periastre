@@ -288,7 +288,19 @@ const fs = require("fs"), path = require("path");
    Les étapes suivantes retirent les écrans — intro, présentation, niveau,
    départ, menu, détail — et là le plafond descend pour de bon : plus de deux
    cents lignes. */
-const PLAFOND = 3717;   // ... les aveux, le lien de test, l'accueil (étape 1 sur 4)
+/* 3 751 le 10 août — P1, le carnet du voyageur : premières lignes de la
+   Descente au périastre.
+
+   Trente-quatre lignes : l'exécution de l'ordre `inscritSejour` (le seuil
+   d'affichage et sa raison), la phrase à la première personne du carnet, et son
+   style. La DÉCISION, elle, est ailleurs : `lieux.js` rend l'ordre,
+   `registre.js` tient le total vécu qui survit au plafond des quarante lignes —
+   tous deux éprouvés hors navigateur (133 et 29 contrôles).
+
+   C'était la moitié manquante de « la meilleure mécanique proposée » du carnet
+   d'idées : les deux horloges du salon étaient calculées à chaque image,
+   affichées sur un écran de bord, puis JETÉES à la sortie. */
+const PLAFOND = 3751;   // ... le lien de test, l'accueil, le carnet du voyageur
 
 // Le nombre de modules déjà sortis. Il ne descend jamais non plus : un module
 // qu'on ferait rentrer dans le bloc serait le contraire exact du chantier.

@@ -230,6 +230,19 @@ function quitteLieu(monde, ancien){
   const ordres = {};
 
   if(ancien === "salon"){
+    /* LE SÉJOUR S'INSCRIT AU CARNET — l'ordre du carnet du voyageur, 10 août.
+
+       Les deux horloges du salon tournent depuis l'entrée (`poseSalon` les
+       remet à zéro) et s'affichent sur un écran de bord — puis leur contenu
+       était JETÉ à la sortie. Calculé, montré, perdu : la moitié manquante de
+       la « meilleure mécanique proposée » du carnet d'idées.
+
+       Le module DEMANDE l'inscription, il ne la fait pas : les horloges vivent
+       dans `salon`, qui appartient à la page, et le registre est à elle aussi.
+       C'est le même partage que `decroche` dans `camera.js`. La page applique
+       aussi le seuil d'affichage — un séjour dont l'écart s'afficherait
+       « +0 min » n'apprend rien. */
+    ordres.inscritSejour = true;
     /* Un voyage en cours meurt avec le salon.
 
        L'avancement du trajet n'est calculé que depuis la branche du salon : en

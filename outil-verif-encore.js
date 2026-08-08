@@ -35,8 +35,25 @@ const BAC = fs.mkdtempSync(path.join(os.tmpdir(), "hook-"));
 fs.mkdirSync(path.join(BAC, "outils"));
 fs.copyFileSync(path.join(SOURCE, "outils/encore.js"), path.join(BAC, "outils/encore.js"));
 
-const LISTE = path.join(BAC, "CHANTIER-F2.md");
+/* LE NOM DE LA LISTE EST LU DANS LE SCRIPT, PAS RECOPIÉ.
+
+   Cet outil écrivait `CHANTIER-F2.md` en dur pendant que le script lisait sa
+   propre constante. Le 10 août, le chantier a changé de liste — et les quatre
+   cas « il doit bloquer » sont passés au rouge d'un coup : le bac à sable
+   nourrissait un fichier que le script ne lisait plus. C'est la divergence de
+   recopie classique de ce dépôt, attrapée ici par l'outil lui-même.
+
+   On extrait donc le nom depuis la source du script. Si l'extraction échoue,
+   on ÉCHOUE — un bac qui écrit au mauvais endroit rend treize verts qui ne
+   prouvent rien. */
 const SCRIPT = path.join(BAC, "outils/encore.js");
+const srcHook = fs.readFileSync(SCRIPT, "utf8");
+const mListe = srcHook.match(/"\.\."\s*,\s*"([^"]+\.md)"/);
+if(!mListe){
+  console.error("  KO  impossible de lire le nom de la liste dans encore.js");
+  process.exit(1);
+}
+const LISTE = path.join(BAC, mListe[1]);
 
 function joue(contenu, entree){
   fs.writeFileSync(LISTE, contenu, "utf8");

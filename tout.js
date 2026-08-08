@@ -179,8 +179,12 @@ const POURQUOI_PAS_BRANCHE = {
     "ARBITRE, jamais chargé — il éprouve le nuanceur depuis dehors (règle 3). "
     + "Le brancher le rendrait complice de ce qu'il contrôle.",
   "ncorps.js":
-    "DETTE F3, en cours — décision d'Hugo du 6 août : on branche N corps, on "
-    + "laisse la Lune. Usage retenu : un compagnon au trou noir d'étude.",
+    "EN ATTENTE DU BAC À SABLE — décidé par Hugo le 10 août. F3 est refusée : "
+    + "un compagnon newtonien près du trou noir dérive d'une largeur d'ombre "
+    + "par tour (`outil-verif-compagnon.js`, 66 contrôles). Mais sa vraie cible "
+    + "est ailleurs — le bac à sable gravitationnel du long terme : poser une "
+    + "planète, les résonances, la limite de Roche, LOIN du trou noir, là où "
+    + "Newton dit vrai. Il attend cette scène-là, et rien d'autre.",
   "accueil.js":
     "ÉCRIT ET GARDÉ (148 contrôles), PAS ENCORE BRANCHÉ — neuf chemins d'entrée "
     + "démêlés, dont quatre joués de bout en bout. Sa chirurgie tient en treize "

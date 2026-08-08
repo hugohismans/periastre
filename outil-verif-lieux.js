@@ -239,12 +239,19 @@ const CONTRAT = ["CONNUS", "quitteLieu", "entreLieu", "barre", "vaAu"];
    la page sait peindre doit devenir un échec, pas un angle mort. */
 const LIEUX_ATTENDUS = ["libre", "salon", "sonde"];
 
-/* Les huit ordres, dans l'ordre où la page les exécute. Le rang est transcrit
+/* Les neuf ordres, dans l'ordre où la page les exécute. Le rang est transcrit
    du contrat, et il sert à imprimer la table — la contrainte dure y est que
-   `poseSalon` (5) place le vaisseau et que `majCamera` (8) lit cette place. */
+   `poseSalon` (6) place le vaisseau et que `majCamera` (9) lit cette place.
+
+   `inscritSejour` (10 août) vient EN PREMIER : il lit les horloges du salon,
+   que `poseSalon` remettrait à zéro — l'inscription doit donc précéder toute
+   entrée. Il sort à CHAQUE sortie du salon, inconditionnellement : c'est la
+   page qui applique le seuil d'affichage, pas le module, qui ne voit pas les
+   horloges. */
 const RANG_ORDRE = {
-  cacheChrono: 1, fermeInstrument: 2, relachePointeur: 3, boutonSonde: 4,
-  poseSalon: 5, reaction: 6, barre: 7, majCamera: 8,
+  inscritSejour: 1,
+  cacheChrono: 2, fermeInstrument: 3, relachePointeur: 4, boutonSonde: 5,
+  poseSalon: 6, reaction: 7, barre: 8, majCamera: 9,
 };
 const ORDRES_CONNUS = Object.keys(RANG_ORDRE);
 
@@ -362,8 +369,10 @@ function premierFaux(m, L){
    huit ordres, jamais recopiée du corps de `lieux.js`. Elle rend l'objet ENTIER
    attendu : une clé en trop est donc un échec, pas un silence.
 
-     quitter  · le salon éteint un voyage EN COURS (donc `cacheChrono` seulement
-                s'il y en avait un), referme l'instrument, relâche le pointeur
+     quitter  · le salon INSCRIT LE SÉJOUR au carnet (10 août — à chaque sortie,
+                sans condition : le seuil d'affichage appartient à la page),
+                éteint un voyage EN COURS (donc `cacheChrono` seulement s'il y
+                en avait un), referme l'instrument, relâche le pointeur
      quitter  · une sonde repeint son bouton
      entrer   · au salon on pose le vaisseau, et l'on réagit — sauf si c'est la
                 quête d'accueil qui nous dépose, une seule voix à la fois
@@ -371,6 +380,7 @@ function premierFaux(m, L){
 function ordresAttendus(de, vers, etat, ctx){
   const o = {};
   if(de === "salon"){
+    o.inscritSejour = true;
     if(etat.trajetArme) o.cacheChrono = true;
     o.fermeInstrument = true;
     o.relachePointeur = true;
