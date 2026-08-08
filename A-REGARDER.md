@@ -235,7 +235,14 @@ on saura le jour où quelqu'un y touche.
 
 Les deux sont sorties du même chantier, et aucune ne se tranche par un calcul.
 
-### 1. Le quadrillage se lève encore trop tôt sur ton téléphone — à moitié réparé
+### ~~1. Le quadrillage se lève encore trop tôt~~ — ✅ **jugé « ça va » le 9 août au soir**
+
+> Tu l'as regardé « en le regardant », c'est-à-dire le cas où l'on part face au
+> trou noir — celui que j'avais mesuré à **zéro image d'avance**. Le cas qui
+> restait imparfait est « en partant de côté ». Rayé puisque tu as tranché ; ça
+> peut revenir si tu le rencontres en jouant.
+>
+> Le texte d'origine est gardé ci-dessous, parce qu'il porte la mesure.
 
 Tu m'avais dit : *« le quadrillage se levait alors qu'on regardait encore
 ailleurs… une apparition buguée »*. On avait réglé ça avec un seuil : le
