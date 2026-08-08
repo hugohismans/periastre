@@ -672,6 +672,22 @@
   }
   .justif-ouvert a { color:var(--braise); text-decoration:none; border-bottom:1px solid var(--braise-b); }
 
+  /* L'AVEU — F4. Le texte est LISIBLE, il n'est pas caché derrière un bouton :
+     la demande d'Hugo était « chaque compromis doit se déclarer là où on le
+     rencontre », et un aveu qu'il faut déplier pour lire est un aveu qu'on ne
+     lit pas. Le losange le distingue d'une note ordinaire sans crier. */
+  .aveu {
+    display:block; margin-top:8px; padding:6px 9px 6px 20px; position:relative;
+    font-size:10px; line-height:1.55; color:var(--pale);
+    background:rgba(255,255,255,.028); border-left:2px solid var(--braise-b);
+  }
+  .aveu::before {
+    content:"◆"; position:absolute; left:7px; top:6px;
+    font-size:7px; color:var(--braise);
+  }
+  .aveu-titre { display:block; color:var(--braise); letter-spacing:.05em; font-size:9px;
+                text-transform:uppercase; margin-bottom:2px; }
+
   #bulle .q {
     display:block; width:100%; text-align:left; margin:3px 0 0; padding:6px 9px;
     font-size:11px; line-height:1.45; border-radius:3px;
@@ -2312,6 +2328,7 @@ void main(){
 <script src="banc.js?v=83fd05c"></script>
 <script src="ecrans.js?v=83fd05c"></script>
 <script src="dossier.js?v=83fd05c"></script>
+<script src="aveu.js?v=83fd05c"></script>
 <script src="calque.js?v=83fd05c"></script>
 <script src="habitacle.js?v=83fd05c"></script>
 <script src="libelles.js?v=83fd05c"></script>
@@ -3182,6 +3199,11 @@ document.title = T("doc.titre");
 // Le dossier de méthode.
 $("dossier").querySelector("h2").textContent = T("dossier.titre");
 $("dossier").querySelector(".chapeau").textContent = T("dossier.chapeau");
+/* Le salon n'a pas de panneau à lui : on y EST, on ne l'ouvre pas. Ses deux
+   aveux — la gravité magique et le décor dessiné — se posent donc dans le
+   dossier, qui est l'endroit du site où l'on vient demander d'où ça sort. Le
+   « partout » les accompagne, comme à chaque lieu. */
+poseAveux($("dossier"), "salon");
 
 $("in-titre").textContent  = T("tele.titre");
 $("in-sous").textContent   = T("tele.sous");
@@ -3300,6 +3322,46 @@ $("b-sonde").onclick = () => {
    prisonnier et le panneau est inatteignable. */
 function distanceVaisseau(){ return len(salon.p) * KM_PAR_UNITE * 1000; }   // en mètres
 
+/* ============ LES AVEUX — F4 ============
+
+   `contrat.js` garantissait qu'un compromis est bien DÉCLARÉ. Il ne garantissait
+   pas qu'il soit MONTRÉ : on pouvait en déclarer un dans les règles, passer les
+   onze contrôles, et ne le poser nulle part.
+
+   Hugo, le 5 août : « chaque compromis doit se déclarer LÀ OÙ ON LE RENCONTRE,
+   pas seulement dans une liste rangée ailleurs. »
+
+   `aveu.js` dit lesquels vont où ; cette fonction les peint. Le texte est
+   LISIBLE et non replié derrière un bouton — un aveu qu'il faut déplier pour
+   lire est un aveu qu'on ne lit pas, et ce serait reproduire le défaut qu'on
+   répare.
+
+   Elle est IDEMPOTENTE : elle enlève ses propres badges avant d'en poser. Les
+   panneaux se repeignent, et deux aveux identiques l'un sous l'autre se
+   liraient comme un défaut d'affichage. */
+function poseAveux(hote, ou){
+  if(!hote) return 0;
+  [...hote.querySelectorAll(".aveu")].forEach(n => n.remove());
+  const liste = AVEU.pour(CONTENU, ou);
+  for(const c of liste){
+    const d = AVEU.descripteur(c);
+    const n = document.createElement("div");
+    n.className = "aveu";
+    n.dataset.aveu = d.id || "";
+    if(d.titre){
+      const t = document.createElement("span");
+      t.className = "aveu-titre";
+      t.textContent = d.titre;
+      n.appendChild(t);
+    }
+    // `textContent` et jamais `innerHTML` : le descripteur est du texte, et
+    // `outil-verif-aveu.js` refuse déjà qu'il contienne un chevron.
+    n.appendChild(document.createTextNode(d.aveu));
+    hote.appendChild(n);
+  }
+  return liste.length;
+}
+
 function ouvreTelescope(){
   if(TELESCOPE.ouvert || TELESCOPE.trajet) return;
   TELESCOPE.ouvert = true;
@@ -3374,6 +3436,7 @@ function poseDestinations(){
   if(REGISTRE.tout().length) liste.appendChild(blocRegistre());
 
   $("in-pied").textContent = PIED_TELESCOPE;
+  poseAveux($("in-pied"), "telescope");
 }
 
 /* Le registre, tel qu'il se lit.
@@ -3458,6 +3521,7 @@ function poseEtude(){
   liste.appendChild(retour);
 
   $("in-pied").textContent = T("etude.pied");
+  poseAveux($("in-pied"), "etude");
   // Il descend, pour qu'on voie l'astre changer par la baie en réglant.
   $("instrument").classList.add("arrivee");
 }
@@ -3552,6 +3616,7 @@ function lanceVoyage(d, v){
   $("chrono").classList.add("vu");
   $("ch-quoi").textContent = T(d.nom);
   $("ch-note").textContent = T("chrono.note");
+  poseAveux($("chrono"), "recul");
   MUSIQUE.frappe(0.75);
 }
 
@@ -3650,6 +3715,7 @@ function poseArrivee(v){
   b.onclick = () => { fermeTelescope(); repartVoyage(); };
   liste.appendChild(b);
   $("in-pied").textContent = T("tele.arrive.pied");
+  poseAveux($("in-pied"), "arrivee");
   TELESCOPE.ouvert = true;
   $("instrument").classList.add("vu", "arrivee");
 }
@@ -3785,6 +3851,7 @@ $("b-temps").onclick = () => {
     spectreActif = false;
     $("tp-val").textContent = T(VITESSES[TEMPS.cran].nom);
     $("tp-note").textContent = T(CONSEQUENCE[TEMPS.cran]);
+    poseAveux($("temps"), "reglage-temps");
     [...boitierV.children].forEach((c, j) => c.classList.toggle("actif", j === TEMPS.cran));
   }
 };
@@ -4085,6 +4152,7 @@ $("b-missions").classList.add("actif");
 $("rouage").onclick = () => {
   const v = $("panneau").classList.toggle("vu");
   $("rouage").classList.toggle("actif", v);
+  if(v) poseAveux($("panneau"), "reglages");
 };
 $("b-cours").onclick = () => {
   const r = $("fiches").classList.toggle("replie");
@@ -4680,6 +4748,7 @@ $("b-spectre").onclick = () => {
   if(!spectreActif) return;
   $("temps").classList.remove("vu");            // un seul panneau à la fois
   $("b-temps").classList.remove("actif");
+  poseAveux($("spectre"), "spectre");
   // les niveaux avancés savent lire une SED, on ne leur impose pas la leçon
   if(iNiveau === 0 && !leconSpectreVue) leconSpectre();
   else majSpectre();

@@ -66,7 +66,7 @@ Le détail de chaque étape est dans le plan approuvé. Ici, seulement l'état.
 ## Les deux fondations qui restent
 
 - [ ] F3 — un compagnon au trou noir d'étude, pour brancher `ncorps.js`
-- [ ] F4 — la forme visuelle de l'aveu, et le contrôle qui l'exige
+- [x] F4 — la forme visuelle de l'aveu, et le contrôle qui l'exige. Les onze compromis s'affichent là où on les rencontre ; `VERIF.aveux()` ouvre chaque panneau et exige d'y trouver le texte annoncé. Éprouvé faillible : neutraliser le poseur de badges fait tomber neuf contrôles. Reste à faire juger la FORME par son œil
 
 ## La cible est-elle atteignable ? — mesuré le 8 août, à 3 539
 

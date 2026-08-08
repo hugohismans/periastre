@@ -1453,8 +1453,99 @@ function joue(nom, f){
 
 /* La liste vit à un seul endroit : deux listes divergent, et celle qu'on oublie
    de tenir à jour est celle qui compte. */
+/* LES AVEUX SONT-ILS RÉELLEMENT À L'ÉCRAN ? — F4, et c'est le contrôle qui la
+   ferme.
+
+   `contrat.js` garantit qu'un compromis est bien DÉCLARÉ : un lieu connu, un
+   texte court, les deux langues. `outil-verif-aveu.js` garantit que le module
+   sait à quel endroit chacun doit aller. Ni l'un ni l'autre ne garantit qu'il
+   ARRIVE sur l'écran — et c'est exactement ce qui manquait :
+
+     « chaque compromis doit se déclarer LÀ OÙ ON LE RENCONTRE, pas seulement
+       dans une liste rangée ailleurs. » — Hugo, 5 août 2026
+
+   On ouvre donc chaque panneau pour de vrai et l'on regarde ce qui s'y trouve.
+   La vérité vient d'ailleurs que du code qui peint : elle vient du DOCUMENT,
+   après coup, et du texte attendu que `contenu.js` porte.
+
+   LE CLIQUET. Deux lieux n'ont pas encore de panneau où poser leurs badges. On
+   les compte plutôt que de les taire, et le compte ne remonte jamais — même
+   mécanique que `PLAFOND` et `INCONNUS`. Un compromis déclaré demain sans être
+   montré fera rougir cette ligne le jour même. */
+/* DEUX, et ce sont `recul` et `arrivee`. Leurs panneaux n'existent que pendant
+   un voyage : les ouvrir depuis la passe non destructive demanderait de lancer
+   un trajet, donc de casser l'état de qui joue. Ils sont posés dans la page —
+   `poseAveux($("chrono"), "recul")` et `poseAveux($("in-pied"), "arrivee")` —
+   et c'est `parcours`/`voyage`, la passe longue, qui les traversera.
+
+   Deux, et jamais trois : le jour où l'on déclare un compromis dans un endroit
+   sans panneau, cette ligne rougit avant qu'il soit publié. */
+const AVEUX_SANS_PLACE = 2;
+
+function aveux(){
+  ouvre("Les aveux sont-ils à l'écran ?");
+  if(typeof AVEU === "undefined"){ point("le module des aveux est chargé", false, "AVEU", "absent"); return; }
+
+  const tous = AVEU.tous(CONTENU);
+  point("il y a des compromis à montrer", tous.length > 0, "> 0", tous.length);
+
+  /* Chaque lieu et le panneau qui l'accueille. `partout` n'en a pas : il sort à
+     tous les autres, et c'est là qu'on le trouvera. */
+  const OUVRE = {
+    "salon":         () => document.getElementById("dossier"),
+    "reglages":      () => { document.getElementById("rouage").click(); return document.getElementById("panneau"); },
+    "reglage-temps": () => { document.getElementById("b-temps").click(); return document.getElementById("temps"); },
+    "spectre":       () => { document.getElementById("b-spectre").click(); return document.getElementById("spectre"); },
+    /* `fermeTelescope()` d'abord, et ce n'est pas de la précaution : l'étude et
+       le télescope PEIGNENT LE MÊME PANNEAU. Sans refermer, l'étude laisse ses
+       badges dans `in-pied` et le télescope, déjà ouvert, ne le repeint pas —
+       le contrôle accusait alors le site d'un défaut qui était le sien. */
+    "telescope":     () => { fermeTelescope(); ouvreTelescope(); return document.getElementById("in-pied"); },
+    "etude":         () => { fermeTelescope(); ouvreTelescope(); poseEtude(); return document.getElementById("in-pied"); },
+  };
+
+  let sansPlace = 0;
+  for(const c of tous){
+    if(c.ou === "partout") continue;                  // vérifié via les autres
+    const ouvrir = OUVRE[c.ou];
+    if(!ouvrir){ sansPlace++; continue; }
+    let hote = null;
+    try { hote = ouvrir(); } catch(e){ hote = null; }
+    const badge = hote && [...hote.querySelectorAll(".aveu")]
+      .find(n => n.textContent.indexOf(c.aveu) >= 0);
+    point("« " + c.id + " » est affiché dans « " + c.ou + " »", !!badge,
+          "un badge portant son texte", badge ? "présent" : "ABSENT",
+          badge ? undefined
+                : "déclaré dans contenu.js, et jamais montré : c'est le défaut que F4 ferme");
+  }
+
+  // Le « partout » doit accompagner un lieu ordinaire — on en éprouve un.
+  const global_ = tous.filter(c => c.ou === "partout");
+  if(global_.length){
+    let hote = null;
+    try { hote = OUVRE["reglages"](); } catch(e){}
+    const badge = hote && [...hote.querySelectorAll(".aveu")]
+      .find(n => n.textContent.indexOf(global_[0].aveu) >= 0);
+    point("le compromis « partout » accompagne les réglages", !!badge,
+          "présent", badge ? "présent" : "ABSENT");
+  }
+
+  point("aucun lieu de plus n'est resté sans panneau", sansPlace <= AVEUX_SANS_PLACE,
+        "≤ " + AVEUX_SANS_PLACE, sansPlace,
+        "le cliquet ne remonte jamais : un compromis déclaré sans endroit où le "
+        + "poser doit se voir le jour où on l'écrit");
+
+  // On referme ce qu'on a ouvert : un contrôle qui laisse la scène sale fausse
+  // le suivant, et c'est arrivé assez souvent pour que ce soit une règle.
+  fermeTelescope();
+  if(document.getElementById("panneau").classList.contains("vu")) document.getElementById("rouage").click();
+  if(document.getElementById("temps").classList.contains("vu"))   document.getElementById("b-temps").click();
+  if(spectreActif) document.getElementById("b-spectre").click();
+}
+
 const PASSE = [
   ["Le bloc de script vit", vivant], ["Cohérence", coherence], ["Les lieux", lieux],
+  ["Les aveux", aveux],
   ["Le temps", tempsJuste], ["La résolution", resolution], ["La saisie libre", saisieLibre],
   ["Les nuanceurs", nuanceurs], ["Les clés nues", clesNues], ["Le banc d'essai", banc],
   ["Les pixels", pixels], ["La couture", couture], ["La carte fixe", carteFixe],
@@ -1480,7 +1571,7 @@ function tout(){
 }
 
 global.VERIF = {
-  vivant, coherence, lieux, tempsJuste, resolution, saisieLibre, nuanceurs, clesNues,
+  vivant, coherence, lieux, aveux, tempsJuste, resolution, saisieLibre, nuanceurs, clesNues,
   banc, pixels, couture, carteFixe, carteDehors, seanceSansTrace, rotationCalme, memeEspace, mesurePage, parcours, voyage, budget,
   sain, tout, bilan, texte, resultats, FORMATS, OR,
   // outillage exposé : d'autres contrôles pourront s'y adosser

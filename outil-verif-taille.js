@@ -198,7 +198,33 @@ const fs = require("fs"), path = require("path");
 
    Il redescendra quand `accueil.js` sera branché : sa chirurgie rend plus de
    deux cents lignes, et elle attend d'être faite d'un bloc. */
-const PLAFOND = 3405;   // ... la caméra, le pilotage, les gestes, Lumen, la manette
+/* 3 457 le 9 août — **LE PLAFOND MONTE POUR LA QUATRIÈME FOIS**, et c'est la
+   hausse la plus lourde du chantier. Elle se justifie, mais elle se dit.
+
+   F4 EST FERMÉE. Les onze compromis du site s'affichent désormais LÀ OÙ ON LES
+   RENCONTRE — c'était la demande d'Hugo du 5 août, et elle n'était tenue qu'à
+   moitié : `contrat.js` garantissait qu'un compromis était bien DÉCLARÉ, rien
+   ne garantissait qu'il soit MONTRÉ. On pouvait en écrire un dans les règles,
+   passer les onze contrôles du contrat, et ne le poser nulle part.
+
+   `VERIF.aveux()` ferme la boucle : il ouvre chaque panneau pour de vrai et
+   exige d'y trouver le texte annoncé. Éprouvé faillible en neutralisant le
+   poseur de badges — neuf contrôles tombent.
+
+   CE QUE ÇA COÛTE : cinquante-deux lignes, dont trente-sept pour la fonction qui
+   peint et huit appels dans les panneaux. Ce sont des lignes de DOM, et le
+   tableau des irréductibles de ce chantier les nomme depuis le début : « un
+   module qui ferait ça cesserait d'être éprouvable hors navigateur ». Elles ne
+   peuvent pas sortir. La moitié éprouvable, elle, est sortie : `aveu.js` et ses
+   vingt et un contrôles décident QUI va OÙ, la page ne fait que peindre.
+
+   CE QUI N'A PAS ÉTÉ FAIT, pour la troisième fois de la journée : tailler dans
+   les commentaires pour repasser sous la barre. Le compteur existe pour
+   empêcher le bloc de grossir SANS QU'ON LE DÉCIDE. Ici on le décide, on l'écrit,
+   et on ferme une fondation en échange.
+
+   Il redescendra de plus de deux cents lignes au branchement d'`accueil.js`. */
+const PLAFOND = 3457;   // ... les gestes, Lumen, la manette, et les aveux de F4
 
 // Le nombre de modules déjà sortis. Il ne descend jamais non plus : un module
 // qu'on ferait rentrer dans le bloc serait le contraire exact du chantier.
