@@ -265,6 +265,44 @@ const TOUTES = [
      La question porte donc sur ce qui est NEUF, et lui montre les trois formes
      ensemble : la bulle qui prévient, la pastille qui compte, le centre qui
      garde. */
+  /* LE CERCLE DE LA DERNIÈRE ORBITE STABLE, ET LA ROTATION.
+
+     Trouvé le 9 août en mesurant si F3 était possible. Le cercle du calque reste
+     à 3 quelle que soit la rotation ; le bord du disque, lui, se resserre —
+     2,12 à spin 0,5, 1,16 à 0,9. À 0,9 le cercle est deux fois et demie trop
+     loin, tracé par-dessus le disque au lieu d'en marquer le bord.
+
+     CE N'EST PAS UNE ERREUR À CORRIGER, et c'est pour ça qu'elle est ici plutôt
+     que réparée. Le disque est calculé en Kerr : la rotation compte. Les sondes,
+     elles, se déplacent par `PHYSIQUE.integre`, qui est du Schwarzschild sans
+     terme de rotation. Le cercle dit VRAI pour les sondes et FAUX pour la
+     lumière. Le faire suivre l'accorderait à ce qu'on voit et le brouillerait
+     avec ce qu'on lance.
+
+     Question d'INSPECTION : les trois entrées sont trois rotations, pas trois
+     propositions. Ce qu'il juge, c'est l'écart — pas la valeur du spin. */
+  { id: "cercle-isco",
+    titre: "Le cercle de la dernière orbite stable",
+    libre: true,
+    inspection: true,
+    quoi: "Sur le trou noir d'étude, monte la rotation et regarde le cercle qui "
+        + "marque la dernière orbite stable. Il reste au même endroit, pendant "
+        + "que le bord du disque se resserre — à 0,9 il est deux fois et demie "
+        + "trop loin. Il dit vrai pour les sondes que tu lances, qui ignorent la "
+        + "rotation, et faux pour la lumière, qui la voit. Est-ce que l'écart se "
+        + "voit, et est-ce qu'il gêne ?",
+    /* Les indices sont ceux de `SPINS` dans la page, et les noms sont les
+       siens : aucune (0) · modérée (0,6) · rapide (0,9) · extrême (0,95). On ne
+       réinvente pas un vocabulaire pour une séance de jugement. */
+    pose: () => montreEtude(2),
+    options: [
+      { nom: "rotation rapide",  fait: () => montreEtude(2) },
+      { nom: "rotation extrême", fait: () => montreEtude(3) },
+      { nom: "sans rotation",    fait: () => montreEtude(0) },
+    ],
+    rend: () => rangeEtude(),
+  },
+
   { id: "forme-aveu",
     titre: "Les aveux, en notification",
     libre: true,
@@ -417,6 +455,24 @@ function rangeVoyage(){
    `bulle` OUBLIE d'abord ce qui a été croisé : la notification ne sort que sur du
    neuf, et sans ça il jugerait une bulle qui ne vient pas. C'est le seul endroit
    du dépôt qui efface cette mémoire, et c'est pour la lui montrer. */
+/* Poser le trou noir d'étude à une rotation donnée, par les VRAIS boutons.
+
+   `poseEtude` construit les boutons de rotation à chaque ouverture ; on clique
+   celui qu'on veut, exactement comme lui. Une séance qui poserait `spin` en
+   direct montrerait une scène que le site ne sait pas produire. */
+function montreEtude(i){
+  rangeEtude();
+  ouvreTelescope();
+  poseEtude();
+  const b = $$("etude-spin");
+  if(b && b.children[i]) b.children[i].click();
+}
+
+function rangeEtude(){
+  fermeTelescope();
+  if(typeof vaAu === "function") vaAu("libre");
+}
+
 function montreAveux(quoi){
   rangeAveux();
   if(quoi === "bulle"){
