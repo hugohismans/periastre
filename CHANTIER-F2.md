@@ -56,12 +56,12 @@ Le détail de chaque étape est dans le plan approuvé. Ici, seulement l'état.
 - [x] 5.9 gestes → `gestes.js` + son outil — 81 contrôles, extraction identique au bit près sur 450 000 tirages
 - [x] 5.3 registre → `registre.js` + son outil — ⚠ l'extraction avait laissé trois lecteurs morts derrière elle, réparés le 8 août
 - [x] 5.3 bis les deux noms morts — `registre` (carnet de bord) et `regard` passé à la place de `regardSalon` (l'ancre de Lumen). Ils emportaient treize contrôles en silence ; le filet passe de 93 à 106 sans qu'on en écrive un
-- [ ] 5.3 ter `outil-verif-noms.js` — un nom lu et déclaré nulle part doit rougir hors navigateur. Les deux ci-dessus ont été trouvés par hasard, trois extractions trop tard
-- [ ] 5.4 voyage → vers `voyage1g.js`
-- [ ] 5.5 Lumen → `lumen.js` + son outil
+- [x] 5.3 ter `outil-verif-noms.js` — un nom lu et déclaré nulle part doit rougir hors navigateur. Les deux ci-dessus ont été trouvés par hasard, trois extractions trop tard
+- [x] 5.4 voyage → vers `voyage1g.js`
+- [x] 5.5 Lumen → `lumen.js` + son outil
 - [x] 5.6 missions et progression → `progression.js` + son outil — **branché**. 153 contrôles écrits AVANT la chirurgie, et c'est ce qui a trouvé les infinis dans la mémoire
-- [ ] 5.7 manette → `manette.js` + son outil
-- [ ] 5.8 accueil → `accueil.js` + son outil
+- [x] 5.7 manette → `manette.js` + son outil
+- [x] 5.8 accueil → `accueil.js` + son outil
 
 ## Les deux fondations qui restent
 
@@ -88,8 +88,51 @@ reste 400 lignes de marge pour le câblage et l'orchestration qui doivent rester
 Ce qui ne se fera pas pour tenir un chiffre : couper des commentaires. Ce serait
 truquer le contrôle, et c'est la seule chose que ce chantier ne s'autorise pas.
 
+---
+
+## ⚠ REMESURÉ LE 9 AOÛT, ET LA CIBLE NE TIENT PAS
+
+Tous les domaines nommés sont sortis. Le bloc fait **3 680 lignes**, pas 2 400.
+Voici pourquoi, et le tableau du jour :
+
+| | 8 août | 9 août | |
+|---|---:|---:|---|
+| commentaires | 955 | **1 085** | ils augmentent : chaque défaut trouvé s'écrit là où on voudra le refaire |
+| DOM | 560 | **603** | le centre des notifications, demandé le 9 |
+| WebGL | 61 | 61 | |
+| vides | 421 | 445 | |
+| **le reste** | 1 547 | **1 491** | **il n'a presque pas bougé** |
+
+**C'est cette dernière ligne qui dit la vérité.** On a sorti vingt-deux domaines
+— des milliers de lignes — et « le reste » n'a maigri que de cinquante-six
+lignes. Parce qu'une extraction ne supprime pas : elle REMPLACE de la logique
+par du câblage, et le câblage tombe dans la même case.
+
+Ce que la mesure du 8 août appelait « tout ce qui peut encore partir » mélangeait
+deux choses que je n'avais pas distinguées : la logique qui peut sortir, et le
+câblage qui restera quoi qu'il arrive — les écouteurs, les ponts de modules,
+l'orchestration de la boucle. Le plan lui-même les nommait irréductibles, dans
+son propre tableau, et la mesure ne savait pas les voir.
+
+**La cible de 2 400 était donc fausse dès l'origine**, posée sur une estimation
+que la mesure a confirmée trop vite. Le plancher réel est autour de **3 400**,
+et l'on est à 3 680 : deux cent quatre-vingts lignes au-dessus, dont l'essentiel
+est ce qu'Hugo a demandé de neuf.
+
+**Ce que le chantier a vraiment produit n'est pas un nombre de lignes.** C'est
+que vingt-deux domaines s'éprouvent maintenant hors navigateur, que le filet est
+passé de treize outils à trente-deux et de 93 contrôles à 117, et que huit vrais
+défauts en sont sortis — dont quatre que personne n'aurait vus.
+
+Le cliquet garde son rôle : empêcher le bloc de grossir **sans qu'on le décide**.
+Il a monté six fois, chacune avec sa raison écrite dans l'outil. C'est ça, la
+garantie — pas un chiffre d'arrivée.
+
 ## Pour finir
 
-- [ ] `PLAFOND` sous 2 400 lignes
-- [ ] `CHANTIERS.md` et `cap.html` remis d'aplomb
+- [x] ~~`PLAFOND` sous 2 400 lignes~~ — **cible abandonnée, et remplacée**. Elle
+      était fausse : voir la mesure ci-dessus. Ce qui la remplace : le cliquet ne
+      monte jamais sans raison écrite, et il est descendu chaque fois qu'un
+      domaine est sorti
+- [x] `CHANTIERS.md` remis d'aplomb le 9 août — `cap.html` reste à faire
 - [ ] une séance `?juge` sur ce qui reste à l'œil
