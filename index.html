@@ -5408,20 +5408,27 @@ function avertitSonIOS(){
 // Deuxième temps : on demande le niveau comme une question, pas comme un
 // réglage. Les trois réponses réutilisent les répliques `niveau-*`.
 function niveauDemande(){
-  poseAccueil(false);
+  const d = ACCUEIL.ecranNiveau({ niveaux: CONTENU.niveauxLibelle });
+  poseAccueil(d.nu);
   elCartes.style.justifyItems = "";
-  elTitre.textContent = T("accueil.niveau.titre");
-  elChapo.innerHTML = CONTENU.accueil.niveau.t;
-  parle(CONTENU.accueil.niveau);
-  elCartes.style.gridTemplateColumns = "1fr";
-  CONTENU.niveauxLibelle.forEach((n, i) => {
+  elTitre.textContent = T(d.titre.cle);
+  elChapo.innerHTML   = contenuDe(d.chapo.contenu).t;
+  parle(contenuDe(d.parle.contenu));
+  elCartes.style.gridTemplateColumns = d.colonnes;
+  d.cartes.forEach(n => {
     const c = document.createElement("div");
     c.className = "carte";
     c.innerHTML = `<h2>${n.titre}</h2><p>${n.detail}</p>`;
     c.onclick = () => {
+      const o = ACCUEIL.choisitNiveau(ACC, { i: n.i, nNiveaux: NIVEAUX.length });
+      // Reçu, rendu : la page seule écrit `iNiveau`, que les fiches, le dossier
+      // et Lumen relisent. Un scalaire lié dans un module fige sa valeur.
+      iNiveau = o.iNiveau;
       // C'est ICI, et seulement ici, qu'on répond vraiment à la question.
-      iNiveau = i; niveauChoisi = true; majFiche(); sauve();
-      [...boitierN.children].forEach((x, j) => x.classList.toggle("actif", j === i));
+      niveauChoisi = true;
+      if(o.repeintFiche) majFiche();
+      if(o.enregistre) sauve();
+      [...boitierN.children].forEach((x, j) => x.classList.toggle("actif", j === o.marqueNiveau));
       departDemande();
     };
     elCartes.appendChild(c);
@@ -5442,88 +5449,89 @@ function niveauDemande(){
    n'engage à rien : les trois portes mènent au même site, et la barre du bas
    reste là. */
 function departDemande(){
-  poseAccueil(false);
+  const d = ACCUEIL.ecranDepart();
+  poseAccueil(d.nu);
   elCartes.style.justifyItems = "";
-  elTitre.textContent = T("accueil.depart.titre");
-  elChapo.innerHTML = T("accueil.depart.chapo");
-  elCartes.style.gridTemplateColumns = "1fr";
-
-  const porte = (titre, detail, action) => {
+  elTitre.textContent = T(d.titre.cle);
+  elChapo.innerHTML   = T(d.chapo.cle);
+  elCartes.style.gridTemplateColumns = d.colonnes;
+  d.portes.forEach(p => {
     const c = document.createElement("div");
     c.className = "carte";
-    c.innerHTML = `<h2>${titre}</h2><p>${detail}</p>`;
+    c.innerHTML = `<h2>${T(p.titre.cle)}</h2><p>${T(p.detail.cle)}</p>`;
     c.onclick = () => {
-      tais();
-      cinema.actif = false;
-      elAccueil.classList.add("parti");
-      document.body.classList.remove("au-menu");
-      $("b-menu").classList.add("vu");
-      action();
+      /* `choisitPorte` rend `null` sur une porte inconnue. La page n'en pose que
+         trois, donc ce chemin ne s'ouvre pas d'ici — il s'ouvre depuis un outil,
+         et c'est justement là qu'on veut un refus net plutôt qu'un lieu inventé. */
+      const o = ACCUEIL.choisitPorte(ACC, { id: p.id });
+      if(!o) return;
+      if(o.tais) tais();
+      if(o.cinema === false) cinema.actif = false;
+      if(o.cacheAccueil) elAccueil.classList.add("parti");
+      if(o.auMenu === false) document.body.classList.remove("au-menu");
+      if(o.montreBoutonMenu) $("b-menu").classList.add("vu");
+      if(o.entreAuSalon && !salon.actif) $("b-salon").click();
+      if(o.suite === "menu") menu();
     };
     elCartes.appendChild(c);
-  };
-
-  porte(T("accueil.porte.libre.titre"), T("accueil.porte.libre.detail"),
-        () => {});
-
-  porte(T("accueil.porte.salon.titre"), T("accueil.porte.salon.detail"),
-        () => { if(!salon.actif) $("b-salon").click(); });
-
-  porte(T("accueil.porte.missions.titre"), T("accueil.porte.missions.detail"),
-        () => menu());
+  });
 }
 
 function menu(){
-  poseAccueil(false);
+  const d = ACCUEIL.ecranMenu(ACC, { experiences: EXPERIENCES, missions: MISSIONS,
+                                     acquis: PROG.acquis });
+  poseAccueil(d.nu);
   elCartes.style.justifyItems = "";
-  elTitre.textContent = T("accueil.titre");
-  const n = PROG.acquis.size;
-  /* Le pluriel n'est plus recousu dans la phrase : chaque langue apporte ses
-     deux phrases entières, et la troisième apportera les siennes. */
-  elChapo.innerHTML = n
-    ? remplit(n > 1 ? "accueil.reprise" : "accueil.reprise.un",
-              { n, total:MISSIONS.length })
-    : T("accueil.chapo");
-  EXPERIENCES.forEach(x => {
+  elTitre.textContent = T(d.titre.cle);
+  /* Le pluriel n'est pas recousu dans la phrase : chaque langue apporte ses deux
+     phrases entières, parce qu'une phrase à trous se casse dès la troisième. */
+  elChapo.innerHTML = d.chapo.vals ? remplit(d.chapo.cle, d.chapo.vals) : T(d.chapo.cle);
+  d.cartes.forEach(x => {
     const c = document.createElement("div");
     c.className = "carte";
     c.innerHTML = `<div class="duree">${x.duree}</div><h2>${x.titre}</h2><p>${x.resume}</p>`;
     c.onclick = () => detail(x);
     elCartes.appendChild(c);
   });
-  if(n){
+  if(d.pastilles){
     const p = document.createElement("div");
     p.style.cssText = "grid-column:1/-1;text-align:center;margin-top:6px";
-    p.innerHTML = MISSIONS.map(m =>
+    p.innerHTML = d.pastilles.map(m =>
       `<span title="${m.titre}" style="display:inline-block;width:9px;height:9px;margin:0 3px;
-       border-radius:50%;background:${PROG.acquis.has(m.id) ? "#6effb4" : "rgba(255,255,255,.15)"}"></span>`
+       border-radius:50%;background:${m.acquis ? "#6effb4" : "rgba(255,255,255,.15)"}"></span>`
     ).join("") +
     `<div style="margin-top:11px"><button id="acc-oubli" style="font-size:10.5px;padding:5px 11px">
-       ${T("accueil.oubli")}</button></div>`;
+       ${T(d.oubli.cle)}</button></div>`;
     elCartes.appendChild(p);
-    p.querySelector("#acc-oubli").onclick = () => { oublie(); majMission(); menu(); };
+    p.querySelector("#acc-oubli").onclick = () => {
+      const o = ACCUEIL.oublieTout(ACC);
+      if(o.oublie) oublie();
+      if(o.repeintMission) majMission();
+      menu();
+    };
   }
 }
 
 function detail(x){
+  const d = ACCUEIL.ecranDetail(x);
   elCartes.innerHTML =
     `<div id="acc-detail">
-       <div class="duree">${x.duree}</div>
-       <h2>${x.titre}</h2>
-       <p>${x.quoi}</p>
+       <div class="duree">${d.duree}</div>
+       <h2>${d.titre}</h2>
+       <p>${d.quoi}</p>
        <div id="acc-actions">
-         <button id="acc-go">${T("accueil.commencer")}</button>
-         <button id="acc-retour">${T("accueil.retour")}</button>
+         ${d.boutons.map(b => `<button id="${b.id}">${T(b.cle)}</button>`).join("")}
        </div>
      </div>`;
-  elCartes.style.gridTemplateColumns = "1fr";
+  elCartes.style.gridTemplateColumns = d.colonnes;
   $("acc-go").onclick = () => {
-    tais();
-    cinema.actif = false;
-    MISE_EN_PLACE[x.id]?.();
-    elAccueil.classList.add("parti");
-    document.body.classList.remove("au-menu");
-    $("b-menu").classList.add("vu");
+    const o = ACCUEIL.choisitExperience(ACC, { id: d.id });
+    if(o.tais) tais();
+    if(o.cinema === false) cinema.actif = false;
+    MISE_EN_PLACE[o.miseEnPlace]?.();
+    if(o.cacheAccueil) elAccueil.classList.add("parti");
+    if(o.auMenu === false) document.body.classList.remove("au-menu");
+    if(o.montreBoutonMenu) $("b-menu").classList.add("vu");
   };
   $("acc-retour").onclick = menu;
 }
