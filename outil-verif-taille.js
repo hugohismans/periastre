@@ -288,7 +288,7 @@ const fs = require("fs"), path = require("path");
    Les étapes suivantes retirent les écrans — intro, présentation, niveau,
    départ, menu, détail — et là le plafond descend pour de bon : plus de deux
    cents lignes. */
-const PLAFOND = 3647;   // ... les aveux, le lien de test, l'accueil (étape 1 sur 4)
+const PLAFOND = 3653;   // ... les aveux, le lien de test, l'accueil (étape 1 sur 4)
 
 // Le nombre de modules déjà sortis. Il ne descend jamais non plus : un module
 // qu'on ferait rentrer dans le bloc serait le contraire exact du chantier.

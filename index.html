@@ -5251,50 +5251,55 @@ function poseAccueil(nu){
 
 // Premier temps : rien que l'image. Le décor est déjà en train de tourner
 // derrière, autant le laisser parler avant d'expliquer quoi que ce soit.
+/* Le chapô des écrans porte un CHEMIN dans `contenu.js`, pas du texte : le
+   module décide QUOI montrer, il ne transporte pas le contenu. */
+const contenuDe = c => c.split(".").reduce((o, k) => o[k], CONTENU);
+
+/* Les ordres de l'embarquement, dans l'ordre où la page les exécutait.
+
+   `museleAccueil` encadre l'entrée au salon et pas autre chose : sans lui, le
+   changement de lieu rouvrirait l'accueil qu'on vient de refermer. */
+function executeEntree(o){
+  if(o.cacheAccueil)     elAccueil.classList.add("parti");
+  if(o.auMenu === false) document.body.classList.remove("au-menu");
+  if(o.enQuete)          document.body.classList.add("en-quete");
+  if(o.museleAccueil)    ouvreLaQuete = true;
+  if(o.entreAuSalon && !salon.actif) $("b-salon").click();
+  if(o.museleAccueil)    ouvreLaQuete = false;
+  if(o.lanceQuete)       lanceQuete();
+}
+
 function intro(){
-  poseAccueil(true);
-  elTitre.textContent = T("accueil.titre");
-  elChapo.innerHTML = CONTENU.accueil.bienvenue.t;
+  const d = ACCUEIL.ouvre(ACC);
+  poseAccueil(d.nu);
+  elTitre.textContent = T(d.titre.cle);
+  elChapo.innerHTML   = contenuDe(d.chapo.contenu).t;
   // On demande avant de parler. Une voix qui démarre toute seule, c'est
   // désagréable, et ça se coupe toujours trop tard.
   const rangee = document.createElement("div");
   rangee.id = "acc-actions";
   rangee.style.justifyContent = "center";
-  rangee.innerHTML =
-    `<button id="acc-go">${T("accueil.entrer.voix")}</button>
-     <button id="acc-muet">${T("accueil.entrer.muet")}</button>`;
+  rangee.innerHTML = d.boutons.map(b => `<button id="${b.id}">${T(b.cle)}</button>`).join("");
   elCartes.appendChild(rangee);
-  elCartes.style.gridTemplateColumns = "1fr";
-  elCartes.style.justifyItems = "center";
-  // Qui revient a déjà répondu sur son niveau : on ne le redemande pas.
+  elCartes.style.gridTemplateColumns = d.colonnes;
+  if(d.centre) elCartes.style.justifyItems = "center";
+
   const entre = son => {
-    voixActive = son; majBoutonVoix(); sauve();
-    if(son){
-      avertitSonIOS();
-      if(volumeMusique > 0){ MUSIQUE.regleVolume(volumeMusique); MUSIQUE.demarre(); }
-    }
-    // La présentation ne se joue qu'au tout premier passage, et elle s'insère
-    // ICI : le son vient d'être accepté, donc elle peut porter de la musique, et
-    // l'on n'a encore rien montré qu'elle viendrait interrompre.
-    if(dejaVenu){ menu(); return; }
+    const o = ACCUEIL.entre(ACC, { son, volumeMusique });
+    voixActive = o.voixActive;
+    if(o.repeintBoutonVoix) majBoutonVoix();
+    if(o.enregistre) sauve();
+    /* Le module dit qu'il y a lieu d'avertir ; la page seule sait si l'appareil
+       est concerné et si l'avis a déjà été lu. */
+    if(o.avertitSon) avertitSonIOS();
+    if(o.musique !== null){ MUSIQUE.regleVolume(o.musique); MUSIQUE.demarre(); }
+    if(o.suite === "menu"){ menu(); return; }
     jouePresentation(embarquePremier);
   };
 
-  const embarquePremier = () => {
-    /* Un testeur qui reçoit un lien n'explore pas : il regarde deux minutes.
-       On le dépose donc directement à bord, et la quête lui apprend le lieu.
-       Le niveau de lecture attend la fin — on ne sait pas répondre à « où en
-       es-tu ? » avant d'avoir vu de quoi il s'agit. */
-    elAccueil.classList.add("parti");
-    document.body.classList.remove("au-menu");
-    document.body.classList.add("en-quete");
-    ouvreLaQuete = true;
-    if(!salon.actif) $("b-salon").click();
-    ouvreLaQuete = false;
-    lanceQuete();
-  };
-  $("acc-go").onclick  = () => entre(true);
-  $("acc-muet").onclick = () => entre(false);
+  const embarquePremier = () => executeEntree(ACCUEIL.finPresentation(ACC));
+
+  d.boutons.forEach(b => { $(b.id).onclick = () => entre(b.son); });
 }
 
 /* La présentation, en trois temps et pas un de plus.
@@ -5308,16 +5313,16 @@ function intro(){
    Elle se joue par-dessus le trou noir, qui tourne déjà. C'est lui l'argument ;
    le texte ne fait que le nommer. */
 function jouePresentation(fin){
-  const temps = (CONTENU.accueil && CONTENU.accueil.presentation) || [];
-  if(!temps.length){ fin(); return; }        // un contenu plus ancien : on passe
+  const d = ACCUEIL.presentation({ temps: (CONTENU.accueil && CONTENU.accueil.presentation) || [] });
+  if(!d.joue){ fin(); return; }              // un contenu plus ancien : on passe
 
   const el = $("presentation"), bloc = $("pr-bloc"), points = $("pr-points");
-  points.innerHTML = temps.map(() => "<i></i>").join("");
-  $("pr-passer").textContent = T("pr.passer");
+  points.innerHTML = d.ecrans.map(() => "<i></i>").join("");
+  $("pr-passer").textContent = T(d.passer.cle);
 
   // Le menu s'efface : on veut l'image, pas un panneau derrière le texte.
-  elAccueil.classList.add("parti");
-  document.body.classList.remove("au-menu");
+  if(d.cacheAccueil)     elAccueil.classList.add("parti");
+  if(d.auMenu === false) document.body.classList.remove("au-menu");
 
   // Ni `PR_DUREE` ni `minuterie` : morts depuis qu'on ne défile plus tout seul.
   let i = -1, fini = false;
@@ -5332,17 +5337,18 @@ function jouePresentation(fin){
   const suivant = () => {
     if(fini) return;
     i++;
-    if(i >= temps.length){ termine(); return; }
+    if(i >= d.ecrans.length){ termine(); return; }
+    const e = d.ecrans[i];
     bloc.classList.remove("la");
     setTimeout(() => {
       if(fini) return;
-      $("pr-sur").textContent  = temps[i].sur;
-      $("pr-texte").innerHTML  = temps[i].t;
+      $("pr-sur").textContent  = e.sur;
+      $("pr-texte").innerHTML  = e.t;
       [...points.children].forEach((p, j) => p.classList.toggle("la", j === i));
       bloc.classList.add("la");
       // Le libellé dit où l'on est : au dernier écran, « Suivant » mentirait.
-      $("pr-suite").textContent = i === temps.length - 1 ? T("pr.entrer") : T("pr.suivant");
-    }, i === 0 ? 40 : 560);
+      $("pr-suite").textContent = T(e.suite.cle);
+    }, e.delai);
   };
 
   /* ON NE DÉFILE PLUS TOUT SEUL.

@@ -145,7 +145,7 @@ const ARMEES = 0;
    l'appeler plus haut est sûr pour toujours. Le premier jet comptait les deux
    et annonçait soixante-trois mines, dont quarante inoffensives — un chiffre
    qu'on apprend à ignorer. */
-const DIFFEREES = 21;
+const DIFFEREES = 20;
 
 /* Relevé le 8 août 2026, le jour où le suivi des appels a été écrit : UN. Ce
    n'est pas une valeur de confort, c'est ce que la mesure rend sur le dépôt tel
