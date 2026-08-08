@@ -3214,9 +3214,16 @@ let spin = 0;
 // impose pas d'attendre la fin d'une animation.
 const cinema = { actif:true, t:0 };
 
-// Le point de la PIÈCE où Lumen vient attendre. Il se fixe au moment où l'on
-// lui demande de venir, et n'appartient pas au regard — voir la boucle.
-let ancreLumen = null;
+/* `ancreLumen` a été retiré d'ici le 9 août : il était MORT.
+
+   Le point de la pièce où Lumen vient attendre est parti dans `habitacle.js`
+   avec le reste du salon, et le module en déclare un à lui. Celui de la page
+   n'était plus ni lu ni écrit — il ressemblait juste à de l'état partagé.
+
+   `outil-verif-noms.js` ne pouvait pas le voir, et c'est son angle mort
+   symétrique : il cherche un nom LU et déclaré nulle part, pas un nom DÉCLARÉ
+   et lu nulle part. Le premier tue la page, le second l'encombre — d'où l'ordre
+   dans lequel ils ont été traités. */
 
 /* Le télescope, et le voyage qu'on y engage.
 

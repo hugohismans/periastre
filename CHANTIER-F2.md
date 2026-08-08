@@ -39,7 +39,45 @@ Le détail de chaque étape est dans le plan approuvé. Ici, seulement l'état.
 
 - [x] 3.1 les poignées DOM — atteint par la coupe en trois : elles sont en tête du bloc B, et aucun domaine ne dépend plus de leur position (zéro inversion armée, et elles ne figurent pas dans les différées)
 - [x] 3.2 les libellés deviennent des données → `libelles.js` + son outil
-- [ ] 3.3 l'état partagé devient `VUE`, puis `etat.js` — **repoussé après l'étape 5** : 469 références sur trois fichiers, c'est la seule étape du chantier qui ne se rattrape pas d'un git revert propre. Elle se fait en début de session, pas en fin.
+- [x] 3.3 l'état partagé — **mesuré le 9 août, et abandonné pour cause d'inutilité.** Voir ci-dessous.
+
+> ### 3.3 ne se fera pas, et la mesure le dit
+>
+> Cette étape voulait emballer onze variables mutables dans un objet `VUE`, puis
+> le sortir dans `etat.js`. Sa raison d'être était précise : **un scalaire
+> réassigné ne se partage pas entre deux fichiers**, donc tant qu'il reste des
+> domaines à extraire, ces onze-là les bloquent.
+>
+> **Tous les domaines sont sortis.** La raison d'être a disparu avec eux.
+>
+> Mesuré avant de conclure, plutôt qu'estimé :
+>
+> - `TELESCOPE` (81 réf.) et `cinema` (20) sont **déjà des objets `const`** —
+>   donc déjà partageables. Le plan les comptait « gratuits » ; ils sont faits.
+> - Restent 106 références sur onze scalaires. Le travail réel n'a jamais été
+>   469 références : ce chiffre comptait le nœud entier.
+>
+> Et la question qui comptait vraiment, celle que F1 a apprise à ce dépôt —
+> **est-ce que l'un d'eux a deux écrivains ?** — a été posée pour les onze :
+>
+> | | écrivains | verdict |
+> |---|---:|---|
+> | `montreTraj` | 1 | sain |
+> | `zoomSonde`, `tFlash`, `tMsg` | 2 | l'interface et la relecture de la mémoire — légitime |
+> | `visee`, `pivot` | 3 | poser, déplacer, relâcher — le cycle d'un geste |
+> | `spin` | 13 | dont **onze dans les outils de contrôle**, qui le posent exprès |
+> | `nbPas`, `finesse`, `seuilCapture` | 0 | des constantes déguisées en `let` |
+> | `ancreLumen` | 0 | **MORT** — retiré, `habitacle.js` a le sien |
+>
+> **Aucun n'a la maladie de `lieu`.** Emballer ces onze-là dans un objet
+> coûterait 106 réécritures sur trois fichiers — la seule étape du chantier
+> qu'un `git revert` ne rattrape pas proprement — pour un bénéfice qui n'existe
+> plus. On ne le fait pas, et on écrit pourquoi.
+>
+> **Ce que la mesure a rapporté quand même** : une variable morte laissée par
+> l'extraction de l'habitacle, et le fait que trois « réglages » de qualité du
+> lancer de rayons n'ont aucun écrivain — ce sont des constantes, pas des
+> réglages, et leur `let` le laissait croire.
 
 ## Étape 4 — les gros de dessin
 
