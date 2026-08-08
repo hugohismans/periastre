@@ -118,6 +118,42 @@ ta scène, je ne l'ai pas vue.** Ça marche maintenant.
 
 ---
 
+## ❓ LE CERCLE DE LA DERNIÈRE ORBITE STABLE NE SUIT PAS LA ROTATION
+
+Trouvé le 9 août en mesurant si F3 était possible, et vérifié dans la page.
+
+Sur le trou noir d'étude, quand tu montes la rotation, **deux choses qui
+devraient être au même endroit s'écartent** :
+
+| rotation | le cercle qu'on trace | le bord du disque |
+|---|---:|---:|
+| 0 | 3 | 3 |
+| 0,5 | 3 | 2,12 |
+| 0,9 | 3 | **1,16** |
+| 0,95 | 3 | 0,97 |
+
+Le cercle marqué « dernière orbite stable » reste à 3 quoi qu'il arrive. Le bord
+du disque, lui, se resserre — parce qu'un trou noir qui tourne laisse la matière
+descendre bien plus près avant qu'elle tombe. À 0,9 le cercle est **deux fois et
+demie trop loin**, et il est dessiné par-dessus le disque au lieu d'en marquer le
+bord.
+
+**Ce n'est pas une simple erreur à corriger, et c'est pour ça que je te la
+pose.** Le disque est calculé en Kerr — la rotation compte. Mais **les sondes que
+tu lances, elles, se déplacent sans rotation** : leur moteur ne connaît que
+Schwarzschild. Le cercle dit vrai pour tes sondes, et faux pour la lumière.
+
+Faire suivre le cercle à la rotation le mettrait d'accord avec ce qu'on voit, et
+en désaccord avec ce qu'on lance. Les trois sorties possibles :
+
+- il suit la rotation, et on avoue que les sondes, elles, ne la voient pas ;
+- il reste où il est, et on écrit qu'il parle des sondes et pas du disque ;
+- il disparaît quand la rotation n'est pas nulle, faute de pouvoir dire les deux.
+
+C'est un choix de vérité, pas de réglage. Je ne le prends pas seul.
+
+---
+
 ## ❓ DEUX CHOSES QUI T'APPARTIENNENT — 9 août 2026
 
 ### Lumen n'a rien à dire quand on touche le poste horaire

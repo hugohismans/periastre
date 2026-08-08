@@ -131,7 +131,49 @@ Deux fois pour du câblage qu'Hugo avait demandé, une fois pour la réparation 
 niveau de lecture, une fois pour fermer F4. Ce qui n'a jamais été fait : tailler
 dans les commentaires pour repasser sous la barre.
 
-### F3 — Il manque un intégrateur à N corps — ⚠️ **écrit, éprouvé, branché à rien**
+### F3 — Il manque un intégrateur à N corps — 🛑 **MESURÉ LE 9 AOÛT : ON NE PEUT PAS**
+
+> **Le compagnon newtonien ne se branchera pas. La mesure dit non, et voici
+> pourquoi — `outil-verif-compagnon.js`, 66 contrôles.**
+>
+> Un compagnon mû par `ncorps.js` dérive de **4,71 rayons par tour** par rapport
+> à ce que la relativité impose. L'ombre du trou noir en fait 5,10. Le compagnon
+> se retrouve donc décalé d'**une largeur d'ombre à chaque tour**.
+>
+> **Et s'éloigner n'y change rien.** C'est le résultat qui ferme la question :
+> la dérive tend vers `3πM`, une CONSTANTE, pendant que l'objet rétrécit. Le
+> rapport des deux reste entre 0,92 et 1,05 de l'ISCO à trois mille rayons.
+> L'erreur et l'objet maigrissent exactement au même rythme.
+>
+> Les trois exigences ne se croisent pas — cadrable `r ≤ 37`, regardable
+> `r ≤ 321`, d'accord `r ≥ 533`. Un facteur quatorze entre elles.
+>
+> **La limite de Roche** tombe à 21,9 rayons : cadrable, mais en plein dans la
+> zone de désaccord. Et une orbite newtonienne à deux corps est une ellipse
+> fermée — elle ne s'approche jamais. Mesuré : le périastre bouge de 2,5·10⁻⁸
+> sur deux cents tours. Faire tomber l'étoile demanderait une loi de décroissance
+> inventée, ce que la règle 4 interdit.
+>
+> **`ncorps.js` n'apportait rien ici de toute façon.** La gravitation mutuelle
+> d'une étoile autour de Sgr A* vaut 1,2·10⁻⁷ contre 3,8·10⁻² de relativité
+> négligée — **330 000 fois plus petite**. On aurait branché un moteur pour un
+> effet trois cent mille fois inférieur à l'erreur qu'il introduit.
+>
+> **Ce qui reste possible, si un compagnon est voulu** : le mouvoir par
+> `PHYSIQUE.integre`, comme toute la matière du site. Il n'a alors pas besoin de
+> `ncorps.js` — et `ncorps.js` reste une dette à assumer autrement, par un vrai
+> système à plusieurs corps ailleurs, ou par son retrait.
+>
+> **Une correction à l'énoncé, au passage.** Ce document disait « la scène est en
+> Kerr ». Elle l'est pour la LUMIÈRE seulement : la matière — sondes, vaisseau —
+> passe par `PHYSIQUE.integre`, qui est la géodésique de Schwarzschild sans terme
+> de rotation. Le dépôt portait donc déjà deux lois pour un même espace, et ne le
+> savait pas. C'est de là que sort la question du cercle de l'ISCO, dans
+> `A-REGARDER.md`.
+
+<details><summary>L'état d'avant, gardé pour mémoire</summary>
+
+**écrit, éprouvé, branché à rien**
 
 `ncorps.js`, 1 026 lignes, contrôlé par `outil-verif-ncorps.js` — énergie,
 moment cinétique, résonances, limite de Roche. **Absent d'`index.html`.**
@@ -148,6 +190,8 @@ Reste à décider **de quoi il sera l'usage visible**. Charger n'est pas branche
 un module chargé et inutilisé reste le troisième état. Proposition à faire
 juger : un compagnon au trou noir d'étude, qui existe déjà comme objet distinct
 et orientable.
+
+</details>
 
 ### F4 — La frontière du simulable, à écrire une fois pour toutes — ✅ **FAIT**
 
