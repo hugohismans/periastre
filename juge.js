@@ -230,6 +230,38 @@ const TOUTES = [
      plus vite que la pièce ne se retourne. Si l'on part sans regarder l'astre,
      il a le temps d'arriver presque en entier avant lui. Est-ce que ça se voit
      comme un défaut, ou comme une annonce ? Aucun calcul ne tranche ça. */
+  /* LA FORME DE L'AVEU — F4.
+
+     Question d'INSPECTION, comme celle du quadrillage : les trois entrées sont
+     trois endroits où le badge apparaît, pas trois propositions à départager.
+
+     POURQUOI ON NE PROPOSE PAS DÉJÀ TROIS FORMES. Le plan prévoyait « deux ou
+     trois formes, Hugo tranche ». C'est prématuré : on ne sait pas encore si la
+     première est fautive. Dessiner trois variantes avant de savoir ça, c'est
+     lui faire choisir entre trois réponses à une question qu'on ne lui a pas
+     posée. S'il dit que ça coince, on dessine — pas avant.
+
+     Ce qui est déjà tranché et n'a pas à l'être : le texte est LISIBLE et non
+     replié derrière un bouton. Un aveu qu'il faut déplier pour lire est un aveu
+     qu'on ne lit pas, et c'est le défaut même que F4 répare. */
+  { id: "forme-aveu",
+    titre: "Les aveux, là où on les rencontre",
+    libre: true,
+    inspection: true,
+    quoi: "Tu disais : « chaque compromis doit se déclarer là où on le "
+        + "rencontre, pas seulement dans une liste rangée ailleurs. » Les onze "
+        + "sont maintenant posés dans leur panneau — le losange orange. Regarde "
+        + "les trois endroits ci-dessous : est-ce que ça se lit, est-ce que ça "
+        + "gêne, est-ce que ça se remarque assez ?",
+    pose: () => montreAveux("reglages"),
+    options: [
+      { nom: "dans les réglages",  fait: () => montreAveux("reglages") },
+      { nom: "au télescope",       fait: () => montreAveux("telescope") },
+      { nom: "au réglage du temps", fait: () => montreAveux("reglage-temps") },
+    ],
+    rend: () => rangeAveux(),
+  },
+
   { id: "quadrillage-avance",
     titre: "Le quadrillage arrive-t-il trop tôt ?",
     libre: true,
@@ -349,6 +381,24 @@ function rangeVoyage(){
 
    Cette fonction reproduit donc exactement la situation où il y a quelque chose
    à voir, et sur un téléphone tenu debout, qui est là où c'est le plus marqué. */
+/* Ouvrir le panneau où un aveu se pose, et le refermer proprement.
+
+   On passe par les VRAIS boutons, jamais par `poseAveux` en direct : ce qu'il
+   doit juger est ce qu'il verra en jouant, pas ce qu'une fonction de contrôle
+   sait fabriquer. Une séance qui montre une scène montée n'apprend rien. */
+function montreAveux(ou){
+  rangeAveux();
+  if(ou === "reglages")           $$("rouage").click();
+  else if(ou === "reglage-temps") $$("b-temps").click();
+  else if(ou === "telescope")     ouvreTelescope();
+}
+
+function rangeAveux(){
+  fermeTelescope();
+  if($$("panneau").classList.contains("vu")) $$("rouage").click();
+  if($$("temps").classList.contains("vu"))   $$("b-temps").click();
+}
+
 function rejoueVoyageTourne(ecart){
   rejoueVoyage(0);
   const va = salon.versAstre;
