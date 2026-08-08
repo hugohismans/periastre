@@ -3,10 +3,17 @@
 Liste courte et ordonnée. Le détail de chaque point est dans `IDEES.md`, qui
 sert d'archive ; ce fichier-ci sert à savoir quoi prendre ensuite.
 
-Mis à jour le 6 août 2026, après la passe sur les fondations.
+Mis à jour le 9 août 2026, pendant le chantier des fondations.
 
-**État en une ligne :** F1 fait et gardé · F2 sous cliquet · **F3 ouvert, et
-c'est le seul** · F4 fait · F5 fait. Les fonctionnalités attendent F3.
+**État en une ligne :** F1 fait, et sa garantie est enfin MESURÉE · F2 en
+chantier, 4 382 → 3 457 lignes · **F3 ouvert, et c'est le seul qui n'a pas
+commencé** · F4 fermée, un aveu jamais montré fait désormais échouer un
+contrôle · F5 fait.
+
+**Deux choses attendent l'œil d'Hugo**, et rien d'autre ne les tranchera : la
+forme du badge d'aveu, et ce que Lumen doit répondre quand on touche le poste
+horaire — le code lui demande de réagir et la réplique n'a jamais été écrite.
+Les deux sont dans `A-REGARDER.md`, avec les mesures.
 
 ---
 
@@ -81,20 +88,48 @@ la sortie du salon rejoué en entier. Un lieu peut désormais **refuser** qu'on 
 entre — la précondition vit à côté de l'unique écriture qu'elle protège, ce qui
 est ce qui comptera quand la salle de tir ajoutera un quatrième endroit.
 
-### F2 — Le bloc de script unique est la vraie limite — 🔒 **sous cliquet**
+### F2 — Le bloc de script unique — 🔨 **en chantier, 4 382 → 3 457**
 
-**4 310 lignes** le 6 août 2026, mesurées, dans un seul `<script>` en portée
-globale avec des `const` non hissés. Le document annonçait 3 500 : il a pris
-huit cents lignes sans que personne le décide.
+**4 310 lignes** le 6 août 2026, dans un seul `<script>` en portée globale avec
+des `const` non hissés. Le document annonçait 3 500 : il avait pris huit cents
+lignes sans que personne le décide. Il est monté à **4 382** avant que le
+chantier commence.
 
 Il est mort deux fois parce qu'une variable était employée avant sa ligne — et
 le symptôme est muet : le bloc s'arrête, la moitié du site disparaît sans un
-message.
+message. **Il est mort une troisième fois pendant le chantier**, sur une
+propriété abrégée renommée — et cette fois `vivant()` l'a nommé en trente
+secondes. C'est la première fois que ce défaut n'a rien coûté.
 
-Il n'a aucun effet visible, donc il ne se fera jamais « quand on aura le
+Il n'a aucun effet visible, donc il ne se ferait jamais « quand on aura le
 temps ». D'où `outil-verif-taille.js` : on n'exige pas de découper aujourd'hui,
-on exige que **ça ne monte plus**, et le plafond descend tout seul dès que ça
-descend. Il a refusé sa première ligne le jour même de son écriture.
+on exige que **ça ne monte plus**.
+
+#### Où on en est — 9 août 2026
+
+**3 457 lignes**, réparties en cinq blocs au lieu d'un. Vingt et un domaines
+sortis en modules éprouvables hors navigateur : la caméra, les lieux, le
+registre, la progression, les gestes, la manette, Lumen, le pilotage du recul,
+les écrans, le calque, l'habitacle, le cockpit, les libellés, la résolution, le
+spectre, le format, le banc, le dossier, les aveux…
+
+Le filet est passé de **13 outils à 32**, et de **93 contrôles de page à 117**.
+
+**Ce que le chantier a trouvé, et qui ne se voyait pas avant :** le clic qui
+visait à côté sur téléphone · le ciel du salon penché à la vitesse d'une sonde
+quittée · Lumen qui ne se replaçait plus · le carnet de bord qui plantait · la
+mémoire qui acceptait des infinis · la question du niveau de lecture qui ne se
+posait plus à qui rechargeait tôt · et le second écrivain de `lieu`, qui rendait
+faux ce que F1 garantissait.
+
+**Ce qui reste :** l'accueil (écrit et gardé, sa chirurgie tient en treize points
+dans le chemin d'entrée et se fait d'un bloc), et l'état partagé — 469
+références, la seule étape qu'un `git revert` ne rattrape pas proprement.
+
+**Le plafond a monté quatre fois**, toujours avec sa raison écrite dans l'outil.
+Deux fois pour du câblage qu'Hugo avait demandé, une fois pour la réparation du
+niveau de lecture, une fois pour fermer F4. Ce qui n'a jamais été fait : tailler
+dans les commentaires pour repasser sous la barre.
 
 ### F3 — Il manque un intégrateur à N corps — ⚠️ **écrit, éprouvé, branché à rien**
 
