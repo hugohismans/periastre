@@ -270,7 +270,25 @@ const fs = require("fs"), path = require("path");
    quelqu'un voudra la remonter.
 
    Le plafond redescendra au branchement d'`accueil.js`. */
-const PLAFOND = 3634;   // ... la manette, les aveux, leur centre, et le lien de test
+/* 3 647 — treize lignes, PREMIÈRE ÉTAPE du branchement de l'accueil.
+
+   Ce branchement-là se fait par étapes, et c'est délibéré : sa chirurgie tient
+   en treize points DISPERSÉS dans le chemin d'entrée, la première chose que voit
+   chaque visiteur. En treize d'un coup, une erreur laisse une porte cassée et
+   personne ne sait laquelle des treize. Par étapes, chacune vérifiée et publiée,
+   un arrêt laisse toujours le dépôt debout.
+
+   Cette étape-ci branche l'état du domaine et la garde du niveau de lecture.
+   Elle GROSSIT parce qu'elle explique pourquoi `niveauHorsBornes` est
+   délibérément ignoré — un `niveau: -5` traverse le contrôle de type de
+   `progression.js` et fait peindre `undefined` dans la fiche. Le corriger
+   pendant un déménagement serait une correction que personne n'a relue ; le
+   taire serait pire.
+
+   Les étapes suivantes retirent les écrans — intro, présentation, niveau,
+   départ, menu, détail — et là le plafond descend pour de bon : plus de deux
+   cents lignes. */
+const PLAFOND = 3647;   // ... les aveux, le lien de test, l'accueil (étape 1 sur 4)
 
 // Le nombre de modules déjà sortis. Il ne descend jamais non plus : un module
 // qu'on ferait rentrer dans le bloc serait le contraire exact du chantier.

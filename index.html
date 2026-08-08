@@ -2400,6 +2400,7 @@ void main(){
 <script src="gestes.js?v=f1c1436"></script>
 <script src="manette.js?v=f1c1436"></script>
 <script src="lumen.js?v=f1c1436"></script>
+<script src="accueil.js?v=f1c1436"></script>
 <script src="progression.js?v=f1c1436"></script>
 <script src="lieux.js?v=f1c1436"></script>
 <script>
@@ -5124,7 +5125,8 @@ function executeFin(f){
   if(f.repeintMission) majMission();
   if(f.repeintQuete) majQuete();
   if(f.marqueQuete){ try { localStorage.setItem("periastre.quete", "1"); } catch(_){} }
-  if(f.demandeNiveau) setTimeout(() => { if(!dejaNiveau) niveauDemande(); }, f.demandeNiveau);
+  if(f.demandeNiveau)
+    setTimeout(() => { if(ACCUEIL.faudraDemanderNiveau(ACC)) niveauDemande(); }, f.demandeNiveau);
 }
 
 function veilleMission(now){
@@ -5160,7 +5162,8 @@ $("q-fermer").onclick = () => {
   PROG.missionsActives = true; PROG.iMission = 0;
   majQuete(); majMission();
   try{ localStorage.setItem("periastre.quete", "1"); }catch(_){}
-  if(!dejaNiveau) setTimeout(() => niveauDemande(), 500);
+  if(ACCUEIL.faudraDemanderNiveau(ACC))
+    setTimeout(() => niveauDemande(), ACCUEIL.DELAI_NIVEAU_ABANDON);
 };
 
 $("m-fermer").onclick = () => {
@@ -5522,12 +5525,23 @@ function detail(x){
 $("b-menu").onclick = () => { tais(); menu(); };
 
 // ---- restauration ----
+/* Ce qu'on trouve en arrivant vit dans `accueil.js`, avec ses cent
+   cinquante-huit contrôles. Neuf chemins d'entrée y sont démêlés ; la page n'en
+   branche pour l'instant que la lecture de la mémoire et la garde du niveau de
+   lecture — le reste, les écrans, suit par étapes.
+
+   `ACC` est l'état du domaine, tenu ici et repassé au module, comme `PROG` pour
+   la progression. Le module n'a aucune variable vivante. */
+const ACC = ACCUEIL.etatNeuf();
 const memoire = charge();
-const dejaVenu = !!(memoire && memoire.deja);
-// A-t-on RÉPONDU, et non : est-on déjà venu. Cette ligne lisait la présence de
-// `niveau`, que la porte d'entrée range à 0 toute seule. Voir `progression.js`,
-// `CHAMPS`, pour ce que ça coûtait.
-const dejaNiveau = !!(memoire && memoire.niveauChoisi === true);
+const ARRIVEE = ACCUEIL.arrivee(ACC, { brut: memoire, iNiveau, nNiveaux: NIVEAUX.length });
+const dejaVenu = ARRIVEE.dejaVenu;
+/* `ARRIVEE.niveauHorsBornes` signale un `niveau` rangé hors des trois niveaux —
+   `Number.isInteger(-5)` est vrai, donc un tel nombre traverse le contrôle de
+   type de `progression.js` et fait peindre `undefined` dans la fiche. Il est
+   DÉLIBÉRÉMENT ignoré ici : c'est le comportement d'origine, et le corriger
+   pendant un déménagement serait une correction que personne n'a relue.
+   `A-REGARDER.md` le porte. */
 if(memoire){
   majFiche();
   [...boitierN.children].forEach((c, i) => c.classList.toggle("actif", i === iNiveau));
