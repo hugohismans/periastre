@@ -31,7 +31,7 @@ Une ligne `## ARRÊT — <pourquoi>` en tête de ce fichier suspend le hook.
 
 ## P3 — Le voyage vers le système solaire
 
-- [ ] 3.1 le départ : la destination s'accepte, le prix reste affiché ; corriger `inactif-8` (780 000 t) + MP3 ; la comparaison sondes réelles, sourcée
+- [ ] 3.1 le départ : la destination s'accepte, le prix reste affiché ; ~~corriger `inactif-8` (780 000 t) + MP3~~ **fait le 9 août** ; la comparaison sondes réelles, sourcée
 - [ ] 3.2 le recul galactique : ~5 décades de plus sur le moteur de `RECUL`, `echelle.js` payé ; la table `DESTINATIONS` morte supprimée
 - [ ] 3.3 le retournement à mi-parcours — sa seconde d'animation, les deux horloges en direct
 - [ ] 3.4 les moments de cours (touche H) et le PREMIER cours : le voyage, sur `journal.js`, un seul, complet

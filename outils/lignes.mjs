@@ -51,9 +51,23 @@ function parcours(x){
   }
 }
 
-// On parcourt TOUT le contenu plutôt qu'une liste de sections à tenir à jour :
-// l'oubli d'une section rend des répliques muettes sans rien signaler, et
-// c'est déjà arrivé deux fois. `sources` est exclu, il n'a pas de `t`.
+/* On parcourt TOUT le contenu plutôt qu'une liste de sections à tenir à jour :
+   l'oubli d'une section rend des répliques muettes sans rien signaler, et
+   c'est déjà arrivé deux fois. `sources` est exclu, il n'a pas de `t`.
+
+   CE QUE ÇA RAMASSE EN TROP, ET QU'IL FAUT SAVOIR AVANT DE LANCER `voix.py` :
+   les onze compromis (`notes.groupes[].points[]`) portent un `id` et un `t`,
+   donc ils comptent comme des répliques — alors que la page ne les DIT jamais,
+   elle les pose en badges. Un `voix.py` lancé aujourd'hui fabrique donc vingt-
+   six MP3 que rien ne joue, aveux compris. Ils ne sont pas au dépôt : les y
+   mettre coûterait un mégaoctet pour du silence, et l'aveu du fond de ciel
+   serait de surcroît FAUX en mode simulation, où son texte change.
+
+   Le jour où Lumen dira les aveux — ce serait cohérent avec « le compromis se
+   déclare là où on le rencontre » — il faudra une réplique par mode pour
+   celui-là, donc des identifiants par mode. C'est la vraie raison de cette
+   note : le trou n'est pas dans le ramassage, il est dans le contenu.
+   9 août 2026. */
 for(const [cle, valeur] of Object.entries(C)){
   if(cle === "sources" || cle === "voix") continue;
   parcours(valeur);
