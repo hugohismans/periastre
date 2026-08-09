@@ -26,7 +26,7 @@ Une ligne `## ARRÊT — <pourquoi>` en tête de ce fichier suspend le hook.
 - [x] 2.2 le module du mode (quels uniformes chaque mode commande), avec son outil
 - [ ] 2.3 le choix au premier passage, à côté de la langue (`accueil.js`)
 - [ ] 2.4 le sort du bouton « Lumière réelle » — un cran du mode
-- [ ] 2.5 les aveux disent ce que « cinéma » ajoute (`aveu.js`)
+- [x] 2.5 les aveux disent ce que « cinéma » ajoute (`aveu.js`) — et ce qui reste faux quand on l'éteint ; `selonMode` gardé par le contrat (5 sabotages) et par `outil-verif-aveu.js` (33 contrôles)
 - [ ] 2.6 séance `?juge` : les deux modes, en inspection **(HUGO)**
 
 ## P3 — Le voyage vers le système solaire
