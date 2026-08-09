@@ -53,6 +53,54 @@ if(nus && nus.liste.length){
   if(nus.liste.length > 30) console.log("     … et " + (nus.liste.length - 30) + " autres.");
 }
 
+/* ---------------------------------------------------------------------------
+   ET CE CONTRAT SAIT-IL REFUSER ?
+
+   Un contrôle qui n'a jamais rougi ne prouve rien. On lui tend donc des contenus
+   délibérément abîmés et l'on exige la plainte exacte. Les règles éprouvées ici
+   sont celles de `selonMode`, nées le 9 août 2026 avec la bascule cinéma /
+   simulation : elles seraient sans cela le seul morceau du contrat que rien
+   n'exerce.
+
+   La forme est minimale — deux contenus jumeaux avec un seul compromis — et
+   c'est voulu : la plainte cherchée doit venir de la règle visée, pas du bruit. */
+let sabotages = 0, ratés = [];
+function refuse(nom, motifCherché, abîme){
+  const un = (selonMode) => ({
+    langue: "fr", sources: {},
+    notes: { groupes: [{ points: [ {
+      id: "essai", ou: "salon", aveu: "court", t: "un texte long qui dépasse largement les soixante signes exigés ailleurs",
+      selonMode,
+    } ] }] },
+  });
+  const bon = { cinema: { aveu:"a", t:"t" }, simulation: { aveu:"b", t:"t" } };
+  const { fr, en } = abîme(JSON.parse(JSON.stringify(bon)), JSON.parse(JSON.stringify(bon)));
+  const r = faux.CONTRAT.controle(un(fr), un(en));
+  const vu = r.durs.some(d => d.quoi.indexOf(motifCherché) >= 0);
+  sabotages++;
+  if(!vu) ratés.push(nom + " — attendu une plainte contenant « " + motifCherché + " »");
+}
+
+refuse("selonMode dans une seule langue", "n'existe que dans une des deux langues",
+       (fr, en) => ({ fr, en: undefined }));
+refuse("modes différents entre les langues", "diffèrent entre les langues",
+       (fr, en) => { delete en.simulation; return { fr, en }; });
+refuse("un aveu de mode manquant", "pas d'aveu court",
+       (fr, en) => { delete fr.simulation.aveu; return { fr, en }; });
+refuse("un aveu de mode trop long", "ne se pose plus sur place",
+       (fr, en) => { fr.cinema.aveu = "x".repeat(201); return { fr, en }; });
+refuse("un texte long de mode manquant", "pas de texte long",
+       (fr, en) => { delete en.cinema.t; return { fr, en }; });
+
+console.log("\n  Et ce contrat sait refuser :\n");
+if(ratés.length){
+  console.log("     ❌ " + ratés.length + " règle(s) sur " + sabotages + " n'ont pas rougi :\n");
+  for(const r of ratés) console.log("        · " + r);
+} else {
+  console.log("     ✅ " + sabotages + " contenus abîmés, " + sabotages + " refus.");
+}
+
 console.log("\n  ─────────────────────");
-console.log(b.ok ? "  Le contrat est tenu.\n" : "  LE CONTRAT N'EST PAS TENU.\n");
-process.exit(b.ok ? 0 : 1);
+const tenu = b.ok && !ratés.length;
+console.log(tenu ? "  Le contrat est tenu.\n" : "  LE CONTRAT N'EST PAS TENU.\n");
+process.exit(tenu ? 0 : 1);

@@ -118,10 +118,30 @@ function pour(contenu, ou){
    `titre` et `detail` sont facultatifs dans le contenu : l'aveu court suffit à
    poser un badge, le reste enrichit le dépliement. On ne rend pas de balise —
    la page fabrique ses nœuds, et un contrôle peut alors exiger qu'aucun
-   descripteur ne contienne de `<`, ce qui interdit d'y glisser du HTML. */
-function descripteur(c){
-  return { id: c.id || null, aveu: c.aveu,
-           titre: c.titre || null, detail: c.detail || c.texte || null };
+   descripteur ne contienne de `<`, ce qui interdit d'y glisser du HTML.
+
+   ---------------------------------------------------------------------------
+   LE RENDU CHANGE CE QU'IL Y A À AVOUER — 9 août 2026
+
+   `rendu.js` éteint la nébuleuse en mode simulation. L'aveu du fond de ciel,
+   lui, continuait de dénoncer « la nébuleuse mauve » : le site avouait une
+   chose qui n'était plus à l'écran. Un aveu FAUX est pire qu'un aveu absent —
+   il apprend à ne plus les lire, et c'est tout ce que F4 cherchait à éviter.
+
+   Un compromis peut donc porter `selonMode` : { <mode>: { aveu, t } }, qui
+   remplace l'aveu court et le texte long quand ce mode est actif. Facultatif,
+   et il le restera — presque aucun compromis ne dépend du rendu.
+
+   Ce module ne connaît PAS la liste des modes, et c'est délibéré : il applique
+   la clé qu'on lui tend. C'est `outil-verif-aveu.js` qui lit `rendu.js` et
+   exige que les clés employées dans le contenu soient exactement les siennes.
+   Une troisième liste de modes ici serait la maladie que ce dépôt traque. */
+function descripteur(c, mode){
+  const m = (mode && c.selonMode && c.selonMode[mode]) || null;
+  return { id: c.id || null,
+           aveu:   (m && m.aveu) || c.aveu,
+           titre:  c.titre || null,
+           detail: (m && m.t) || c.detail || c.texte || null };
 }
 
 /* ---------------------------------------------------------------------------
@@ -157,10 +177,10 @@ function neufs(contenu, ou, vus){
 
    Rend `null` quand il n'y a rien de neuf, ce qui est le cas de l'écrasante
    majorité des arrivées. */
-function annonce(contenu, ou, vus){
+function annonce(contenu, ou, vus, mode){
   const n = neufs(contenu, ou, vus);
   if(!n.length) return null;
-  return { descripteur: descripteur(n[0]), reste: n.length - 1,
+  return { descripteur: descripteur(n[0], mode), reste: n.length - 1,
            ids: n.map(c => c.id || c.aveu) };
 }
 
@@ -169,13 +189,13 @@ function annonce(contenu, ou, vus){
    montrer ce qu'on n'a pas encore vu sans le cacher pour autant — un aveu qu'on
    n'a pas croisé n'est pas un secret, c'est juste un endroit où l'on n'est pas
    allé. */
-function centre(contenu, vus){
+function centre(contenu, vus, mode){
   const vu = vus || new Set();
   const groupes = [];
   for(const ou of LIEUX){
     const l = tous(contenu).filter(c => c.ou === ou);
     if(!l.length) continue;
-    groupes.push({ ou, entrees: l.map(c => Object.assign(descripteur(c),
+    groupes.push({ ou, entrees: l.map(c => Object.assign(descripteur(c, mode),
                      { vu: vu.has(c.id || c.aveu) })) });
   }
   return groupes;

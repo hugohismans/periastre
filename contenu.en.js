@@ -1568,6 +1568,20 @@ notes: {
         { id:"fond-ciel", ou:"partout",
           aveu:"The background is false; the way gravity bends it is right.",
           sources:["schodel2018", "bovy2017", "ferriere2012", "lau2013"],
+          /* The admission follows the render mode, since 9 August 2026 — because
+             the nebula is switched off in simulation, and an admission that
+             denounces something absent from the screen teaches people to stop
+             reading admissions at all. */
+          selonMode:{
+            cinema:{
+              aveu:"The purple veil is the cinema part: it does not exist.",
+              sources:["schodel2018"],
+              t:"<b>The background sky, in cinema.</b> What this mode adds is right in front of you: the purple nebula and its coloured bands, which do not exist. Switch to simulation and they go out. What does not change: the stars are still scattered at random, and the background is still black — while out there it is never night. What is exact in both modes is the way gravity bends that light." },
+            simulation:{
+              aveu:"The nebula is off. This black sky is still false: out there, it is never night.",
+              sources:["schodel2018", "bovy2017", "ferriere2012", "lau2013"],
+              t:"<b>The background sky, in simulation.</b> The purple veil is gone: it was invented. What remains false is harder to see. The stars are scattered at random, there are a hundred times too few of them, and above all this blackness does not exist — inside the nuclear cluster the whole sky weighs hundreds of full moons. There is real nebulosity out there too, three arms of ionised gas and an opaque ring of dust, which we do not paint. What is exact here as in cinema is the way gravity bends that light." },
+          },
           t:"<b>The background sky.</b> Its stars are scattered at random, and the purple nebula is scenery: neither surveyed positions nor computed emission. The real sky out there is far richer — the measured density in the nuclear cluster is six hundred million times that of the solar neighbourhood, and it is never night there. There is even real nebulosity on site, but it has a shape: three arms of ionised gas and an opaque ring of dust, nothing like our purple veil. What is exact in this image is the way gravity bends that light: the background is invented, its distortion is not." },
       ],
     },

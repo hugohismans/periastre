@@ -1582,6 +1582,19 @@ notes: {
         { id:"fond-ciel", ou:"partout",
           aveu:"Le fond est faux, sa déformation est juste.",
           sources:["schodel2018", "bovy2017", "ferriere2012", "lau2013"],
+          /* L'aveu change avec le rendu, depuis le 9 août 2026 — parce qu'en
+             mode simulation la nébuleuse est éteinte, et qu'un aveu qui dénonce
+             une chose absente de l'écran apprend à ne plus lire les aveux. */
+          selonMode:{
+            cinema:{
+              aveu:"Le voile mauve, c'est le cinéma : il n'existe pas.",
+              sources:["schodel2018"],
+              t:"<b>Le fond du ciel, en cinéma.</b> Ce que ce mode ajoute est sous tes yeux : la nébuleuse mauve et ses bandes colorées, qui n'existent pas. Bascule en simulation, elles s'éteignent. Ce qui ne change pas : les étoiles restent posées au hasard, et le fond reste noir alors que là-bas il ne fait jamais nuit. Ce qui est exact dans les deux modes, c'est la façon dont la gravité dévie cette lumière." },
+            simulation:{
+              aveu:"La nébuleuse est éteinte. Ce ciel noir reste faux : là-bas, il n'y fait jamais nuit.",
+              sources:["schodel2018", "bovy2017", "ferriere2012", "lau2013"],
+              t:"<b>Le fond du ciel, en simulation.</b> Le voile mauve a disparu : il était inventé. Ce qui reste faux se voit moins. Les étoiles sont posées au hasard, elles sont cent fois trop peu nombreuses, et surtout ce noir n'existe pas — dans l'amas nucléaire, le ciel entier pèse des centaines de pleines lunes. Il y a aussi de la vraie nébulosité là-bas, trois bras de gaz ionisé et un anneau de poussière opaque, que nous ne peignons pas. Ce qui est exact ici comme en cinéma, c'est la façon dont la gravité dévie cette lumière." },
+          },
           t:"<b>Le fond du ciel.</b> Les étoiles y sont posées au hasard, et la nébuleuse mauve est un décor : ce ne sont ni des positions relevées ni un rayonnement calculé. Le vrai ciel de là-bas est bien plus riche — la densité mesurée dans l'amas nucléaire vaut six cents millions de fois celle du voisinage solaire, et il n'y fait jamais nuit. Il y a même de la vraie nébulosité sur place, mais elle a une forme : trois bras de gaz ionisé et un anneau de poussière opaque, rien à voir avec notre voile mauve. Ce qui est exact dans cette image, c'est la façon dont la gravité en dévie la lumière : le fond est faux, sa déformation est juste." },
       ],
     },

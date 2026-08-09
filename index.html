@@ -3367,6 +3367,16 @@ const rangeAveuxVus = () => {
   try { localStorage.setItem(CLE_AVEUX, JSON.stringify([...aveuxVus])); } catch(e){}
 };
 
+/* LE MODE DE RENDU — même histoire que ci-dessus, et cette fois l'outil a vu.
+   Son sélecteur est mille lignes plus bas, mais `poseAveux` le lit depuis
+   l'appel de la ligne suivante. L'angle mort décrit au-dessus est devenu une
+   catégorie d'`outil-verif-ordre.js`, qui a nommé la ligne, la fonction et
+   l'appel avant que je recharge. Clé à part, comme les aveux : `CHAMPS` ne
+   range pas de chaînes, et `RENDU.borne` avale une mémoire abîmée. */
+const CLE_RENDU = "periastre.rendu";
+let modeRendu = RENDU.DEFAUT;
+try { modeRendu = RENDU.borne(localStorage.getItem(CLE_RENDU)); } catch(e){}
+
 poseAveux($("dossier"), "salon");
 
 $("in-titre").textContent  = T("tele.titre");
@@ -3523,7 +3533,7 @@ function distanceVaisseau(){ return len(salon.p) * KM_PAR_UNITE * 1000; }   // e
    La décision — qu'est-ce qui est neuf, qu'est-ce qu'on annonce — est dans
    `aveu.js`, donc éprouvable sans navigateur. Ici on peint, et on range. */
 function annonceAveux(ou){
-  const a = AVEU.annonce(CONTENU, ou, aveuxVus);
+  const a = AVEU.annonce(CONTENU, ou, aveuxVus, modeRendu);
   if(!a) return;
   a.ids.forEach(id => aveuxVus.add(id));
   rangeAveuxVus();
@@ -3563,7 +3573,7 @@ function ouvreAveux(){
   $("av-pied").textContent  = T("aveu.centre.pied");
   const liste = $("av-liste");
   liste.innerHTML = "";
-  for(const g of AVEU.centre(CONTENU, aveuxVus)){
+  for(const g of AVEU.centre(CONTENU, aveuxVus, modeRendu)){
     const bloc = document.createElement("div");
     bloc.className = "av-groupe";
     const t = document.createElement("div");
@@ -3605,7 +3615,9 @@ function poseAveux(hote, ou){
   [...hote.querySelectorAll(".aveu")].forEach(n => n.remove());
   const liste = AVEU.pour(CONTENU, ou);
   for(const c of liste){
-    const d = AVEU.descripteur(c);
+    // Le mode compte : nébuleuse éteinte, l'aveu cesse de la dénoncer et dit
+    // ce qui reste faux. `aveu.js` décide, ici on peint.
+    const d = AVEU.descripteur(c, modeRendu);
     const n = document.createElement("div");
     n.className = "aveu";
     n.dataset.aveu = d.id || "";
@@ -4871,18 +4883,9 @@ function poseCurseurSpin(hote, idNote){
 
 poseCurseurSpin($("spin-choix"), "spin-note");
 
-/* LE RENDU — simulation ou cinéma. La décision de ce que chaque mode commande
-   vit dans `rendu.js` ; ici on retient le choix et on peint le sélecteur.
-
-   Sa propre clé de mémoire, comme les aveux : le mode est une CHAÎNE, et la
-   table `CHAMPS` de `progression.js` ne connaît que entiers, nombres et
-   booléens. Quatre lignes ici coûtent moins qu'un type là-bas — l'argument est
-   écrit dans `progression.js` même, et il a déjà servi. `RENDU.borne` avale
-   n'importe quelle mémoire abîmée. */
-const CLE_RENDU = "periastre.rendu";
-let modeRendu = RENDU.DEFAUT;
-try { modeRendu = RENDU.borne(localStorage.getItem(CLE_RENDU)); } catch(e){}
-
+/* LE RENDU — `rendu.js` décide ce que chaque mode commande, ici on peint le
+   sélecteur. L'ÉTAT est remonté à côté de la mémoire des aveux, que `poseAveux`
+   lit au même endroit et pour la même raison ; elle est écrite là-bas. */
 function poseChoixRendu(){
   const hote = $("rendu-choix");
   $("rendu-etiq").textContent = T("rendu.etiq");
@@ -4895,6 +4898,10 @@ function poseChoixRendu(){
       try { localStorage.setItem(CLE_RENDU, modeRendu); } catch(e){}
       [...hote.children].forEach(c => c.classList.toggle("actif", c === b));
       $("rendu-note").textContent = T("rendu." + modeRendu + ".note");
+      /* Sans ce repeint, le badge du fond de ciel — posé dans ce panneau même —
+         continuerait de dénoncer l'autre rendu, à trois centimètres du bouton
+         qui le cause. Rien ne sera annoncé : ces aveux-là sont déjà vus. */
+      poseAveux($("panneau"), "reglages");
     };
     hote.appendChild(b);
   });

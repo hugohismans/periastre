@@ -300,7 +300,23 @@ const fs = require("fs"), path = require("path");
    C'était la moitié manquante de « la meilleure mécanique proposée » du carnet
    d'idées : les deux horloges du salon étaient calculées à chaque image,
    affichées sur un écran de bord, puis JETÉES à la sortie. */
-const PLAFOND = 3783;   // ... le lien de test, l'accueil, le carnet du voyageur
+/* 3 790 le 9 août — P2 : l'aveu du fond de ciel suit le rendu.
+
+   Sept lignes, et j'en ai d'abord dépensé vingt-trois avant de resserrer trois
+   fois : le plafond a fait son travail de plafond, il m'a fait relire ma propre
+   prose. Ce qui reste est portant.
+
+   Quatre pour le repeint du panneau des réglages — le sélecteur y vit, et sans
+   lui le badge continuait de dénoncer l'autre rendu à trois centimètres du
+   bouton qui le cause. Deux pour l'état du mode, remonté à côté de la mémoire
+   des aveux : `poseAveux` lit les deux, depuis un appel de haut niveau, et
+   `outil-verif-ordre.js` a refusé la page tant que la déclaration était en bas.
+   Le reste dit pourquoi.
+
+   La DÉCISION n'est pas ici : `aveu.js` choisit l'aveu selon le mode (33
+   contrôles), `contrat.js` refuse un `selonMode` bancal (5 sabotages), et
+   `rendu.js` reste seul à connaître les modes. La page ne fait que peindre. */
+const PLAFOND = 3790;   // ... le lien de test, l'accueil, le carnet, l'aveu selon le rendu
 
 // Le nombre de modules déjà sortis. Il ne descend jamais non plus : un module
 // qu'on ferait rentrer dans le bloc serait le contraire exact du chantier.

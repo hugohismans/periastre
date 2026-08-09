@@ -1504,6 +1504,14 @@ function aveux(){
     "etude":         () => { fermeTelescope(); ouvreTelescope(); poseEtude(); return document.getElementById("in-pied"); },
   };
 
+  /* Le texte cherché passe par le MODULE, jamais par `c.aveu` en direct : depuis
+     le 9 août, l'aveu du fond de ciel dépend du rendu, et la page peint celui du
+     mode courant. Chercher le texte générique ferait accuser le site d'un défaut
+     qui serait celui du contrôle — on a déjà payé ça une fois avec le télescope
+     et l'étude qui peignent le même panneau. */
+  const mode = typeof modeRendu === "string" ? modeRendu : null;
+  const texteAttendu = c => AVEU.descripteur(c, mode).aveu;
+
   let sansPlace = 0;
   for(const c of tous){
     if(c.ou === "partout") continue;                  // vérifié via les autres
@@ -1512,7 +1520,7 @@ function aveux(){
     let hote = null;
     try { hote = ouvrir(); } catch(e){ hote = null; }
     const badge = hote && [...hote.querySelectorAll(".aveu")]
-      .find(n => n.textContent.indexOf(c.aveu) >= 0);
+      .find(n => n.textContent.indexOf(texteAttendu(c)) >= 0);
     point("« " + c.id + " » est affiché dans « " + c.ou + " »", !!badge,
           "un badge portant son texte", badge ? "présent" : "ABSENT",
           badge ? undefined
@@ -1525,7 +1533,7 @@ function aveux(){
     let hote = null;
     try { hote = OUVRE["reglages"](); } catch(e){}
     const badge = hote && [...hote.querySelectorAll(".aveu")]
-      .find(n => n.textContent.indexOf(global_[0].aveu) >= 0);
+      .find(n => n.textContent.indexOf(texteAttendu(global_[0])) >= 0);
     point("le compromis « partout » accompagne les réglages", !!badge,
           "présent", badge ? "présent" : "ABSENT");
   }

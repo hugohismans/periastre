@@ -78,8 +78,11 @@ const PLANCHERS = {
      fiche « Le ciel de là-bas » apporte six textes (trois niveaux, deux langues)
      tous sourcés, et l'aveu du fond de ciel passe de nu à sourcé dans les deux
      langues — il affirmait « des millions d'étoiles » depuis le début sans
-     jamais dire d'où ça sortait. */
-  textesSources: 236,
+     jamais dire d'où ça sortait.
+
+     240 sur 280 le même jour : l'aveu du fond de ciel se dédouble selon le rendu
+     — quatre textes de plus (deux modes, deux langues), tous sourcés. */
+  textesSources: 240,
 
   /* LES COMPROMIS DÉCLARÉS.
 
@@ -299,6 +302,42 @@ function compromis(FR, EN, dur){
 
     if(!p.t || !String(p.t).trim()) dur(ou, "pas de texte long en français");
     if(!q || !q.t || !String(q.t).trim()) dur(ou, "pas de texte long en anglais");
+
+    /* LE RENDU CHANGE CE QU'IL Y A À AVOUER.
+
+       Depuis `rendu.js`, la nébuleuse s'éteint en mode simulation — et l'aveu
+       du fond de ciel dénonçait toujours « la nébuleuse mauve », c'est-à-dire
+       une chose absente de l'écran. Un compromis peut donc porter `selonMode`,
+       qui remplace son aveu et son texte quand ce mode est actif.
+
+       Facultatif. Mais s'il existe, il existe DANS LES DEUX LANGUES et avec LES
+       MÊMES MODES : sinon un anglophone lirait l'aveu de l'autre rendu, ce qui
+       est exactement le mensonge que la manœuvre vient corriger.
+
+       Les NOMS des modes ne sont pas vérifiés ici : ce fichier ignore que
+       `rendu.js` existe, et une liste de modes de plus serait une vérité en
+       double. C'est `outil-verif-aveu.js` qui exige qu'ils soient les siens. */
+    const sf = p.selonMode, se = q.selonMode;
+    if(!!sf !== !!se){
+      dur(ou, "« selonMode » n'existe que dans une des deux langues");
+    } else if(sf){
+      const mf2 = Object.keys(sf).sort(), me2 = Object.keys(se).sort();
+      if(mf2.join(",") !== me2.join(","))
+        dur(ou, "les modes de « selonMode » diffèrent entre les langues : « "
+                + mf2.join(", ") + " » contre « " + me2.join(", ") + " »");
+
+      for(const m of mf2){
+        for(const [langue, v] of [["français", sf[m]], ["anglais", se[m]]]){
+          const la = "mode « " + m + " », " + langue + " : ";
+          if(!v || typeof v !== "object"){ dur(ou, la + "rien à lire"); continue; }
+          if(!v.aveu || !String(v.aveu).trim()) dur(ou, la + "pas d'aveu court");
+          else if(String(v.aveu).length > 200)
+            dur(ou, la + "l'aveu fait " + String(v.aveu).length
+                    + " signes — au-delà de 200 il ne se pose plus sur place");
+          if(!v.t || !String(v.t).trim()) dur(ou, la + "pas de texte long");
+        }
+      }
+    }
   }
 
   for(const id of me.keys())

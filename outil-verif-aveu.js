@@ -194,7 +194,88 @@ groupe("Le descripteur est du texte, jamais du HTML");
      "aveu seul", JSON.stringify(d));
 }
 
-// ══════════════════════════════ 7. les sabotages
+// ══════════════════════════════ 7. l'aveu suit le rendu
+/* Le défaut que ce groupe ferme est ARRIVÉ, et je l'avais fabriqué moi-même en
+   livrant la bascule : en mode simulation la nébuleuse s'éteint, et l'aveu
+   continuait de dénoncer « la nébuleuse mauve ». Le site avouait une chose
+   absente de l'écran. Un aveu faux est pire qu'un aveu absent — il apprend à
+   ne plus les lire, ce qui défait tout F4.
+
+   La vérité des noms de modes vient de `rendu.js`, jamais d'une liste écrite
+   ici : `aveu.js` applique la clé qu'on lui tend, `contrat.js` ignore que les
+   modes existent, et c'est ce fichier qui recoud les trois. */
+groupe("L'aveu suit le rendu — les modes viennent de `rendu.js`");
+{
+  const gR = {};
+  new Function("window", fs.readFileSync(path.join(ICI, "rendu.js"), "utf8"))(gR);
+  const MODES = gR.RENDU.MODES;
+
+  const avecMode = c => c.selonMode && Object.keys(c.selonMode).length;
+  const listeFR = A.tous(FR).filter(avecMode);
+  const listeEN = A.tous(EN).filter(avecMode);
+
+  let inconnu = null, incomplet = null;
+  for(const [langue, liste] of [["fr", listeFR], ["en", listeEN]])
+    for(const c of liste){
+      const cles = Object.keys(c.selonMode);
+      for(const m of cles) if(MODES.indexOf(m) < 0) inconnu = langue + " · " + c.id + " · " + m;
+      for(const m of MODES) if(cles.indexOf(m) < 0) incomplet = langue + " · " + c.id + " · " + m;
+    }
+
+  ok("aucun mode inventé dans le contenu", inconnu === null,
+     "des modes de rendu.js : " + MODES.join(", "), inconnu || "aucun",
+     "une clé que `rendu.js` ne connaît pas ne serait jamais appliquée — l'aveu "
+     + "resterait le générique sans que personne ne le sache");
+  ok("et chaque mode est couvert quand `selonMode` existe", incomplet === null,
+     "tous les modes", incomplet || "tous",
+     "un mode oublié retombe sur l'aveu générique, c'est-à-dire sur celui qu'on "
+     + "voulait justement corriger");
+
+  ok("au moins un compromis dépend du rendu", listeFR.length > 0, "> 0", listeFR.length,
+     "sinon la machinerie est un décor, et la bascule ment de nouveau");
+
+  const fc = A.tous(FR).find(c => c.id === "fond-ciel");
+  const parMode = MODES.map(m => A.descripteur(fc, m).aveu);
+  ok("l'aveu du fond de ciel change avec le rendu",
+     fc && new Set(parMode).size === MODES.length,
+     MODES.length + " textes distincts", new Set(parMode).size,
+     "c'est le cas qui a motivé tout ce groupe : la nébuleuse éteinte, l'aveu "
+     + "doit cesser de la dénoncer — et dire à la place ce qui reste faux");
+
+  ok("sans mode, on retrouve l'aveu générique",
+     A.descripteur(fc).aveu === fc.aveu, "le générique",
+     A.descripteur(fc).aveu === fc.aveu ? "le générique" : "AUTRE CHOSE",
+     "la page peut appeler sans mode — un contrôle, un centre ouvert avant que "
+     + "le rendu soit lu — et ça ne doit jamais rendre `undefined`");
+  ok("un mode inconnu retombe sur le générique",
+     A.descripteur(fc, "imax").aveu === fc.aveu, "le générique",
+     A.descripteur(fc, "imax").aveu);
+
+  // Le mode traverse `annonce` et `centre`, pas seulement `descripteur`.
+  for(const m of MODES){
+    const an = A.annonce(FR, "partout", new Set(), m);
+    ok("`annonce` ne parle pas du lieu « partout » (mode " + m + ")", an === null,
+       "null", String(an),
+       "« partout » accompagne chaque lieu : l'annoncer le ferait revenir sans fin");
+    const grp = A.centre(FR, new Set(), m).find(g => g.ou === "partout");
+    const e = grp && grp.entrees.find(x => x.id === "fond-ciel");
+    ok("`centre` applique le mode " + m, !!e && e.aveu === fc.selonMode[m].aveu,
+       "l'aveu du mode", e ? e.aveu.slice(0, 40) + "…" : "ABSENT");
+  }
+
+  let balise = null;
+  for(const c of listeFR)
+    for(const m of MODES){
+      const d = A.descripteur(c, m);
+      for(const [k, v] of Object.entries(d))
+        if(k !== "detail" && typeof v === "string" && /[<>]/.test(v)) balise = c.id + "." + m + "." + k;
+    }
+  ok("les aveux par mode restent du texte", balise === null, "aucun", balise || "aucun",
+     "le texte long garde ses balises — il part dans le dossier — mais l'aveu "
+     + "court est posé par `textContent` et ne doit rien porter");
+}
+
+// ══════════════════════════════ 8. les sabotages
 groupe("Et ces contrôles savent tomber");
 {
   /* On rejoue une assertion sur un module modifié en mémoire. Le fichier sur le
@@ -242,6 +323,16 @@ groupe("Et ces contrôles savent tomber");
   const faux3 = { bon:{ou:"salon",aveu:"A",id:"a"}, mauvais:{ou:4,aveu:7,id:"z"} };
   ok("un `tous` sans contrôle de type est vu", sansType.tous(faux3).length !== 1,
      "vu", sansType.tous(faux3).length === 1 ? "PASSÉ INAPERÇU" : "vu");
+
+  /* Le descripteur d'avant le 9 août : il ignore le mode. C'est LE défaut réel,
+     pas un défaut imaginé — il était en ligne entre la bascule et ce groupe. */
+  const sourd = bac({ descripteur: c => ({ id: c.id || null, aveu: c.aveu,
+                        titre: c.titre || null, detail: c.detail || null }) });
+  const cible = A.tous(FR).find(c => c.id === "fond-ciel");
+  ok("un descripteur sourd au mode est vu",
+     sourd.descripteur(cible, "simulation").aveu === cible.aveu,
+     "vu", sourd.descripteur(cible, "simulation").aveu === cible.aveu
+             ? "vu" : "PASSÉ INAPERÇU");
 }
 
 console.log("\n  " + (echecs ? "❌  " + echecs + " ÉCHECS sur " + n + " contrôles"
