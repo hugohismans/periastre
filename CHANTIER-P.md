@@ -22,12 +22,16 @@ Une ligne `## ARRÊT — <pourquoi>` en tête de ce fichier suspend le hook.
 ## P2 — Simulation / cinéma
 
 - [x] 2.1 sourcer la densité du champ d'étoiles depuis l'amas nucléaire → `contenu.js`, gardé par `outil-verif-contenu.js` — fait, et la réponse déborde : fiche « Le ciel de là-bas », 8 sources vérifiées, 3 niveaux, 2 langues
-- [ ] 2.7 **peindre le ciel** — la recherche dit qu'il n'y fait jamais nuit, que la vraie nébulosité a une forme (minispirale, anneau opaque) et que le champ est cent à cinq cents fois plus riche. Ce n'est plus un uniforme, c'est une image : à ouvrir en regardant **(HUGO)**
 - [x] 2.2 le module du mode (quels uniformes chaque mode commande), avec son outil
 - [x] 2.3 le choix au premier passage, à côté de la langue — sous les deux lettres, une seule fabrique pour les deux sélecteurs, gardée par `outil-verif-rendu.js` (24 contrôles)
 - [x] 2.4 le sort du bouton « Lumière réelle » — **il reste un bouton à part**. Jugé le 9 août au soir : « ça va » depuis l'angle « simulation + lumière réelle » — or cette vue n'existe que si les deux réglages sont indépendants. En faire un cran les rendrait exclusifs et supprimerait ce qu'il vient de juger bon.
 - [x] 2.5 les aveux disent ce que « cinéma » ajoute (`aveu.js`) — et ce qui reste faux quand on l'éteint ; `selonMode` gardé par le contrat (5 sabotages) et par `outil-verif-aveu.js` (33 contrôles)
 - [x] 2.6 séance `?juge` : les deux modes, en inspection — **faite le 9 août au soir, sur iPhone. Deux « ça va ». La file est vide** : sept questions, sept verdicts, deux séances.
+- [ ] 2.7 **peindre le ciel** — la recherche dit qu'il n'y fait jamais nuit, que la vraie nébulosité a une forme (minispirale, anneau opaque) et que le champ est cent à cinq cents fois plus riche. Ce n'est plus un uniforme, c'est une image : à ouvrir en regardant **(HUGO)**
+
+> **P2 est close sauf 2.7.** Les six cases qui m'appartenaient sont faites,
+> vérifiées et publiées. La septième est une décision d'image, et elle ouvre en
+> vrai le chantier suivant du ciel — elle n'attend pas P3.
 
 ## P3 — Le voyage vers le système solaire
 
