@@ -329,7 +329,19 @@ const fs = require("fs"), path = require("path");
 
    `outil-verif-rendu.js` lit désormais la page pour exiger les deux poses, les
    deux hôtes, la fabrique unique et la liste de repeints — 24 contrôles. */
-const PLAFOND = 3804;   // ... le carnet, l'aveu selon le rendu, le choix à l'accueil
+/* 3 809 le 9 août — P3 s'ouvre : cinq lignes pour que le quadrillage du recul
+   parle la langue du visiteur.
+
+   Elles paient un défaut qui était en ligne depuis toujours : `recul.js` écrivait
+   « une case = 1 000 UA » en dur, en français, et un lecteur anglais lisait ça
+   pendant tout le trajet — séparateur de milliers et virgule décimale compris.
+   Le module ne peut pas résoudre une clé, il ne connaît pas `T` ; la page lui
+   tend donc ses mots une fois. Le repli reste du français lisible, jamais une
+   clé nue, et `outil-verif-recul.js` l'exige (74 contrôles).
+
+   La même manœuvre a fait entrer l'année-lumière, sans quoi la maille d'arrivée
+   du voyage vers le système solaire s'écrirait « 1 700 000 000 000 UA ». */
+const PLAFOND = 3809;   // ... le carnet, l'aveu selon le rendu, le choix à l'accueil, la langue du quadrillage
 
 // Le nombre de modules déjà sortis. Il ne descend jamais non plus : un module
 // qu'on ferait rentrer dans le bloc serait le contraire exact du chantier.

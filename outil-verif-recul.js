@@ -375,10 +375,88 @@ groupe("Les deux rythmes, et ce qui ne change pas entre eux");
 }
 
 // ════════════════════════════════════════════════════ 6. l'étiquette parle
-groupe("L'étiquette change d'unité quand il le faut");
+/* CE QU'ON GARDE VRAIMENT ICI : QU'UN NOMBRE RESTE LISIBLE SUR NEUF DÉCADES.
+
+   Le recul allait aux étoiles S — quatre décades, où deux unités suffisaient.
+   Le trajet vers le système solaire en fait neuf, et sans troisième unité la
+   maille d'arrivée s'écrirait « 1 700 000 000 000 UA ». Ce n'est pas une faute
+   de calcul, c'est une étiquette que personne ne lit — et l'étiquette est TOUT
+   le dispositif : c'est son saut, décade après décade, qui fait sentir la
+   distance. Le contrôle balaie donc le vrai trajet et exige que chaque
+   étiquette reste courte. */
+groupe("L'étiquette reste lisible sur les neuf décades du vrai trajet");
 {
   ok("une petite maille se dit en rayons", /rₛ$/.test(R.etiquette(3)), "en rₛ", R.etiquette(3));
   ok("une grande maille se dit en UA", /UA$/.test(R.etiquette(1e5)), "en UA", R.etiquette(1e5));
+  ok("et une très grande en années-lumière",
+     / al$/.test(R.etiquette(8277 * 3.0856775814913673e16 / R.RS_M)),
+     "en al", R.etiquette(8277 * 3.0856775814913673e16 / R.RS_M));
+
+  /* Le balayage. De seize rayons au système solaire, dix points par décade :
+     aucune étiquette ne doit dépasser douze signes, unité comprise. Douze,
+     c'est « 27 000 al » avec de la marge — au-delà on est dans le nombre qu'on
+     ne lit pas. */
+  const arrivee = 8277 * 3.0856775814913673e16 / R.RS_M;
+  let pire = "", pireN = 0, chiffresDeSuite = 0;
+  for(let l = Math.log10(16); l <= Math.log10(arrivee) + 1e-9; l += 0.1){
+    const e = R.etiquette(Math.pow(10, l));
+    if(e.length > pireN){ pireN = e.length; pire = e; }
+    const n = (e.match(/\d/g) || []).length;
+    if(n > chiffresDeSuite) chiffresDeSuite = n;
+  }
+  ok("aucune étiquette ne dépasse douze signes", pireN <= 12, "≤ 12", pireN + " (« " + pire + " »)",
+     "une étiquette trop longue n'est pas une erreur de calcul : c'est le "
+     + "dispositif qui cesse de fonctionner, puisque c'est son saut qui fait "
+     + "sentir la distance");
+  ok("et jamais plus de six chiffres d'affilée", chiffresDeSuite <= 6, "≤ 6", chiffresDeSuite);
+
+  /* Les trois unités se succèdent sans trou ni retour en arrière.
+
+     On balaie les MAILLES, pas la distance, et c'est la correction d'une erreur
+     que ce contrôle a attrapée sur moi : à seize rayons — le départ du salon —
+     on est déjà à 1,4 UA, donc un balayage parti de là ne voit jamais l'unité
+     des rayons et n'en compte que deux. La maille fine, elle, vaut 10^(décade−1)
+     et descend bien à un rayon au début du recul. C'est elle qu'on étiquette. */
+  const unite = rs => (R.etiquette(rs).match(/[^\d\s.,  ]+$/) || [""])[0];
+  const suite = [];
+  for(let l = 0; l <= Math.log10(arrivee); l += 0.05){
+    const u = unite(Math.pow(10, l));
+    if(u !== suite[suite.length - 1]) suite.push(u);
+  }
+  ok("les trois unités se succèdent une fois chacune, dans l'ordre",
+     suite.length === 3 && /rₛ/.test(suite[0]) && /UA/.test(suite[1]) && /al/.test(suite[2]),
+     "rₛ → UA → al", suite.length + " : " + suite.join(" → "),
+     "une unité qui reviendrait en arrière ferait un yo-yo d'étiquettes au "
+     + "milieu d'un trajet où l'on compte sur elles pour savoir où l'on est");
+
+  /* LES MOTS VIENNENT DE LA PAGE, et le repli est du français lisible. Une page
+     qui oublierait `poseMots` ne doit pas afficher de clé nue — c'est le défaut
+     qu'on traque partout ailleurs, et il serait ici invisible pendant tout un
+     recul avant que quelqu'un s'en aperçoive. */
+  ok("sans `poseMots`, l'étiquette reste une phrase française",
+     / (rₛ|UA|al)$/.test(R.etiquette(3)) && / (rₛ|UA|al)$/.test(R.etiquette(1e9)),
+     "des unités écrites", R.etiquette(3) + " / " + R.etiquette(1e9));
+
+  R.poseMots({ ua: " AU", al: " ly", rs: " rs", locale: "en-US" });
+  ok("et la page peut les remplacer", / AU$/.test(R.etiquette(1e5)) && / ly$/.test(R.etiquette(arrivee)),
+     "en anglais", R.etiquette(1e5) + " / " + R.etiquette(arrivee));
+  ok("le séparateur des milliers suit la langue",
+     R.etiquette(arrivee).indexOf(",") >= 0 || /\d{4}/.test(R.etiquette(arrivee)),
+     "à l'anglaise", R.etiquette(arrivee));
+  R.poseMots({ ua: " UA", al: " al", rs: " rₛ", locale: "fr-FR" });   // on rend la scène propre
+  ok("et on retrouve le français ensuite", / al$/.test(R.etiquette(arrivee)), "en al", R.etiquette(arrivee));
+
+  // Les clés existent dans les deux fichiers de langue — sinon la page pose des
+  // clés nues dans le module, et l'étiquette dirait « recul.ua ».
+  const fs2 = require("fs"), path2 = require("path");
+  const FR = fs2.readFileSync(path2.join(__dirname, "ui.fr.js"), "utf8");
+  const EN = fs2.readFileSync(path2.join(__dirname, "ui.en.js"), "utf8");
+  let manque = null;
+  for(const c of ["recul.case", "recul.distance", "recul.rs", "recul.ua", "recul.al"]){
+    if(FR.indexOf('"' + c + '"') < 0) manque = "fr · " + c;
+    if(EN.indexOf('"' + c + '"') < 0) manque = "en · " + c;
+  }
+  ok("les cinq mots existent dans les deux langues", manque === null, "toutes", manque || "toutes");
 }
 
 /* ══════════════════════════════════════════════════════════════════════════

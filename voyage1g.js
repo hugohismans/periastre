@@ -149,24 +149,16 @@ const joli = {
   },
 };
 
-/* Les destinations. Chacune donne sa distance depuis le trou noir et l'échelle
-   à laquelle on l'observe. Rien n'est en dur ailleurs : c'est le contrat de
-   destination d'OBJECTIFS.md.
+/* IL Y AVAIT ICI UNE TABLE DE DESTINATIONS, et elle était morte.
 
-   Les distances des deux premières sont fixées par l'orbite du salon et par
-   les demi-grands axes des étoiles S ; celle du système solaire est la
-   distance au centre galactique adoptée par le site. */
-const DESTINATIONS = [
-  { id:"salon",   nom:"Notre orbite",
-    d_m: 16 * 1.269e10,          // seize rayons de Schwarzschild
-    quoi:"L'ombre emplit la baie. C'est d'ici qu'on regarde." },
-  { id:"etoiles", nom:"Voir les étoiles tourner",
-    d_m: 1000 * 1.495978707e11,  // mille unités astronomiques
-    quoi:"Assez loin pour que le trou noir disparaisse — et pour que les orbites des étoiles S tiennent dans le champ." },
-  { id:"soleil",  nom:"Le système solaire",
-    d_m: 8277 * 3.0856775814913673e16,   // 8 277 parsecs
-    quoi:"La maison. Vingt-sept mille années-lumière." },
-];
+   Trois entrées, une distance chacune, un commentaire qui la disait « contrat
+   de destination » — et personne ne la lisait. La page porte la sienne depuis
+   longtemps, avec des distances DIFFÉRENTES : mille unités astronomiques ici,
+   dix mille là-bas, parce qu'à mille on est encore au milieu de l'essaim des
+   étoiles S. Deux vérités pour une seule chose, dont une fausse et invisible.
+
+   Supprimée le 9 août 2026, en ouvrant le voyage vers le système solaire. Ce
+   module calcule des trajets ; il n'a pas à savoir où l'on va. */
 
 /* Où en est-on EN COURS DE ROUTE.
 
@@ -308,7 +300,7 @@ function entre(depuis_m, vers_m, a){
   return r;
 }
 
-global.VOYAGE = { trajet, entre, enChemin, etat, rapportDeMasses, joli, DESTINATIONS,
+global.VOYAGE = { trajet, entre, enChemin, etat, rapportDeMasses, joli,
                   C, G_N, AL, AN, UA };
 
 })(window);

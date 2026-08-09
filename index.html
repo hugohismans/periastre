@@ -3877,6 +3877,11 @@ function choisitDestination(d, v){
 
 $("in-fermer").onclick = fermeTelescope;
 
+// Les mots du quadrillage — `recul.js` les portait en dur, en français, et le
+// module ne résout pas de clé : il ne connaît pas `T`, donc on les lui tend.
+RECUL.poseMots({ case: T("recul.case"), distance: T("recul.distance"), rs: T("recul.rs"),
+  ua: T("recul.ua"), al: T("recul.al"), locale: enAnglais() ? "en-US" : "fr-FR" });
+
 /* ---- le registre temporel ---- */
 // Il vit dans `registre.js`, avec sa mémoire reçue en argument : le 7 août, un
 // réglage laissé dans cette mémoire a divisé par huit la cadence du site sur le

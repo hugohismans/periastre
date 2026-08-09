@@ -265,6 +265,16 @@ Object.assign(window.UI, {
 
 /* THE ADMISSIONS CENTRE — 9 August 2026. The word "admission" never appears on
    screen: we don't apologise, we state what the simulation allows itself. */
+/* The recession grid. These words used to be hardcoded in French inside
+   `recul.js`, and an English reader saw them as-is for the whole trip. The
+   light-year arrived on 9 August with the journey to the solar system: in AU, a
+   grid cell at arrival would be one thousand seven hundred billion. */
+"recul.case":            "one cell = ",
+"recul.distance":        "distance ",
+"recul.rs":              " rₛ",
+"recul.ua":              " AU",
+"recul.al":              " ly",
+
 /* The render — simulation or cinema, 10 August. Both are exact where it
    matters; one adds what a film would add, the other declines. */
 "rendu.etiq":            "Render",

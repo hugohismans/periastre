@@ -365,17 +365,45 @@ function decade(){
   return { entiere: Math.floor(l), fraction: l - Math.floor(l), log: l };
 }
 
-// L'étiquette d'une maille, dans l'unité qui parle à cette échelle.
+/* LES MOTS DU QUADRILLAGE, ET POURQUOI ILS ARRIVENT DE LA PAGE.
+
+   Ils étaient en dur, en français, dans le dessin : un visiteur anglais lisait
+   « une case = 1 000 UA » pendant tout le recul. Le module ne peut pas résoudre
+   une clé lui-même — il ne connaît pas `T` et ne doit pas le connaître — donc la
+   page lui tend ses mots une fois. Le français reste le repli : une page qui
+   oublierait de les poser afficherait des phrases, jamais des clés nues. */
+const MOTS = {
+  case: "une case = ", distance: "distance ",
+  rs: " rₛ", ua: " UA", al: " al", locale: "fr-FR",
+};
+function poseMots(m){ Object.assign(MOTS, m || {}); }
+
+const AL_M = 9.4607304725808e15;     // année-lumière, définie exactement
+
+/* L'étiquette d'une maille, dans l'unité qui parle à cette échelle.
+
+   TROIS UNITÉS DEPUIS LE 9 AOÛT, et c'est ce qui rend le vrai voyage lisible.
+   Le recul allait jusqu'aux étoiles S — quatre décades, où les UA suffisent. Le
+   trajet vers le système solaire en fait NEUF : à l'arrivée, une maille vaudrait
+   « 1 700 000 000 000 UA », c'est-à-dire un nombre que personne ne lit. En
+   années-lumière elle en vaut 27 000, et le saut d'étiquette redevient ce qu'il
+   doit être — la chose qui fait sentir la distance.
+
+   Les seuils sont à la MOITIÉ de l'unité suivante : on bascule un peu avant, de
+   sorte qu'on ne lise jamais « 0,7 UA » quand « 105 000 rₛ » dirait la même
+   chose plus mal. */
 function etiquette(rs){
   const m = rs * RS_M;
-  if(m >= 0.5*UA_M) return arrondi(m/UA_M) + " UA";
-  return arrondi(rs) + " rₛ";
+  if(m >= 0.5*AL_M) return arrondi(m/AL_M) + MOTS.al;
+  if(m >= 0.5*UA_M) return arrondi(m/UA_M) + MOTS.ua;
+  return arrondi(rs) + MOTS.rs;
 }
 function arrondi(x){
-  if(x >= 100) return Math.round(x).toLocaleString("fr-FR");
+  if(x >= 100) return Math.round(x).toLocaleString(MOTS.locale);
   if(x >= 10)  return Math.round(x).toString();
-  if(x >= 1)   return x.toFixed(1).replace(".", ",");
-  return x.toFixed(2).replace(".", ",");
+  const s = x >= 1 ? x.toFixed(1) : x.toFixed(2);
+  // La virgule décimale suit la langue, comme le séparateur des milliers.
+  return MOTS.locale === "fr-FR" ? s.replace(".", ",") : s;
 }
 
 /* Un seul étage du quadrillage, à une maille donnée.
@@ -539,14 +567,14 @@ function dessineQuadrillage(ctx, W, H, projette, force){
   ctx.fillStyle = "#a9c6ff";
   ctx.font = "11px ui-monospace, monospace";
   ctx.textAlign = "left";
-  ctx.fillText("une case = " + etiquette(maille), 18, H - 46);
+  ctx.fillText(MOTS.case + etiquette(maille), 18, H - 46);
   ctx.globalAlpha = 0.55 * force;
-  ctx.fillText("distance " + etiquette(echelle), 18, H - 30);
+  ctx.fillText(MOTS.distance + etiquette(echelle), 18, H - 30);
   ctx.restore();
 }
 
 global.RECUL = { etat, lance, avance, decade, etiquette, dessineQuadrillage,
-                 poseRythme, RS_M, UA_M,
+                 poseRythme, poseMots, RS_M, UA_M, AL_M,
                  recentre, enVue, fondu, fondus, seuilEnVue,
                  get rythme(){ return rythme; },
                  get actif(){ return etat.actif; } };

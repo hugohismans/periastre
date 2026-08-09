@@ -263,6 +263,16 @@ window.UI = {
 /* LE CENTRE DES AVEUX — 9 août 2026. « Ce genre d'info doit être comme une
    notification. » Le mot « aveu » n'apparaît nulle part à l'écran : on ne
    s'excuse pas, on dit ce que la simulation s'autorise. */
+/* Le quadrillage du recul. Ces mots étaient en dur dans `recul.js`, en français,
+   et un lecteur anglais les lisait tels quels pendant tout le trajet. L'unité
+   des années-lumière est arrivée le 9 août avec le voyage vers le système
+   solaire : en UA, une maille d'arrivée vaudrait mille sept cents milliards. */
+"recul.case":            "une case = ",
+"recul.distance":        "distance ",
+"recul.rs":              " rₛ",
+"recul.ua":              " UA",
+"recul.al":              " al",
+
 /* Le rendu — simulation ou cinéma, 10 août. Les deux sont exacts là où ça
    compte ; l'un ajoute ce qu'un film ajouterait, l'autre s'en prive. */
 "rendu.etiq":            "Rendu",
