@@ -3719,11 +3719,12 @@ function poseDestinations(){
       '<div class="chiffre"></div>';
     b.querySelector("h2").textContent = T(d.nom);
     b.querySelector("p").textContent  = T(d.quoi);
-    b.querySelector(".chiffre").textContent = d.atteignable
-      ? VOYAGE.joli.duree(v.tau) + " " + T("dest.abord") + "  ·  " +
-        VOYAGE.joli.duree(v.t) + " " + T("dest.auloin")
-      : VOYAGE.joli.duree(v.tau) + " " + T("dest.abord") + T("dest.mais") +
-        VOYAGE.joli.masses(v.masses);
+    // Le prix ne disparaît pas quand la destination devient atteignable : c'est
+    // lui la leçon, et il tient sur sa propre ligne pour qu'on le lise.
+    b.querySelector(".chiffre").textContent =
+      VOYAGE.joli.duree(v.tau) + " " + T("dest.abord") + "  ·  " +
+      VOYAGE.joli.duree(v.t) + " " + T("dest.auloin") +
+      (d.prix ? T("dest.prix") + VOYAGE.joli.masses(v.masses) : "");
     b.onclick = () => choisitDestination(d, v);
     liste.appendChild(b);
   });
@@ -3860,17 +3861,13 @@ const DESTINATIONS = [
   // texte ici le figerait dans une langue.
   { id:"etoiles", nom:"dest.etoiles.nom", quoi:"dest.etoiles.quoi",
     d_m: 10000*VOYAGE.UA, atteignable:true },
+  /* ON Y VA. Elle était REFUSÉE — « le vaisseau reste ici ». La leçon n'était
+     pas dans le refus mais dans le chiffre, et le chiffre reste sur la carte. */
   { id:"soleil",  nom:"dest.soleil.nom",  quoi:"dest.soleil.quoi",
-    d_m: 8277*PARSEC_M,  atteignable:false },
+    d_m: 8277*PARSEC_M,  atteignable:true, prix:true },
 ];
 
 function choisitDestination(d, v){
-  if(!d.atteignable){
-    // On ne part pas. On dit pourquoi, chiffres à l'appui : c'est la leçon.
-    $("in-pied").textContent =
-      T("dest.soleil.refus.a") + VOYAGE.joli.masses(v.masses) + T("dest.soleil.refus.b");
-    return;
-  }
   fermeTelescope();
   lanceVoyage(d, v);
 }
@@ -3938,13 +3935,15 @@ function inscritSejour(){
    défiler les mailles trop vite pour qu'on suive : « on va à une vitesse
    tellement grande que les grilles défilent trop vite ». On étale, et le
    resserrement des nœuds redevient lisible. */
-const DUREE_VOYAGE = 22;       // secondes d'écran, sans rapport avec la durée vraie
+// Une RÉFÉRENCE, plus une durée : `RECUL.duree` l'étire en racine du nombre de
+// décades — vingt-deux secondes ici, trente-quatre pour le système solaire.
+const DUREE_VOYAGE = 22;
 
 function lanceVoyage(d, v){
   TELESCOPE.trajet = { dest:d, calcul:v, depart:distanceVaisseau(), arrive:false };
   TELESCOPE.retour = false;
   RECUL.etat.distance = TELESCOPE.trajet.depart;
-  RECUL.lance(d.d_m, DUREE_VOYAGE);
+  RECUL.lance(d.d_m, RECUL.duree(TELESCOPE.trajet.depart, d.d_m, DUREE_VOYAGE));
   // La carte rejoue la campagne d'observation : trente ans, depuis le début.
   ETOILES_S.vue.annee = 1992;
   ETOILES_S.vue.vitesse = 3.2;
@@ -4060,7 +4059,7 @@ function repartVoyage(){
   TELESCOPE.retour = true;
   TELESCOPE.trajet = { dest:{ nom:"chrono.retour" }, arrive:false, depart:RECUL.etat.distance,
                        calcul: VOYAGE.entre(RECUL.etat.distance, retour) };
-  RECUL.lance(retour, DUREE_VOYAGE);
+  RECUL.lance(retour, RECUL.duree(RECUL.etat.distance, retour, DUREE_VOYAGE));
   $("chrono").classList.add("vu");
   $("ch-quoi").textContent = T("chrono.retour");
   MUSIQUE.frappe(0.75);

@@ -374,6 +374,56 @@ groupe("Les deux rythmes, et ce qui ne change pas entre eux");
      fid.fin.toExponential(4) + " et " + reg.fin.toExponential(4));
 }
 
+// ════════════════════════════════════════════ 5 bis. le temps d'écran suit
+/* Une durée fixe ne peut pas servir 3,87 décades et 9,10. Mesuré : à vingt-deux
+   secondes, le grand trajet renumérote la grille 1,68 fois par seconde au
+   milieu ; à cadence constante il durerait cinquante-deux secondes. Hugo a
+   tranché pour la racine — ce que ce groupe garde, avec ses deux bouts. */
+groupe("Le temps d'écran suit la longueur du trajet");
+{
+  const PARSEC = 3.0856775814913673e16;
+  const depart = 16 * R.RS_M;
+  const etoiles = 10000 * R.UA_M;
+  const soleil = 8277 * PARSEC;
+
+  const dEtoiles = R.duree(depart, etoiles);
+  const dSoleil  = R.duree(depart, soleil);
+
+  ok("le recul d'aujourd'hui garde ses vingt-deux secondes",
+     Math.abs(dEtoiles - 22) < 0.5, "≈ 22 s", dEtoiles.toFixed(1) + " s",
+     "c'est le trajet sur lequel la durée a été calibrée : le changer serait "
+     + "modifier ce qu'Hugo a déjà jugé bon");
+  ok("et le système solaire dure environ trente-quatre secondes",
+     dSoleil > 32 && dSoleil < 36, "32 à 36 s", dSoleil.toFixed(1) + " s",
+     "ni cinquante-deux — trop long à regarder — ni vingt-deux, qui ferait "
+     + "défiler deux fois et demie plus vite");
+  ok("le long trajet dure plus que le court", dSoleil > dEtoiles,
+     "plus long", dSoleil.toFixed(1) + " > " + dEtoiles.toFixed(1));
+
+  // La cadence par décade se resserre, mais jamais du simple au double.
+  const parDecade = (d0, d1) => R.duree(d0, d1) / Math.abs(Math.log10(d1) - Math.log10(d0));
+  const rapport = parDecade(depart, etoiles) / parDecade(depart, soleil);
+  ok("et la cadence ne double jamais", rapport > 1 && rapport < 2,
+     "entre 1 et 2", rapport.toFixed(2),
+     "au-delà, le grand trajet ne ressemblerait plus au petit — c'est "
+     + "exactement ce qu'on refusait en gardant vingt-deux secondes");
+
+  ok("un trajet minuscule ne devient pas un saut d'image",
+     R.duree(depart, depart * 1.01) >= 8, "≥ 8 s",
+     R.duree(depart, depart * 1.01).toFixed(1) + " s",
+     "sous huit secondes le quadrillage n'a pas le temps de changer "
+     + "d'étiquette une seule fois, et le voyage se lit comme un raté");
+
+  let mauvais = null;
+  for(const [a, b] of [[0, soleil], [depart, 0], [depart, depart], [NaN, soleil], [depart, Infinity]]){
+    const v = R.duree(a, b);
+    if(!Number.isFinite(v) || v <= 0) mauvais = a + " → " + b + " = " + v;
+  }
+  ok("et aucune distance absurde ne rend une durée absurde", mauvais === null,
+     "toujours un nombre fini positif", mauvais || "toujours",
+     "une durée nulle fige l'animation, une durée infinie ne se termine jamais");
+}
+
 // ════════════════════════════════════════════════════ 6. l'étiquette parle
 /* CE QU'ON GARDE VRAIMENT ICI : QU'UN NOMBRE RESTE LISIBLE SUR NEUF DÉCADES.
 

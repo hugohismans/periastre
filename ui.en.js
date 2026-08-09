@@ -82,13 +82,14 @@ Object.assign(window.UI, {
     "stars to fit in view. This is how it was discovered, thirty years before " +
     "anyone had an image of it.",
   "dest.soleil.nom":       "The solar system",
+  /* This destination used to be REFUSED, and its refusal was read here: "the
+     ship stays here". On 9 August 2026 we leave anyway — the lesson was never
+     in the refusal, it was in the figure, and the figure stays on the card. */
   "dest.soleil.quoi":
-    "Home, twenty-seven thousand light years away. The trip would fit inside " +
-    "one lifetime — but look at what you would have to carry.",
-  "dest.soleil.refus.a":   "Twenty years aboard, twenty-seven thousand back home — and an ideal " +
-                           "rocket, converting all of its mass to energy with nothing wasted, " +
-                           "would still have to carry ",
-  "dest.soleil.refus.b":   ". No known technology comes close. The ship stays here.",
+    "Home, twenty-seven thousand light years away. An ideal rocket, converting " +
+    "all of its mass to energy with nothing wasted, would still have to carry " +
+    "what is written below. No known technology comes close — and we are going.",
+  "dest.prix":             "  ·  you would have to carry ",
 
   // ---- the study black hole ----
   "etude.etiq":            "hypothesis",

@@ -57,6 +57,31 @@ const etat = {
 /* Lance un recul. La durée à l'écran n'a rien à voir avec la durée réelle du
    voyage : on montre en une quinzaine de secondes ce qui prendrait des mois.
    Le chronomètre, lui, dit la vérité. */
+/* LE TEMPS D'ÉCRAN D'UN TRAJET — décision d'Hugo, 9 août 2026.
+
+   Vingt-deux secondes avaient été calibrées sur le recul vers les étoiles S,
+   c'est-à-dire sur 3,87 décades. Le trajet vers le système solaire en fait 9,10,
+   et les deux réponses simples sont mauvaises : garder la même cadence par
+   décade donne cinquante-deux secondes à regarder une grille se renuméroter, et
+   garder vingt-deux secondes la fait changer d'étiquette presque deux fois par
+   seconde au milieu du trajet.
+
+   Il a tranché pour le compromis : la durée suit la RACINE du nombre de
+   décades. Le grand trajet dure trente-quatre secondes, les courts ne bougent
+   pas, et rien n'est calibré à la main destination par destination — ce qui
+   serait une table de plus à tenir à jour.
+
+   Le plancher de huit secondes n'est pas de la prudence : sous cette durée, un
+   déplacement se lit comme un saut d'image plutôt que comme un voyage, et le
+   quadrillage n'a pas le temps de changer d'étiquette une seule fois. */
+const DECADES_REF = 3.87, BASE_S = 22, PLANCHER_S = 8;
+function duree(d0, d1, base){
+  const b = base || BASE_S;
+  const dec = Math.abs(Math.log10(d1) - Math.log10(d0));
+  if(!Number.isFinite(dec) || dec <= 0) return b;
+  return Math.max(PLANCHER_S, b * Math.sqrt(dec / DECADES_REF));
+}
+
 function lance(vers_m, secondesEcran){
   const v = global.VOYAGE.entre(etat.distance, vers_m);
   etat.actif = true;
@@ -602,7 +627,7 @@ function dessineQuadrillage(ctx, W, H, projette, force){
 }
 
 global.RECUL = { etat, lance, avance, decade, etiquette, dessineQuadrillage,
-                 poseRythme, poseMots, RS_M, UA_M, AL_M,
+                 poseRythme, poseMots, duree, RS_M, UA_M, AL_M,
                  recentre, enVue, fondu, fondus, seuilEnVue,
                  get rythme(){ return rythme; },
                  get actif(){ return etat.actif; } };

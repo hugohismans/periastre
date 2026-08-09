@@ -98,12 +98,15 @@ window.UI = {
     "des étoiles S tiennent dans le champ. C'est ainsi qu'on l'a découvert, " +
     "trente ans avant d'en avoir une image.",
   "dest.soleil.nom":       "Le système solaire",
+  /* Cette destination était REFUSÉE, et son refus se lisait ici : « le vaisseau
+     reste ici ». Le 9 août 2026 on part quand même — la leçon n'était pas dans
+     le refus, elle était dans le chiffre, et le chiffre reste sur la carte. */
   "dest.soleil.quoi":
-    "La maison, à vingt-sept mille années-lumière. Le trajet tiendrait dans " +
-    "une vie — mais regardez ce qu'il faudrait emporter.",
-  "dest.soleil.refus.a":   "Vingt ans à bord, vingt-sept mille au loin — et une fusée idéale, qui " +
-                           "convertirait toute sa masse en énergie sans rien perdre, devrait emporter ",
-  "dest.soleil.refus.b":   ". Aucune technologie connue n'en approche. Le vaisseau reste ici.",
+    "La maison, à vingt-sept mille années-lumière. Une fusée idéale, qui " +
+    "convertirait toute sa masse en énergie sans rien perdre, devrait quand " +
+    "même emporter ce qui est écrit dessous. Aucune technologie connue n'en " +
+    "approche — et on y va.",
+  "dest.prix":             "  ·  il faudrait emporter ",
 
   // ---- le trou noir d'étude ----
   "etude.etiq":            "hypothèse",
