@@ -2389,7 +2389,7 @@ void main(){
 <!-- `accueil.js` est chargé ICI, et pas avec les autres modules plus bas : c'est
      lui qui décide de la langue, et cette décision doit précéder le
      `document.write` des fichiers de contenu. Il ne dépend de rien. -->
-<script src="accueil.js?v=7cfecf3"></script>
+<script src="accueil.js?v=c2ee777"></script>
 <script>
 (function(){
   /* L'adaptateur de la mémoire de la langue. Il porte la clé et les `try` de la
@@ -2409,11 +2409,11 @@ void main(){
   window.LANGUE = d.code;
   window.MEMOIRE_LANGUE = m;                  // le sélecteur de langue s'en ressert
   document.documentElement.lang = d.html;
-  document.write('<script src="' + d.fichierContenu + '?v=7cfecf3"><\/script>');
+  document.write('<script src="' + d.fichierContenu + '?v=c2ee777"><\/script>');
   // Les chaînes d'interface : le français TOUJOURS, l'anglais par-dessus. Une
   // clé oubliée retombe ainsi sur une phrase, jamais sur un identifiant nu.
   d.fichiersInterface.forEach(function(f){
-    document.write('<script src="' + f + '?v=7cfecf3"><\/script>');
+    document.write('<script src="' + f + '?v=c2ee777"><\/script>');
   });
 })();
 </script>
@@ -2433,16 +2433,16 @@ void main(){
 <!-- La physique, sortie du bloc principal. Elle ne touche ni au document ni à
      WebGL, et son extraction rend le banc d'essai exécutable en ligne de
      commande — donc vérifiable sans navigateur. Premier morceau du chantier F2. -->
-<script src="physique.js?v=7cfecf3"></script>
+<script src="physique.js?v=c2ee777"></script>
 <!-- Ce qui vole. Deuxième morceau de F2, et le socle de la salle de tir
      balistique : elle ne sera que `destin()` avec une vitesse choisie. -->
-<script src="vol.js?v=7cfecf3"></script>
+<script src="vol.js?v=c2ee777"></script>
 <!-- L'horloge. Troisième morceau de F2, et celui qui rend structurellement
      impossible le défaut du disque à 622× : le temps simulé n'y est accessible
      qu'en lecture, et un second écrivain devient indicible. -->
-<script src="temps.js?v=7cfecf3"></script>
-<script src="kerr.js?v=7cfecf3"></script>
-<script src="vaisseau.js?v=7cfecf3"></script>
+<script src="temps.js?v=c2ee777"></script>
+<script src="kerr.js?v=c2ee777"></script>
+<script src="vaisseau.js?v=c2ee777"></script>
 <!-- Marcher dans la pièce. Quatrième morceau de F2 : une fois sorti du bloc, on
      peut promener un corps dans le décor SANS navigateur — et le premier
      balayage a trouvé qu'on traversait le télescope.
@@ -2450,8 +2450,8 @@ void main(){
      APRÈS `vaisseau.js`, et l'ordre n'est pas négociable : le mobilier se
      construit à partir de la géométrie de la pièce, dès le chargement. Placé
      avant, il ne trouvait rien et emportait tout le bloc principal avec lui. -->
-<script src="arpente.js?v=7cfecf3"></script>
-<script src="personnage.js?v=7cfecf3"></script>
+<script src="arpente.js?v=c2ee777"></script>
+<script src="personnage.js?v=c2ee777"></script>
 <!-- `pantheon.js` N'EST PLUS CHARGÉ, et c'est délibéré.
 
      Il était chargé à chaque visite et `PANTHEON` n'était appelé nulle part —
@@ -2463,10 +2463,10 @@ void main(){
      pas encore — voir CHUTE.md, écrit et jamais branché. Le jour où la salle de
      tir existera, cette ligne revient telle quelle.
 
-     <script src="pantheon.js?v=7cfecf3"></script> -->
+     <script src="pantheon.js?v=c2ee777"></script> -->
 
-<script src="robot.js?v=7cfecf3"></script>
-<script src="musique.js?v=7cfecf3"></script>
+<script src="robot.js?v=c2ee777"></script>
+<script src="musique.js?v=c2ee777"></script>
 
 <!-- LA PAGE ELLE-MÊME PEUT ÊTRE PÉRIMÉE, et l'estampille n'y peut rien : elle
      protège les scripts, dont l'adresse change, pas `index.html`, dont l'adresse
@@ -2475,7 +2475,7 @@ void main(){
      anciennes questions. Le pourquoi complet est dans `frais.js` ; ici on ne
      fait que demander et sauter, la décision est là-bas et s'éprouve sans
      navigateur — c'est elle qui peut faire clignoter le site. -->
-<script src="frais.js?v=7cfecf3"></script>
+<script src="frais.js?v=c2ee777"></script>
 <script>
 (function(){
   var mienne = FRAIS.estampille(document.documentElement.outerHTML), vu = null;
@@ -2493,31 +2493,31 @@ void main(){
 
 <!-- Le voyage. L'ordre compte : recul.js appelle VOYAGE.entre au chargement de
      ses propres constantes, donc voyage1g.js doit être passé avant lui. -->
-<script src="voyage1g.js?v=7cfecf3"></script>
-<script src="recul.js?v=7cfecf3"></script>
-<script src="etoiles.js?v=7cfecf3"></script>
-<script src="format.js?v=7cfecf3"></script>
-<script src="spectre.js?v=7cfecf3"></script>
-<script src="banc.js?v=7cfecf3"></script>
-<script src="ecrans.js?v=7cfecf3"></script>
-<script src="dossier.js?v=7cfecf3"></script>
-<script src="aveu.js?v=7cfecf3"></script>
-<script src="spin.js?v=7cfecf3"></script>
-<script src="rendu.js?v=7cfecf3"></script>
-<script src="calque.js?v=7cfecf3"></script>
-<script src="habitacle.js?v=7cfecf3"></script>
-<script src="libelles.js?v=7cfecf3"></script>
-<script src="resolution.js?v=7cfecf3"></script>
-<script src="registre.js?v=7cfecf3"></script>
-<script src="cockpit.js?v=7cfecf3"></script>
-<script src="camera.js?v=7cfecf3"></script>
-<script src="gestes.js?v=7cfecf3"></script>
-<script src="manette.js?v=7cfecf3"></script>
-<script src="lumen.js?v=7cfecf3"></script>
+<script src="voyage1g.js?v=c2ee777"></script>
+<script src="recul.js?v=c2ee777"></script>
+<script src="etoiles.js?v=c2ee777"></script>
+<script src="format.js?v=c2ee777"></script>
+<script src="spectre.js?v=c2ee777"></script>
+<script src="banc.js?v=c2ee777"></script>
+<script src="ecrans.js?v=c2ee777"></script>
+<script src="dossier.js?v=c2ee777"></script>
+<script src="aveu.js?v=c2ee777"></script>
+<script src="spin.js?v=c2ee777"></script>
+<script src="rendu.js?v=c2ee777"></script>
+<script src="calque.js?v=c2ee777"></script>
+<script src="habitacle.js?v=c2ee777"></script>
+<script src="libelles.js?v=c2ee777"></script>
+<script src="resolution.js?v=c2ee777"></script>
+<script src="registre.js?v=c2ee777"></script>
+<script src="cockpit.js?v=c2ee777"></script>
+<script src="camera.js?v=c2ee777"></script>
+<script src="gestes.js?v=c2ee777"></script>
+<script src="manette.js?v=c2ee777"></script>
+<script src="lumen.js?v=c2ee777"></script>
 <!-- `accueil.js` n'est pas ici : il est chargé en tête de page, avant le choix
      de la langue, parce que c'est lui qui le décide. -->
-<script src="progression.js?v=7cfecf3"></script>
-<script src="lieux.js?v=7cfecf3"></script>
+<script src="progression.js?v=c2ee777"></script>
+<script src="lieux.js?v=c2ee777"></script>
 <script>
 "use strict";
 
@@ -6287,7 +6287,7 @@ requestAnimationFrame(boucle);
 <script>
 if(/[?&]verif\b/.test(location.search)){
   var s = document.createElement("script");
-  s.src = "verif.js?v=7cfecf3";
+  s.src = "verif.js?v=c2ee777";
   document.body.appendChild(s);
 }
 /* Et le protocole d'essai joué : `?test`. Il pose ses questions au moment où la
@@ -6297,7 +6297,7 @@ if(/[?&]verif\b/.test(location.search)){
    script contrôle mieux. */
 if(/[?&]test\b/.test(location.search)){
   var e = document.createElement("script");
-  e.src = "essai.js?v=7cfecf3";
+  e.src = "essai.js?v=c2ee777";
   document.body.appendChild(e);
 }
 /* Et la séance de jugement : `?juge`. Elle ne demande QUE ce qu'aucun calcul ne
@@ -6306,7 +6306,7 @@ if(/[?&]test\b/.test(location.search)){
    Claude, prêt à coller. On ne lit rien, on ne navigue pas. */
 if(/[?&]juge\b/.test(location.search)){
   var j = document.createElement("script");
-  j.src = "juge.js?v=7cfecf3";
+  j.src = "juge.js?v=c2ee777";
   document.body.appendChild(j);
 }
 </script>
