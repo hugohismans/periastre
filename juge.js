@@ -528,6 +528,26 @@ function rejoueArrivee(sansPanneau){ rejoueVoyage(0.90, sansPanneau); }
    voyage armé continue : on est emmené à l'arrivée en pleine lecture du
    rapport. Un protocole qui laisse le site dans un état qu'il n'avait pas
    fausse ce qu'on regardera ensuite. */
+/* RAMENER LE VAISSEAU À SON ORBITE — défaut trouvé par Hugo le 9 août 2026 :
+   « ça ne me retéléporte pas à Sagittarius quand je clique sur une des options
+   du juge ».
+
+   `lanceVoyage` prend `distanceVaisseau()` comme point de départ, et cette
+   distance vient de la POSITION DU VAISSEAU dans le monde — que le voyage
+   précédent a déplacée. Après un premier essai on repartait donc du système
+   solaire POUR le système solaire : un trajet de longueur nulle, et un écran
+   qui ne bouge plus. `auSalon` ne le rattrapait pas, il replace le joueur DANS
+   le salon, pas le salon sur son orbite.
+
+   Le défaut dormait depuis toujours dans `rejoueVoyage` : tant qu'on regardait
+   une destination une seule fois, on partait forcément de l'orbite. C'est la
+   comparaison de deux rythmes — donc le fait de REJOUER — qui l'a réveillé. */
+function rameneAuDepart(){
+  poseSalon();                       // le vaisseau retrouve son orbite et ses horloges
+  RECUL.etat.actif = false;
+  RECUL.etat.distance = distanceVaisseau();
+}
+
 /* LE GRAND TRAJET, ET SON RYTHME — armé le 9 août 2026.
 
    Le voyage vers le système solaire fait 9,10 décades là où le recul vers les
@@ -545,7 +565,7 @@ function rejoueGrandTrajet(rythme, depuis){
   fermeTelescope();
   auSalon(0, 0.6, 0, -0.05);
   if(TELESCOPE.trajet){ TELESCOPE.trajet = null; TELESCOPE.retour = false; }
-  RECUL.etat.actif = false;
+  rameneAuDepart();
   TELESCOPE.carte = 0;
   RECUL.poseRythme(rythme);
   const d = DESTINATIONS.find(x => x.id === "soleil");
@@ -694,7 +714,7 @@ function rejoueVoyage(depuis, sansPanneau){
   fermeTelescope();
   auSalon(0, 0.6, 0, -0.05);
   if(TELESCOPE.trajet){ TELESCOPE.trajet = null; TELESCOPE.retour = false; }
-  RECUL.etat.actif = false;
+  rameneAuDepart();
   TELESCOPE.carte = 0;                      // on repart d'une carte éteinte
   const d = DESTINATIONS[0];
   lanceVoyage(d, VOYAGE.entre(distanceVaisseau(), d.d_m));
