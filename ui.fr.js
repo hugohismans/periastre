@@ -268,11 +268,11 @@ window.UI = {
 "rendu.etiq":            "Rendu",
 "rendu.cinema":          "Cinéma",
 "rendu.simulation":      "Simulation",
-"rendu.cinema.note":     "L'image ajoute ce qu'un film ajouterait : la nébuleuse "
-                       + "du fond est un décor, et elle est avouée comme tel.",
-"rendu.simulation.note": "Rien que ce qui se calcule : la nébuleuse s'éteint. "
-                       + "Les étoiles restent — il y en a vraiment, et leur "
-                       + "juste densité arrivera sourcée, pas au jugé.",
+"rendu.cinema.note":     "L'image ajoute ce qu'un film ajouterait : le voile "
+                       + "mauve du fond, qui n'existe pas — et qui le dit.",
+"rendu.simulation.note": "Le voile mauve s'éteint. Ce qui reste faux se dit sur "
+                       + "place : les étoiles sont posées au hasard, et ce noir "
+                       + "n'existe pas — là-bas, il n'y fait jamais nuit.",
 
 "aveu.notif":            "ce que la simulation s'autorise",
 "aveu.reste":            "et {n} autre(s) à cet endroit",

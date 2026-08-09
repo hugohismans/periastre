@@ -316,7 +316,20 @@ const fs = require("fs"), path = require("path");
    La DÉCISION n'est pas ici : `aveu.js` choisit l'aveu selon le mode (33
    contrôles), `contrat.js` refuse un `selonMode` bancal (5 sabotages), et
    `rendu.js` reste seul à connaître les modes. La page ne fait que peindre. */
-const PLAFOND = 3790;   // ... le lien de test, l'accueil, le carnet, l'aveu selon le rendu
+/* 3 804 le 9 août — P2 encore : le choix du rendu se pose AUSSI sur l'accueil,
+   « au premier passage, à côté de celui de la langue » (CHANTIERS §15).
+
+   Quatorze lignes pour un second sélecteur, et c'est le prix de ne pas en
+   écrire deux : la fabrique devient paramétrable (hôte, étiquette, note) et
+   pousse son repeint dans `CHOIX_RENDU`, pour que basculer d'un côté mette
+   l'autre d'accord. La langue avait payé cette leçon avant nous — sa fabrique
+   est unique depuis, et son commentaire dit pourquoi. Sans la liste, on
+   bascule sur l'accueil et les réglages montrent encore l'autre mode : le
+   réglage serait juste, son image mentirait.
+
+   `outil-verif-rendu.js` lit désormais la page pour exiger les deux poses, les
+   deux hôtes, la fabrique unique et la liste de repeints — 24 contrôles. */
+const PLAFOND = 3804;   // ... le carnet, l'aveu selon le rendu, le choix à l'accueil
 
 // Le nombre de modules déjà sortis. Il ne descend jamais non plus : un module
 // qu'on ferait rentrer dans le bloc serait le contraire exact du chantier.

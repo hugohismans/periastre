@@ -141,7 +141,42 @@ groupe("Le nuanceur écoute — lu dans `index.html`, pas supposé");
      "deux endroits qui décident du même rendu, c'est la maladie du dépôt");
 }
 
-// ══════════════════════════════ 6. et ces contrôles savent tomber
+// ══════════════════════════════ 6. le choix se pose à DEUX endroits
+/* « Le choix se pose au premier passage, à côté de celui de la langue, et se
+   change ensuite dans les réglages » — CHANTIERS.md §15. Deux sélecteurs pour un
+   seul réglage, c'est exactement la situation où l'un des deux finit par oublier
+   d'enregistrer, ou par marquer l'actif pendant que l'autre reste sur l'ancien.
+   La langue a déjà payé ce prix : sa fabrique est unique et son commentaire le
+   dit. On exige donc ici la même discipline, lue dans le source de la page. */
+groupe("Un seul sélecteur pour deux endroits");
+{
+  const uneSeuleFabrique = (PAGE.match(/function\s+poseChoixRendu/g) || []).length;
+  ok("il n'existe qu'une fabrique", uneSeuleFabrique === 1, 1, uneSeuleFabrique,
+     "deux fabriques pour un réglage, c'est la divergence garantie — la leçon "
+     + "est écrite au-dessus de `poseChoixLangue`");
+
+  for(const [ou, hote] of [["les réglages", "rendu-choix"], ["l'accueil", "acc-rendu"]]){
+    ok("le sélecteur est posé dans " + ou,
+       new RegExp("poseChoixRendu\\(\\$\\(\"" + hote + "\"\\)").test(PAGE),
+       "posé", new RegExp("poseChoixRendu\\(\\$\\(\"" + hote + "\"\\)").test(PAGE) ? "posé" : "ABSENT");
+    ok("et son hôte existe dans le balisage de " + ou,
+       new RegExp("id=\"" + hote + "\"").test(PAGE), "présent",
+       new RegExp("id=\"" + hote + "\"").test(PAGE) ? "présent" : "ABSENT",
+       "un sélecteur posé dans un hôte qui n'existe pas ne peint rien, en silence");
+  }
+
+  ok("les deux se repeignent l'un l'autre", /CHOIX_RENDU\.forEach/.test(PAGE),
+     "une liste de repeints", /CHOIX_RENDU\.forEach/.test(PAGE) ? "présente" : "ABSENTE",
+     "sans elle on bascule sur l'accueil et les réglages montrent encore l'autre "
+     + "mode — le réglage serait juste, son image mentirait");
+
+  ok("le repeint des aveux suit la bascule", /poseAveux\(\$\("panneau"\), "reglages"\)/.test(PAGE),
+     "présent", /poseAveux\(\$\("panneau"\), "reglages"\)/.test(PAGE) ? "présent" : "ABSENT",
+     "le badge du fond de ciel dépend du mode : sans repeint il dénonce l'autre "
+     + "rendu à trois centimètres du bouton qui le cause");
+}
+
+// ══════════════════════════════ 7. et ces contrôles savent tomber
 groupe("Et ces contrôles savent tomber");
 {
   const bac = sup => Object.assign({}, R, sup);

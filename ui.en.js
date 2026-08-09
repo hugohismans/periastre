@@ -270,11 +270,11 @@ Object.assign(window.UI, {
 "rendu.etiq":            "Render",
 "rendu.cinema":          "Cinema",
 "rendu.simulation":      "Simulation",
-"rendu.cinema.note":     "The image adds what a film would add: the background "
-                       + "nebula is scenery, and it is admitted as such.",
-"rendu.simulation.note": "Only what can be computed: the nebula goes dark. The "
-                       + "stars remain — they are truly there, and their honest "
-                       + "density will arrive sourced, not guessed.",
+"rendu.cinema.note":     "The image adds what a film would add: the purple veil "
+                       + "in the background, which does not exist — and says so.",
+"rendu.simulation.note": "The purple veil goes out. What is still false says so "
+                       + "on the spot: the stars are scattered at random, and "
+                       + "this blackness does not exist — out there it is never night.",
 
 "aveu.notif":            "what the simulation allows itself",
 "aveu.reste":            "and {n} more here",

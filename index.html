@@ -905,6 +905,30 @@
     color:#fff; border-color:color-mix(in srgb, var(--ambre) 55%, transparent);
     background:color-mix(in srgb, var(--ambre) 14%, transparent);
   }
+  /* Le rendu, sous la langue, et de la même famille : « le choix se pose au
+     premier passage, à côté de celui de la langue ». Il est plus discret que
+     les deux lettres du dessus — c'est un réglage qu'on peut ignorer sans rien
+     perdre, alors que la langue, non. */
+  #acc-rendu {
+    position:absolute; top:calc(max(14px, env(safe-area-inset-top)) + 40px); right:14px;
+    display:flex; align-items:center; gap:6px; z-index:1;
+    animation:monte .8s both; animation-delay:.34s;
+  }
+  #acc-rendu .etiq {
+    font-family:var(--mono); font-size:9.5px; letter-spacing:.12em;
+    text-transform:uppercase; color:#6d6885;
+  }
+  #acc-rendu button {
+    font-family:var(--mono); font-size:10.5px; letter-spacing:.1em;
+    height:26px; padding:0 9px; cursor:pointer;
+    border:1px solid rgba(255,255,255,.13); border-radius:3px;
+    background:rgba(0,0,0,.28); color:#8f8aa6;
+  }
+  #acc-rendu button:hover { color:#fff; border-color:rgba(255,255,255,.3); }
+  #acc-rendu button.actif {
+    color:#fff; border-color:color-mix(in srgb, var(--ambre) 45%, transparent);
+    background:color-mix(in srgb, var(--ambre) 12%, transparent);
+  }
   /* tant qu'on est dans le menu, l'interface du jeu s'efface : sinon
      l'image d'accueil est mangée par des panneaux */
   body.au-menu .hud, body.au-menu #mission { opacity:0; pointer-events:none; }
@@ -1488,6 +1512,12 @@ body.au-salon:not(.mode-boutons) #dock { opacity:0; pointer-events:none; }
        manuelle qui était hors d'atteinte. Deux lettres en haut à droite, avant
        tout le reste. -->
   <div id="acc-langue" role="group" aria-label="Langue — Language"></div>
+  <!-- Le rendu, au premier passage, sous la langue. Son étiquette et ses deux
+       libellés sont posés par la même fabrique que le sélecteur des réglages :
+       une seule pour les deux, sinon l'une des deux oubliera d'enregistrer. -->
+  <div id="acc-rendu" role="group" aria-label="Rendu — Render">
+    <span class="etiq" id="acc-rendu-etiq"></span>
+  </div>
   <div id="acc-boite">
     <!-- Ces deux lignes sont écrasées par `intro()` avant le premier rendu, mais
          elles restent ce qu'on voit si le script ne part pas — et elles
@@ -4885,29 +4915,43 @@ poseCurseurSpin($("spin-choix"), "spin-note");
 
 /* LE RENDU — `rendu.js` décide ce que chaque mode commande, ici on peint le
    sélecteur. L'ÉTAT est remonté à côté de la mémoire des aveux, que `poseAveux`
-   lit au même endroit et pour la même raison ; elle est écrite là-bas. */
-function poseChoixRendu(){
-  const hote = $("rendu-choix");
-  $("rendu-etiq").textContent = T("rendu.etiq");
-  RENDU.MODES.forEach(m => {
+   lit au même endroit et pour la même raison ; elle est écrite là-bas.
+
+   DEUX exemplaires, comme la langue : un dans les réglages, un sur l'accueil —
+   « le choix se pose au premier passage, à côté de celui de la langue ». Une
+   seule fabrique et une liste de repeints, pour que l'autre suive : deux
+   fabriques pour un réglage, c'est la garantie qu'un jour l'une des deux
+   oubliera d'enregistrer. Même remède que `CURSEURS_SPIN`. */
+const CHOIX_RENDU = [];
+function poseChoixRendu(hote, idEtiq, idNote){
+  if(!hote) return;
+  if($(idEtiq)) $(idEtiq).textContent = T("rendu.etiq");
+  const boutons = RENDU.MODES.map(m => {
     const b = document.createElement("button");
     b.textContent = T("rendu." + m);
-    b.classList.toggle("actif", m === modeRendu);
+    // Sur l'accueil il n'y a pas la place d'une note : elle passe en infobulle.
+    b.title = T("rendu." + m + ".note");
     b.onclick = () => {
       modeRendu = RENDU.borne(m);
       try { localStorage.setItem(CLE_RENDU, modeRendu); } catch(e){}
-      [...hote.children].forEach(c => c.classList.toggle("actif", c === b));
-      $("rendu-note").textContent = T("rendu." + modeRendu + ".note");
-      /* Sans ce repeint, le badge du fond de ciel — posé dans ce panneau même —
-         continuerait de dénoncer l'autre rendu, à trois centimètres du bouton
-         qui le cause. Rien ne sera annoncé : ces aveux-là sont déjà vus. */
+      CHOIX_RENDU.forEach(p => p());
+      /* Sans ce repeint, le badge du fond de ciel — posé dans le panneau des
+         réglages — continuerait de dénoncer l'autre rendu, à trois centimètres
+         du bouton qui le cause. Rien ne sera annoncé : ces aveux sont vus. */
       poseAveux($("panneau"), "reglages");
     };
     hote.appendChild(b);
+    return b;
   });
-  $("rendu-note").textContent = T("rendu." + modeRendu + ".note");
+  const peint = () => {
+    boutons.forEach((b, i) => b.classList.toggle("actif", RENDU.MODES[i] === modeRendu));
+    if($(idNote)) $(idNote).textContent = T("rendu." + modeRendu + ".note");
+  };
+  CHOIX_RENDU.push(peint);
+  peint();
 }
-poseChoixRendu();
+poseChoixRendu($("rendu-choix"), "rendu-etiq", "rendu-note");
+poseChoixRendu($("acc-rendu"),  "acc-rendu-etiq", null);
 
 const boitierVol = $("volume");
 [["panneau.volume.discret", 0.28], ["panneau.volume.normal", 0.5],
