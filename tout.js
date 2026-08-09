@@ -175,6 +175,19 @@ if(orphelins.length === 0){
    a pas fait ÉCHOUER `node tout.js` : on ne peut plus en oublier un en silence,
    et on ne peut plus faire semblant qu'une dette est un choix. */
 const POURQUOI_PAS_BRANCHE = {
+  "aberration.js":
+    "ÉCRIT ET ÉPROUVÉ (19 contrôles), LE NUANCEUR VIENT APRÈS — demandé par Hugo "
+    + "le 9 août 2026 : « qu'on voie le ciel qui se resserre devant nous ». La "
+    + "physique est faite et gardée : l'aberration, le Doppler, l'éclat en D⁴, "
+    + "et la réciprocité des deux sens — c'est elle qui attrape l'erreur de "
+    + "signe, celle qui resserrerait le ciel DERRIÈRE sans que l'œil s'en "
+    + "aperçoive. Ce qui reste n'est pas du calcul, c'est de l'IMAGE : le "
+    + "nuanceur courbe déjà les rayons par la gravité, et composer les deux "
+    + "transformations change ce qu'on voit PARTOUT, pas seulement pendant le "
+    + "vol. À 0,9999 c l'avant gagne un facteur 4 × 10⁸ — poussé tel quel, il "
+    + "brûle l'écran. Jusqu'où l'atténuer, et faut-il l'avouer comme compromis, "
+    + "se tranche en regardant. Le module attend cette séance, pas une décision "
+    + "de plus de ma part.",
   "kerrschild.js":
     "ARBITRE, jamais chargé — il éprouve le nuanceur depuis dehors (règle 3). "
     + "Le brancher le rendrait complice de ce qu'il contrôle.",
