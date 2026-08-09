@@ -273,7 +273,23 @@ groupe("Les chiffres tels qu'on les lit");
   ok("et le point décimal y revient", /\./.test(V.joli.duree(1.5 * AN_S)),
      "un point", V.joli.duree(1.5 * AN_S));
 
+  /* LA VITESSE PRÈS DE LA LIMITE. Elle s'écrit en « ce qui manque à c », et
+     c'est la seule façon honnête d'afficher 0,999999997 — mais le format était
+     bâclé : « c − 4.1·10⁻4 », point décimal anglais en français et exposant en
+     chiffres ordinaires. Le vaisseau passe l'essentiel du trajet vers le
+     système solaire au-dessus de ce seuil : c'est ce qu'on lit le plus. */
   langue("fr");
+  const rapide = V.joli.vitesse(0.99959);
+  ok("l'exposant est en chiffres supérieurs", /10[⁻⁰¹²³⁴⁵⁶⁷⁸⁹]+$/.test(rapide),
+     "10⁻⁴", rapide);
+  ok("et la mantisse a sa virgule française", /−\s*\d,\d/.test(rapide), "4,1", rapide);
+  langue("en");
+  ok("en anglais, un point", /−\s*\d\.\d/.test(V.joli.vitesse(0.99959)),
+     "4.1", V.joli.vitesse(0.99959));
+  langue("fr");
+  ok("sous le seuil, on garde la fraction de c", / c$/.test(V.joli.vitesse(0.5)),
+     "0,500 c", V.joli.vitesse(0.5));
+
   let pire = "", pireN = 0;
   for(let a = 1; a <= 30000; a *= 1.7){
     const t = V.joli.duree(a * AN_S);

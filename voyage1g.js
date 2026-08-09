@@ -119,8 +119,15 @@ const joli = {
      mensonge d'arrondi : on bascule sur ce qui MANQUE à la vitesse de la
      lumière, seule façon honnête d'écrire 0,999999997. */
   vitesse(beta){
-    if(beta > 0.9995)
-      return "c − " + (1 - beta).toExponential(1).replace("e-", "·10⁻").replace("+", "");
+    if(beta > 0.9995){
+      /* Le remplacement de chaîne d'avant rendait « c − 4.1·10⁻4 » : point
+         décimal anglais en français, et exposant en chiffres ordinaires alors
+         que `masses` et le reste du site les mettent en haut. On le lisait
+         pendant presque tout le voyage vers le système solaire, où le vaisseau
+         passe l'essentiel du trajet au-dessus de ce seuil. */
+      const [mantisse, puissance] = (1 - beta).toExponential(1).split("e");
+      return "c − " + nombre(+mantisse, 1) + "·10" + exposant(+puissance);
+    }
     return nombre(beta, beta < 0.01 ? 4 : 3) + " c";
   },
   dilatation(gamma){ return "× " + nombre(gamma, gamma < 10 ? 3 : 0); },
