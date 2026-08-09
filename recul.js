@@ -176,6 +176,30 @@ function lance(vers_m, secondesEcran){
    régulier exactement la cadence d'aujourd'hui. Elle ne répare pas le fidèle,
    dont le défaut est de forme et non de durée.
 
+   ---------------------------------------------------------------------------
+   ET CE QUE LE RÉGULIER COÛTE — trouvé par Hugo le 9 août au soir, mesuré après
+
+   Il a jugé le régulier « ça va », puis a ajouté : « j'ai pas l'impression que
+   c'est un voyage où la première moitié est de l'accélération et la deuxième une
+   décélération ». Il a raison, et ça se chiffre — le freinage commence à :
+
+     régulier   82 % du temps d'écran   (28 s d'accélération, 6 de freinage)
+     fidèle     53 %                     (la bonne moitié, et l'œil ne la voit pas)
+
+   LA CAUSE EST STRUCTURELLE, pas un réglage à corriger. Le régulier étale les
+   DÉCADES DEPUIS LE DÉPART — et le milieu du VOYAGE, à 13 500 années-lumière,
+   tombe à 88 % de ces décades. On passe donc l'essentiel de l'animation à monter
+   en puissances de dix alors qu'on n'a pas encore fait la moitié du chemin.
+
+   LE REMÈDE, et il n'est pas ici : compter les décades DEPUIS SAGITTARIUS pour
+   la première moitié, puis VERS LE SOLEIL pour la seconde. Le quadrillage
+   monterait puis redescendrait, ce qui est à la fois symétrique et vrai — on
+   quitte quelque chose, puis on s'approche d'autre chose.
+
+   Ce remède exige qu'il y ait quelque chose à approcher. C'est exactement ce
+   qu'Hugo a demandé le même jour : « une vision du système solaire de loin, avec
+   des tags ». Les deux ne font qu'un chantier, et celui-là vient d'abord.
+
    C'est une décision d'image, elle n'est pas prise ici. */
 let rythme = "fidele";
 function poseRythme(r){ rythme = (r === "regulier") ? "regulier" : "fidele"; }

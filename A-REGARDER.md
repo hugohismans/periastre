@@ -19,62 +19,40 @@ Mise à jour le 9 août 2026 au soir, après la séance sur le rendu.
 
 ---
 
-## 🚀 UNE QUESTION T'ATTEND : le rythme du voyage vers le système solaire
+## ✅ LE VOYAGE EST JUGÉ — et ta remarque vaut plus que le verdict
 
-**On y va, maintenant.** La destination était refusée — « le vaisseau reste
-ici » — avec son prix en carburant pour toute réponse. La leçon n'était pas dans
-le refus, elle était dans le chiffre : le chiffre reste sur la carte, et on part.
-Vingt ans à bord, vingt-sept mille au loin.
+**« Le voyage vers le système solaire : quel rythme ? »** → ✅ **ça va**, regardé
+depuis « régulier, au départ ». Rayé, comme tu l'as demandé. La file est vide.
 
-Il reste **une chose à regarder**, et c'est toi qui l'as demandée : le rythme.
-Mesuré, le rythme « fidèle » — celui par défaut — franchit **4,76 décades sur
-9,10 dans la première seconde**, puis l'écran ne bouge plus pendant quatre
-secondes. Ce n'est pas un défaut de calcul : c'est ce que la fidélité donne à
-voir étirée sur neuf décades. La séance te montre quatre angles — fidèle au
-départ et en freinage, régulier au départ et au milieu.
+Mais tu as ajouté : *« j'ai pas l'impression que c'est un voyage où la 1ère moitié
+est de l'accélération et la deuxième une décélération »*. Tu as raison, et ça se
+chiffre.
 
-La durée, elle, est déjà tranchée : trente-quatre secondes, ton compromis.
+**Le calcul, lui, fait exactement ta stratégie.** Un g dans un sens jusqu'à la
+moitié du chemin, puis un g dans l'autre pour arriver à zéro. La bascule
+« on accélère » → « on freine » tombe à **50,0 % de la distance**, pas une
+seconde avant. Les chiffres de ton écran le confirment : 0,956 c après 2
+années-lumière, 1,8 an à bord contre 3,1 au loin — c'est le vol à 1 g au
+caractère près.
 
-### Ce qui a été réparé en montant ce départ
+**C'est le temps d'ÉCRAN qui ment.** Le freinage commence à :
 
-Trois choses que personne n'avait vues parce qu'aucun trajet n'allait aussi loin :
+| rythme | le freinage commence à |
+|---|---|
+| régulier (celui que tu as regardé) | **82 %** du temps d'écran |
+| fidèle | 53 % |
 
-- **« 26998 ans »** s'écrivait d'un seul bloc, à côté d'un « 8 483 UA »
-  correctement espacé. C'est le chiffre le plus frappant du site ;
-- **le bandeau de vol** affichait « c − 4.1·10⁻4 » : point décimal anglais en
-  français, exposant en chiffres ordinaires. On le lit pendant presque tout le
-  trajet ;
-- **le quadrillage** écrivait « une case = 1 000 UA » en dur, **en français** —
-  un lecteur anglais lisait ça pendant tout le recul, séparateur compris.
+Vingt-huit secondes à accélérer, six à freiner. La cause est structurelle : le
+régulier étale les **décades depuis le départ**, et le milieu du voyage —
+13 500 années-lumière — tombe à 88 % de ces décades. On passe donc presque toute
+l'animation à monter en puissances de dix sans avoir fait la moitié du chemin.
 
-
-Les deux dernières, ce soir, sur iPhone :
-
-- ~~**Cinéma ou simulation, est-ce que ça se voit ?**~~ → ✅ **ça va**, regardé
-  depuis « cinéma ». La bascule tient : le voile mauve part et le reste ne bouge
-  pas. Rayé, comme tu l'as demandé.
-- ~~**« Lumière réelle » : un cran du rendu, ou autre chose ?**~~ → ✅ **ça va**,
-  regardé depuis « simulation + lumière réelle ». Rayé.
-
-**Et cette deuxième réponse tranche la question, mieux que le verdict.** « Ça
-va » sur une inspection veut dire « rien ne coince » et ne choisit aucun camp.
-Mais l'angle que tu as regardé, lui, choisit : **« simulation + lumière réelle »
-n'existe que parce que les deux réglages sont indépendants**. En faire un
-troisième cran du sélecteur les rendrait exclusifs — cinéma, ou simulation, ou
-lumière réelle — et la vue que tu viens de juger bonne deviendrait impossible à
-obtenir. Le bouton reste donc à part. Ce n'est pas mon arbitrage, c'est ce que
-ton angle rend nécessaire ; si tu voulais dire l'inverse, un mot suffit.
-
-Une remarque sur les conditions, pour que le verdict reste lisible dans six
-mois : jugé sur un écran de 430 points de large, et la résolution adaptative
-avait choisi l'échelle **0,62**. Sur la nébuleuse ça ne change rien — c'est un
-grand aplat de couleur, visible à n'importe quelle échelle. Sur une question de
-finesse, il faudrait en tenir compte.
-
-Les sept questions restent dans le code avec leur verdict et leur angle, sorties
-de la file. Le jour où l'on peindra vraiment le ciel de l'amas, il faudra sans
-doute rejuger le quadrillage et les orbites **sous ce ciel-là** : le gréement
-resservira tel quel, il suffira d'un mot.
+**Le remède** : compter les décades depuis Sagittarius pour la première moitié,
+puis **vers le Soleil** pour la seconde. Le quadrillage monterait puis
+redescendrait — symétrique, et vrai : on quitte quelque chose, puis on s'approche
+d'autre chose. Il faut donc qu'il y ait quelque chose à approcher, c'est-à-dire
+exactement le système solaire vu de loin que tu as demandé le même jour. **Les
+deux ne font qu'un seul chantier**, et c'est le suivant.
 
 ---
 

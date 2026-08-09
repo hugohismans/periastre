@@ -196,7 +196,7 @@ const TOUTES = [
      « je veux le voir avant de trancher ». Les deux rythmes existent déjà et
      sont réglables ; ce qui change, c'est qu'un trajet de neuf décades les
      sépare brutalement là où quatre les rendait comparables. */
-  { id: "rythme-grand-trajet",
+  { id: "rythme-grand-trajet", ignore: true,   // ✅ ça va, 9 août au soir — angle gardé : « régulier, au départ », avec la remarque sur les deux moitiés
     titre: "Le voyage vers le système solaire : quel rythme ?",
     libre: true,
     inspection: true,
