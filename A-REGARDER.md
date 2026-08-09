@@ -15,31 +15,43 @@ Tout ce qui ne peut pas se vérifier par la mesure, et qui attend donc qu'un
 humain regarde. **Rien ici ne bloque quoi que ce soit** — c'est une file, pas
 une dette. Elle existe pour que ça ne se perde pas dans une conversation.
 
-Mise à jour le 9 août 2026, après P2.
+Mise à jour le 9 août 2026 au soir, après la séance sur le rendu.
 
 ---
 
-## 🆕 La séance t'attend, et elle ne contient plus que du neuf
+## ✅ LA FILE EST VIDE — sept questions, sept verdicts, deux séances
 
-Tes cinq verdicts du 9 août au soir sont portés dans le code avec l'angle que tu
-avais gardé, et **les cinq questions sont sorties de la file** : elles étaient
-répondues, te les reposer coûterait ton œil pour rien. Elles ne sont pas
-effacées — le jour où l'on peindra vraiment le ciel de l'amas, il faudra sans
-doute rejuger le quadrillage et les orbites sous ce ciel-là, et le gréement
-resservira tel quel.
+Rien n'attend tes yeux en ce moment. `?juge` te le dira maintenant en toutes
+lettres au lieu de rendre un rapport creux : « tout est répondu ». C'est la
+première fois depuis que la séance existe.
 
-Il reste **deux questions**, toutes les deux sur le rendu :
+Les deux dernières, ce soir, sur iPhone :
 
-1. **Cinéma ou simulation, est-ce que ça se voit ?** Le voile mauve du fond
-   s'éteint en simulation — c'était le seul décor du site. La bascule est à
-   l'accueil, sous la langue, et dans les réglages.
-2. **« Lumière réelle » : un cran du rendu, ou autre chose ?** Le bouton existe
-   depuis longtemps. Est-ce un troisième cran du même réglage, ou une chose à
-   part qu'on allume dix secondes pour voir puis qu'on éteint ? Je ne tranche
-   pas : les deux lectures se défendent, et c'est une question de geste, pas de
-   physique.
+- ~~**Cinéma ou simulation, est-ce que ça se voit ?**~~ → ✅ **ça va**, regardé
+  depuis « cinéma ». La bascule tient : le voile mauve part et le reste ne bouge
+  pas. Rayé, comme tu l'as demandé.
+- ~~**« Lumière réelle » : un cran du rendu, ou autre chose ?**~~ → ✅ **ça va**,
+  regardé depuis « simulation + lumière réelle ». Rayé.
 
-Compte trois minutes, pas dix.
+**Et cette deuxième réponse tranche la question, mieux que le verdict.** « Ça
+va » sur une inspection veut dire « rien ne coince » et ne choisit aucun camp.
+Mais l'angle que tu as regardé, lui, choisit : **« simulation + lumière réelle »
+n'existe que parce que les deux réglages sont indépendants**. En faire un
+troisième cran du sélecteur les rendrait exclusifs — cinéma, ou simulation, ou
+lumière réelle — et la vue que tu viens de juger bonne deviendrait impossible à
+obtenir. Le bouton reste donc à part. Ce n'est pas mon arbitrage, c'est ce que
+ton angle rend nécessaire ; si tu voulais dire l'inverse, un mot suffit.
+
+Une remarque sur les conditions, pour que le verdict reste lisible dans six
+mois : jugé sur un écran de 430 points de large, et la résolution adaptative
+avait choisi l'échelle **0,62**. Sur la nébuleuse ça ne change rien — c'est un
+grand aplat de couleur, visible à n'importe quelle échelle. Sur une question de
+finesse, il faudrait en tenir compte.
+
+Les sept questions restent dans le code avec leur verdict et leur angle, sorties
+de la file. Le jour où l'on peindra vraiment le ciel de l'amas, il faudra sans
+doute rejuger le quadrillage et les orbites **sous ce ciel-là** : le gréement
+resservira tel quel, il suffira d'un mot.
 
 ---
 

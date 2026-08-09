@@ -99,7 +99,11 @@ function auSalon(x, z, lacet, tangage){
    jamais nuit, la minispirale, la bande opaque — il faudra sans doute rejuger
    le quadrillage et les orbites SOUS CE CIEL-LÀ. Le gréement resservira tel
    quel ; retirer le `ignore` suffira. Ce qui coûte son œil, ce n'est pas le
-   code qui dort, c'est la question qu'on lui repose. */
+   code qui dort, c'est la question qu'on lui repose.
+
+   Le même soir, les deux questions du rendu ont suivi. LA FILE EST DONC VIDE —
+   sept questions, sept verdicts, en deux séances. `termine()` porte désormais
+   ce cas : elle dit « tout est répondu » au lieu de rendre un rapport creux. */
 const TOUTES = [
 
   /* TROIS QUESTIONS ONT DISPARU D'ICI, ET C'EST LE BUT.
@@ -397,7 +401,7 @@ const TOUTES = [
      défaut reste « cinéma », c'est-à-dire l'image que ses amis testent depuis le
      début, et le changer serait une décision à lui — pas un effet de bord d'une
      séance sur la lisibilité. */
-  { id: "rendu-deux-modes",
+  { id: "rendu-deux-modes", ignore: true,   // ✅ ça va, 9 août au soir, sur iPhone — angle gardé : « cinéma ».
     titre: "Cinéma ou simulation, est-ce que ça se voit ?",
     libre: true,
     inspection: true,
@@ -425,8 +429,21 @@ const TOUTES = [
      cran de plus » range trois états sur une seule ligne, ce qui est simple à
      comprendre — mais la lumière réelle est un choix qu'on fait pour DIX
      SECONDES, le temps de voir, alors qu'un rendu est un choix qu'on garde. Un
-     réglage qu'on garde et un geste qu'on essaie n'ont pas la même place. */
-  { id: "reel-ou-mode",
+     réglage qu'on garde et un geste qu'on essaie n'ont pas la même place.
+
+     RÉPONDUE LE 9 AOÛT AU SOIR, et l'ANGLE répond mieux que le verdict.
+
+     Le verdict est « ça va », ce qui sur une inspection veut dire « rien ne
+     coince » et ne choisit aucun des deux camps. Mais l'angle qu'il a regardé,
+     lui, tranche : **« simulation + lumière réelle »**. Cette vue-là n'existe
+     QUE parce que les deux réglages sont indépendants. En faire un troisième
+     cran du sélecteur les rendrait exclusifs — cinéma, ou simulation, ou
+     lumière réelle — et la chose qu'il vient de juger bonne deviendrait
+     impossible à obtenir.
+
+     « Lumière réelle » reste donc un bouton à part. Ce n'est pas mon
+     arbitrage : c'est ce que son angle rend nécessaire. */
+  { id: "reel-ou-mode", ignore: true,   // ✅ ça va, 9 août au soir — angle gardé : « simulation + lumière réelle ».
     titre: "« Lumière réelle » : un cran du rendu, ou autre chose ?",
     libre: true,
     inspection: true,
@@ -1148,6 +1165,32 @@ function materiel(){
    travail commence à la ligne suivante. */
 function termine(){
   rendTout();                 // on rend le monde comme on l'a pris — voir `emprunte`
+
+  /* LA FILE PEUT ÊTRE VIDE, et elle l'est depuis le 9 août au soir : les sept
+     questions ont été répondues en deux séances.
+
+     Sans ce cas, `montre()` saute directement ici et la séance annonce « Fini.
+     Colle ça dans la conversation » avec un rapport qui ne contient que
+     l'en-tête et le bloc matériel. On croit avoir raté quelque chose, on
+     recharge, on cherche. Une file vide n'est pas une séance ratée : c'est une
+     file vide, et le dire coûte dix lignes. */
+  if(!DECISIONS.length){
+    q(".sur").textContent = "rien à juger";
+    q("h4").textContent   = "Tout est répondu.";
+    q("p").textContent    = "Aucune question n'attend ton œil pour l'instant. "
+                          + "La prochaine viendra avec le prochain morceau visible.";
+    q(".variantes").innerHTML = "";
+    q("textarea").style.display = "none";
+    const seul = q(".rangee");
+    seul.innerHTML = "";
+    const f = document.createElement("button");
+    f.textContent = "Fermer";
+    f.onclick = () => boite.remove();
+    seul.appendChild(f);
+    global.JUGE.rapport = "";
+    return;
+  }
+
   const dits = verdicts.filter(v => v.verdict !== "passé");
   const l = ["Voilà ma séance de jugement sur Périastre. Applique ce qui suit.", ""];
 
