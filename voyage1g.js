@@ -126,6 +126,12 @@ const joli = {
   dilatation(gamma){ return "× " + nombre(gamma, gamma < 10 ? 3 : 0); },
   duree(s){
     const an = s/AN;
+    /* LE SÉPARATEUR DES MILLIERS. Il manquait, et personne ne l'avait vu parce
+       qu'aucun trajet n'atteignait mille ans : le voyage vers le système
+       solaire en compte vingt-sept mille, et la carte affichait « 26998 ans »
+       à côté d'un « 8 483 UA » correctement espacé. `distance` et `masses`
+       passaient déjà par `millier` ; celle-ci ne le faisait pas. */
+    if(an >= 1000) return millier(an) + " " + pluriel(an, mot("an", "an"));
     if(an >= 1) return nombre(an, an < 10 ? 1 : 0) + " " + pluriel(an, mot("an", "an"));
     const j = s/86400;
     if(j >= 1)  return nombre(j, j < 10 ? 1 : 0) + " " + pluriel(j, mot("jour", "jour"));

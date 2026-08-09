@@ -236,6 +236,55 @@ groupe("Hors du trajet, on ne rend pas n'importe quoi");
      V.etat(d, T*0.2).phase + " puis " + V.etat(d, T*0.8).phase);
 }
 
+
+/* ═══════════════════════════════════════ LES CHIFFRES TELS QU'ON LES LIT
+
+   `joli` est la seule partie de ce module qu'un visiteur voit vraiment, et
+   c'était la seule que rien ne gardait. Le 9 août, en ouvrant le départ pour le
+   système solaire, la carte affichait « 26998 ans au loin » à côté d'un
+   « 8 483 UA » correctement espacé : `distance` et `masses` passaient par le
+   formateur de milliers, `duree` non — et personne ne l'avait vu parce qu'aucun
+   trajet n'avait jamais atteint mille ans.
+
+   Les deux langues comptent : le module lit `window.UI`, on lui en fabrique un. */
+groupe("Les chiffres tels qu'on les lit");
+{
+  const AN_S = 3.15576e7;
+  /* Le module reçoit son `window` en ARGUMENT — c'est ce qui le rend éprouvable
+     ici. Toucher à `global.window` ne l'atteindrait donc pas : mon premier essai
+     l'a fait, et les deux contrôles anglais ont mesuré du français en croyant
+     mesurer de l'anglais. On écrit dans l'objet que le module lit vraiment. */
+  const langue = code => { faux.UI = { "u.langue": code }; };
+
+  langue("fr");
+  const loin = V.joli.duree(26998 * AN_S);
+  ok("vingt-sept mille ans portent leur séparateur", /\d[\s\u202f\u00a0]\d{3}/.test(loin),
+     "des milliers séparés", loin,
+     "c'est le chiffre le plus frappant du site — celui qui dit ce que coûte "
+     + "l'aller — et il s'écrivait d'un seul bloc");
+  ok("et les petites durées restent simples", /^20 ans$/.test(V.joli.duree(20 * AN_S)),
+     "20 ans", V.joli.duree(20 * AN_S));
+  ok("la virgule décimale reste française sous dix ans", /,/.test(V.joli.duree(1.5 * AN_S)),
+     "une virgule", V.joli.duree(1.5 * AN_S));
+
+  langue("en");
+  const far = V.joli.duree(26998 * AN_S);
+  ok("en anglais aussi, avec sa convention", /\d,\d{3}/.test(far), "26,998", far);
+  ok("et le point décimal y revient", /\./.test(V.joli.duree(1.5 * AN_S)),
+     "un point", V.joli.duree(1.5 * AN_S));
+
+  langue("fr");
+  let pire = "", pireN = 0;
+  for(let a = 1; a <= 30000; a *= 1.7){
+    const t = V.joli.duree(a * AN_S);
+    const bloc = (t.match(/\d+/g) || []).reduce((m, x) => Math.max(m, x.length), 0);
+    if(bloc > pireN){ pireN = bloc; pire = t; }
+  }
+  ok("jamais plus de trois chiffres d'affilée sur tout le trajet",
+     pireN <= 3, "≤ 3", pireN + " (« " + pire + " »)");
+  delete faux.UI;
+}
+
 console.log("\n  " + (echecs ? "❌  " + echecs + " ÉCHECS sur " + n + " contrôles"
                              : "✅  TOUT PASSE — " + n + " contrôles") + "\n");
 process.exit(echecs ? 1 : 0);
