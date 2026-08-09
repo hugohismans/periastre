@@ -123,7 +123,35 @@ function lance(vers_m, secondesEcran){
                retouchée, et c'est un compromis déclaré.
 
    Dans les deux cas `etat.vol` sort du même calcul que la position. Il ne peut
-   pas y avoir de chiffre qui contredise ce qu'on voit. */
+   pas y avoir de chiffre qui contredise ce qu'on voit.
+
+   ---------------------------------------------------------------------------
+   CE QUE LE VRAI VOYAGE FAIT À CES DEUX RYTHMES — mesuré le 9 août 2026
+
+   Le recul allait jusqu'aux étoiles S : 3,87 décades. Le trajet vers le système
+   solaire en fait 9,10. Mesuré seconde d'écran par seconde d'écran, sur les
+   quatorze secondes d'animation, en décades franchies :
+
+     étoiles S · fidèle     1,88  0,60  0,35  0,25  0,19 … 0,02  0,01  0
+     étoiles S · régulier   0,01  0,04  0,11  0,21  0,34  0,51  0,72  0,72 …
+     système solaire · fidèle    4,76  0,82  0,67  0,64  0,64  0,64  0,64  0,25
+                                 0,04  0,01  0  0  0  0
+     système solaire · régulier  0,01  0,09  0,25  0,49  0,81  1,21  1,68  1,68 …
+
+   **Le rythme fidèle ne survit pas au vrai trajet.** La PREMIÈRE seconde en
+   franchit 4,76 sur 9,10 — plus de la moitié du voyage — et les quatre
+   dernières n'en franchissent aucune : l'écran est figé pendant qu'on freine.
+   Ce n'est pas un défaut du calcul, c'est ce que la fidélité donne à voir quand
+   on l'étire sur neuf décades, et c'est illisible.
+
+   Le rythme régulier tient, mais sa pointe passe de 0,72 à 1,68 décade par
+   seconde : la grille se renumérote presque deux fois par seconde au milieu du
+   trajet. La manœuvre évidente est d'allonger le temps d'écran avec le nombre
+   de décades — 14 s pour 3,87, environ 33 s pour 9,10 — ce qui rendrait au
+   régulier exactement la cadence d'aujourd'hui. Elle ne répare pas le fidèle,
+   dont le défaut est de forme et non de durée.
+
+   C'est une décision d'image, elle n'est pas prise ici. */
 let rythme = "fidele";
 function poseRythme(r){ rythme = (r === "regulier") ? "regulier" : "fidele"; }
 

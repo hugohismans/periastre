@@ -36,7 +36,7 @@ Une ligne `## ARRÊT — <pourquoi>` en tête de ce fichier suspend le hook.
 ## P3 — Le voyage vers le système solaire
 
 - [ ] 3.1 le départ : la destination s'accepte, le prix reste affiché ; ~~corriger `inactif-8` (780 000 t) + MP3~~ **fait le 9 août** ; la comparaison sondes réelles, sourcée
-- [ ] 3.2 le recul galactique : ~5 décades de plus sur le moteur de `RECUL`, `echelle.js` payé ; la table `DESTINATIONS` morte supprimée
+- [ ] 3.2 le recul galactique — **le quadrillage tient les neuf décades** (année-lumière, et les mots viennent enfin de la page : il écrivait « une case = 1 000 UA » en dur, en français) ; ~~table `DESTINATIONS` morte supprimée~~ **fait**. Reste `echelle.js`, et **le rythme** : mesuré, le rythme *fidèle* franchit 4,76 décades sur 9,10 dans la PREMIÈRE seconde puis rien pendant quatre — illisible sur ce trajet **(HUGO : c'est une décision d'image)**
 - [ ] 3.3 le retournement à mi-parcours — sa seconde d'animation, les deux horloges en direct
 - [ ] 3.4 les moments de cours (touche H) et le PREMIER cours : le voyage, sur `journal.js`, un seul, complet
 - [ ] 3.5 l'arrivée : la Terre et la Lune — `lune.js` branché, la dette devient la récompense
