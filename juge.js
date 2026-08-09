@@ -87,7 +87,19 @@ function auSalon(x, z, lacet, tangage){
    dernières secondes, neutraliser le panneau, rendre le monde comme on l'a
    pris) resservira tel quel. L'effacer pour le réécrire dans trois jours serait
    du gaspillage ; la laisser dans la file coûterait l'œil d'Hugo sur un verdict
-   qu'il a déjà rendu. */
+   qu'il a déjà rendu.
+
+   ---------------------------------------------------------------------------
+   LE 9 AOÛT AU SOIR, CINQ VERDICTS D'UN COUP — et la file s'est retrouvée
+   entièrement répondue. Elles portent donc toutes `ignore: true`, avec leur
+   verdict et l'angle qu'il a gardé (le tout aussi dans `A-REGARDER.md`).
+
+   Elles ne sont pas effacées, et c'est un choix : le rendu vient de changer
+   l'image partout, et le jour où l'on peindra vraiment le ciel de l'amas —
+   jamais nuit, la minispirale, la bande opaque — il faudra sans doute rejuger
+   le quadrillage et les orbites SOUS CE CIEL-LÀ. Le gréement resservira tel
+   quel ; retirer le `ignore` suffira. Ce qui coûte son œil, ce n'est pas le
+   code qui dort, c'est la question qu'on lui repose. */
 const TOUTES = [
 
   /* TROIS QUESTIONS ONT DISPARU D'ICI, ET C'EST LE BUT.
@@ -176,7 +188,7 @@ const TOUTES = [
      C'est la même cause : rien ne semblait bouger, puisque l'astre suivait. La
      question repart donc DE DOS, où le mouvement est indiscutable — et son
      verdict tranchera les deux d'un coup. */
-  { id: "voyage-refait",
+  { id: "voyage-refait", ignore: true,   // ✅ ça va, 9 août au soir — angle gardé : « en partant de dos ».
     titre: "Le trou noir reste-t-il en place ?",
     libre: true,
     inspection: true,
@@ -202,7 +214,7 @@ const TOUTES = [
      retenu, celui où la carte est montée et où le découpage se juge vraiment.
      Le milieu du trajet ne montrait presque rien : la carte y est encore à
      peine levée, et l'on jugeait un fondu au lieu d'un cadrage. */
-  { id: "carte-dehors",
+  { id: "carte-dehors", ignore: true,   // ✅ ça va, 9 août au soir — angle gardé : « juste avant l'arrivée ».
     titre: "Les orbites ont-elles l'air d'être dehors ?",
     libre: true,
     quoi: "Tu disais : « la trace des orbites est devant la vitre, on n'a pas "
@@ -281,7 +293,7 @@ const TOUTES = [
 
      Question d'INSPECTION : les trois entrées sont trois rotations, pas trois
      propositions. Ce qu'il juge, c'est l'écart — pas la valeur du spin. */
-  { id: "cercle-isco",
+  { id: "cercle-isco", ignore: true,   // ✅ ça va, 9 août au soir — angle gardé : « rotation rapide ».
     titre: "Le cercle de la dernière orbite stable",
     libre: true,
     inspection: true,
@@ -303,7 +315,7 @@ const TOUTES = [
     rend: () => rangeEtude(),
   },
 
-  { id: "forme-aveu",
+  { id: "forme-aveu", ignore: true,   // ✅ ça va, 9 août au soir — angle gardé : « la bulle qui prévient ».
     titre: "Les aveux, en notification",
     libre: true,
     inspection: true,
@@ -322,7 +334,7 @@ const TOUTES = [
     rend: () => rangeAveux(),
   },
 
-  { id: "quadrillage-avance",
+  { id: "quadrillage-avance", ignore: true,   // ✅ ça va, 9 août au soir — angle gardé : « en le regardant ».
     titre: "Le quadrillage arrive-t-il trop tôt ?",
     libre: true,
     // Angles de vue, pas propositions. Voir « TROIS TYPES » plus bas : sans ce
