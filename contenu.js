@@ -198,6 +198,51 @@ sources: {
     doi: "10.3847/1538-4357/aa876f",
     sert: "Nature stellaire des étoiles S : type spectral B0-B3V, masses 8-14 M☉, âge de S2 6,6 (+3,4 / −4,7) Myr",
   },
+
+  /* Le ciel de là-bas — les huit références du 9 août 2026.
+     Elles servent la fiche « Le ciel de là-bas » et l'aveu du fond de ciel : le
+     site montrait un fond inventé en disant seulement qu'il l'était. Il dit
+     maintenant ce qu'il y a vraiment, et d'où on le sait. */
+  gallegocano2018: {
+    ref: "E. Gallego-Cano, R. Schödel, H. Dong, F. Nogueras-Lara, A. T. Gallego-Calvente, P. Amaro-Seoane, H. Baumgardt, « The distribution of old stars around the Milky Way's central black hole I: Star counts », Astronomy & Astrophysics 609, A26 (2018)",
+    doi: "10.1051/0004-6361/201730451",
+    sert: "Comptages profonds de l'amas nucléaire : cusp en loi de puissance d'exposant γ = 1,23 ± 0,05 jusqu'à 2-3 pc ; profil plat des géantes brillantes sous 0,3 pc",
+  },
+  schodel2018: {
+    ref: "R. Schödel, E. Gallego-Cano, H. Dong, F. Nogueras-Lara, A. T. Gallego-Calvente, P. Amaro-Seoane, H. Baumgardt, « The distribution of stars around the Milky Way's central black hole II: Diffuse light from sub-giants and dwarfs », Astronomy & Astrophysics 609, A27 (2018)",
+    doi: "10.1051/0004-6361/201730452",
+    sert: "Densité stellaire mesurée (2,3 ± 0,3) × 10⁷ M☉/pc³ à 0,01 pc de Sgr A*, soit 180 ± 20 M☉ dans ce rayon ; même exposant γ = 1,23 ± 0,05 obtenu par la lumière diffuse",
+  },
+  schodel2009: {
+    ref: "R. Schödel, D. Merritt, A. Eckart, « The nuclear star cluster of the Milky Way: proper motions and mass », Astronomy & Astrophysics (2009)",
+    doi: "10.1051/0004-6361/200810922",
+    sert: "Masse stellaire étendue du parsec central, 0,5 à 1,5 × 10⁶ M☉, par mouvements propres de plus de six mille étoiles",
+  },
+  fritz2011: {
+    ref: "T. K. Fritz, S. Gillessen, K. Dodds-Eden, D. Lutz, R. Genzel, W. Raab, T. Ott, O. Pfuhl, F. Eisenhauer, F. Yusef-Zadeh, « Line derived infrared extinction towards the Galactic Center », The Astrophysical Journal 737, 73 (2011)",
+    doi: "10.1088/0004-637X/737/2/73",
+    sert: "Extinction vers le centre galactique A_Ks = 2,42 ± 0,10, extrapolée à A_V > 33 ; poussière surtout dans le disque galactique, et A_Ks < 0,1 mesuré à l'intérieur du parsec central",
+  },
+  paumard2006: {
+    ref: "T. Paumard, R. Genzel, F. Martins, S. Nayakshin, A. M. Beloborodov, Y. Levin, S. Trippe, F. Eisenhauer, T. Ott, S. Gillessen, R. Abuter, J. Cuadra, T. Alexander, A. Sternberg, « The Two Young Star Disks in the Central Parsec of the Galaxy: Properties, Dynamics and Formation », The Astrophysical Journal 643, 1011 (2006)",
+    url: "https://arxiv.org/abs/astro-ph/0601268",
+    sert: "Environ quatre-vingts étoiles massives jeunes (OB et Wolf-Rayet) dans le parsec central, en deux disques d'âge 6 ± 2 millions d'années",
+  },
+  ferriere2012: {
+    ref: "K. Ferrière, « Interstellar gas within ~10 pc of Sgr A* », Astronomy & Astrophysics (2012)",
+    doi: "10.1051/0004-6361/201117181",
+    sert: "Compilation du gaz du centre : minispirale Sgr A West (trois bras, ~2,5 × 1 pc, densités électroniques de 10³ à 10⁵ cm⁻³), masses de la cavité centrale, désaccord d'un facteur cent sur la masse du disque circumnucléaire",
+  },
+  lau2013: {
+    ref: "R. M. Lau, T. L. Herter, M. R. Morris, E. E. Becklin, J. D. Adams, « SOFIA/FORCAST Imaging of the Circumnuclear Ring at the Galactic Center », The Astrophysical Journal 775, 37 (2013)",
+    doi: "10.1088/0004-637X/775/1/37",
+    sert: "Disque circumnucléaire : bord interne vers 1,4 pc, grumeaux denses, poussière à 65-85 K, bord interne structuré comme une région HII classique",
+  },
+  bovy2017: {
+    ref: "J. Bovy, « Stellar Inventory of the Solar Neighborhood using Gaia DR1 », Monthly Notices of the Royal Astronomical Society 470, 1360 (2017)",
+    doi: "10.1093/mnras/stx1277",
+    sert: "Densité stellaire du voisinage solaire, 0,040 ± 0,002 M☉/pc³ — le terme de comparaison de la densité au centre",
+  },
 },
 
 // ------------------------------------------------------------------- niveaux
@@ -1106,6 +1151,98 @@ fiches: [
   ]
 },
 {
+  /* Écrite le 9 août 2026, parce que le mode « simulation » avait besoin d'un
+     fait avant d'avoir une manette : à quoi ressemble VRAIMENT ce fond de ciel.
+     La réponse a dépassé la question — il n'y fait jamais nuit, la poussière qui
+     nous cache le centre est de notre côté à nous, et la nébulosité de là-bas
+     existe mais a une forme. Le troisième niveau sépare exprès ce qui est mesuré
+     de ce qu'on a dérivé ici : aucun article ne calcule ce ciel-là. */
+  id: "f-ciel",
+  titre: "Le ciel de là-bas",
+  sources: [
+    ["schodel2018", "schodel2009", "fritz2011"],
+    ["schodel2018", "gallegocano2018", "bovy2017", "paumard2006", "ferriere2012", "lau2013", "fritz2011"],
+    ["gallegocano2018", "schodel2018", "schodel2009", "fritz2011", "ferriere2012", "lau2013"],
+  ],
+  t: [
+   `Regarde le fond de l'écran : du noir, des étoiles éparpillées. Ça ressemble
+    au ciel que tu connais.
+    <br><br>Le vrai ciel de là-bas ne ressemble pas du tout à ça. Nous sommes
+    <b>à l'intérieur</b> du plus gros amas d'étoiles de la galaxie. Dans une
+    bulle de trois années-lumière autour du vaisseau, il y a de quoi faire
+    <b>un million d'étoiles</b>. Le même volume, autour du Soleil, en contient
+    une seule : la nôtre.
+    <br><br>Alors il n'y fait <i>jamais nuit</i>. Toutes ces étoiles ensemble
+    éclairent comme des centaines de pleines lunes — assez pour lire.
+    <br><br>Et le plus étrange : on y verrait clair. Depuis la Terre, ce centre
+    est caché derrière tant de poussière qu'aucun œil ne peut le voir. Mais
+    cette poussière est sur <b>notre</b> route, pas là-bas. Sur place, elle a
+    presque disparu — c'est mesuré. Le ciel du centre de la galaxie est limpide,
+    et personne ne l'a jamais vu.`,
+
+   `Les chiffres sont mesurés, et ils sont violents. À un centième de parsec du
+    trou noir — deux mille fois la distance Terre-Soleil — la densité d'étoiles
+    atteint <b>2,3 × 10⁷ masses solaires par parsec cube</b>. Le voisinage du
+    Soleil en compte 0,040 : c'est <i>six cents millions de fois</i> plus dense.
+    <br><br>Cette densité monte régulièrement vers le centre, en loi de puissance
+    d'exposant <b>1,23 ± 0,05</b> — mesuré deux fois, par deux méthodes
+    indépendantes : en comptant les étoiles une à une, et en mesurant la lumière
+    diffuse de celles qu'on ne sépare plus.
+    <br><br>Pourtant on ne s'y cogne pas. Même là, la voisine la plus proche
+    reste à cinq ou six cents unités astronomiques, près de vingt fois l'orbite
+    de Neptune : des points innombrables et brillants, <b>jamais des disques</b>.
+    S'y ajoutent environ quatre-vingts étoiles massives et jeunes, nées ensemble
+    il y a six millions d'années.
+    <br><br>Il y a même du gaz — mais pas le nôtre. Trois bras ionisés, la
+    « minispirale », traversent le parsec central ; et plus loin, à partir de
+    1,4 parsec, un anneau de gaz et de poussière si épais qu'il découperait une
+    bande noire dans ce ciel.
+    <br><br>Quant à la poussière qui nous en sépare : il faut traverser
+    <b>plus de trente magnitudes</b> d'extinction pour voir le centre depuis
+    ici, un facteur dix mille milliards sur la lumière visible. Elle est presque
+    toute dans le disque de la galaxie, entre le centre et nous. Sur place, dans
+    le parsec central, l'extinction mesurée tombe sous un dixième de magnitude
+    en infrarouge.`,
+
+   `<b>Le profil.</b> Loi de puissance unique, densité en <i>r</i><sup>−γ</sup>
+    avec γ = 1,23 ± 0,05, établie deux fois indépendamment — comptages profonds
+    d'une part, lumière diffuse des sous-géantes et naines à Ks ≈ 19-20 d'autre
+    part — et valable jusqu'au rayon d'influence, 2 à 3 pc. Normalisation :
+    ρ(0,01 pc) = (2,3 ± 0,3) × 10⁷ M☉/pc³, soit 180 ± 20 M☉ sous ce rayon.
+    <br><br><b>Les réserves des auteurs, qui comptent.</b> Cette normalisation
+    suppose un rapport masse/lumière constant et ne compte pas les restes
+    compacts ; il n'existe aucune mesure directe sous 0,01 pc. Et les géantes
+    brillantes, elles, montrent un profil <i>plat</i> sous 0,3 pc : le cusp
+    n'apparaît que dans les étoiles faibles. Les auteurs écrivent qu'un mécanisme
+    a dû altérer leur distribution ou leur luminosité. La question est ouverte.
+    <br><br><b>Ce qui suit est dérivé ici, pas publié.</b> Aucun article à comité
+    de lecture ne calcule le ciel vu de l'intérieur — le « million d'étoiles à
+    l'œil nu » qui circule remonte à une émission de télévision. En prenant la
+    masse mesurée du parsec central, 0,5 à 1,5 × 10⁶ M☉, et 0,5 M☉ par étoile
+    (fonction de masse standard, hypothèse déclarée) : un à trois millions
+    d'étoiles. À 0,5 pc le module de distance vaut −6,5, donc la limite de l'œil
+    nu descend à une magnitude absolue de 12,5 — presque tout le cusp passe le
+    seuil. On aboutit à l'ordre du million d'étoiles visibles, contre neuf mille
+    sur toute la sphère céleste terrestre : un facteur cent à cinq cents, la
+    valeur exacte dépendant de la fonction de masse choisie. À cette densité
+    l'œil ne les sépare plus toutes : une partie fusionne en tapis continu.
+    <br><br><b>Brillance intégrée</b>, dérivée elle aussi : 3 × 10⁶ à 3 × 10⁷ L☉
+    dans le parsec central, vus depuis 0,5 à 1 pc, soit une magnitude bolométrique
+    de −17 à −20 — entre cinquante et mille pleines lunes, 10 à 250 lux. Un
+    crépuscule permanent, encore mille fois plus faible que le plein jour.
+    <br><br><b>Extinction.</b> A_Ks = 2,42 ± 0,10 mesurée sur les raies de
+    recombinaison de la minispirale, extrapolée à A_V > 33 avec une loi plus
+    pentue que la loi classique. Elle est presque toute dans le disque
+    galactique, pas au centre : dans le parsec central les auteurs bornent
+    A_Ks < 0,1. Localement ne comptent que la traversée d'un bras de la
+    minispirale — 10⁴ cm⁻³ sur 0,1 pc, soit environ 1,6 magnitude visible — et le
+    disque circumnucléaire, lui franchement opaque, dont les grumeaux mesurés
+    donnent des dizaines de magnitudes. Sa masse, en revanche, reste incertaine
+    d'un facteur cent selon les auteurs, de 10⁴ à 10⁶ M☉ : opaque dans tous les
+    cas, mais on ne peut pas en donner le poids.`,
+  ]
+},
+{
   id: "f-etoiles",
   titre: "Des étoiles autour de rien",
   sources: [
@@ -1444,7 +1581,8 @@ notes: {
           t:"<b>Le décor et les personnages.</b> Tout est calculé, rien n'est importé — mais un vaisseau et des gens ne sont pas des mesures." },
         { id:"fond-ciel", ou:"partout",
           aveu:"Le fond est faux, sa déformation est juste.",
-          t:"<b>Le fond du ciel.</b> Les étoiles y sont posées au hasard, et la nébuleuse mauve est un décor : ce ne sont ni des positions relevées ni un rayonnement calculé. Ce qu'on verrait vraiment depuis là-bas serait d'ailleurs plus impressionnant — on est à l'intérieur de l'amas nucléaire, des millions d'étoiles en quelques années-lumière. Ce qui est exact dans cette image, c'est la façon dont la gravité en dévie la lumière : le fond est faux, sa déformation est juste." },
+          sources:["schodel2018", "bovy2017", "ferriere2012", "lau2013"],
+          t:"<b>Le fond du ciel.</b> Les étoiles y sont posées au hasard, et la nébuleuse mauve est un décor : ce ne sont ni des positions relevées ni un rayonnement calculé. Le vrai ciel de là-bas est bien plus riche — la densité mesurée dans l'amas nucléaire vaut six cents millions de fois celle du voisinage solaire, et il n'y fait jamais nuit. Il y a même de la vraie nébulosité sur place, mais elle a une forme : trois bras de gaz ionisé et un anneau de poussière opaque, rien à voir avec notre voile mauve. Ce qui est exact dans cette image, c'est la façon dont la gravité en dévie la lumière : le fond est faux, sa déformation est juste." },
       ],
     },
     {

@@ -20,10 +20,27 @@
 
    Ce qui N'EST PAS encore commandé ici, et pourquoi :
 
-   · LA DENSITÉ DU CHAMP D'ÉTOILES. On est DANS l'amas nucléaire : le vrai ciel
-     y est immensément plus riche que le nôtre, mais d'un facteur qui doit être
-     SOURCÉ avant d'être montré — la recherche est en cours, et un champ densifié
-     au jugé serait exactement le mensonge que ce mode vient corriger.
+   · LE CIEL DE L'AMAS NUCLÉAIRE. La recherche est FAITE (9 août 2026) et elle
+     est dans `contenu.js`, fiche « Le ciel de là-bas », huit sources vérifiées.
+     Elle dit quatre choses, et aucune n'est une manette d'une ligne :
+
+       — la densité mesurée vaut six cents millions de fois celle du voisinage
+         solaire, soit de l'ordre du million d'étoiles à l'œil nu contre neuf
+         mille chez nous (facteur cent à cinq cents, dérivé ici et déclaré) ;
+       — il n'y fait JAMAIS nuit : le fond intégré pèse des dizaines à des
+         centaines de pleines lunes. Un fond noir est donc faux en soi, et pas
+         seulement mal peuplé ;
+       — la nébulosité de là-bas EXISTE, mais elle a une forme — trois bras
+         ionisés et un anneau de poussière opaque qui découperait une bande
+         noire. Éteindre notre voile mauve est donc juste, et insuffisant ;
+       — la poussière qui nous cache le centre est dans NOTRE ligne de visée,
+         pas là-bas : sur place le ciel est limpide.
+
+     Éteindre la nébuleuse reste la seule chose que ce module peut faire
+     honnêtement aujourd'hui. Le reste demande de peindre un ciel, pas de
+     pousser un uniforme — et un champ densifié au jugé serait exactement le
+     mensonge que ce mode vient corriger.
+
    · L'EXPOSITION ET L'ÉCLAT DU DISQUE. Ils appartiennent à « Lumière réelle »
      (`uReel`), qui existe déjà et fait ce travail. Son sort — devenir un cran
      du mode ou rester un bouton — se tranche en séance, pas ici.

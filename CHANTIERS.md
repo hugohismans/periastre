@@ -270,10 +270,31 @@ Ce que chaque mode commanderait :
 | disque | son éclat réel selon la bande observée | rehaussé pour qu'on le voie |
 | étoiles | densité de l'amas nucléaire, ordre de grandeur réel | densité choisie pour la lisibilité |
 
-À vérifier avant de coder : la densité réelle du champ d'étoiles vu depuis
-l'orbite du salon, qui est à l'intérieur de l'amas nucléaire. C'est le seul
-chiffre du tableau qui demande une source, et il décide de tout le mode
-simulation.
+#### La réponse, le 9 août 2026 — et elle déborde la question
+
+La densité était le seul chiffre du tableau qui demandait une source. Elle est
+sourcée : huit références vérifiées une par une, dans `contenu.js`, et une fiche
+entière — **« Le ciel de là-bas »**, trois niveaux, deux langues. Le troisième
+niveau sépare exprès ce qui est mesuré de ce qu'on a dérivé nous-mêmes, parce
+qu'**aucun article ne calcule le ciel vu de l'intérieur**.
+
+Ce que la recherche a répondu ne tient pas dans la case « densité » :
+
+- **six cents millions de fois** la densité du voisinage solaire à 0,01 pc ;
+  de l'ordre du million d'étoiles à l'œil nu contre neuf mille chez nous ;
+- **il n'y fait jamais nuit** — des dizaines à des centaines de pleines lunes
+  de fond intégré. Un fond noir est faux en soi, pas seulement mal peuplé.
+  C'est la découverte qui coûtera le plus cher à l'image ;
+- **la nébulosité de là-bas existe**, mais elle a une forme : trois bras
+  ionisés (la minispirale) et un anneau de poussière opaque qui découperait une
+  bande noire. Éteindre notre voile mauve est juste, et insuffisant ;
+- **la poussière qui nous cache le centre est de notre côté** : sur place,
+  l'extinction mesurée tombe sous un dixième de magnitude. Le ciel du centre de
+  la galaxie est limpide, et personne ne l'a jamais vu.
+
+Conséquence pour le module : `rendu.js` ne commande que la nébuleuse, et son
+en-tête dit maintenant pourquoi — le reste demande de **peindre un ciel**, pas
+de pousser un uniforme. C'est un chantier d'image, à ouvrir avec son œil.
 
 Recouvrement à trancher : le bouton **« Lumière réelle »** existe déjà et fait
 une partie du travail. Soit il devient le mode, soit il en devient un cran.

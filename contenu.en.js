@@ -202,6 +202,51 @@ sources: {
     doi: "10.3847/1538-4357/aa876f",
     sert: "Stellar nature of the S-stars: spectral type B0-B3V, masses 8-14 M☉, age of S2 6.6 (+3.4 / −4.7) Myr",
   },
+
+  /* The sky out there — the eight references of 9 August 2026. They serve the
+     card “The sky out there” and the background-sky admission: the site used to
+     show an invented background and say only that it was invented. It now says
+     what is really there, and how we know. */
+  gallegocano2018: {
+    ref: "E. Gallego-Cano, R. Schödel, H. Dong, F. Nogueras-Lara, A. T. Gallego-Calvente, P. Amaro-Seoane, H. Baumgardt, “The distribution of old stars around the Milky Way's central black hole I: Star counts”, Astronomy & Astrophysics 609, A26 (2018)",
+    doi: "10.1051/0004-6361/201730451",
+    sert: "Deep star counts of the nuclear cluster: power-law cusp with exponent γ = 1.23 ± 0.05 out to 2-3 pc; flat profile of the bright giants below 0.3 pc",
+  },
+  schodel2018: {
+    ref: "R. Schödel, E. Gallego-Cano, H. Dong, F. Nogueras-Lara, A. T. Gallego-Calvente, P. Amaro-Seoane, H. Baumgardt, “The distribution of stars around the Milky Way's central black hole II: Diffuse light from sub-giants and dwarfs”, Astronomy & Astrophysics 609, A27 (2018)",
+    doi: "10.1051/0004-6361/201730452",
+    sert: "Measured stellar density (2.3 ± 0.3) × 10⁷ M☉/pc³ at 0.01 pc from Sgr A*, i.e. 180 ± 20 M☉ within that radius; same exponent γ = 1.23 ± 0.05 from diffuse light",
+  },
+  schodel2009: {
+    ref: "R. Schödel, D. Merritt, A. Eckart, “The nuclear star cluster of the Milky Way: proper motions and mass”, Astronomy & Astrophysics (2009)",
+    doi: "10.1051/0004-6361/200810922",
+    sert: "Extended stellar mass of the central parsec, 0.5 to 1.5 × 10⁶ M☉, from proper motions of more than six thousand stars",
+  },
+  fritz2011: {
+    ref: "T. K. Fritz, S. Gillessen, K. Dodds-Eden, D. Lutz, R. Genzel, W. Raab, T. Ott, O. Pfuhl, F. Eisenhauer, F. Yusef-Zadeh, “Line derived infrared extinction towards the Galactic Center”, The Astrophysical Journal 737, 73 (2011)",
+    doi: "10.1088/0004-637X/737/2/73",
+    sert: "Extinction towards the Galactic Center A_Ks = 2.42 ± 0.10, extrapolated to A_V > 33; dust mostly in the Galactic disk, and A_Ks < 0.1 measured inside the central parsec",
+  },
+  paumard2006: {
+    ref: "T. Paumard, R. Genzel, F. Martins, S. Nayakshin, A. M. Beloborodov, Y. Levin, S. Trippe, F. Eisenhauer, T. Ott, S. Gillessen, R. Abuter, J. Cuadra, T. Alexander, A. Sternberg, “The Two Young Star Disks in the Central Parsec of the Galaxy: Properties, Dynamics and Formation”, The Astrophysical Journal 643, 1011 (2006)",
+    url: "https://arxiv.org/abs/astro-ph/0601268",
+    sert: "About eighty young massive stars (OB and Wolf-Rayet) in the central parsec, in two disks aged 6 ± 2 million years",
+  },
+  ferriere2012: {
+    ref: "K. Ferrière, “Interstellar gas within ~10 pc of Sgr A*”, Astronomy & Astrophysics (2012)",
+    doi: "10.1051/0004-6361/201117181",
+    sert: "Compilation of the gas at the centre: the Sgr A West minispiral (three arms, ~2.5 × 1 pc, electron densities from 10³ to 10⁵ cm⁻³), masses in the central cavity, and a factor-hundred disagreement on the mass of the circumnuclear disk",
+  },
+  lau2013: {
+    ref: "R. M. Lau, T. L. Herter, M. R. Morris, E. E. Becklin, J. D. Adams, “SOFIA/FORCAST Imaging of the Circumnuclear Ring at the Galactic Center”, The Astrophysical Journal 775, 37 (2013)",
+    doi: "10.1088/0004-637X/775/1/37",
+    sert: "Circumnuclear disk: inner edge near 1.4 pc, dense clumps, dust at 65-85 K, inner edge structured like a classical HII region",
+  },
+  bovy2017: {
+    ref: "J. Bovy, “Stellar Inventory of the Solar Neighborhood using Gaia DR1”, Monthly Notices of the Royal Astronomical Society 470, 1360 (2017)",
+    doi: "10.1093/mnras/stx1277",
+    sert: "Stellar density of the solar neighbourhood, 0.040 ± 0.002 M☉/pc³ — the yardstick for the density at the centre",
+  },
 },
 
 // -------------------------------------------------------------------- levels
@@ -1103,6 +1148,94 @@ fiches: [
   ]
 },
 {
+  /* Written 9 August 2026, because the “simulation” mode needed a fact before it
+     could have a switch: what that background sky REALLY looks like. The answer
+     outgrew the question — it is never night there, the dust that hides the
+     centre is on our side of the galaxy, and the nebulosity out there does exist
+     but has a shape. The third level deliberately separates what is measured
+     from what we derived here: no paper computes that sky. */
+  id: "f-ciel",
+  titre: "The sky out there",
+  sources: [
+    ["schodel2018", "schodel2009", "fritz2011"],
+    ["schodel2018", "gallegocano2018", "bovy2017", "paumard2006", "ferriere2012", "lau2013", "fritz2011"],
+    ["gallegocano2018", "schodel2018", "schodel2009", "fritz2011", "ferriere2012", "lau2013"],
+  ],
+  t: [
+   `Look at the background: black, with stars scattered about. It looks like the
+    sky you know.
+    <br><br>The real sky out there looks nothing like it. We are <b>inside</b>
+    the densest star cluster in the galaxy. Within a bubble three light years
+    across around the ship there is enough material for <b>a million stars</b>.
+    The same volume around the Sun holds exactly one: ours.
+    <br><br>So it is <i>never night</i> there. All those stars together shine
+    like hundreds of full moons — bright enough to read by.
+    <br><br>And here is the strangest part: you would see it clearly. From
+    Earth this centre is hidden behind so much dust that no eye can reach it.
+    But that dust lies along <b>our</b> line of sight, not out there. On site it
+    has all but vanished — that is measured. The sky at the centre of the galaxy
+    is a clear one, and nobody has ever seen it.`,
+
+   `The numbers are measured, and they are brutal. At one hundredth of a parsec
+    from the black hole — two thousand times the Earth-Sun distance — the
+    stellar density reaches <b>2.3 × 10⁷ solar masses per cubic parsec</b>. The
+    Sun's neighbourhood holds 0.040: that is <i>six hundred million times</i>
+    denser.
+    <br><br>The density climbs steadily inwards, as a power law of exponent
+    <b>1.23 ± 0.05</b> — measured twice, by two independent methods: counting
+    the stars one by one, and measuring the diffuse light of those that can no
+    longer be told apart.
+    <br><br>And yet nothing collides. Even there the nearest neighbour stays
+    five or six hundred astronomical units away, nearly twenty times Neptune's
+    orbit: countless brilliant points, <b>never disks</b>. Add about eighty
+    young massive stars, born together six million years ago.
+    <br><br>There is gas too — but not ours. Three ionised arms, the
+    “minispiral”, cross the central parsec; and further out, from 1.4 parsecs,
+    a ring of gas and dust thick enough to cut a black band across that sky.
+    <br><br>As for the dust between us and it: seeing the centre from here means
+    crossing <b>more than thirty magnitudes</b> of extinction, a factor of ten
+    trillion in visible light. Almost all of it sits in the disk of the galaxy,
+    between the centre and us. On site, inside the central parsec, the measured
+    extinction falls below a tenth of a magnitude in the infrared.`,
+
+   `<b>The profile.</b> A single power law, density going as <i>r</i><sup>−γ</sup>
+    with γ = 1.23 ± 0.05, established twice independently — deep star counts on
+    one side, diffuse light from sub-giants and dwarfs at Ks ≈ 19-20 on the
+    other — and valid out to the influence radius, 2 to 3 pc. Normalisation:
+    ρ(0.01 pc) = (2.3 ± 0.3) × 10⁷ M☉/pc³, i.e. 180 ± 20 M☉ within that radius.
+    <br><br><b>The authors' caveats, which matter.</b> That normalisation assumes
+    a constant mass-to-light ratio and does not count compact remnants; there is
+    no direct measurement below 0.01 pc. And the bright giants do show a
+    <i>flat</i> profile below 0.3 pc: the cusp appears only in the faint stars.
+    The authors write that some mechanism must have altered their distribution
+    or their luminosity. The question is open.
+    <br><br><b>What follows is derived here, not published.</b> No refereed paper
+    computes the sky seen from inside — the “million stars to the naked eye”
+    that circulates goes back to a television series. Taking the measured mass of
+    the central parsec, 0.5 to 1.5 × 10⁶ M☉, and 0.5 M☉ per star (standard mass
+    function, assumption declared): one to three million stars. At 0.5 pc the
+    distance modulus is −6.5, so the naked-eye limit drops to absolute magnitude
+    12.5 — nearly the whole cusp clears it. The result is of order a million
+    visible stars, against nine thousand over the entire terrestrial sky: a
+    factor of one hundred to five hundred, the exact value depending on the mass
+    function chosen. At that density the eye no longer separates them all: part
+    of it merges into a continuous glow.
+    <br><br><b>Integrated brightness</b>, derived as well: 3 × 10⁶ to 3 × 10⁷ L☉
+    in the central parsec, seen from 0.5 to 1 pc, i.e. a bolometric magnitude of
+    −17 to −20 — between fifty and a thousand full moons, 10 to 250 lux. A
+    permanent twilight, still a thousand times fainter than broad daylight.
+    <br><br><b>Extinction.</b> A_Ks = 2.42 ± 0.10 measured on the recombination
+    lines of the minispiral, extrapolated to A_V > 33 with a law steeper than the
+    classical one. Almost all of it lies in the Galactic disk, not at the centre:
+    within the central parsec the authors bound A_Ks < 0.1. Locally only two
+    things count — crossing an arm of the minispiral, 10⁴ cm⁻³ over 0.1 pc, about
+    1.6 visible magnitudes, and the circumnuclear disk, which is frankly opaque,
+    its measured clumps giving tens of magnitudes. Its mass, on the other hand,
+    remains uncertain by a factor of a hundred between authors, from 10⁴ to
+    10⁶ M☉: opaque either way, but we cannot quote its weight.`,
+  ]
+},
+{
   id: "f-etoiles",
   titre: "Stars going round nothing",
   sources: [
@@ -1434,7 +1567,8 @@ notes: {
           t:"<b>The set and the people.</b> Everything is computed and nothing is imported — but a ship and its crew are not measurements." },
         { id:"fond-ciel", ou:"partout",
           aveu:"The background is false; the way gravity bends it is right.",
-          t:"<b>The background sky.</b> Its stars are scattered at random, and the purple nebula is scenery: neither surveyed positions nor computed emission. What you would actually see from out there would be more impressive still — you are inside the nuclear star cluster, millions of stars within a few light years. What is exact in this image is the way gravity bends that light: the background is invented, its distortion is not." },
+          sources:["schodel2018", "bovy2017", "ferriere2012", "lau2013"],
+          t:"<b>The background sky.</b> Its stars are scattered at random, and the purple nebula is scenery: neither surveyed positions nor computed emission. The real sky out there is far richer — the measured density in the nuclear cluster is six hundred million times that of the solar neighbourhood, and it is never night there. There is even real nebulosity on site, but it has a shape: three arms of ionised gas and an opaque ring of dust, nothing like our purple veil. What is exact in this image is the way gravity bends that light: the background is invented, its distortion is not." },
       ],
     },
     {

@@ -58,16 +58,28 @@ const PLANCHERS = {
      Les huit autres ont été trouvées et VÉRIFIÉES une par une, en chargeant
      chaque adresse : traduction arXiv pour Schwarzschild, INSPIRE pour Bardeen,
      Luminet et Shakura, OpenLibrary pour Birkhoff, Chandrasekhar et MTW, et le
-     DOI de la réédition « Golden Oldie » pour Penrose. */
-  sourcesAvecLien: 34,
+     DOI de la réédition « Golden Oldie » pour Penrose.
+
+     42 sur 44 le 9 août 2026 : les huit références du ciel de l'amas nucléaire
+     sont entrées avec leur lien, vérifié un par un sur arXiv AVANT d'écrire la
+     ligne de bibliographie — et ce n'était pas une formalité. Deux titres et une
+     initiale d'auteur étaient faux dans ce que j'allais recopier. Les deux
+     manquantes restent les mêmes revues d'astronautique non indexées. */
+  sourcesAvecLien: 42,
   sourcesAvecPlus: 0,    // rien encore : le champ vient de naître
 
   /* 228 unités de texte sur 248 citent une source. Les vingt qui n'en citent
      pas ne sont pas des oublis : ce sont les répliques d'accueil de Lumen et les
      trois écrans de présentation — de la mise en scène, pas des affirmations.
      Le plancher les gèle : si quelqu'un ajoute un texte factuel sans source, le
-     compte tombe et le contrôle échoue. */
-  textesSources: 228,
+     compte tombe et le contrôle échoue.
+
+     236 sur 276 le 9 août 2026, mesuré avant et après plutôt qu'estimé : la
+     fiche « Le ciel de là-bas » apporte six textes (trois niveaux, deux langues)
+     tous sourcés, et l'aveu du fond de ciel passe de nu à sourcé dans les deux
+     langues — il affirmait « des millions d'étoiles » depuis le début sans
+     jamais dire d'où ça sortait. */
+  textesSources: 236,
 
   /* LES COMPROMIS DÉCLARÉS.
 
@@ -85,10 +97,14 @@ const PLANCHERS = {
      nomme l'endroit où on le croise, un `aveu` court destiné à être posé là-bas,
      et le texte long qui reste dans le dossier.
 
-     Neuf le 6 août 2026. Le plancher garantit qu'aucun ne disparaît en silence —
-     et disparaître en silence est exactement ce qu'un compromis gênant aimerait
-     faire. */
-  compromisDeclares: 9,
+     Neuf le 6 août 2026, onze depuis — le plancher était resté à neuf alors que
+     la mesure disait onze, ce qui est le contraire d'un cliquet : deux compromis
+     auraient pu disparaître sans que rien ne tombe. Remis d'aplomb le 9 août
+     2026, à la valeur mesurée.
+
+     Le plancher garantit qu'aucun ne disparaît en silence — et disparaître en
+     silence est exactement ce qu'un compromis gênant aimerait faire. */
+  compromisDeclares: 11,
 };
 
 // Les endroits du site où l'on peut rencontrer un compromis. Fermé exprès : un

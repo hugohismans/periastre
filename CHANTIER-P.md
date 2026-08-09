@@ -21,7 +21,8 @@ Une ligne `## ARRÊT — <pourquoi>` en tête de ce fichier suspend le hook.
 
 ## P2 — Simulation / cinéma
 
-- [ ] 2.1 sourcer la densité du champ d'étoiles depuis l'amas nucléaire → `contenu.js`, gardé par `outil-verif-contenu.js`
+- [x] 2.1 sourcer la densité du champ d'étoiles depuis l'amas nucléaire → `contenu.js`, gardé par `outil-verif-contenu.js` — fait, et la réponse déborde : fiche « Le ciel de là-bas », 8 sources vérifiées, 3 niveaux, 2 langues
+- [ ] 2.7 **peindre le ciel** — la recherche dit qu'il n'y fait jamais nuit, que la vraie nébulosité a une forme (minispirale, anneau opaque) et que le champ est cent à cinq cents fois plus riche. Ce n'est plus un uniforme, c'est une image : à ouvrir en regardant **(HUGO)**
 - [x] 2.2 le module du mode (quels uniformes chaque mode commande), avec son outil
 - [ ] 2.3 le choix au premier passage, à côté de la langue (`accueil.js`)
 - [ ] 2.4 le sort du bouton « Lumière réelle » — un cran du mode
