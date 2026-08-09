@@ -2468,6 +2468,29 @@ void main(){
 <script src="robot.js?v=786c213"></script>
 <script src="musique.js?v=786c213"></script>
 
+<!-- LA PAGE ELLE-MÊME PEUT ÊTRE PÉRIMÉE, et l'estampille n'y peut rien : elle
+     protège les scripts, dont l'adresse change, pas `index.html`, dont l'adresse
+     ne change jamais. GitHub Pages le sert avec `max-age=600`. Hugo a ouvert la
+     séance de jugement dix minutes après une publication vérifiée et a vu les
+     anciennes questions. Le pourquoi complet est dans `frais.js` ; ici on ne
+     fait que demander et sauter, la décision est là-bas et s'éprouve sans
+     navigateur — c'est elle qui peut faire clignoter le site. -->
+<script src="frais.js?v=786c213"></script>
+<script>
+(function(){
+  var mienne = FRAIS.estampille(document.documentElement.outerHTML), vu = null;
+  try { vu = sessionStorage.getItem("periastre.frais"); } catch(e){}
+  fetch(location.pathname, { cache: "no-store" }).then(function(r){ return r.text(); })
+    .then(function(t){
+      var v = FRAIS.estampille(t);
+      if(!FRAIS.doitRecharger(mienne, v, vu)) return;
+      try { sessionStorage.setItem("periastre.frais", v); } catch(e){}
+      location.replace(FRAIS.adresse(location.href, v));
+    })
+    .catch(function(){});          // hors ligne : on laisse lire ce qu'on a
+})();
+</script>
+
 <!-- Le voyage. L'ordre compte : recul.js appelle VOYAGE.entre au chargement de
      ses propres constantes, donc voyage1g.js doit être passé avant lui. -->
 <script src="voyage1g.js?v=786c213"></script>

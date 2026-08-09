@@ -341,7 +341,22 @@ const fs = require("fs"), path = require("path");
 
    La même manœuvre a fait entrer l'année-lumière, sans quoi la maille d'arrivée
    du voyage vers le système solaire s'écrirait « 1 700 000 000 000 UA ». */
-const PLAFOND = 3809;   // ... le carnet, l'aveu selon le rendu, le choix à l'accueil, la langue du quadrillage
+/* 3 821 le 9 août — douze lignes pour que la page se rende compte qu'elle est
+   vieille, et c'est le plafond le mieux payé de la série.
+
+   L'estampille protège les scripts, dont l'adresse change à chaque publication.
+   Elle ne protège pas `index.html`, dont l'adresse ne change jamais et que
+   GitHub Pages sert avec `max-age=600` — mesuré. Hugo a ouvert la séance de
+   jugement après une publication vérifiée, a vu les anciennes questions, et en
+   a conclu que rien n'avait été publié. C'est la première fois que ce piège
+   coûte SON temps, et sur un téléphone il n'a aucun geste pour s'en sortir.
+
+   Les douze lignes ne font que demander la page sans cache et sauter. Toute la
+   décision — faut-il recharger, vers où, et surtout QUAND SE TAIRE — est dans
+   `frais.js`, éprouvé par 22 contrôles dont la moitié porte sur les cas où il
+   ne doit RIEN faire. C'est l'inverse de l'habitude : ici le faux positif est
+   le danger, puisqu'il ferait clignoter le site de quelqu'un. */
+const PLAFOND = 3821;   // ... le carnet, l'aveu selon le rendu, le quadrillage, la page fraîche
 
 // Le nombre de modules déjà sortis. Il ne descend jamais non plus : un module
 // qu'on ferait rentrer dans le bloc serait le contraire exact du chantier.
