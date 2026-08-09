@@ -919,8 +919,11 @@
     text-transform:uppercase; color:#6d6885;
   }
   #acc-rendu button {
+    /* 32 px, comme la langue : c'est la hauteur au-dessous de laquelle un pouce
+       rate sa cible, et la leçon est écrite six lignes plus haut. J'avais mis
+       26 pour faire discret — la discrétion ne se paie pas en ratés. */
     font-family:var(--mono); font-size:10.5px; letter-spacing:.1em;
-    height:26px; padding:0 9px; cursor:pointer;
+    height:32px; padding:0 9px; cursor:pointer;
     border:1px solid rgba(255,255,255,.13); border-radius:3px;
     background:rgba(0,0,0,.28); color:#8f8aa6;
   }
