@@ -23,6 +23,23 @@
    Parce qu'il changerait à chaque exécution, y compris quand rien n'a bougé, et
    ferait retélécharger tout le site pour rien. Le commit ne change que lorsque
    le code change — c'est exactement la condition qu'on veut.
+
+   ---------------------------------------------------------------------------
+   CE QUI N'EST PAS ESTAMPILLÉ, ET POURQUOI ON LE LAISSE COMME ÇA
+
+   Les MP3 de Lumen. Leur adresse se fabrique dans `parle()`, sans `?v=` : un
+   visiteur déjà venu peut donc entendre l'ancienne prise pendant la fenêtre de
+   cache. C'est arrivé le 9 août — la réplique du carburant disait encore
+   758 000 tonnes après correction du texte.
+
+   On ne l'estampille pas quand même, et c'est un arbitrage assumé : la voix
+   pèse sept mégaoctets, l'estampille change à chaque commit, et versionner les
+   fichiers audio ferait retélécharger tout ce poids à chaque publication —
+   pour réparer une ligne périodiquement fausse pendant dix minutes. Le remède
+   coûterait mille fois le mal.
+
+   Si un jour une réplique doit changer sans attendre, la bonne manœuvre est de
+   renommer CE fichier-là, pas de versionner les sept mégaoctets.
    ============================================================================ */
 
 import { readFileSync, writeFileSync, readdirSync } from "node:fs";
