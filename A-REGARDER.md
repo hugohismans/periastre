@@ -19,11 +19,34 @@ Mise à jour le 9 août 2026 au soir, après la séance sur le rendu.
 
 ---
 
-## ✅ LA FILE EST VIDE — sept questions, sept verdicts, deux séances
+## 🚀 UNE QUESTION T'ATTEND : le rythme du voyage vers le système solaire
 
-Rien n'attend tes yeux en ce moment. `?juge` te le dira maintenant en toutes
-lettres au lieu de rendre un rapport creux : « tout est répondu ». C'est la
-première fois depuis que la séance existe.
+**On y va, maintenant.** La destination était refusée — « le vaisseau reste
+ici » — avec son prix en carburant pour toute réponse. La leçon n'était pas dans
+le refus, elle était dans le chiffre : le chiffre reste sur la carte, et on part.
+Vingt ans à bord, vingt-sept mille au loin.
+
+Il reste **une chose à regarder**, et c'est toi qui l'as demandée : le rythme.
+Mesuré, le rythme « fidèle » — celui par défaut — franchit **4,76 décades sur
+9,10 dans la première seconde**, puis l'écran ne bouge plus pendant quatre
+secondes. Ce n'est pas un défaut de calcul : c'est ce que la fidélité donne à
+voir étirée sur neuf décades. La séance te montre quatre angles — fidèle au
+départ et en freinage, régulier au départ et au milieu.
+
+La durée, elle, est déjà tranchée : trente-quatre secondes, ton compromis.
+
+### Ce qui a été réparé en montant ce départ
+
+Trois choses que personne n'avait vues parce qu'aucun trajet n'allait aussi loin :
+
+- **« 26998 ans »** s'écrivait d'un seul bloc, à côté d'un « 8 483 UA »
+  correctement espacé. C'est le chiffre le plus frappant du site ;
+- **le bandeau de vol** affichait « c − 4.1·10⁻4 » : point décimal anglais en
+  français, exposant en chiffres ordinaires. On le lit pendant presque tout le
+  trajet ;
+- **le quadrillage** écrivait « une case = 1 000 UA » en dur, **en français** —
+  un lecteur anglais lisait ça pendant tout le recul, séparateur compris.
+
 
 Les deux dernières, ce soir, sur iPhone :
 
