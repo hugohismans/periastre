@@ -192,6 +192,31 @@ const TOUTES = [
      C'est la même cause : rien ne semblait bouger, puisque l'astre suivait. La
      question repart donc DE DOS, où le mouvement est indiscutable — et son
      verdict tranchera les deux d'un coup. */
+  /* LE RYTHME DU GRAND TRAJET. Question d'image, posée parce qu'il l'a demandée :
+     « je veux le voir avant de trancher ». Les deux rythmes existent déjà et
+     sont réglables ; ce qui change, c'est qu'un trajet de neuf décades les
+     sépare brutalement là où quatre les rendait comparables. */
+  { id: "rythme-grand-trajet",
+    titre: "Le voyage vers le système solaire : quel rythme ?",
+    libre: true,
+    inspection: true,
+    quoi: "On part vraiment, maintenant — vingt-sept mille années-lumière, "
+        + "vingt ans à bord. Deux façons de le montrer en trente-quatre "
+        + "secondes. « Fidèle » suit l'horloge du bord : la moitié du voyage "
+        + "défile dans la première seconde, puis l'écran ne bouge presque plus "
+        + "pendant qu'on freine — c'est ce qu'on verrait vraiment. « Régulier » "
+        + "étale les décades : le quadrillage se renumérote à cadence égale. "
+        + "Regarde les deux et dis-moi lequel raconte le voyage.",
+    pose: () => rejoueGrandTrajet("fidele", 0),
+    options: [
+      { nom: "fidèle, au départ",    fait: () => rejoueGrandTrajet("fidele", 0) },
+      { nom: "fidèle, en freinage",  fait: () => rejoueGrandTrajet("fidele", 0.72) },
+      { nom: "régulier, au départ",  fait: () => rejoueGrandTrajet("regulier", 0) },
+      { nom: "régulier, au milieu",  fait: () => rejoueGrandTrajet("regulier", 0.45) },
+    ],
+    rend: () => rangeGrandTrajet(),
+  },
+
   { id: "voyage-refait", ignore: true,   // ✅ ça va, 9 août au soir — angle gardé : « en partant de dos ».
     titre: "Le trou noir reste-t-il en place ?",
     libre: true,
@@ -503,6 +528,36 @@ function rejoueArrivee(sansPanneau){ rejoueVoyage(0.90, sansPanneau); }
    voyage armé continue : on est emmené à l'arrivée en pleine lecture du
    rapport. Un protocole qui laisse le site dans un état qu'il n'avait pas
    fausse ce qu'on regardera ensuite. */
+/* LE GRAND TRAJET, ET SON RYTHME — armé le 9 août 2026.
+
+   Le voyage vers le système solaire fait 9,10 décades là où le recul vers les
+   étoiles S en fait 3,87, et la mesure dit que le rythme « fidèle » n'y survit
+   pas : 4,76 décades dans la PREMIÈRE seconde, puis rien pendant quatre. Hugo a
+   demandé à le voir avant de trancher, ce qui est exactement la bonne réponse à
+   une question d'image.
+
+   On rejoue donc le vrai départ, à la seule différence près qu'on saute au
+   moment intéressant : `depuis` place l'animation là où les deux rythmes
+   divergent le plus. Le rythme se remet à « fidèle » à la sortie — c'est le
+   défaut du site, et une séance ne change pas un réglage en douce. */
+function rejoueGrandTrajet(rythme, depuis){
+  rendPoseArrivee();
+  fermeTelescope();
+  auSalon(0, 0.6, 0, -0.05);
+  if(TELESCOPE.trajet){ TELESCOPE.trajet = null; TELESCOPE.retour = false; }
+  RECUL.etat.actif = false;
+  TELESCOPE.carte = 0;
+  RECUL.poseRythme(rythme);
+  const d = DESTINATIONS.find(x => x.id === "soleil");
+  lanceVoyage(d, VOYAGE.entre(distanceVaisseau(), d.d_m));
+  RECUL.etat.t = depuis || 0;
+}
+
+function rangeGrandTrajet(){
+  RECUL.poseRythme("fidele");
+  rangeVoyage();
+}
+
 function rangeVoyage(){
   rendPoseArrivee();
   fermeTelescope();
