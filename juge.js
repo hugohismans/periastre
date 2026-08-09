@@ -372,6 +372,67 @@ const TOUTES = [
      Le morceau qui existe déjà : `VOYAGE.etat(d, τ)` rend la position, les deux
      horloges, β, γ et la phase, gardé par 54 contrôles. Le reste s'y branche. */
 
+  /* LES DEUX RENDUS. Sa tête de file, livrée le 9 août : le site promettait que
+     tout est calculé, ce qui est vrai de la géométrie et faux du fond de ciel.
+
+     La question est étroite EXPRÈS. Une seule chose change entre les deux modes
+     — le voile mauve — et il faut savoir si ce peu se voit avant d'en promettre
+     davantage. La recherche, elle, en promet beaucoup : là-bas il ne fait jamais
+     nuit, la vraie nébulosité a une forme, le champ est cent fois plus riche.
+     Tout ça se peint, et se peint mal si on s'y met sans avoir regardé d'abord.
+
+     Ce qu'on ne lui demande PAS ici : quel mode doit accueillir un visiteur. Le
+     défaut reste « cinéma », c'est-à-dire l'image que ses amis testent depuis le
+     début, et le changer serait une décision à lui — pas un effet de bord d'une
+     séance sur la lisibilité. */
+  { id: "rendu-deux-modes",
+    titre: "Cinéma ou simulation, est-ce que ça se voit ?",
+    libre: true,
+    inspection: true,
+    quoi: "Il y a maintenant un choix de rendu, à l'accueil sous la langue et "
+        + "dans les réglages. En simulation, le voile mauve du fond s'éteint : "
+        + "il était inventé, et c'était le seul décor du site. Le reste ne bouge "
+        + "pas — la géométrie était déjà calculée. Bascule et regarde le fond du "
+        + "ciel : est-ce que la différence se voit ? Est-ce que « simulation » "
+        + "paraît plus pauvre, ou plus honnête ? Et l'aveu qui change avec le "
+        + "mode, tu le lis ou tu le sautes ?",
+    pose: () => montreRendu("cinema", false),
+    options: [
+      { nom: "cinéma",     fait: () => montreRendu("cinema", false) },
+      { nom: "simulation", fait: () => montreRendu("simulation", false) },
+    ],
+    rend: () => rangeRendu(),
+  },
+
+  /* LE SORT DE « LUMIÈRE RÉELLE ». La question 2.4 du chantier, et elle ne se
+     tranche qu'en regardant : le bouton existe depuis longtemps, il ferme le
+     diaphragme et rend au disque son éclat mesuré. Est-ce un troisième cran du
+     même réglage, ou une autre chose qui doit rester à part ?
+
+     Je ne tranche pas moi-même parce que les deux lectures se défendent. « Un
+     cran de plus » range trois états sur une seule ligne, ce qui est simple à
+     comprendre — mais la lumière réelle est un choix qu'on fait pour DIX
+     SECONDES, le temps de voir, alors qu'un rendu est un choix qu'on garde. Un
+     réglage qu'on garde et un geste qu'on essaie n'ont pas la même place. */
+  { id: "reel-ou-mode",
+    titre: "« Lumière réelle » : un cran du rendu, ou autre chose ?",
+    libre: true,
+    inspection: true,
+    quoi: "Trois états à comparer. Cinéma, c'est l'image d'aujourd'hui. "
+        + "Simulation éteint le voile mauve. « Lumière réelle » ferme le "
+        + "diaphragme et rend au disque son éclat mesuré — c'est le bouton qui "
+        + "existe déjà, en bas. Question : est-ce que « lumière réelle » te "
+        + "paraît être un troisième cran du même réglage, ou une chose à part "
+        + "qu'on allume dix secondes pour voir puis qu'on éteint ?",
+    pose: () => montreRendu("cinema", false),
+    options: [
+      { nom: "cinéma",                     fait: () => montreRendu("cinema", false) },
+      { nom: "simulation",                 fait: () => montreRendu("simulation", false) },
+      { nom: "simulation + lumière réelle", fait: () => montreRendu("simulation", true) },
+    ],
+    rend: () => rangeRendu(),
+  },
+
   { id: "arrivee-hors-file", ignore: true,
     titre: "L'arrivée du voyage",
     libre: true,
@@ -492,6 +553,34 @@ function montreAveux(quoi){
   else if(quoi === "reglage-temps")  $$("b-temps").click();
   else if(quoi === "telescope")      ouvreTelescope();
   else                               $$("rouage").click();
+}
+
+/* LE RENDU — on emprunte le chemin du visiteur, pas un raccourci.
+
+   Le mode se change en cliquant le vrai sélecteur des réglages : si un jour la
+   bascule cesse de repeindre quelque chose, la séance le montrera au lieu de le
+   contourner. Les boutons existent dès le chargement, panneau ouvert ou non.
+
+   `rendAvant` retient l'état d'avant la séance. Une séance qui laisse le site
+   dans un autre rendu que celui qu'on avait choisi serait une séance qui abîme
+   ce qu'elle vient juger — et personne ne comprendrait pourquoi son image a
+   changé le lendemain. */
+let rendAvant = null;
+function montreRendu(mode, avecReel){
+  if(rendAvant === null)
+    rendAvant = { mode: modeRendu, reel: reelCible > 0.5 };
+  if($$("panneau").classList.contains("vu")) $$("rouage").click();
+  fermeTelescope();
+  const i = RENDU.MODES.indexOf(mode);
+  const b = i >= 0 && $$("rendu-choix").children[i];
+  if(b) b.click();
+  if(!!avecReel !== (reelCible > 0.5)) $$("b-reel").click();
+}
+
+function rangeRendu(){
+  if(rendAvant) montreRendu(rendAvant.mode, rendAvant.reel);
+  rendAvant = null;
+  if($$("panneau").classList.contains("vu")) $$("rouage").click();
 }
 
 function rangeAveux(){
