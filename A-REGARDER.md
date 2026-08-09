@@ -15,7 +15,52 @@ Tout ce qui ne peut pas se vérifier par la mesure, et qui attend donc qu'un
 humain regarde. **Rien ici ne bloque quoi que ce soit** — c'est une file, pas
 une dette. Elle existe pour que ça ne se perde pas dans une conversation.
 
-Mise à jour le 6 août 2026, après la troisième séance.
+Mise à jour le 9 août 2026, après P2.
+
+---
+
+## 🆕 La séance t'attend, et elle ne contient plus que du neuf
+
+Tes cinq verdicts du 9 août au soir sont portés dans le code avec l'angle que tu
+avais gardé, et **les cinq questions sont sorties de la file** : elles étaient
+répondues, te les reposer coûterait ton œil pour rien. Elles ne sont pas
+effacées — le jour où l'on peindra vraiment le ciel de l'amas, il faudra sans
+doute rejuger le quadrillage et les orbites sous ce ciel-là, et le gréement
+resservira tel quel.
+
+Il reste **deux questions**, toutes les deux sur le rendu :
+
+1. **Cinéma ou simulation, est-ce que ça se voit ?** Le voile mauve du fond
+   s'éteint en simulation — c'était le seul décor du site. La bascule est à
+   l'accueil, sous la langue, et dans les réglages.
+2. **« Lumière réelle » : un cran du rendu, ou autre chose ?** Le bouton existe
+   depuis longtemps. Est-ce un troisième cran du même réglage, ou une chose à
+   part qu'on allume dix secondes pour voir puis qu'on éteint ? Je ne tranche
+   pas : les deux lectures se défendent, et c'est une question de geste, pas de
+   physique.
+
+Compte trois minutes, pas dix.
+
+---
+
+## ⚠ Ce que la recherche a répondu sur le ciel, et qui dépasse la question
+
+On cherchait la densité du champ d'étoiles pour savoir quoi peindre en mode
+simulation. La réponse est sourcée (huit références vérifiées, fiche « Le ciel
+de là-bas », trois niveaux) — et trois de ses quatre points ne sont **pas** dans
+le site aujourd'hui :
+
+- **il n'y fait jamais nuit** : le ciel de l'amas pèse des centaines de pleines
+  lunes, assez pour lire. Notre fond noir est donc faux en soi, pas seulement
+  mal peuplé. C'est ce qui coûtera le plus cher à l'image ;
+- **la vraie nébulosité existe, et elle a une forme** : trois bras de gaz ionisé
+  et un anneau de poussière opaque qui découperait une bande noire. Éteindre
+  notre voile mauve est juste, et insuffisant ;
+- **la poussière qui nous cache le centre est de notre côté** : sur place le
+  ciel est limpide, c'est mesuré.
+
+Peindre ça, ce n'est plus pousser un réglage, c'est refaire une image — et ça se
+décide en regardant. C'est la case 2.7 du chantier, et elle est à toi.
 
 ---
 
