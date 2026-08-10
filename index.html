@@ -4037,7 +4037,7 @@ function majVoyage(dt){
      recentrage, pour que le quadrillage juge la visée qu'on AURA et non celle
      qu'on avait — sinon il commente avec une image de retard. */
   const va = salon.versAstre, im = vue();
-  const vise = RECUL.recentre(va, salon.lacet, salon.tangage, dt);
+  const vise = RECUL.recentre(va, salon.lacet, salon.tangage, dt, tr.mainPrise);
   salon.lacet = vise.lacet;
   salon.tangage = vise.tangage;
   RECUL.fondus(TELESCOPE, dt, RECUL.enVue(regardSalon().av, va),
@@ -4214,10 +4214,9 @@ function dessineVoyage(dt){
      le dos, et l'on ne dessine rien du tout plutôt que de le rabattre au centre.
      C'est ce rabattement qui ÉTAIT le défaut. */
   const ou = projette([0, 0, 0]);
-  /* `carte` décide, et c'est `=== true` : un trajet qui oublierait de se
-     déclarer montrerait la carte en silence, soit la forme même du défaut qu'on
-     vient de réparer. Hors trajet on la garde — c'est le retrait en fondu du
-     haut de cette fonction qui l'éteint, la couper ici la ferait sauter. */
+  /* `carte` décide, et c'est `=== true` : un trajet muet montrerait la carte en
+     silence, soit la forme même du défaut qu'on répare. Hors trajet on la garde
+     — c'est le fondu du haut de cette fonction qui l'éteint, pas nous. */
   const montreCarte = E.trajet ? E.trajet.carte === true : true;
   if(orbite > 0.005 && ou && montreCarte){
     ctx.save();
@@ -4411,6 +4410,7 @@ function tourne(dx, dy){
   // qu'on regarde, et une reconstruction en volume ne se lit que si l'on peut
   // en faire le tour — sans quoi on ne voit que dix ellipses plates.
   if(TELESCOPE.carte > 0.5){ ETOILES_S.tourne(dx, dy); return; }
+  if(TELESCOPE.trajet) TELESCOPE.trajet.mainPrise = true;   // le recentrage se tait — `recul.js` dit pourquoi
   const r = GESTES.regard(salon.lacet, salon.tangage, dx, dy, GESTES.SENS);
   salon.lacet = r.lacet; salon.tangage = r.tangage;
 }

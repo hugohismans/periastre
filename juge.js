@@ -196,6 +196,36 @@ const TOUTES = [
      « je veux le voir avant de trancher ». Les deux rythmes existent déjà et
      sont réglables ; ce qui change, c'est qu'un trajet de neuf décades les
      sépare brutalement là où quatre les rendait comparables. */
+  /* LA MAIN GAGNE — posée le 10 août 2026.
+
+     Sa demande du 9 août : « qu'on puisse regarder devant, comme dans un
+     cockpit, ou derrière ». Je l'avais rangée dans « il faut des vitres », et
+     c'était passer à côté : le vrai coupable était le recentrage, qui reprenait
+     la visée à chaque image pendant tout le vol.
+
+     La question n'est donc PAS « est-ce que ça marche » — ça se mesure, et
+     `outil-verif-recul.js` s'en charge. C'est : maintenant qu'on peut regarder
+     ailleurs, est-ce qu'on a envie de le faire, et est-ce qu'on retrouve son
+     chemin après ? Un recentrage qui se tait rend aussi possible de finir le
+     voyage le nez dans un mur, et ça, aucun calcul ne me le dira. */
+  { id: "main-gagne",
+    titre: "Regarder ailleurs pendant le vol",
+    libre: true,
+    quoi: "Tu me l'avais demandé le 9 août. Pendant le voyage, le vaisseau te "
+        + "ramenait la tête vers le trou noir à chaque image : tu regardais "
+        + "devant, on te retournait. C'est fini — dès que tu touches à la visée, "
+        + "le recentrage se tait pour tout le reste du trajet. Pars, tourne la "
+        + "tête, regarde où tu vas, reviens. Est-ce que ça te rend le voyage, ou "
+        + "est-ce que tu te sens perdu sans la main qui recadrait ?",
+    pose: () => rejoueVoyageTourne(120),
+    options: [
+      { nom: "en partant, je tourne",  fait: () => rejoueVoyageTourne(120) },
+      { nom: "au milieu du trajet",    fait: () => rejoueVoyage(0.45) },
+      { nom: "juste avant l'arrivée",  fait: () => rejoueVoyage(0.86) },
+    ],
+    rend: () => rangeVoyage(),
+  },
+
   { id: "rythme-grand-trajet", ignore: true,   // ✅ ça va, 9 août au soir — angle gardé : « régulier, au départ », avec la remarque sur les deux moitiés
     titre: "Le voyage vers le système solaire : quel rythme ?",
     libre: true,

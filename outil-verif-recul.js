@@ -709,6 +709,39 @@ groupe("Le recentrage ramène la visée sur ce qu'on quitte");
   ok("sans direction connue, il ne touche à rien",
      rien.lacet === 1.3 && rien.tangage === -0.2, "1.3 / -0.2",
      rien.lacet + " / " + rien.tangage);
+
+  /* LA MAIN GAGNE — demande d'Hugo du 9 août, réparée le 10 août.
+
+     Il demandait « qu'on puisse regarder devant, comme dans un cockpit, ou
+     derrière ». La cause n'était pas le nombre de vitres : c'est ce recentrage
+     qui reprenait la visée à chaque image, à 0,8 par seconde, pendant tout le
+     vol. On regardait devant, on se faisait ramener en arrière.
+
+     Les deux points vont ensemble, et c'est le premier qui les rend sérieux :
+     sans lui, un recentrage qui ne ferait plus jamais rien passerait le second
+     au vert. C'est le même piège que « la mesure tient debout » ailleurs. */
+  const ecarte = { lacet: 1.3, tangage: -0.2 };
+  const cible = [Math.sin(0.2), 0, -Math.cos(0.2)];
+  const libre = R.recentre(cible, ecarte.lacet, ecarte.tangage, DT);
+  ok("main au repos, il ramène bien la visée",
+     Math.abs(libre.lacet - ecarte.lacet) > 1e-6,
+     "un déplacement franc", (libre.lacet - ecarte.lacet).toExponential(2),
+     "sans ce point, un recentrage mort satisferait le suivant");
+
+  const tenue = R.recentre(cible, ecarte.lacet, ecarte.tangage, DT, true);
+  ok("main prise, il ne touche plus à rien",
+     tenue.lacet === ecarte.lacet && tenue.tangage === ecarte.tangage,
+     ecarte.lacet + " / " + ecarte.tangage, tenue.lacet + " / " + tenue.tangage,
+     "et pour tout le reste du trajet : une reprise en douceur ramènerait "
+     + "l'astre au milieu pendant qu'on regarde devant, ce qui est le défaut "
+     + "même, avec un délai");
+
+  // Elle gagne quel que soit le pas de temps : un `dt` avalé au retour d'onglet
+  // rattraperait tout le recentrage d'un coup si la condition venait après.
+  const gros = R.recentre(cible, ecarte.lacet, ecarte.tangage, 100, true);
+  ok("même après une longue absence de la page",
+     gros.lacet === ecarte.lacet, ecarte.lacet, gros.lacet,
+     "`dt` de 100 s — le plafond du fondu ne protège pas d'un recentrage armé");
 }
 
 // ═══════════════════════════════════ 8. la couture ±π — le contrôle qui compte

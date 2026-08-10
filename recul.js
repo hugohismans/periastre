@@ -400,7 +400,29 @@ function fondu(v, cible, dt, vitesse){
   return v + (cible - v) * Math.min(1, dt * vitesse);
 }
 
-function recentre(va, lacet, tangage, dt){
+/* LA MAIN GAGNE — demande d'Hugo du 9 août 2026, réparée le 10.
+
+   « Qu'on puisse regarder devant, comme dans un cockpit, ou derrière ; peut-être
+   des vitres sur les quatre coins. »
+
+   J'ai d'abord lu ça comme une demande de vitres, et c'était passer à côté. La
+   vraie cause est ici : pendant TOUT le vol, `majVoyage` ramenait la visée vers
+   l'astre à chaque image, à 0,8 par seconde. On tournait la tête vers l'avant,
+   et on se la faisait tourner en arrière l'image suivante. Le voyage ne se
+   subissait pas de profil par manque de fenêtre — il s'y subissait parce qu'on
+   ne pouvait pas regarder ailleurs.
+
+   Le recentrage garde son rôle, qui est réel : au départ, il cadre ce qu'on
+   quitte pour qui ne fait rien. Mais dès que la main prend la visée, il se tait,
+   et pour le reste du trajet. Pas de reprise en douceur au bout de quelques
+   secondes : on regarderait devant, et l'astre reviendrait tout seul se mettre
+   au milieu — ce qui est exactement le défaut, avec un délai.
+
+   `mainPrise` arrive en argument plutôt que d'être un état du module : c'est la
+   page qui sait qu'on a touché à la visée, et un module qui garderait ce
+   drapeau aurait un second écrivain pour une même vérité. */
+function recentre(va, lacet, tangage, dt, mainPrise){
+  if(mainPrise) return { lacet, tangage };
   if(!va) return { lacet, tangage };
   let dl = Math.atan2(va[0], -va[2]) - lacet;
   while(dl >  Math.PI) dl -= 2*Math.PI;      // ]−π, π] : toujours le plus court
