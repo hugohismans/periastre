@@ -14,7 +14,92 @@ ne se met PAS à jour à chaque fois : c'est trop lourd, et Hugo l'a dit le
 
 Hugo peut aussi le déclencher à tout moment : « on refait le cap ».
 
-**Dernière remise à plat de `cap.html` : 7 août 2026.**
+**Dernière remise à plat de `cap.html` : 10 août 2026.**
+
+---
+
+## 10 août 2026 — la remise à plat du cap
+
+Hugo a perdu le fil des conversations et a demandé le contexte complet. Deux
+journées de travail — le 8 et le 9 — n'étaient écrites nulle part sauf dans les
+messages de commit : c'est exactement le cas que la règle prévoit. Journal
+rattrapé ci-dessous, `cap.html` remis d'aplomb.
+
+État relevé ce jour-là : **38 outils, 1 654 contrôles hors navigateur, aucun
+échec**. 117 contrôles dans la page. La file de `?juge` est vide.
+
+---
+
+## 9 août 2026
+
+Grosse journée. Elle a fermé P2 et ouvert P3.
+
+- **Le ciel de là-bas, sourcé** — huit références vérifiées, fiche à trois
+  niveaux, deux langues. La réponse déborde la question : **il n'y fait jamais
+  nuit** (le fond intégré pèse des centaines de pleines lunes), la vraie
+  nébulosité a une forme (trois bras ionisés, un anneau opaque), et la poussière
+  qui nous cache le centre est de notre côté. Notre fond noir est donc faux en
+  soi, pas seulement mal peuplé. C'est la case 2.7, et elle appartient à Hugo.
+- **L'aveu dénonçait une nébuleuse que la bascule venait d'éteindre.** Défaut de
+  ma main, en ligne depuis la veille. Un aveu peut désormais porter `selonMode` :
+  en cinéma il dit ce que le mode ajoute, en simulation ce qui reste faux une
+  fois la nébuleuse éteinte. *Un aveu faux est pire qu'un aveu absent — il apprend
+  à ne plus les lire.*
+- **Le choix du rendu se pose au premier passage**, à côté de la langue, une
+  seule fabrique pour les deux sélecteurs.
+- **P2 est close sauf 2.7.** Deux séances, sept questions, sept verdicts.
+- **P3 s'ouvre.** Le quadrillage sait dire les années-lumière, dans les deux
+  langues — il écrivait « une case = 1 000 UA » en dur, en français, pendant tout
+  le trajet d'un lecteur anglais. Table `DESTINATIONS` morte supprimée : deux
+  vérités pour une chose, dont une fausse et invisible.
+- **On part pour le système solaire.** La destination était refusée avec son prix
+  pour toute réponse ; la leçon était dans le chiffre, pas dans le refus. Le prix
+  reste sur la carte, sur sa propre ligne. La durée d'écran suit la longueur du
+  trajet.
+- **Deux formats trouvés en chemin** : « 26998 ans » sans espace de milliers — le
+  chiffre le plus frappant du site — et « c − 4.1·10^-4 » avec un point décimal
+  anglais en français.
+- **La page ne savait pas qu'elle était vieille.** L'estampille protège les
+  scripts, pas `index.html`, servi avec dix minutes de cache. Un visiteur déjà
+  venu recevait l'ancien site en croyant avoir rechargé, sans aucun geste pour
+  s'en sortir sur téléphone. `frais.js` : 22 contrôles, dont la moitié sur les cas
+  où il ne doit **rien** faire — ici le faux positif est le danger.
+- **L'aberration relativiste** — demandée le matin. Direction, couleur, éclat en
+  D⁴, 19 contrôles dont la réciprocité des deux sens, celle qui attrape l'erreur
+  de signe. Pas branchée au nuanceur : ce qui reste est de l'image, pas du calcul.
+- **La séance ne ramenait pas le vaisseau à son orbite** — signalé par Hugo. On
+  repartait du système solaire pour le système solaire : trajet nul, écran figé.
+  Le défaut dormait depuis toujours ; c'est le fait de **rejouer** qui l'a
+  réveillé.
+- **Le voyage jugé « ça va »**, et sa remarque vaut plus que le verdict : il ne
+  sentait pas la moitié d'accélération et la moitié de freinage. Il a raison, et
+  c'est le **temps d'écran** qui ment — 28 secondes à accélérer, 6 à freiner. Le
+  remède demande quelque chose vers quoi s'approcher : le système solaire vu de
+  loin. Les deux ne font qu'un chantier, et c'est le suivant.
+
+## 8 août 2026
+
+- **La rotation devient un curseur**, comme demandé — le continuum était le sujet,
+  quatre boutons n'en donnaient que quatre points. La borne 0,998 est un fait
+  (limite de Thorne, 1974), pas un arrondi de confort. On n'enregistre qu'au
+  relâchement : la leçon du 7 août, où une écriture en mémoire avait divisé par
+  huit la cadence de son téléphone.
+- **Cinq verdicts rayés** de la séance du soir.
+- **La descente au périastre commence.** Les fondations étaient l'apoastre — loin,
+  lent, à consolider ; maintenant le passage au plus près. Cinq chantiers, et le
+  hook lit la liste.
+- **P1 — le carnet du voyageur.** Les deux horloges du salon étaient calculées,
+  montrées, puis jetées à la sortie. Elles s'inscrivent : *« Depuis ta première
+  mission, tu as vécu 57 min — la Terre a vécu 1,0 h. »* Un vrai passage
+  s'inscrit, un coup d'œil non.
+- **P2 s'ouvre : la nébuleuse passe sous commande** — simulation ou cinéma. Le
+  défaut reste « cinéma » : changer l'image sous les pieds de qui n'a rien demandé
+  serait traiter le visiteur comme un argument.
+- **Un angle mort dans l'outil de l'ordre, et il a mordu.** Une fonction déclarée
+  est hissée : appelée depuis le sommet, tout ce que son corps lit devient mortel,
+  et l'outil comptait ça comme inoffensif. Réparé le lendemain — il suit
+  maintenant les appels, et il a trouvé du premier coup que **le lien de test de
+  la touche C ne restaurait rien**.
 
 ---
 

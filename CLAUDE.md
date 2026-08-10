@@ -128,7 +128,8 @@ depuis dehors — mais **un bloc qui meurt n'emporte plus les précédents**, et
 Deux outils gardent ce découpage : `outil-verif-taille.js` compte la **somme**
 des blocs (le maximum se truquerait en déplaçant une frontière) et
 `outil-verif-ordre.js` refuse toute inversion armée et fait descendre le compte
-des inversions différées. Le chantier **F2** sort les domaines un par un.
+des inversions différées. **F2 est clos** — quarante-neuf domaines sortis, chacun
+avec son outil ; ce qui reste dans `index.html` est du rendu et de l'orchestration.
 
 | fichier | ce qu'il tient |
 |---|---|
@@ -141,7 +142,8 @@ des inversions différées. Le chantier **F2** sort les domaines un par un.
 | `vaisseau.js` | la géométrie du salon, calculée |
 | `etoiles.js` | les dix étoiles S et leur carte |
 | `contenu.js` / `.en.js` | **la seule source de vérité factuelle** |
-| `ncorps.js`, `lune.js`, `echelle.js` | écrits, éprouvés, **pas encore branchés** |
+| `ncorps.js`, `lune.js`, `echelle.js`, `aberration.js` | écrits, éprouvés, **pas encore branchés** — `node tout.js` dit pourquoi, un par un |
+| `kerrschild.js` | **arbitre, jamais chargé** : il éprouve le nuanceur du dehors (règle 3) |
 
 Les modules ne touchent ni au DOM ni à WebGL : c'est ce qui les rend vérifiables
 sans navigateur.
@@ -164,17 +166,30 @@ sans navigateur.
 
 ## Où ça en est
 
-**Fait :** la vérification sans humain, le sourçage, le bilingue, le voyage,
-la carte des étoiles, quatre tranches de F2.
+**Relevé au 10 août 2026.** Cette section s'est périmée sans prévenir une fois —
+elle réclamait le quadrillage en volume et l'arrivée du voyage, réglés depuis. La
+tenir à jour au moment du cap, ou ne pas s'y fier.
+
+**Fait :** la vérification sans humain, le sourçage, le bilingue, le voyage, la
+carte des étoiles, F1 à F5, le carnet du voyageur, le mode simulation/cinéma, le
+départ pour le système solaire. Le chantier courant est **la descente au
+périastre** (`CHANTIER-P.md`), P1 et P2 clos, P3 en cours.
 
 **Ouvert, et tranché par personne :**
+- **Le système solaire vu de loin, avec ses étiquettes** — et c'est le même
+  chantier que le rythme du grand trajet, qui se sent faux parce que l'animation
+  passe 28 s à accélérer et 6 à freiner. Un seul chantier, c'est le prochain.
+- **Regarder devant et derrière pendant le vol** (demandé le 9 août) : la baie ne
+  regarde que dans un sens.
+- **L'aberration** est calculée et éprouvée (`aberration.js`), pas branchée au
+  nuanceur : jusqu'où l'atténuer se décide en regardant.
+- **Peindre le ciel de l'amas** — il n'y fait jamais nuit ; notre fond noir est
+  faux en soi. Décision d'image, elle appartient à Hugo (P2.7).
 - **Une nouvelle aile du vaisseau** avec la salle de tir balistique. C'est la
-  demande d'Hugo : « agrandir le vaisseau, mettre le canon dans une nouvelle
-  salle ». `vol.js` fait déjà toute la mécanique.
-- Le quadrillage du recul doit se lire **en volume**, pas à plat. Dit deux fois.
-- La carte des étoiles : « le rendu n'est vraiment pas bon », et le lien avec la
-  vitesse du temps n'est pas clair. À rediscuter.
-- L'arrivée du voyage n'est pas fluide.
+  demande d'Hugo du 6 août : « agrandir le vaisseau, mettre le canon dans une
+  nouvelle salle ». `vol.js` fait déjà toute la mécanique. (P4, P5)
+- La réplique de Lumen au poste horaire — sa voix.
+- Le manche de marche sur téléphone : plus on pousse loin, moins on va vite.
 - Le scintillement des étoiles : encore de petits clignotements.
 - L'anglais n'a jamais été relu par quelqu'un dont c'est la langue.
 
