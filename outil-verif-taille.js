@@ -356,7 +356,27 @@ const fs = require("fs"), path = require("path");
    `frais.js`, éprouvé par 22 contrôles dont la moitié porte sur les cas où il
    ne doit RIEN faire. C'est l'inverse de l'habitude : ici le faux positif est
    le danger, puisqu'il ferait clignoter le site de quelqu'un. */
-const PLAFOND = 3821;   // ... le carnet, l'aveu selon le rendu, le quadrillage, la page fraîche
+/* 3 865 le 10 août — quarante-quatre lignes, et c'est la première fois que le
+   plafond monte pour réparer une chose FAUSSE plutôt que pour en ajouter une.
+
+   `d.id` existait dans la table des destinations depuis le premier jour et
+   n'était lu nulle part. On partait donc vingt-sept mille années-lumière pour le
+   système solaire, et l'on arrivait devant les dix orbites du centre galactique
+   — dessinées à la même taille apparente qu'à l'arrivée aux étoiles S, puisque
+   `ETOILES_S.cadre` pose `échelle = arrivée / distance` et atteint la taille un
+   à toute arrivée. Sept millions de fois trop grandes. Et le pied du panneau
+   écrivait « le trou noir est là, au centre » à qui venait de s'en éloigner.
+
+   Ce qui coûte les lignes, ce n'est pas la condition — elle en fait deux. C'est
+   d'avoir écrit POURQUOI aux trois endroits où la prochaine main passera :
+   au départ du voyage, au dessin, et au pied du panneau. Le reste est parti
+   ailleurs : la décision est une DONNÉE portée par la destination (`carte:`),
+   pas un test dans le rendu, et c'est ce qui permet à `outil-verif-arrivee.js`
+   de l'exiger sans lire une ligne de dessin.
+
+   Au passage, `poseArrivee(v)` n'ouvrait jamais son paramètre et le recevait
+   sous deux formes selon l'appelant. Il reçoit la destination, et il s'en sert. */
+const PLAFOND = 3865;   // ... le quadrillage, la page fraîche, l'arrivée qui sait où elle est
 
 // Le nombre de modules déjà sortis. Il ne descend jamais non plus : un module
 // qu'on ferait rentrer dans le bloc serait le contraire exact du chantier.

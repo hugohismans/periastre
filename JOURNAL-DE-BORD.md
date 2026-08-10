@@ -18,6 +18,51 @@ Hugo peut aussi le déclencher à tout moment : « on refait le cap ».
 
 ---
 
+## 10 août 2026 — le plan du système solaire, et sa première marche
+
+Hugo : « fais-moi un plan à partir de ce cap », avec un élément à lui —
+« j'aimerais bien qu'on puisse voir le système solaire bientôt ». Il a tranché
+**d'abord la vue de loin, puis la Terre**, et **regarder devant/derrière dans le
+même lot**.
+
+**Trois défauts sont sortis en écrivant le plan**, aucun n'était cherché.
+
+1. **Le voyage ne savait pas où il arrivait.** `d.id` existait depuis le premier
+   jour de la table des destinations et n'était lu nulle part. On partait
+   vingt-sept mille années-lumière pour le système solaire et l'on arrivait
+   devant les dix orbites du centre galactique — **à la même taille apparente**
+   qu'à l'arrivée aux étoiles S, puisque `ETOILES_S.cadre` pose
+   `échelle = arrivée / distance` et atteint donc la taille un à toute arrivée.
+   Sept millions de fois trop grandes. Et le pied du panneau écrivait « le trou
+   noir est là, au centre » à qui venait de s'en éloigner.
+2. **Le rythme qu'il a jugé n'est pas celui que le site joue.** `poseRythme`
+   n'est appelé que par la séance et les outils : le bouton demandé le 7 août n'a
+   jamais été posé, et le jeu tourne sur le défaut `fidele`. Mesuré sur le vrai
+   trajet de 33,7 s — **3,93 décades sur 9,10 dans la première seconde**, puis
+   onze secondes d'écran figé. Et `contenu.js` avoue déjà ce réglage : le site
+   annonce un bouton qui n'existe pas.
+3. **On lui ramène la tête vers le trou noir pendant tout le vol.** `recentre`
+   tire la visée vers l'astre à chaque image, sans condition. Sa demande du
+   9 août n'est pas d'abord une affaire de vitres.
+
+**Étape 1 faite : le voyage sait où il arrive.** La décision est une **donnée**
+portée par la destination (`carte:`) et non un test dans le rendu — c'est ce qui
+permet de la vérifier sans lire une ligne de dessin. Un pied de panneau par
+destination, dans les deux langues. Le lieu d'aveu `arrivee` s'est dédoublé, pour
+que l'aveu de la carte des étoiles ne se pose plus là où cette carte ne se montre
+pas. `poseArrivee` reçoit enfin la destination, au lieu d'un calcul qu'il
+n'ouvrait jamais sous deux formes d'argument différentes.
+
+Deux contrôles, et **les deux savent échouer** : `outil-verif-arrivee.js`
+(9 contrôles, cinq sabotages dont celui de sa propre découpe) et
+`VERIF.arriveeJuste()` dans la page. Le second est différentiel et joue la **même
+mesure sur deux destinations** — 59 008 pixels ajoutés aux étoiles S, −28 au
+système solaire. Éprouvé en remettant le défaut dans un navigateur : le système
+solaire passe à 57 998 et il rougit.
+
+Le plafond de taille monte de 3 821 à 3 865, et **c'est la première fois qu'il
+monte pour réparer une chose fausse** plutôt que pour en ajouter une.
+
 ## 10 août 2026 — la remise à plat du cap
 
 Hugo a perdu le fil des conversations et a demandé le contexte complet. Deux

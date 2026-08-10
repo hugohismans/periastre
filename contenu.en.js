@@ -1559,7 +1559,7 @@ notes: {
         { id:"quadrillage-recul", ou:"recul",
           aveu:"Nothing grids space. This reference exists only while moving.",
           t:"<b>The grid during the retreat.</b> Nothing grids space. It exists only while moving, because in true emptiness nothing proves you are travelling — and without it, four decades look like a frozen screen." },
-        { id:"carte-etoiles", ou:"arrivee",
+        { id:"carte-etoiles", ou:"arrivee-etoiles",
           aveu:"A reconstruction, not a view: nobody has watched these orbits turn.",
           t:"<b>The chart of the S stars.</b> It is a reconstruction, not a view. These orbits last from sixteen to three hundred and thirty-one years: nobody has ever watched them go round. They were measured over thirty years, and that is precisely the point." },
         { id:"decor-personnages", ou:"salon",

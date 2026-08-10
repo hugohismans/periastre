@@ -71,7 +71,7 @@
 
 const LIEUX = new Set([
   "salon", "reglages", "reglage-temps", "telescope", "spectre",
-  "recul", "arrivee", "etude", "partout",
+  "recul", "arrivee-etoiles", "arrivee-soleil", "etude", "partout",
 ]);
 
 /* Le contenu n'a pas de liste de compromis : ils sont SEMÉS dans l'arbre, à

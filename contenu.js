@@ -1573,7 +1573,7 @@ notes: {
         { id:"quadrillage-recul", ou:"recul",
           aveu:"Rien ne quadrille l'espace. Ce repère n'existe que pendant le mouvement.",
           t:"<b>Le quadrillage pendant le recul.</b> Rien ne quadrille l'espace. Il n'existe que pendant le mouvement, parce que dans le vide absolu rien ne prouve qu'on avance — et sans lui, quatre décades ressemblent à un écran figé." },
-        { id:"carte-etoiles", ou:"arrivee",
+        { id:"carte-etoiles", ou:"arrivee-etoiles",
           aveu:"C'est une reconstruction, pas une vue : personne n'a vu ces orbites tourner.",
           t:"<b>La carte des étoiles S.</b> C'est une reconstruction, pas une vue. Ces orbites durent de seize à trois cent trente et un ans : personne ne les a jamais vues tourner. On les a mesurées pendant trente ans, et c'est justement le sujet." },
         { id:"decor-personnages", ou:"salon",

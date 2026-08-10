@@ -61,7 +61,10 @@ Object.assign(window.UI, {
     "the equations, and those are not negotiable.",
 
   "tele.arrive.sous":      "Here we are.",
-  "tele.arrive.pied":
+  /* ONE FOOTER PER DESTINATION — 10 August 2026. There was only one, and it
+     described the ten orbits of the galactic centre to anyone who had just
+     arrived in the solar system. */
+  "tele.arrive.pied.etoiles":
     "The black hole is right there, at the centre, and you cannot see it: at " +
     "this distance it falls far below a single pixel. What you can see are ten " +
     "measured orbits, and every one of them turns around the same empty point. " +
@@ -69,6 +72,12 @@ Object.assign(window.UI, {
     "The sky behind them, on the other hand, is scenery: its stars are scattered " +
     "at random and its nebula is invented. What is exact here are the orbits, and " +
     "the way gravity bends light.",
+  "tele.arrive.pied.soleil":
+    "The journey ends here. What you were looking at a moment ago — the black " +
+    "hole and the ten measured orbits around it — is now twenty-seven thousand " +
+    "light years behind you, and nothing can pick it out any more: the orbits " +
+    "you watched turning now fall far below a single pixel, just as the black " +
+    "hole itself did earlier. What you have just been shown is the distance.",
   "tele.retour.etiq":      "return",
   "tele.retour.titre":     "Back towards the black hole",
   "tele.retour.quoi":      "The same trip the other way, at the same price in time.",

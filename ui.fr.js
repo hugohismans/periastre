@@ -77,7 +77,10 @@ window.UI = {
     "durées, elles, sortent des équations et ne se négocient pas.",
 
   "tele.arrive.sous":      "Nous y sommes.",
-  "tele.arrive.pied":
+  /* UN PIED PAR DESTINATION — 10 août 2026. Il n'y en avait qu'un, et il
+     racontait les dix orbites du centre galactique à qui venait d'arriver au
+     système solaire. */
+  "tele.arrive.pied.etoiles":
     "Le trou noir est là, au centre, et vous ne le voyez pas : à cette distance " +
     "il tient très loin sous le pixel. Ce que vous voyez sont dix orbites " +
     "mesurées, et elles tournent toutes autour du même point vide. C'est ainsi " +
@@ -85,6 +88,13 @@ window.UI = {
     "En revanche, le fond du ciel derrière elles est un décor : ses étoiles sont " +
     "posées au hasard et sa nébuleuse est inventée. Ce qui est exact ici, ce sont " +
     "les orbites et la façon dont la gravité dévie la lumière.",
+  "tele.arrive.pied.soleil":
+    "Le voyage s'arrête ici. Ce que vous regardiez il y a un instant — le trou " +
+    "noir et les dix orbites mesurées autour de lui — est maintenant à " +
+    "vingt-sept mille années-lumière derrière vous, et plus rien ne permet de " +
+    "l'y distinguer : les orbites que vous avez vues tourner tiennent désormais " +
+    "très loin sous le pixel, comme le trou noir lui-même tout à l'heure. " +
+    "C'est la distance elle-même qui vient de vous être montrée.",
   "tele.retour.etiq":      "retour",
   "tele.retour.titre":     "Revenir près du trou noir",
   "tele.retour.quoi":      "Le même trajet dans l'autre sens, et le même prix en temps.",

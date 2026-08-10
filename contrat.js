@@ -114,7 +114,9 @@ const PLANCHERS = {
 // `ou` inventé ne serait jamais affiché nulle part, et personne ne le saurait.
 const LIEUX_COMPROMIS = new Set([
   "salon", "reglages", "reglage-temps", "telescope", "spectre",
-  "recul", "arrivee", "etude", "partout",
+  // `arrivee` s'est dédoublé le 10 août : la carte des étoiles S ne se montre
+  // plus qu'à SON arrivée, donc son aveu ne peut plus se poser à l'autre.
+  "recul", "arrivee-etoiles", "arrivee-soleil", "etude", "partout",
 ]);
 
 const TYPES_PLUS = new Set(["cours", "video", "article", "livre", "outil", "musee"]);

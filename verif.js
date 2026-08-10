@@ -825,8 +825,11 @@ function carteDehors(){
     salon.lacet = 0; salon.tangage = -0.05;
     joueur.p = [0, hauteurSol(0, 0.6), 0.6];
     RECUL.lance(2.03e14, 14);
+    // `carte:true` — ce contrôle MESURE la carte, il doit donc la demander. Elle
+    // ne se montre plus qu'aux trajets qui la déclarent, depuis le 10 août : la
+    // laisser implicite serait mesurer depuis un état qu'on n'a pas choisi.
     TELESCOPE.trajet = { dest:{ nom:"chrono.retour" }, arrive:false, depart:RECUL.etat.d0,
-                         calcul: VOYAGE.entre(RECUL.etat.d0, RECUL.etat.d1) };
+                         carte:true, calcul: VOYAGE.entre(RECUL.etat.d0, RECUL.etat.d1) };
 
     // Le cadre de la baie, projeté — c'est la frontière qu'on interdit de franchir.
     let t = avanceImages(200);
@@ -884,6 +887,126 @@ function carteDehors(){
     TELESCOPE.trajet = av.trajet; TELESCOPE.carte = av.carte; TELESCOPE.grille = av.grille;
     RECUL.etat.actif = false;
     joueur.p = av.p; salon.lacet = av.lacet; salon.tangage = av.tangage;
+    degele();
+    if(lieu !== av.lieu) vaAu(av.lieu);
+    avanceImages(2);
+  }
+  return enCours;
+}
+
+/* 5 quater bis. L'ARRIVÉE SAIT OÙ L'ON EST ARRIVÉ.
+
+   Trouvé le 10 août en préparant le chantier du système solaire, et il était en
+   ligne : `d.id` existait dans la table des destinations depuis le premier jour
+   et n'était lu NULLE PART. On partait vingt-sept mille années-lumière, et l'on
+   arrivait devant les dix orbites du centre galactique — à la même taille
+   apparente qu'à l'arrivée aux étoiles S, puisque `ETOILES_S.cadre` pose
+   `échelle = arrivée / distance` et atteint donc la taille un à TOUTE arrivée.
+   Sept millions de fois trop grandes.
+
+   LA MESURE EST DIFFÉRENTIELLE, et surtout : c'est LA MÊME, jouée deux fois sur
+   deux destinations. Un contrôle qui n'irait voir que le système solaire
+   passerait au vert sur une carte cassée partout. Ici, l'une doit peindre et
+   l'autre non — et c'est l'écart entre les deux qui est le contrôle.
+
+   SA VÉRITÉ VIENT DE LA TABLE DES DESTINATIONS, pas du dessin : il demande à
+   `DESTINATIONS` qui déclare `carte`, et il exige de l'écran ce que la donnée
+   annonce. Le jour où l'on ajoute une destination, il la joue sans qu'on le
+   touche.
+
+   ÉPROUVÉ EN REMETTANT LE DÉFAUT, dans un navigateur, le 10 août. En état sain :
+   59 008 pixels ajoutés aux étoiles S, −28 au système solaire. Le garde-fou
+   retiré — `montreCarte` forcé à vrai, c'est-à-dire le code d'hier — le système
+   solaire passe à 57 998 et le contrôle rougit. C'est la signature exacte du
+   défaut : la même carte, à la même taille, sept millions de fois trop loin. */
+function arriveeJuste(){
+  ouvre("L'arrivée sait où l'on est arrivé");
+  const av = { lieu, p: joueur.p.slice(), sp: salon.p.slice(),
+               lacet: salon.lacet, tangage: salon.tangage,
+               trajet: TELESCOPE.trajet, retour: TELESCOPE.retour,
+               carte: TELESCOPE.carte, grille: TELESCOPE.grille,
+               pied: $("in-pied").textContent };
+  const degele = fige();
+  const vraiDessine = ETOILES_S.dessine;
+  const cvs = ctx.canvas;
+  try {
+    if(lieu !== "salon") vaAu("salon");
+    salon.lacet = 0; salon.tangage = -0.05;
+    joueur.p = [0, hauteurSol(0, 0.6), 0.6];
+
+    const peints = () => {
+      const img = ctx.getImageData(0, 0, cvs.width, cvs.height).data;
+      let n = 0;
+      for(let y = 0; y < cvs.height; y += 2) for(let x = 0; x < cvs.width; x += 2)
+        if(img[(y*cvs.width + x)*4 + 3] >= 8) n++;
+      return n;
+    };
+
+    /* Ce que la carte AJOUTE, pour une destination donnée. On rejoue le vrai
+       départ — `lanceVoyage`, et non une copie de sa décision : un contrôle qui
+       refait le calcul qu'il surveille se met d'accord avec lui-même. */
+    const ajout = (d) => {
+      TELESCOPE.trajet = null; TELESCOPE.retour = false;
+      TELESCOPE.carte = 0; TELESCOPE.grille = 0;
+      // On remet le vaisseau sur son orbite : `lanceVoyage` part de là où il
+      // est, et le trajet précédent l'a déplacé. C'est le défaut du 9 août.
+      salon.p = [salon.apo, 0, 0];
+      lanceVoyage(d, VOYAGE.entre(distanceVaisseau(), d.d_m));
+      RECUL.etat.t = 0.999;
+      let t = avanceImages(30);
+      TELESCOPE.carte = 1;                 // le voile est monté : on est à l'arrivée
+      ETOILES_S.dessine = () => {};
+      t = avanceImages(4, t); const sans = peints();
+      ETOILES_S.dessine = vraiDessine;
+      t = avanceImages(4, t); const avec = peints();
+      return avec - sans;
+    };
+
+    const attend = DESTINATIONS.filter(d => d.carte === true);
+    const refuse = DESTINATIONS.filter(d => d.carte !== true);
+
+    point("des destinations déclarent la carte, et d'autres non",
+          attend.length > 0 && refuse.length > 0,
+          "au moins une de chaque", `${attend.length} / ${refuse.length}`,
+          "sans les deux, la comparaison qui suit ne compare rien");
+
+    // Une seule mesure par destination : `ajout` relance un vrai voyage, et
+    // l'appeler deux fois pour le même point mesurerait deux départs différents.
+    for(const d of attend){
+      const n = ajout(d);
+      point(`« ${d.id} » montre bien la carte`, n > 200,
+            "> 200 pixels ajoutés", n,
+            "sinon le point suivant serait satisfait par une carte cassée partout");
+    }
+    for(const d of refuse){
+      const n = ajout(d);
+      point(`« ${d.id} » ne montre pas la carte`, Math.abs(n) < 40,
+            "< 40 pixels ajoutés", n,
+            "les dix orbites du centre galactique n'ont rien à faire ici");
+    }
+
+    /* Et le pied du panneau suit la destination. Il n'y en avait qu'un, et il
+       écrivait « le trou noir est là, au centre » à qui venait de s'en éloigner
+       de vingt-sept mille années-lumière. */
+    const pieds = DESTINATIONS.map(d => { poseArrivee(d); return $("in-pied").textContent; });
+    point("chaque destination a son propre pied de panneau",
+          new Set(pieds).size === pieds.length && pieds.every(p => p && p.length > 40),
+          `${pieds.length} textes distincts et pleins`,
+          `${new Set(pieds).size} distincts, le plus court ${Math.min(...pieds.map(p => (p||"").length))}`,
+          "deux destinations qui partagent leur pied en ont forcément une qui ment");
+    point("et aucun ne laisse voir une clé nue",
+          pieds.every(p => !/^tele\./.test(p)),
+          "aucun texte commençant par « tele. »",
+          pieds.filter(p => /^tele\./.test(p)).join(" · ") || "aucun",
+          "une clé non résolue s'affiche telle quelle, et personne ne la lit");
+  } finally {
+    ETOILES_S.dessine = vraiDessine;
+    TELESCOPE.trajet = av.trajet; TELESCOPE.retour = av.retour;
+    TELESCOPE.carte = av.carte; TELESCOPE.grille = av.grille;
+    RECUL.etat.actif = false;
+    $("in-pied").textContent = av.pied;
+    joueur.p = av.p; salon.p = av.sp;
+    salon.lacet = av.lacet; salon.tangage = av.tangage;
     degele();
     if(lieu !== av.lieu) vaAu(av.lieu);
     avanceImages(2);
@@ -1557,7 +1680,8 @@ const PASSE = [
   ["Le temps", tempsJuste], ["La résolution", resolution], ["La saisie libre", saisieLibre],
   ["Les nuanceurs", nuanceurs], ["Les clés nues", clesNues], ["Le banc d'essai", banc],
   ["Les pixels", pixels], ["La couture", couture], ["La carte fixe", carteFixe],
-  ["La carte dehors", carteDehors], ["La rotation calme", rotationCalme],
+  ["La carte dehors", carteDehors], ["L'arrivée juste", arriveeJuste],
+  ["La rotation calme", rotationCalme],
   ["Le même espace", memeEspace], ["La mise en page", mesurePage], ["Le budget", budget],
 ];
 const PASSE_LONGUE = [["Le parcours", parcours], ["Le voyage", voyage]];
@@ -1580,7 +1704,7 @@ function tout(){
 
 global.VERIF = {
   vivant, coherence, lieux, aveux, tempsJuste, resolution, saisieLibre, nuanceurs, clesNues,
-  banc, pixels, couture, carteFixe, carteDehors, seanceSansTrace, rotationCalme, memeEspace, mesurePage, parcours, voyage, budget,
+  banc, pixels, couture, carteFixe, carteDehors, arriveeJuste, seanceSansTrace, rotationCalme, memeEspace, mesurePage, parcours, voyage, budget,
   sain, tout, bilan, texte, resultats, FORMATS, OR,
   // outillage exposé : d'autres contrôles pourront s'y adosser
   pose, fige, avanceImages,
