@@ -35,15 +35,48 @@ Une ligne `## ARRÊT — <pourquoi>` en tête de ce fichier suspend le hook.
 
 ## P3 — Le voyage vers le système solaire
 
+> **Remis en ordre le 10 août 2026**, après le cap. Hugo : « fais-moi un plan
+> pour qu'on avance », et « j'aimerais bien qu'on puisse voir le système solaire
+> bientôt ». Il a tranché deux points : **d'abord la vue de loin, puis la Terre**,
+> et **regarder devant et derrière part dans le même lot**.
+>
+> **Trois défauts vérifiés en préparant ce plan, et ils commandent l'ordre :**
+>
+> 1. **Le voyage ne sait pas où il arrive.** `d.id` est défini
+>    (`index.html:3877-3891`) et lu nulle part. On arrive au système solaire et
+>    `index.html:4185` dessine les dix orbites d'étoiles S, pendant que
+>    `ui.fr.js:80-87` écrit « le trou noir est là, au centre ». Une affirmation
+>    fausse à l'écran, en ligne aujourd'hui.
+> 2. **Le rythme jugé n'est pas celui que le site joue.** `poseRythme` n'est
+>    appelé que par `juge.js` et les outils : le bouton demandé le 7 août n'a
+>    jamais été posé, et le jeu tourne sur le défaut `"fidele"`. Mesuré sur le
+>    vrai trajet de 33,7 s — **3,93 décades sur 9,10 dans la première seconde**,
+>    puis onze secondes d'écran figé. Et `contenu.js:1564` avoue déjà ce réglage :
+>    le site annonce un bouton qui n'existe pas.
+> 3. **On te ramène la tête vers le trou noir pendant tout le vol.** `recentre`
+>    (`recul.js:403`, 0,8/s) tire `salon.lacet` vers l'astre à chaque image, et
+>    `index.html:4017` l'applique sans condition : la main du joueur est reprise
+>    l'image suivante. « Regarder devant » n'est pas d'abord une affaire de
+>    vitres.
+>
+> L'ordre qui suit : 3.11 → 3.12 → 3.13 → 3.8 → 3.7 → 3.2 → 3.3 → 3.5.
+
+- [ ] 3.11 **le voyage sait où il arrive** — la carte des orbites S et le pied du panneau deviennent propres à la destination ; `poseArrivee(v)` n'utilise pas son paramètre et reçoit deux arguments ici, un seul là. Outil : lire `index.html` comme du texte (patron `outil-verif-rendu.js`) et exiger que chaque destination ait sa clé de pied **dans les deux langues** — la vérité vient des fichiers de langue, pas du dessin
+- [ ] 3.12 **sourcer le système solaire** — demi-grands axes, l'unité astronomique, rayon et luminosité du Soleil, sa magnitude, le nuage de Oort. Deux sources existent déjà **hors du contrat**, dans le registre parallèle de `lune.js:89-148`. Et **l'UA a cinq écrivains sans source** (`echelle.js:49`, `recul.js:45`, `voyage1g.js:49`, `lune.js:85`, `index.html:3877`) : c'est la maladie du disque à 622×. Plus une fiche « le système solaire vu du dehors », patron `f-ciel`
+- [ ] 3.13 **le Soleil et les étiquettes** — `solaire.js` et `etiquettes.js`, deux modules neufs : il n'existe aujourd'hui **aucun** mécanisme d'étiquette posée sur un objet du monde, et **aucune** loi magnitude → éclat. Réemployer `lune.js:255` (`2·arcsin(R/d)`, qui refuse de répondre quand on est dedans) et surtout sa doctrine `lune.js:41-54` : **sous le demi-pixel on ne dessine rien**, on montre le grossissement qu'il faudrait — c'est mot pour mot « on ne le verrait même pas ». `etiquettes.js` ne touche ni au DOM ni à WebGL : il reçoit des points projetés et rend des placements, la page dessine. Vérité d'ailleurs : positions recalculées par une seconde voie, magnitudes dérivées de la luminosité
+
+
 - [ ] 3.1 le départ — ~~la destination s'accepte, le prix reste affiché~~ **fait le 9 août : on part, et la carte porte le prix sur sa propre ligne** ; ~~`inactif-8` (780 000 t) + MP3~~ **fait**. Reste la comparaison sondes réelles, sourcée
-- [ ] 3.2 le recul galactique — **le quadrillage tient les neuf décades** (année-lumière, et les mots viennent enfin de la page : il écrivait « une case = 1 000 UA » en dur, en français) ; ~~table `DESTINATIONS` morte supprimée~~ **fait**. Reste `echelle.js`, et **le rythme** : mesuré, le rythme *fidèle* franchit 4,76 décades sur 9,10 dans la PREMIÈRE seconde puis rien pendant quatre — illisible sur ce trajet **(HUGO : c'est une décision d'image)**
-- [ ] 3.8 **regarder autour de soi pendant le vol** — demandé le 9 août : « qu'on puisse regarder devant, comme dans un cockpit, ou derrière ; peut-être des vitres sur les quatre coins ». Aujourd'hui la baie regarde dans une seule direction et le voyage se subit de profil.
+- [ ] 3.2 le recul galactique — **le quadrillage tient les neuf décades** (année-lumière, et les mots viennent enfin de la page : il écrivait « une case = 1 000 UA » en dur, en français) ; ~~table `DESTINATIONS` morte supprimée~~ **fait**. Reste `echelle.js`, et **le rythme**, en deux temps :
+  - **3.2a le bouton et le défaut** — le site avoue un réglage qui n'a pas de bouton. Réparation courte. Le défaut est **(HUGO)** : ma recommandation est *régulier*, celui qu'il a jugé « ça va », parce que *fidèle* fige l'écran onze secondes sur ce trajet
+  - **3.2b le rythme symétrique** — et c'est là qu'est le piège de la règle 4 : le quadrillage et la carte des orbites ne s'accordent aujourd'hui que **par coïncidence**, chacun employant 1/distance de son côté (`verif.js:1034` l'exige). La sortie propre n'est pas d'exempter le système solaire, c'est d'**écrire la loi une seule fois** et de la faire lire par les deux. Ce qui casse : les 13 contrôles de `outil-verif-recul.js:105-210` pilotent le dessin dans un état de trajet dégénéré (`d0 === d1`) — c'est la règle 5 ; le contrôle 358 **resterait vert pour de mauvaises raisons** ; le 233 verrait son sens inversé ; le 476 ne verrait pas le yo-yo rₛ→UA→al→UA→rₛ. **Et aucun des 80 contrôles ne balaie le temps** : rien ne vérifie qu'une frontière de décade se traverse sans saut. Trois contrôles à écrire
+- [ ] 3.8 **regarder autour de soi pendant le vol** — demandé le 9 août : « qu'on puisse regarder devant, comme dans un cockpit, ou derrière ; peut-être des vitres sur les quatre coins ». **La cause vraie n'est pas la baie** : `recentre` te reprend la visée à chaque image. Le plus petit remède honnête est que la main du joueur gagne — le recentrage garde son rôle quand on ne fait rien, et se tait dès qu'on tourne la tête. Les vitres aux quatre coins sont une décision de vaisseau (`vaisseau.js:40-67`), plus lourde, et elles appartiennent à P4.
 - [ ] 3.9 **l'aberration relativiste** — « que si tu t'approches de la vitesse de la lumière, visuellement on voit le ciel qui se resserre devant nous ». C'est du VRAI calcul, pas un effet : le champ d'étoiles se contracte vers l'avant et se décale en couleur. Le vaisseau passe l'essentiel du trajet au-dessus de 0,9999 c, donc l'effet y est extrême. À faire dans un module éprouvable, puis dans le nuanceur.
 - [ ] 3.10 **le système solaire vu de loin, avec ses étiquettes** — et c'est aussi ce qui débloque le rythme symétrique : compter les décades depuis Sagittarius, puis VERS le Soleil, demande qu'il y ait quelque chose à approcher — « une vision depuis le nuage dehors, avec des tags : ça c'est Jupiter, ça c'est truc — tout petit évidemment, on ne le verrait même pas, on verrait juste le Soleil ». L'honnêteté du site rend la chose belle : à cette distance il n'y a rien à voir, et les étiquettes disent où sont les choses qu'on ne voit pas.
 
 - [ ] 3.3 le retournement à mi-parcours — sa seconde d'animation, les deux horloges en direct
 - [ ] 3.4 les moments de cours (touche H) et le PREMIER cours : le voyage, sur `journal.js`, un seul, complet
-- [ ] 3.5 l'arrivée : la Terre et la Lune — `lune.js` branché, la dette devient la récompense
+- [ ] 3.5 l'arrivée : la Terre et la Lune — **et le dépôt se contredit sur ce point**. Cette case dit « `lune.js` branché » ; `tout.js:232-234` dit « ÉCARTÉ — décision d'Hugo du 6 août, on lui reproche de ne pas être sourçable ». Les deux ne peuvent pas être vraies : **question posée à Hugo le 10 août, sans réponse pour l'instant (HUGO)**. Si on le branche : 58 affirmations le gardent déjà et ses données viennent du JPL et de l'UAI, mais ses textes sont en français en dur (`lune.js:171-232, 851-963`) et son registre de sources est parallèle au contrat — mise aux normes, pas obstacle de fond
 - [ ] 3.6 les textes des moments de cours — sa voix, sourcée **(HUGO)**
 - [ ] 3.7 séances `?juge` : le retournement, l'arrivée **(HUGO)**
 
