@@ -247,6 +247,37 @@ sources: {
     doi: "10.1093/mnras/stx1277",
     sert: "Stellar density of the solar neighbourhood, 0.040 ± 0.002 M☉/pc³ — the yardstick for the density at the centre",
   },
+
+  /* THE SOLAR SYSTEM FROM OUTSIDE — read on 10 August 2026, every page opened,
+     every number taken from its own table. `SOURCES-SOLAIRE.md` keeps the exact
+     address, table and line, enough to redo the reading without redoing the
+     search. Two sessions stumbled here: the first could reach none of these
+     domains, and it was right to write nothing rather than write from memory. */
+  jplElementsPlanetes: {
+    ref: "NASA/JPL Solar System Dynamics, “Approximate Positions of the Planets”, table 1 (valid 1800-2050); after E. M. Standish and J. G. Williams (1992), the ephemerides chapter of the Explanatory Supplement to the Astronomical Almanac",
+    url: "https://ssd.jpl.nasa.gov/planets/approx_pos.html",
+    sert: "Semi-major axes from Mercury to Neptune, and the mean-longitude rates that allow them to be cross-checked through Kepler. The page states its own two caveats: these are not means but a best fit, and the Earth row is the Earth-Moon barycentre",
+  },
+  iau2012b2: {
+    ref: "International Astronomical Union, XXVIIIth General Assembly (Beijing, 2012), Resolution B2 “on the re-definition of the astronomical unit of length”; value and attribution reproduced by the BIPM, The International System of Units, 9th edition (2019), table of non-SI units accepted for use, note (j)",
+    url: "https://www.bipm.org/documents/20126/41483022/SI-Brochure-9-EN.pdf",
+    sert: "The astronomical unit: 149 597 870 700 metres exactly, and the fact that it is a convention rather than a measurement. This is the source `lune.js:85` cited in a comment while it existed nowhere",
+  },
+  iau2015b3: {
+    ref: "A. Prša et al., “Nominal Values for Selected Solar and Planetary Quantities: IAU 2015 Resolution B3”, The Astronomical Journal 152, 41 (2016)",
+    doi: "10.3847/0004-6256/152/2/41",
+    sert: "Nominal values, exact by definition: solar luminosity 3.828 × 10²⁶ W, solar radius 6.957 × 10⁸ m, (𝒢M)☉ = 1.3271244 × 10²⁰ m³/s², jovian equatorial and polar radii. And the zero point of the 2015 Resolution B2: M_bol = 0 is exactly 3.0128 × 10²⁸ W, hence M_bol☉ ≈ 4.74",
+  },
+  jplDE440: {
+    ref: "NASA/JPL Solar System Dynamics, “Astrodynamic Parameters”, planetary masses from the DE440 ephemeris; R. S. Park, W. M. Folkner, J. G. Williams, D. H. Boggs, “The JPL Planetary and Lunar Ephemerides DE440 and DE441”, The Astronomical Journal 161, 105 (2021)",
+    doi: "10.3847/1538-3881/abd414",
+    sert: "Mass parameters of the eight planetary systems and of the Sun — enough to weigh the planets against their star, and enough to cross-check the semi-major axes through Kepler's third law",
+  },
+  dones2004: {
+    ref: "L. Dones, P. R. Weissman, H. F. Levison, M. J. Duncan, “Oort Cloud Formation and Dynamics”, ASP Conference Series 323, 371-383 (2004)",
+    url: "https://www.aspbooks.org/publications/323/371.pdf",
+    sert: "The Oort cloud: semi-major axes of order 10,000 to 100,000 au, inner cloud 2,000-20,000 au, outer cloud 20,000-200,000 au. And the authors' own admission: “we still have little direct knowledge of the cloud” — the inner bounds are a model result, the Jupiter barrier keeping comets from testifying",
+  },
 },
 
 // -------------------------------------------------------------------- levels
@@ -1233,6 +1264,100 @@ fiches: [
     its measured clumps giving tens of magnitudes. Its mass, on the other hand,
     remains uncertain by a factor of a hundred between authors, from 10⁴ to
     10⁶ M☉: opaque either way, but we cannot quote its weight.`,
+  ]
+},
+{
+  /* Written on 10 August 2026, after reading the sources — two sessions
+     stumbled on this subject for want of reaching the JPL and the IAU, and the
+     first was right to write nothing rather than write from memory.
+     `SOURCES-SOLAIRE.md` keeps the address and the line of every number.
+
+     The third level separates, as `f-ciel` does, what is published from what is
+     derived here — and it carries the caveats the sources state themselves: a
+     best fit is not a mean, a nominal value is not a measurement, and the Oort
+     cloud bounds come out of a model. */
+  id: "f-solaire",
+  titre: "The solar system from outside",
+  sources: [
+    ["dones2004", "jplElementsPlanetes", "jplDE440"],
+    ["jplElementsPlanetes", "iau2012b2", "iau2015b3", "jplDE440", "dones2004"],
+    ["jplElementsPlanetes", "iau2015b3", "iau2012b2", "jplDE440", "dones2004"],
+  ],
+  t: [
+   `Back away far enough from home and nothing is left. Not “almost nothing”:
+    <b>nothing</b>.
+    <br><br>The solar system, seen from its own edge, is a point. The eight
+    planets together weigh a mere <b>1/745</b> of the Sun, and Jupiter alone
+    accounts for more than two thirds of that — all the rest, the Earth
+    included, is dust around a star.
+    <br><br>And they are packed tight. Neptune, the last one, orbits four
+    light-hours from the Sun. The cloud of comets surrounding all of it begins
+    <i>sixty times further out</i> and reaches three light-years.
+    <br><br>That cloud <b>has never been seen</b>. We know it is there because
+    comets fall out of it. That is all.`,
+
+   `The distances come from a JPL table, and they are sober: Mercury at
+    <b>0.387 au</b> from the Sun, Neptune at <b>30.07 au</b>. The astronomical
+    unit itself has not been a measurement since 2012 — it is
+    <b>149,597,870,700 metres, exactly</b>, because the IAU decided so. It is a
+    convention, like the metre.
+    <br><br>The Sun is set the same way: its reference luminosity is
+    <b>3.828 × 10²⁶ W</b>, a figure chosen rather than measured, so that
+    everyone computes alike. With the zero point the IAU fixed at the same
+    assembly, that gives it an absolute bolometric magnitude of <b>4.74</b> —
+    the brightness it would have, seen from ten parsecs, the conventional
+    distance.
+    <br><br>The Oort cloud has two storeys. The <b>inner</b> cloud runs from
+    2,000 to 20,000 au, the <b>outer</b> one from 20,000 to 200,000 au; the
+    long-period comets, for their part, come from a population whose semi-major
+    axes span 10,000 to 100,000 au.
+    <br><br><b>What follows is derived here</b>, not published: from the inner
+    edge of the outer cloud — 20,000 au — the Sun shines at bolometric
+    magnitude <b>−5.3</b>, but its disc is only a tenth of an arcsecond across.
+    Neptune strays at most <b>5 arcminutes</b> from it, Jupiter less than one.
+    To the eye, everything sits in the same point.`,
+
+   `<b>The semi-major axes.</b> Table 1 of the JPL <i>Approximate Positions of
+    the Planets</i>, after Standish and Williams 1992: 0.38709927 · 0.72333566 ·
+    1.00000261 · 1.52371034 · 5.20288700 · 9.53667594 · 19.18916464 ·
+    30.06992276 au. The page states two caveats of its own that bear repeating:
+    these elements <i>“are not intended to represent any sort of mean; they are
+    simply the result of being adjusted for a best fit”</i>, valid over
+    1800-2050 only; and the Earth row is the <b>Earth-Moon barycentre</b>, not
+    the Earth. A second table, fitted over 3000 BC – 3000 AD, gives values that
+    differ in the sixth digit.
+    <br><br><b>Nominal values are not measurements</b>, and the 2015
+    Resolution B3 says so in as many words: they are conversion factors, exact
+    by definition, adopted because the literature carried as many solar radii as
+    it had papers. 𝓡☉ᴺ = 6.957 × 10⁸ m, 𝓛☉ᴺ = 3.828 × 10²⁶ W,
+    (𝒢M)☉ᴺ = 1.3271244 × 10²⁰ m³/s². Resolution B2 of the same assembly fixes
+    M_bol = 0 at exactly 3.0128 × 10²⁸ W.
+    <br><br><b>Cross-checks made here, and they land.</b>
+    −2.5 log(𝓛☉ᴺ / L₀) = 4.7400, the M_bol☉ ≈ 4.74 of the paper.
+    𝓛☉ᴺ / 4π au² = 1361.2 W/m², the nominal irradiance 1361 of the same table —
+    three independent constants closing on each other. And Kepler's third law,
+    applied to the <i>mean-longitude rates</i> of the same table with the (𝒢M)
+    values of DE440, returns the semi-major axis column to within <b>25 ppm from
+    Mercury to Saturn</b>, once the planet's own mass is counted. Uranus and
+    Neptune depart by 330 and 405 ppm: their periods, 84 and 165 years, take up
+    a sizeable fraction of the 250-year fitting window, and the fitted rate
+    absorbs the mutual perturbations there.
+    <br><br><b>The Oort cloud, and what we do not know of it.</b> Dones,
+    Weissman, Levison and Duncan write, on their very first page, that cometary
+    nuclei are a few kilometres across and orbit at 10¹²–10¹³ km, hence that
+    <i>“we still have little direct knowledge of the cloud”</i>. The outer bound
+    comes out of a physical condition — the semi-major axis at which passing
+    stars perturb the perihelion enough without tearing the comet away — and
+    gives 10,000 to 100,000 au. The inner bound is not observed at all: the
+    <b>Jupiter barrier</b> keeps comets with a ≲ 10,000 au from reaching the
+    terrestrial planets, except during a shower triggered by a passing star. The
+    population of the inner cloud <i>“remains uncertain”</i>, and the
+    2,000-20,000 au bounds are a simulation result.
+    <br><br><b>Apparent sizes, derived here.</b> Jupiter's mean volumetric
+    radius, ∛(Rₑ²Rₚ) on the nominal jovian radii — the formula the paper gives
+    for nominal volumes — is 69,911 km. Seen from 20,000 au, its disc measures
+    <b>9.6 milliarcseconds</b> and the Sun's 96. At that distance there is no
+    disc to draw: nothing but points.`,
   ]
 },
 {

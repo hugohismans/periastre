@@ -243,6 +243,38 @@ sources: {
     doi: "10.1093/mnras/stx1277",
     sert: "Densité stellaire du voisinage solaire, 0,040 ± 0,002 M☉/pc³ — le terme de comparaison de la densité au centre",
   },
+
+  /* LE SYSTÈME SOLAIRE VU DU DEHORS — relevé le 10 août 2026, chaque page
+     ouverte, chaque chiffre lu à sa table. `SOURCES-SOLAIRE.md` garde l'adresse
+     exacte, la table et la ligne, de quoi recommencer le relevé sans refaire la
+     recherche. Deux sessions ont buté là-dessus : la première n'atteignait
+     aucun de ces domaines, et elle a eu raison de ne rien écrire plutôt que
+     d'écrire de mémoire. */
+  jplElementsPlanetes: {
+    ref: "NASA/JPL Solar System Dynamics, « Approximate Positions of the Planets », table 1 (valide 1800-2050) ; d'après E. M. Standish et J. G. Williams (1992), chapitre des éphémérides de l'Explanatory Supplement to the Astronomical Almanac",
+    url: "https://ssd.jpl.nasa.gov/planets/approx_pos.html",
+    sert: "Demi-grands axes de Mercure à Neptune, et les taux de longitude moyenne qui permettent de les recouper par Kepler. La page déclare elle-même ses deux réserves : ce ne sont pas des moyennes mais un ajustement, et la ligne de la Terre est le barycentre Terre-Lune",
+  },
+  iau2012b2: {
+    ref: "Union astronomique internationale, XXVIIIᵉ Assemblée générale (Pékin, 2012), résolution B2 « on the re-definition of the astronomical unit of length » ; valeur et attribution reprises par le BIPM, Le Système international d'unités, 9ᵉ édition (2019), tableau des unités hors SI admises, note (j)",
+    url: "https://www.bipm.org/documents/20126/41483022/SI-Brochure-9-EN.pdf",
+    sert: "L'unité astronomique : 149 597 870 700 mètres exactement, et le fait que c'est une convention et non une mesure. C'est la source que `lune.js:85` citait en commentaire sans qu'elle existe nulle part",
+  },
+  iau2015b3: {
+    ref: "A. Prša et al., « Nominal Values for Selected Solar and Planetary Quantities: IAU 2015 Resolution B3 », The Astronomical Journal 152, 41 (2016)",
+    doi: "10.3847/0004-6256/152/2/41",
+    sert: "Valeurs nominales, exactes par définition : luminosité solaire 3,828 × 10²⁶ W, rayon solaire 6,957 × 10⁸ m, (𝒢M)☉ = 1,327 124 4 × 10²⁰ m³/s², rayons joviens équatorial et polaire. Et le point zéro de la résolution B2 de 2015 : M_bol = 0 vaut exactement 3,0128 × 10²⁸ W, d'où M_bol☉ ≈ 4,74",
+  },
+  jplDE440: {
+    ref: "NASA/JPL Solar System Dynamics, « Astrodynamic Parameters », masses planétaires de l'éphéméride DE440 ; R. S. Park, W. M. Folkner, J. G. Williams, D. H. Boggs, « The JPL Planetary and Lunar Ephemerides DE440 and DE441 », The Astronomical Journal 161, 105 (2021)",
+    doi: "10.3847/1538-3881/abd414",
+    sert: "Paramètres de masse des huit systèmes planétaires et du Soleil — de quoi peser les planètes contre leur étoile, et de quoi recouper les demi-grands axes par la troisième loi de Kepler",
+  },
+  dones2004: {
+    ref: "L. Dones, P. R. Weissman, H. F. Levison, M. J. Duncan, « Oort Cloud Formation and Dynamics », ASP Conference Series 323, 371-383 (2004)",
+    url: "https://www.aspbooks.org/publications/323/371.pdf",
+    sert: "Le nuage de Oort : demi-grands axes de l'ordre de 10 000 à 100 000 ua, nuage interne 2 000-20 000 ua, nuage externe 20 000-200 000 ua. Et l'aveu des auteurs : « we still have little direct knowledge of the cloud » — les bornes internes sont un résultat de modèle, la barrière de Jupiter interdisant aux comètes d'en témoigner",
+  },
 },
 
 // ------------------------------------------------------------------- niveaux
@@ -1240,6 +1272,99 @@ fiches: [
     donnent des dizaines de magnitudes. Sa masse, en revanche, reste incertaine
     d'un facteur cent selon les auteurs, de 10⁴ à 10⁶ M☉ : opaque dans tous les
     cas, mais on ne peut pas en donner le poids.`,
+  ]
+},
+{
+  /* Écrite le 10 août 2026, après un relevé aux sources — deux sessions ont
+     buté sur ce sujet faute de pouvoir atteindre le JPL et l'UAI, et la
+     première a eu raison de ne rien écrire plutôt que d'écrire de mémoire.
+     `SOURCES-SOLAIRE.md` garde l'adresse et la ligne de chaque chiffre.
+
+     Le troisième niveau sépare, comme `f-ciel`, ce qui est publié de ce qui est
+     dérivé ici — et il porte les réserves que les sources écrivent elles-mêmes :
+     un ajustement n'est pas une moyenne, une valeur nominale n'est pas une
+     mesure, et les bornes du nuage de Oort sortent d'un modèle. */
+  id: "f-solaire",
+  titre: "Le système solaire vu du dehors",
+  sources: [
+    ["dones2004", "jplElementsPlanetes", "jplDE440"],
+    ["jplElementsPlanetes", "iau2012b2", "iau2015b3", "jplDE440", "dones2004"],
+    ["jplElementsPlanetes", "iau2015b3", "iau2012b2", "jplDE440", "dones2004"],
+  ],
+  t: [
+   `Recule assez loin de chez toi, et il ne reste rien. Pas « presque rien » :
+    <b>rien</b>.
+    <br><br>Le système solaire, vu de son propre bord, c'est un point. Les huit
+    planètes ensemble ne pèsent qu'un <b>745ᵉ</b> du Soleil, et Jupiter à lui
+    seul en fait plus des deux tiers — tout le reste, la Terre comprise, est de
+    la poussière autour d'une étoile.
+    <br><br>Et elles sont serrées. Neptune, la dernière, tourne à quatre heures
+    de lumière du Soleil. Le nuage de comètes qui entoure tout ça commence
+    <i>soixante fois plus loin</i> et s'étend jusqu'à trois années-lumière.
+    <br><br>Ce nuage, <b>personne ne l'a jamais vu</b>. On sait qu'il est là
+    parce que des comètes en tombent. C'est tout.`,
+
+   `Les distances viennent d'un tableau du JPL, et elles sont sobres : Mercure à
+    <b>0,387 ua</b> du Soleil, Neptune à <b>30,07 ua</b>. L'unité astronomique
+    elle-même ne se mesure plus depuis 2012 — elle vaut
+    <b>149 597 870 700 mètres, exactement</b>, parce que l'UAI en a décidé ainsi.
+    C'est une convention, comme le mètre.
+    <br><br>Le Soleil est réglé de la même façon : sa luminosité de référence
+    vaut <b>3,828 × 10²⁶ W</b>, un chiffre choisi et non mesuré, pour que tout le
+    monde calcule pareil. Avec le point zéro que l'UAI a fixé en même temps, ça
+    lui donne une magnitude bolométrique absolue de <b>4,74</b> — c'est-à-dire
+    l'éclat qu'il aurait, vu de dix parsecs, la distance de convention.
+    <br><br>Le nuage de Oort a deux étages. Le nuage <b>interne</b> va de
+    2 000 à 20 000 ua, l'<b>externe</b> de 20 000 à 200 000 ua ; les comètes de
+    longue période, elles, viennent d'un ensemble dont les demi-grands axes vont
+    de 10 000 à 100 000 ua.
+    <br><br><b>Ce qui suit est dérivé ici</b>, pas publié : depuis le bord
+    interne du nuage externe — 20 000 ua — le Soleil brille à magnitude
+    bolométrique <b>−5,3</b>, mais son disque ne fait qu'un dixième de seconde
+    d'arc. Neptune s'en écarte au plus de <b>5 minutes d'arc</b>, Jupiter de
+    moins d'une minute. À l'œil, tout tient dans le même point.`,
+
+   `<b>Les demi-grands axes.</b> Table 1 des <i>Approximate Positions of the
+    Planets</i> du JPL, d'après Standish et Williams 1992 : 0,38709927 ·
+    0,72333566 · 1,00000261 · 1,52371034 · 5,20288700 · 9,53667594 · 19,18916464
+    · 30,06992276 ua. La page pose elle-même deux réserves qu'il faut répéter :
+    ces éléments <i>« are not intended to represent any sort of mean; they are
+    simply the result of being adjusted for a best fit »</i>, valables 1800-2050
+    seulement ; et la ligne de la Terre est le <b>barycentre Terre-Lune</b>, pas
+    la Terre. Une seconde table, ajustée sur 3000 av. J.-C. – 3000 apr. J.-C.,
+    donne des valeurs qui diffèrent au sixième chiffre.
+    <br><br><b>Les valeurs nominales ne sont pas des mesures</b>, et la
+    résolution B3 de 2015 le dit en toutes lettres : ce sont des facteurs de
+    conversion, exacts par définition, adoptés parce que la littérature
+    charriait autant de rayons solaires que d'articles. 𝓡☉ᴺ = 6,957 × 10⁸ m,
+    𝓛☉ᴺ = 3,828 × 10²⁶ W, (𝒢M)☉ᴺ = 1,327 124 4 × 10²⁰ m³/s². La résolution B2 de
+    la même assemblée fixe M_bol = 0 à exactement 3,0128 × 10²⁸ W.
+    <br><br><b>Recoupements faits ici, et ils tombent juste.</b>
+    −2,5 log(𝓛☉ᴺ / L₀) = 4,7400, le M_bol☉ ≈ 4,74 de l'article.
+    𝓛☉ᴺ / 4π ua² = 1 361,2 W/m², l'irradiance nominale 1 361 de la même table —
+    trois constantes indépendantes qui se referment. Et la troisième loi de
+    Kepler, appliquée aux <i>taux de longitude moyenne</i> du même tableau avec
+    les (𝒢M) de DE440, redonne la colonne des demi-grands axes à <b>25 ppm près
+    de Mercure à Saturne</b>, une fois comptée la masse de la planète elle-même.
+    Uranus et Neptune s'en écartent de 330 et 405 ppm : leurs périodes, 84 et
+    165 ans, occupent une fraction notable de la fenêtre d'ajustement de 250 ans,
+    et le taux ajusté y absorbe les perturbations mutuelles.
+    <br><br><b>Le nuage de Oort, et ce qu'on n'en sait pas.</b> Dones, Weissman,
+    Levison et Duncan écrivent, dès leur première page, que les noyaux
+    cométaires mesurent quelques kilomètres et orbitent à 10¹²–10¹³ km, donc que
+    <i>« we still have little direct knowledge of the cloud »</i>. La borne
+    externe sort d'une condition physique — le demi-grand axe où les étoiles de
+    passage perturbent assez le périhélie sans arracher la comète — et donne
+    10 000 à 100 000 ua. La borne interne, elle, n'est pas observée du tout : la
+    <b>barrière de Jupiter</b> interdit aux comètes dont le demi-grand axe reste
+    sous 10 000 ua d'atteindre les planètes telluriques, sauf lors d'une pluie provoquée par le passage
+    d'une étoile. La population du nuage interne <i>« remains uncertain »</i>,
+    et les bornes 2 000-20 000 ua sont un résultat de simulation.
+    <br><br><b>Tailles apparentes, dérivées ici.</b> Le rayon moyen volumétrique
+    de Jupiter, ∛(Rₑ²Rₚ) sur les rayons joviens nominaux — la formule que
+    l'article donne pour les volumes nominaux — vaut 69 911 km. Vu de 20 000 ua,
+    son disque mesure <b>9,6 millisecondes d'arc</b> et celui du Soleil 96. À
+    cette distance il n'y a aucun disque à dessiner : rien que des points.`,
   ]
 },
 {

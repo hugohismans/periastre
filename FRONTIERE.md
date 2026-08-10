@@ -46,6 +46,7 @@ C'est le seul régime qui a le droit de porter une affirmation factuelle.
 | La marche dans le salon : sol, meubles, collisions | `outil-verif-arpente.js` |
 | Le recul logarithmique, sa maille, ses décades | `outil-verif-recul.js` |
 | Le champ d'étoiles : taille des cœurs, continuité aux cellules | `outil-verif-ciel.js` |
+| Les demi-grands axes des planètes, le Soleil, le nuage de Oort | `outil-verif-solaire.js`, qui reconstruit la colonne par Kepler depuis d'autres colonnes |
 
 **Règle** : aucune valeur recopiée de mémoire. On la dérive d'une source, ou on
 la relève et on l'écrit dans un fichier de sources. `outil-verif-contenu.js`

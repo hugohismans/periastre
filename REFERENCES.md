@@ -6,7 +6,7 @@ Généré par `node outils/sources.mjs` — ne pas modifier à la main.
 Pour le *jugement* porté sur chaque affirmation après vérification,
 voir [SOURCES.md](SOURCES.md), qui est l'audit et non l'index.
 
-44 références, 44 effectivement citées.
+49 références, 49 effectivement citées.
 
 ## `gravity2021`
 
@@ -24,21 +24,21 @@ DOI : [10.1051/0004-6361/202142465](https://doi.org/10.1051/0004-6361/202142465)
   > Sagittarius A* fait 4,3 millions de masses solaires tassées dans une bille de 12,7 millions de km — ça tiendra…
 - Fiche 1 « Sagittarius A* » — Astrophysicien
   > M = (4,297 ± 0,012 ± 0,040) × 10⁶ M☉ à R₀ = 8 277 ± 9 ± 30 pc (GRAVITY, 2022), par astrométrie infrarouge de S…
-- Fiche 10 « Des étoiles autour de rien » — Découverte
+- Fiche 11 « Des étoiles autour de rien » — Découverte
   > Recule. Recule encore. Le trou noir devient un point, puis plus rien du tout : il n'y a littéralement plus rie…
-- Fiche 10 « Des étoiles autour de rien » — Curieux
+- Fiche 11 « Des étoiles autour de rien » — Curieux
   > Ce que tu regardes est un jeu d'ellipses partageant un foyer. Pas un centre : un foyer. Le point vide est déca…
-- Fiche 10 « Des étoiles autour de rien » — Astrophysicien
+- Fiche 11 « Des étoiles autour de rien » — Astrophysicien
   > Les éléments tracés viennent de Gillessen et al. 2017, tableau des quarante orbites : a en secondes d'arc, e, …
-- Fiche 11 « S2, l'étoile témoin » — Astrophysicien
+- Fiche 12 « S2, l'étoile témoin » — Astrophysicien
   > Ajustement à quatorze paramètres, éléments osculateurs rapportés à l'apocentre de 2010. GRAVITY 2020, sur les …
-- Fiche 12 « Pourquoi ça ne peut pas être autre chose » — Curieux
+- Fiche 13 « Pourquoi ça ne peut pas être autre chose » — Curieux
   > L'argument est une élimination, pas une observation directe. On mesure une masse et un volume, donc une densit…
-- Fiche 12 « Pourquoi ça ne peut pas être autre chose » — Astrophysicien
+- Fiche 13 « Pourquoi ça ne peut pas être autre chose » — Astrophysicien
   > Chronologie de l'exclusion. 1996-1998 : les mouvements propres des étoiles S, de l'ordre de $10^{3}$ km/s à l'…
-- Fiche 13 « Trente ans pour une preuve » — Curieux
+- Fiche 14 « Trente ans pour une preuve » — Curieux
   > Ce qu'il a fallu, techniquement, pour que ce dessin existe. Au début, la turbulence de l'atmosphère limitait l…
-- Fiche 13 « Trente ans pour une preuve » — Astrophysicien
+- Fiche 14 « Trente ans pour une preuve » — Astrophysicien
   > Le gain instrumental, chiffré. Imagerie limitée par le seeing : 0,4-0,5″ de largeur à mi-hauteur. Optique adap…
 - reactions.photonFuite (photon-fuite)
   > Il s'en sort. Maintenant il file tout droit pendant 27 000 ans avant que quelqu'un le voie.…
@@ -85,13 +85,13 @@ DOI : [10.1051/0004-6361/202037813](https://doi.org/10.1051/0004-6361/202037813)
 
 - Fiche 1 « Sagittarius A* » — Astrophysicien
   > M = (4,297 ± 0,012 ± 0,040) × 10⁶ M☉ à R₀ = 8 277 ± 9 ± 30 pc (GRAVITY, 2022), par astrométrie infrarouge de S…
-- Fiche 10 « Des étoiles autour de rien » — Curieux
+- Fiche 11 « Des étoiles autour de rien » — Curieux
   > Ce que tu regardes est un jeu d'ellipses partageant un foyer. Pas un centre : un foyer. Le point vide est déca…
-- Fiche 10 « Des étoiles autour de rien » — Astrophysicien
+- Fiche 11 « Des étoiles autour de rien » — Astrophysicien
   > Les éléments tracés viennent de Gillessen et al. 2017, tableau des quarante orbites : a en secondes d'arc, e, …
-- Fiche 11 « S2, l'étoile témoin » — Curieux
+- Fiche 12 « S2, l'étoile témoin » — Curieux
   > S2 est une étoile jeune et chaude : type spectral B0 à B3 de la séquence principale, entre 8 et 14 masses sola…
-- Fiche 11 « S2, l'étoile témoin » — Astrophysicien
+- Fiche 12 « S2, l'étoile témoin » — Astrophysicien
   > Ajustement à quatorze paramètres, éléments osculateurs rapportés à l'apocentre de 2010. GRAVITY 2020, sur les …
 - reactions.salon (salon)
   > Bienvenue dans le salon. Nous sommes en orbite excentrique : le vaisseau s'approche, s'éloigne, et le trou noi…
@@ -112,11 +112,11 @@ DOI : [10.1051/0004-6361/201833718](https://doi.org/10.1051/0004-6361/201833718)
 
 - Fiche 1 « Sagittarius A* » — Curieux
   > Sagittarius A* fait 4,3 millions de masses solaires tassées dans une bille de 12,7 millions de km — ça tiendra…
-- Fiche 11 « S2, l'étoile témoin » — Découverte
+- Fiche 12 « S2, l'étoile témoin » — Découverte
   > Parmi les étoiles que tu vois tourner, une seule fait presque tout le travail : S2. Elle a trois qualités et c…
-- Fiche 11 « S2, l'étoile témoin » — Curieux
+- Fiche 12 « S2, l'étoile témoin » — Curieux
   > S2 est une étoile jeune et chaude : type spectral B0 à B3 de la séquence principale, entre 8 et 14 masses sola…
-- Fiche 13 « Trente ans pour une preuve » — Curieux
+- Fiche 14 « Trente ans pour une preuve » — Curieux
   > Ce qu'il a fallu, techniquement, pour que ce dessin existe. Au début, la turbulence de l'atmosphère limitait l…
 - questions[3].niv[1] (q4-1)
   > Troisième loi de Kepler. S2 boucle son orbite en 16,05 ans, passe au plus près à 120 unités astronomiques et y…
@@ -153,11 +153,11 @@ DOI : [10.3847/2041-8213/ac6674](https://doi.org/10.3847/2041-8213/ac6674)
   > M = (4,297 ± 0,012 ± 0,040) × 10⁶ M☉ à R₀ = 8 277 ± 9 ± 30 pc (GRAVITY, 2022), par astrométrie infrarouge de S…
 - Fiche 4 « L'anneau de photons et l'ombre » — Astrophysicien
   > Sphère des photons à r = 3GM/c², ombre de rayon apparent √27 GM/c² ≈ 2,598 rs, — un diamètre de ~53 μas pour S…
-- Fiche 10 « Des étoiles autour de rien » — Découverte
+- Fiche 11 « Des étoiles autour de rien » — Découverte
   > Recule. Recule encore. Le trou noir devient un point, puis plus rien du tout : il n'y a littéralement plus rie…
-- Fiche 13 « Trente ans pour une preuve » — Astrophysicien
+- Fiche 14 « Trente ans pour une preuve » — Astrophysicien
   > Le gain instrumental, chiffré. Imagerie limitée par le seeing : 0,4-0,5″ de largeur à mi-hauteur. Optique adap…
-- Fiche 14 « Est-ce que c'est vrai ? » — Astrophysicien
+- Fiche 15 « Est-ce que c'est vrai ? » — Astrophysicien
   > Exact — géodésiques nulles intégrées sous forme cartésienne l'intégration de $\mathbf{a} = -\tfrac{3}{2}h^{2}\…
 - Dossier « pourquoi c'est exact » — Découverte
   > D'abord, à quoi ressemble un faux La manière facile de fabriquer un joli trou noir, c'est de prendre une photo…
@@ -219,9 +219,9 @@ Prix Nobel de physique 2020, Reinhard Genzel et Andrea Ghez, « for the discover
 
 - Fiche 1 « Sagittarius A* » — Curieux
   > Sagittarius A* fait 4,3 millions de masses solaires tassées dans une bille de 12,7 millions de km — ça tiendra…
-- Fiche 13 « Trente ans pour une preuve » — Découverte
+- Fiche 14 « Trente ans pour une preuve » — Découverte
   > Le prix Nobel de physique 2020 a récompensé exactement ce raisonnement. Une moitié est allée à Reinhard Genzel…
-- Fiche 13 « Trente ans pour une preuve » — Astrophysicien
+- Fiche 14 « Trente ans pour une preuve » — Astrophysicien
   > Le gain instrumental, chiffré. Imagerie limitée par le seeing : 0,4-0,5″ de largeur à mi-hauteur. Optique adap…
 - questions[3].niv[2] (q4-2)
   > Astrométrie et spectroscopie infrarouge de l'amas S sur trois décennies (Keck, VLT/GRAVITY). Au-delà de Kepler…
@@ -294,7 +294,7 @@ DOI : [10.1086/151796](https://doi.org/10.1086/151796)
   > L'entraînement des repères a été prédit en 1918 et mesuré autour de la Terre en 2011, où l'effet est minuscule…
 - Fiche 8 « Quand le trou noir tourne » — Astrophysicien
   > Métrique de Kerr (1963), le seul autre paramètre admis par le théorème de calvitie. L'entraînement des repères…
-- Fiche 14 « Est-ce que c'est vrai ? » — Astrophysicien
+- Fiche 15 « Est-ce que c'est vrai ? » — Astrophysicien
   > Exact — géodésiques nulles intégrées sous forme cartésienne l'intégration de $\mathbf{a} = -\tfrac{3}{2}h^{2}\…
 - Dossier « pourquoi c'est exact » — Curieux
   > Le faux : une déformation d'écran Un rendu bon marché applique un déplacement radial des pixels autour d'un ce…
@@ -337,7 +337,7 @@ J. M. Bardeen, « Timelike and null geodesics in the Kerr metric », dans Black 
   > La sphère des photons est à 1,5 fois le rayon de l'horizon. L'orbite y est instable : le moindre écart, et le …
 - Fiche 4 « L'anneau de photons et l'ombre » — Astrophysicien
   > Sphère des photons à r = 3GM/c², ombre de rayon apparent √27 GM/c² ≈ 2,598 rs, — un diamètre de ~53 μas pour S…
-- Fiche 14 « Est-ce que c'est vrai ? » — Curieux
+- Fiche 15 « Est-ce que c'est vrai ? » — Curieux
   > C'est du lancer de géodésiques, pas un filtre de déformation. Chaque pixel intègre la trajectoire d'un photon …
 - Dossier « pourquoi c'est exact » — Curieux
   > Le faux : une déformation d'écran Un rendu bon marché applique un déplacement radial des pixels autour d'un ce…
@@ -440,7 +440,7 @@ DOI : [10.1146/annurev-astro-082812-141003](https://doi.org/10.1146/annurev-astr
   > M = (4,297 ± 0,012 ± 0,040) × 10⁶ M☉ à R₀ = 8 277 ± 9 ± 30 pc (GRAVITY, 2022), par astrométrie infrarouge de S…
 - Fiche 5 « Pourquoi ça brille » — Astrophysicien
   > Disque mince Shakura-Sunyaev (1973), viscosité α portée par la MRI (Balbus-Hawley 1991). Rendement 5,7 % en Sc…
-- Fiche 14 « Est-ce que c'est vrai ? » — Astrophysicien
+- Fiche 15 « Est-ce que c'est vrai ? » — Astrophysicien
   > Exact — géodésiques nulles intégrées sous forme cartésienne l'intégration de $\mathbf{a} = -\tfrac{3}{2}h^{2}\…
 - Dossier « pourquoi c'est exact » — Astrophysicien
   > Formulation Ray-tracing rétrograde de géodésiques nulles en Schwarzschild. On intègre la forme cartésienne $$\…
@@ -469,9 +469,9 @@ DOI : [10.1103/PhysRevLett.14.57](https://doi.org/10.1103/PhysRevLett.14.57)
 
 **Citée 3 fois :**
 
-- Fiche 13 « Trente ans pour une preuve » — Découverte
+- Fiche 14 « Trente ans pour une preuve » — Découverte
   > Le prix Nobel de physique 2020 a récompensé exactement ce raisonnement. Une moitié est allée à Reinhard Genzel…
-- Fiche 13 « Trente ans pour une preuve » — Astrophysicien
+- Fiche 14 « Trente ans pour une preuve » — Astrophysicien
   > Le gain instrumental, chiffré. Imagerie limitée par le seeing : 0,4-0,5″ de largeur à mi-hauteur. Optique adap…
 - questions[0].niv[2] (q1-2)
   > Une solution du vide des équations d'Einstein possédant un horizon des événements — la frontière du passé caus…
@@ -543,11 +543,11 @@ S. Chandrasekhar, The Mathematical Theory of Black Holes, Oxford University Pres
   > La sphère des photons est à 1,5 fois le rayon de l'horizon. L'orbite y est instable : le moindre écart, et le …
 - Fiche 7 « La dernière orbite stable » — Astrophysicien
   > rISCO = 6GM/c² pour a = 0 ; elle descend à GM/c² en Kerr extrême prograde et monte à 9GM/c² en rétrograde. Ell…
-- Fiche 14 « Est-ce que c'est vrai ? » — Découverte
+- Fiche 15 « Est-ce que c'est vrai ? » — Découverte
   > Oui. Et c'est le plus beau de toute l'histoire. Personne n'a dessiné cette image. Pour chacun des deux million…
-- Fiche 14 « Est-ce que c'est vrai ? » — Curieux
+- Fiche 15 « Est-ce que c'est vrai ? » — Curieux
   > C'est du lancer de géodésiques, pas un filtre de déformation. Chaque pixel intègre la trajectoire d'un photon …
-- Fiche 14 « Est-ce que c'est vrai ? » — Astrophysicien
+- Fiche 15 « Est-ce que c'est vrai ? » — Astrophysicien
   > Exact — géodésiques nulles intégrées sous forme cartésienne l'intégration de $\mathbf{a} = -\tfrac{3}{2}h^{2}\…
 - Dossier « pourquoi c'est exact » — Découverte
   > D'abord, à quoi ressemble un faux La manière facile de fabriquer un joli trou noir, c'est de prendre une photo…
@@ -653,11 +653,11 @@ DOI : [10.1103/RevModPhys.82.3121](https://doi.org/10.1103/RevModPhys.82.3121)
 
 **Citée 10 fois :**
 
-- Fiche 12 « Pourquoi ça ne peut pas être autre chose » — Curieux
+- Fiche 13 « Pourquoi ça ne peut pas être autre chose » — Curieux
   > L'argument est une élimination, pas une observation directe. On mesure une masse et un volume, donc une densit…
-- Fiche 12 « Pourquoi ça ne peut pas être autre chose » — Astrophysicien
+- Fiche 13 « Pourquoi ça ne peut pas être autre chose » — Astrophysicien
   > Chronologie de l'exclusion. 1996-1998 : les mouvements propres des étoiles S, de l'ordre de $10^{3}$ km/s à l'…
-- Fiche 13 « Trente ans pour une preuve » — Curieux
+- Fiche 14 « Trente ans pour une preuve » — Curieux
   > Ce qu'il a fallu, techniquement, pour que ce dessin existe. Au début, la turbulence de l'atmosphère limitait l…
 - questions[6].niv[2] (q7-2)
   > Le moment cinétique spécifique de S2 est très au-dessus du seuil de capture : la dernière orbite stable est à …
@@ -789,9 +789,9 @@ DOI : [10.3847/1538-4357/aa5c41](https://doi.org/10.3847/1538-4357/aa5c41)
 
 **Citée 4 fois :**
 
-- Fiche 10 « Des étoiles autour de rien » — Astrophysicien
+- Fiche 11 « Des étoiles autour de rien » — Astrophysicien
   > Les éléments tracés viennent de Gillessen et al. 2017, tableau des quarante orbites : a en secondes d'arc, e, …
-- Fiche 11 « S2, l'étoile témoin » — Découverte
+- Fiche 12 « S2, l'étoile témoin » — Découverte
   > Parmi les étoiles que tu vois tourner, une seule fait presque tout le travail : S2. Elle a trois qualités et c…
 - questions[8].niv[1] (q9-1)
   > Ce que publient les articles, ce sont des positions datées et des vitesses radiales, pas un film. Pour S2 : 12…
@@ -808,11 +808,11 @@ DOI : [10.1086/311194](https://doi.org/10.1086/311194)
 
 **Citée 3 fois :**
 
-- Fiche 12 « Pourquoi ça ne peut pas être autre chose » — Découverte
+- Fiche 13 « Pourquoi ça ne peut pas être autre chose » — Découverte
   > « Quatre millions de soleils dans un tout petit espace. » D'accord — mais pourquoi un trou noir ? Pourquoi pas…
-- Fiche 12 « Pourquoi ça ne peut pas être autre chose » — Curieux
+- Fiche 13 « Pourquoi ça ne peut pas être autre chose » — Curieux
   > L'argument est une élimination, pas une observation directe. On mesure une masse et un volume, donc une densit…
-- Fiche 12 « Pourquoi ça ne peut pas être autre chose » — Astrophysicien
+- Fiche 13 « Pourquoi ça ne peut pas être autre chose » — Astrophysicien
   > Chronologie de l'exclusion. 1996-1998 : les mouvements propres des étoiles S, de l'ordre de $10^{3}$ km/s à l'…
 
 ## `schoedel2003`
@@ -825,9 +825,9 @@ DOI : [10.1086/378122](https://doi.org/10.1086/378122)
 
 **Citée 2 fois :**
 
-- Fiche 12 « Pourquoi ça ne peut pas être autre chose » — Découverte
+- Fiche 13 « Pourquoi ça ne peut pas être autre chose » — Découverte
   > « Quatre millions de soleils dans un tout petit espace. » D'accord — mais pourquoi un trou noir ? Pourquoi pas…
-- Fiche 12 « Pourquoi ça ne peut pas être autre chose » — Astrophysicien
+- Fiche 13 « Pourquoi ça ne peut pas être autre chose » — Astrophysicien
   > Chronologie de l'exclusion. 1996-1998 : les mouvements propres des étoiles S, de l'ordre de $10^{3}$ km/s à l'…
 
 ## `ghez1998`
@@ -840,7 +840,7 @@ DOI : [10.1086/306528](https://doi.org/10.1086/306528)
 
 **Citée 1 fois :**
 
-- Fiche 13 « Trente ans pour une preuve » — Découverte
+- Fiche 14 « Trente ans pour une preuve » — Découverte
   > Le prix Nobel de physique 2020 a récompensé exactement ce raisonnement. Une moitié est allée à Reinhard Genzel…
 
 ## `habibi2017`
@@ -853,7 +853,7 @@ DOI : [10.3847/1538-4357/aa876f](https://doi.org/10.3847/1538-4357/aa876f)
 
 **Citée 2 fois :**
 
-- Fiche 11 « S2, l'étoile témoin » — Curieux
+- Fiche 12 « S2, l'étoile témoin » — Curieux
   > S2 est une étoile jeune et chaude : type spectral B0 à B3 de la séquence principale, entre 8 et 14 masses sola…
 - questions[6].niv[2] (q7-2)
   > Le moment cinétique spécifique de S2 est très au-dessus du seuil de capture : la dernière orbite stable est à …
@@ -977,6 +977,87 @@ DOI : [10.1093/mnras/stx1277](https://doi.org/10.1093/mnras/stx1277)
 
 - Fiche 9 « Le ciel de là-bas » — Curieux
   > Les chiffres sont mesurés, et ils sont violents. À un centième de parsec du trou noir — deux mille fois la dis…
+
+## `jplElementsPlanetes`
+
+NASA/JPL Solar System Dynamics, « Approximate Positions of the Planets », table 1 (valide 1800-2050) ; d'après E. M. Standish et J. G. Williams (1992), chapitre des éphémérides de l'Explanatory Supplement to the Astronomical Almanac
+
+<https://ssd.jpl.nasa.gov/planets/approx_pos.html>
+
+**Ce qu'elle étaye :** Demi-grands axes de Mercure à Neptune, et les taux de longitude moyenne qui permettent de les recouper par Kepler. La page déclare elle-même ses deux réserves : ce ne sont pas des moyennes mais un ajustement, et la ligne de la Terre est le barycentre Terre-Lune
+
+**Citée 3 fois :**
+
+- Fiche 10 « Le système solaire vu du dehors » — Découverte
+  > Recule assez loin de chez toi, et il ne reste rien. Pas « presque rien » : rien. Le système solaire, vu de son…
+- Fiche 10 « Le système solaire vu du dehors » — Curieux
+  > Les distances viennent d'un tableau du JPL, et elles sont sobres : Mercure à 0,387 ua du Soleil, Neptune à 30,…
+- Fiche 10 « Le système solaire vu du dehors » — Astrophysicien
+  > Les demi-grands axes. Table 1 des Approximate Positions of the Planets du JPL, d'après Standish et Williams 19…
+
+## `iau2012b2`
+
+Union astronomique internationale, XXVIIIᵉ Assemblée générale (Pékin, 2012), résolution B2 « on the re-definition of the astronomical unit of length » ; valeur et attribution reprises par le BIPM, Le Système international d'unités, 9ᵉ édition (2019), tableau des unités hors SI admises, note (j)
+
+<https://www.bipm.org/documents/20126/41483022/SI-Brochure-9-EN.pdf>
+
+**Ce qu'elle étaye :** L'unité astronomique : 149 597 870 700 mètres exactement, et le fait que c'est une convention et non une mesure. C'est la source que `lune.js:85` citait en commentaire sans qu'elle existe nulle part
+
+**Citée 2 fois :**
+
+- Fiche 10 « Le système solaire vu du dehors » — Curieux
+  > Les distances viennent d'un tableau du JPL, et elles sont sobres : Mercure à 0,387 ua du Soleil, Neptune à 30,…
+- Fiche 10 « Le système solaire vu du dehors » — Astrophysicien
+  > Les demi-grands axes. Table 1 des Approximate Positions of the Planets du JPL, d'après Standish et Williams 19…
+
+## `iau2015b3`
+
+A. Prša et al., « Nominal Values for Selected Solar and Planetary Quantities: IAU 2015 Resolution B3 », The Astronomical Journal 152, 41 (2016)
+
+DOI : [10.3847/0004-6256/152/2/41](https://doi.org/10.3847/0004-6256/152/2/41)
+
+**Ce qu'elle étaye :** Valeurs nominales, exactes par définition : luminosité solaire 3,828 × 10²⁶ W, rayon solaire 6,957 × 10⁸ m, (𝒢M)☉ = 1,327 124 4 × 10²⁰ m³/s², rayons joviens équatorial et polaire. Et le point zéro de la résolution B2 de 2015 : M_bol = 0 vaut exactement 3,0128 × 10²⁸ W, d'où M_bol☉ ≈ 4,74
+
+**Citée 2 fois :**
+
+- Fiche 10 « Le système solaire vu du dehors » — Curieux
+  > Les distances viennent d'un tableau du JPL, et elles sont sobres : Mercure à 0,387 ua du Soleil, Neptune à 30,…
+- Fiche 10 « Le système solaire vu du dehors » — Astrophysicien
+  > Les demi-grands axes. Table 1 des Approximate Positions of the Planets du JPL, d'après Standish et Williams 19…
+
+## `jplDE440`
+
+NASA/JPL Solar System Dynamics, « Astrodynamic Parameters », masses planétaires de l'éphéméride DE440 ; R. S. Park, W. M. Folkner, J. G. Williams, D. H. Boggs, « The JPL Planetary and Lunar Ephemerides DE440 and DE441 », The Astronomical Journal 161, 105 (2021)
+
+DOI : [10.3847/1538-3881/abd414](https://doi.org/10.3847/1538-3881/abd414)
+
+**Ce qu'elle étaye :** Paramètres de masse des huit systèmes planétaires et du Soleil — de quoi peser les planètes contre leur étoile, et de quoi recouper les demi-grands axes par la troisième loi de Kepler
+
+**Citée 3 fois :**
+
+- Fiche 10 « Le système solaire vu du dehors » — Découverte
+  > Recule assez loin de chez toi, et il ne reste rien. Pas « presque rien » : rien. Le système solaire, vu de son…
+- Fiche 10 « Le système solaire vu du dehors » — Curieux
+  > Les distances viennent d'un tableau du JPL, et elles sont sobres : Mercure à 0,387 ua du Soleil, Neptune à 30,…
+- Fiche 10 « Le système solaire vu du dehors » — Astrophysicien
+  > Les demi-grands axes. Table 1 des Approximate Positions of the Planets du JPL, d'après Standish et Williams 19…
+
+## `dones2004`
+
+L. Dones, P. R. Weissman, H. F. Levison, M. J. Duncan, « Oort Cloud Formation and Dynamics », ASP Conference Series 323, 371-383 (2004)
+
+<https://www.aspbooks.org/publications/323/371.pdf>
+
+**Ce qu'elle étaye :** Le nuage de Oort : demi-grands axes de l'ordre de 10 000 à 100 000 ua, nuage interne 2 000-20 000 ua, nuage externe 20 000-200 000 ua. Et l'aveu des auteurs : « we still have little direct knowledge of the cloud » — les bornes internes sont un résultat de modèle, la barrière de Jupiter interdisant aux comètes d'en témoigner
+
+**Citée 3 fois :**
+
+- Fiche 10 « Le système solaire vu du dehors » — Découverte
+  > Recule assez loin de chez toi, et il ne reste rien. Pas « presque rien » : rien. Le système solaire, vu de son…
+- Fiche 10 « Le système solaire vu du dehors » — Curieux
+  > Les distances viennent d'un tableau du JPL, et elles sont sobres : Mercure à 0,387 ua du Soleil, Neptune à 30,…
+- Fiche 10 « Le système solaire vu du dehors » — Astrophysicien
+  > Les demi-grands axes. Table 1 des Approximate Positions of the Planets du JPL, d'après Standish et Williams 19…
 
 ## Affirmations sans source
 

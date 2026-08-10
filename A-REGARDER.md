@@ -15,7 +15,69 @@ Tout ce qui ne peut pas se vérifier par la mesure, et qui attend donc qu'un
 humain regarde. **Rien ici ne bloque quoi que ce soit** — c'est une file, pas
 une dette. Elle existe pour que ça ne se perde pas dans une conversation.
 
-Mise à jour le 9 août 2026 au soir, après la séance sur le rendu.
+Mise à jour le 10 août 2026, après le relevé aux sources du système solaire.
+
+---
+
+## ❓ D'OÙ ON REGARDE LE SYSTÈME SOLAIRE — et ça change tout le décor
+
+**C'est une décision d'image, elle t'appartient.** Je l'ai chiffrée parce que la
+réponse n'est pas celle que je croyais, et elle décide s'il y a des étiquettes à
+poser ou non.
+
+Tu voulais « une vision depuis le nuage dehors, avec des tags : ça c'est Jupiter,
+ça c'est truc ». Je pensais pouvoir te dire « impossible, tout est dans le même
+pixel ». **C'est vrai depuis le nuage de Oort, et faux dès qu'on s'approche un
+peu** — et la bascule est brutale.
+
+Voici, pour chaque distance, l'écart maximal entre une planète et le Soleil,
+**en pixels**, sur un écran de 1 080 points de haut :
+
+| d'où on regarde | Jupiter | Saturne | Uranus | Neptune |
+|---|---|---|---|---|
+| **1 000 ua** (juste après Neptune) | 6,2 px | 11,4 px | 23,0 px | **36,1 px** |
+| 5 000 ua | 1,3 px | 2,3 px | 4,6 px | 7,2 px |
+| **10 000 ua** (bord du nuage) | 0,6 px | 1,1 px | 2,3 px | 3,6 px |
+| **20 000 ua** (nuage externe) | 0,3 px | 0,6 px | 1,2 px | 1,8 px |
+| 100 000 ua (bord lointain) | 0,06 px | 0,1 px | 0,2 px | 0,4 px |
+
+Mercure, Vénus, la Terre et Mars sont **sous le dixième de pixel partout**, sauf
+à 1 000 ua où la Terre atteint 1,2 px.
+
+**Ce que ça veut dire, en clair :**
+
+- **Depuis le nuage de Oort — ce que tu demandais — il n'y a rien à étiqueter.**
+  Huit planètes dans deux pixels. Des étiquettes séparées pour Jupiter et
+  Saturne y seraient un mensonge : elles pointeraient le même point.
+- **Depuis 1 000 ua, il y a une scène.** Neptune à trente-six pixels du Soleil,
+  Jupiter à six : un petit système reconnaissable, où chaque étiquette pointe un
+  endroit distinct. C'est encore trente fois plus loin que Neptune, donc
+  « le système solaire vu de dehors » est honnête.
+- Et ta remarque de départ — « quelques secondes d'arc » — est **juste pour les
+  distances entre étoiles** : Neptune ne tombe à 5″ du Soleil qu'à **20
+  années-lumière**. Depuis le nuage de Oort on est en minutes d'arc, pas en
+  secondes.
+
+**Donc la question, et elle est pour toi :**
+
+> **Où plante-t-on la caméra pour la vue « de dehors » ?**
+>
+> **(a)** dans le nuage de Oort, fidèle à ta phrase — et alors on ne montre
+> qu'**un point**, plus l'immensité vide autour, et les étiquettes disent où sont
+> des choses qu'on ne voit pas ni ne distingue ;
+>
+> **(b)** vers **1 000 ua**, où le système apparaît comme un petit disque
+> d'orbites lisible et où les étiquettes tiennent debout ;
+>
+> **(c)** les deux, dans cet ordre : on arrive du nuage, on voit le point, et
+> l'on tombe vers 1 000 ua où les orbites s'écartent.
+
+Ma recommandation est **(c)** : le vide du début est le fait le plus fort de
+toute la scène, et le remède à son ennui est de continuer à tomber. Mais c'est
+ton œil qui tranche, pas mon argument.
+
+*Chiffres dérivés des demi-grands axes relevés au JPL et de l'ouverture de
+caméra de `echelle.js` (0,9 radian, soit 171,9″ par pixel à 1 080 points).*
 
 ---
 
