@@ -69,6 +69,7 @@
            text-decoration:none;letter-spacing:.01em}
   #jauge em{color:#c9a961;font-style:normal}
   #alerte{color:#e08a6a}
+  #jLoupe{color:#c9a961;display:block}
 
   /* La légende de l'étalon. Elle se cale sous le viseur — 13 % de la largeur,
      74 % de la hauteur — et disparaît quand l'astre choisi EST la Lune. */
@@ -87,12 +88,13 @@
 
 <canvas id="c"></canvas>
 
-<div id="aide">glissez pour regarder autour de vous</div>
+<div id="aide">glissez pour regarder autour de vous &nbsp;·&nbsp; deux doigts pour grossir</div>
 
 <div id="jauge">
   <s id="jTitre">la Lune</s>
   <span id="jTaille"></span><br>
   <span id="jMaree"></span><br>
+  <span id="jLoupe"></span>
   <span id="jAlerte" ></span>
 </div>
 
@@ -115,7 +117,7 @@ const D = L.D_LUNE_KM;
 let cle = "lune";
 let scn = R.scene(L, cle, D, 0);
 let phase = 0;                 // 0→1, un cycle de marée complet
-let az = 0, alt = 0.18;        // où l'on regarde
+let az = 0, alt = 4.5*Math.PI/180; // où l'on regarde — l'astre ET l'horizon
 
 /* LE TEMPS DE LA SCÈNE. La marée vraie met 12 h 25 ; on la joue en 24 s, et
    c'est un compromis DÉCLARÉ, pas une loi inventée : le rapport est affiché
@@ -123,20 +125,68 @@ let az = 0, alt = 0.18;        // où l'on regarde
    on ne truque pas la physique. */
 const CYCLE_S = 24;
 
-/* LE CHAMP DE VISION. Pas un nombre inventé : `LUNE.CHAMP_FIGE` est le champ
-   figé que la page de la Lune emploie déjà pour comparer les astres entre eux
-   à échelle constante. Le reprendre ici garde UNE SEULE LOI entre les deux
-   objets qui décrivent le même ciel — c'est la règle 4 du projet, celle que
-   le quadrillage et les orbites ont violée pendant une soirée.
+/* ---------------------------------------------------------------------------
+   L'ÉCHELLE DU CIEL — refaite deux fois le 11 août 2026
 
-   Il est FIXE. À 60°, la Lune fait cinq pixels de haut sur un écran de
-   téléphone, et Jupiter en occupe le tiers. Cet écart est le sujet même de la
-   scène, et le lisser serait mentir sur le seul chiffre qu'elle a à dire. */
-const CHAMP = L.CHAMP_FIGE;
+   PREMIER JET : 60°, repris de LUNE.CHAMP_FIGE. J'ai défendu ce choix en
+   écrivant que la Lune à cinq pixels « était le sujet même de la scène ».
+   C'était faux, et Hugo l'a dit en une phrase : « la pleine Lune, je la vois
+   quand elle est pleine, ce n'est pas possible que je la voie aussi petite ».
+   Un écran tenu à bout de bras n'occupe qu'une vingtaine de degrés du regard :
+   y peindre 60° de ciel comprimait tout d'un facteur deux et demi. La Lune
+   n'était pas rendue petite par honnêteté, elle était rendue FAUSSE.
+
+   DEUXIÈME JET : 26° en dur. Hugo, aussitôt : « c'est basé sur le seize
+   neuvième des écrans standards, il faut que ce soit une autre dimension
+   d'écran, ça fonctionne, responsive ». Il a raison de nouveau, et le défaut
+   est plus profond que le premier : un ANGLE fixe ne dit rien tant qu'on ne
+   sait pas quelle surface le porte. Le même 26° sur un téléphone en portrait
+   et sur un écran large ne donnent pas la même Lune.
+
+   CE QUI EST FIXE N'EST DONC PAS L'ANGLE, C'EST L'ÉCHELLE.
+
+   Un pixel de l'écran vaut toujours le même angle de ciel. Une fenêtre plus
+   grande montre PLUS DE CIEL, jamais une Lune plus grosse — exactement comme
+   une vraie fenêtre. Le rapport largeur/hauteur n'entre nulle part : les deux
+   axes emploient la même échelle, donc le 16:9, le 4:3 et le portrait d'un
+   téléphone donnent tous la même taille apparente.
+
+   L'échelle n'est pas inventée non plus. Le « pixel de référence » du web est
+   défini comme l'angle visuel d'un pixel à 96 points par pouce vu à bout de
+   bras, soit environ 0,0213° — c'est la définition du CSS, pas une valeur que
+   j'ai choisie. La rendre au ciel, c'est afficher 1:1.
+
+     source : CSS Values and Units Module, § « absolute lengths »,
+     W3C — https://www.w3.org/TR/css-values-4/#reference-pixel
+
+   À cette échelle, la Lune fait vingt-quatre pixels sur n'importe quel écran,
+   et Jupiter à la distance lunaire déborde du cadre. Les deux sont vrais.   */
+const DEG_PAR_PIXEL = 0.0213;      // pixel de référence CSS — W3C
+
+/* LA LOUPE. Hugo, le 11 août : « ça doit toujours être un peu interactif. »
+   Molette ou deux doigts. Tout grossit ensemble, les rapports entre astres
+   restent exacts, et la scène AVOUE son grossissement dès qu'il quitte 1. */
+let loupe = 1;
+const LOUPE_MIN = 1, LOUPE_MAX = 12;
+
+/* Le champ n'est plus une constante : il se DÉDUIT de la hauteur de la
+   fenêtre. Les bornes évitent l'absurde aux deux extrêmes — une montre
+   connectée et un mur de projection — et rien entre les deux n'est bridé. */
+function champ(){
+  const deg = cv.clientHeight * DEG_PAR_PIXEL / loupe;
+  return Math.max(2, Math.min(70, deg));
+}
 
 /* --- WebGL --------------------------------------------------------------- */
 const cv = document.getElementById("c");
-const gl = cv.getContext("webgl", {antialias:false, alpha:false});
+/* `?mesure` garde le tampon lisible après le dessin, pour qu'un contrôle
+   puisse compter les pixels d'un astre depuis le dehors. Éteint par défaut :
+   conserver le tampon coûte de la mémoire et du temps sur téléphone, et ce
+   coût n'a pas à être payé par quelqu'un qui regarde le ciel. C'est la même
+   convention que `?verif` dans le site. */
+const MESURABLE = location.search.includes("mesure");
+const gl = cv.getContext("webgl", {antialias:false, alpha:false,
+                                   preserveDrawingBuffer: MESURABLE});
 if(!gl){ document.body.innerHTML = "<p style='color:#eee;padding:2em'>WebGL indisponible.</p>"; }
 
 const VS = `attribute vec2 p; void main(){ gl_Position = vec4(p,0.,1.); }`;
@@ -164,30 +214,101 @@ uniform float uTanChamp;     // tangente du demi-champ vertical
 uniform float uAngRLune;     // rayon angulaire de la Lune — L'ÉTALON
 uniform float uEstLune;      // 1 quand l'astre choisi EST la Lune
 
-float h21(vec2 p){ return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453); }
+/* Un brassage 2D sans sinus. sin(dot(...))*43758 se répète à grande échelle
+   sur les cartes mobiles, qui n'ont pas la précision qu'il réclame — c'est une
+   des deux causes des anneaux qu'Hugo a vus. */
+float h21(vec2 p){
+  p = fract(p*vec2(443.8975,441.4234));
+  p += dot(p, p.yx + 19.19);
+  return fract((p.x + p.y)*p.x);
+}
 
-// --- champ d'étoiles procédural, stable dans la direction regardée ---------
+/* Un bruit lissé. Le premier jet employait floor() nu, qui pose une valeur
+   constante par case : la Voie lactée devenait un damier de pavés, visibles à
+   l'oeil sur l'image. L'interpolation les efface sans rien coûter. */
+float bruit(vec2 p){
+  vec2 i = floor(p), f = fract(p);
+  f = f*f*(3.0 - 2.0*f);
+  return mix(mix(h21(i),            h21(i+vec2(1.,0.)), f.x),
+             mix(h21(i+vec2(0.,1.)), h21(i+vec2(1.,1.)), f.x), f.y);
+}
+
+/* ---------------------------------------------------------------------------
+   LE CHAMP D'ÉTOILES — refait le 11 août 2026
+
+   Hugo, après avoir regardé : « le ciel est un peu bizarre, on dirait une
+   espèce de fractale un peu chelou, il y a des cercles concentriques ». Il
+   avait vu la signature d'un calcul faux, et il y en avait DEUX.
+
+   1. Le premier semis découpait l'espace en cubes et prenait leur empreinte en
+      repliant trois coordonnées sur deux — cell.xy + cell.z*37. Deux cubes
+      différents pouvaient ainsi tomber sur la même empreinte, et le motif se
+      répétait.
+
+   2. Surtout : les directions du regard sont toutes de longueur 1, donc les
+      points échantillonnés vivaient sur une SPHÈRE traversant un réseau de
+      cubes. L'intersection d'une sphère et d'un réseau cubique dessine des
+      anneaux — les cercles concentriques, exactement.
+
+   Le semis se fait donc maintenant sur les six faces d'un cube, en deux
+   dimensions, comme une carte du ciel : plus de sphère à travers un réseau,
+   donc plus d'anneaux possibles.
+
+   La taille des étoiles suit le champ de vision, pour qu'une étoile reste un
+   point de deux ou trois pixels quel que soit le cadrage. Une étoile plus
+   grosse que la Lune serait un mensonge sur le seul sujet de la scène.      */
 vec3 etoiles(vec3 d){
+  // sur quelle face du cube regarde-t-on, et où
+  vec3 a = abs(d);
+  float face; vec2 uv;
+  if(a.x >= a.y && a.x >= a.z){ face = (d.x > 0.) ? 0. : 1.; uv = vec2(d.z, d.y)/a.x; }
+  else if(a.y >= a.z)         { face = (d.y > 0.) ? 2. : 3.; uv = vec2(d.x, d.z)/a.y; }
+  else                        { face = (d.z > 0.) ? 4. : 5.; uv = vec2(d.x, d.y)/a.z; }
+
   vec3 col = vec3(0.);
-  for(int o=0;o<3;o++){
-    float ech = 90.0 + float(o)*130.0;
-    vec3 q = d*ech;
-    vec3 cell = floor(q);
-    vec2 k = cell.xy + cell.z*37.0;
+  for(int o=0; o<3; o++){
+    float N = 34.0 + float(o)*61.0;          // trois densités superposées
+
+    /* COMBIEN D'ÉTOILES. Le seuil monte avec la densité : quelques centaines
+       de brillantes, quelques milliers de faibles. Un seuil constant en
+       donnait vingt mille — trois fois ce que l'œil nu voit vraiment. */
+    float seuil = 0.90 + float(o)*0.045;
+
+    vec2 q = uv*N;
+    vec2 cellule = floor(q);
+    vec2 k = cellule + face*137.31 + float(o)*57.77;
     float r = h21(k);
-    if(r > 0.86){
-      vec3 centre = cell + 0.5 + 0.34*vec3(h21(k+1.),h21(k+2.),h21(k+3.));
-      float dd = length(q - centre);
-      float mag = (r-0.86)/0.14;
-      float i = smoothstep(0.42,0.0,dd) * (0.25+0.75*mag*mag);
-      // une teinte légère, bleutée ou ambrée selon l'étoile
-      vec3 t = mix(vec3(0.75,0.83,1.0), vec3(1.0,0.86,0.7), h21(k+9.));
+    if(r > seuil){
+      vec2 c = cellule + 0.5 + 0.38*(vec2(h21(k+1.7), h21(k+3.1))*2.0 - 1.0);
+      float dd = length(q - c);
+      float mag = (r - seuil)/(1.0 - seuil);
+
+      /* LE RAYON D'UNE ÉTOILE — dérivé, pas choisi.
+
+         Une face du cube couvre 90°, et vaut N cases : une case fait donc
+         90/N degrés. On veut qu'une étoile occupe environ deux pixels sur un
+         écran de six cents, soit champ/300 degrés. En cases, cela donne
+         champ·N/27000, et champ vaut sensiblement 114,6·tan(champ/2).
+
+         Premier jet : 0,030·N·tan — sept fois trop. Les étoiles débordaient de
+         leur case, s'y faisaient couper, et le ciel devenait un damier de
+         pavés. Hugo n'a pas eu à le signaler, l'image le criait. */
+      float rayon = 0.0042*N*uTanChamp;
+
+      float i = exp(-(dd*dd)/(rayon*rayon)) * (0.16 + 0.84*mag*mag*mag);
+      i *= 1.0 - float(o)*0.28;              // les denses sont les plus faibles
+      vec3 t = mix(vec3(0.70,0.79,1.0), vec3(1.0,0.85,0.66), h21(k+9.43));
       col += t*i;
     }
   }
-  // la Voie lactée, une bande diffuse — DESSINÉE, elle ne prétend à rien
-  float b = exp(-pow(abs(d.y-0.12*d.x)*3.1,2.0));
-  col += vec3(0.055,0.062,0.085)*b;
+
+  /* La Voie lactée : une bande diffuse, DESSINÉE, qui ne prétend à rien — ni
+     position vraie, ni structure. Elle est là parce qu'un ciel sans elle est
+     un ciel de ville, et qu'on est censé être loin de tout. */
+  float lat = d.y*0.94 - d.x*0.30;
+  float b = exp(-lat*lat*11.0);
+  float grain = 0.62 + 0.38*bruit(uv*7.0 + face*23.0);
+  col += vec3(0.030,0.034,0.048)*b*grain;
   return col;
 }
 
@@ -391,7 +512,8 @@ function choisis(k){
 const jT = document.getElementById("jTitre"),
       jS = document.getElementById("jTaille"),
       jM = document.getElementById("jMaree"),
-      jA = document.getElementById("jAlerte");
+      jA = document.getElementById("jAlerte"),
+      jL = document.getElementById("jLoupe");
 
 function majJauge(){
   jT.textContent = scn.nom;
@@ -409,6 +531,7 @@ function majJauge(){
   jM.innerHTML = "marnage <em>" + mm.replace(".",",") + "</em> &nbsp;·&nbsp; cycle "
                + (isFinite(h) ? (h<48? h.toFixed(1).replace(".",",")+" h" : (h/24).toFixed(1).replace(".",",")+" j") : "jamais")
                + " <span style='opacity:.55'>(joué en " + CYCLE_S + " s)</span>";
+  jL.textContent = loupe > 1.02 ? "loupe ×" + loupe.toFixed(1).replace(".",",") : "";
   jA.textContent = scn.verdict === "englouti"
       ? "la Terre est à l'intérieur de cet astre — il n'y a plus de rivage"
       : scn.verdict === "brisee" ? "sous la limite de Roche : la Terre se disloque"
@@ -434,11 +557,44 @@ cv.addEventListener("touchstart", e=>{const t=e.touches[0];debut(t.clientX,t.cli
 cv.addEventListener("touchmove", e=>{const t=e.touches[0];bouge(t.clientX,t.clientY);}, {passive:true});
 cv.addEventListener("touchend", fin);
 
+/* LA LOUPE — molette au bureau, deux doigts sur le téléphone. */
+function grossis(f){
+  loupe = Math.max(LOUPE_MIN, Math.min(LOUPE_MAX, loupe*f));
+  aide.classList.add("parti");
+  majJauge();
+}
+cv.addEventListener("wheel", e => { e.preventDefault(); grossis(Math.exp(-e.deltaY*0.0016)); }, {passive:false});
+
+let ecart0 = 0, loupe0 = 1;
+function ecartDoigts(t){
+  return Math.hypot(t[0].clientX-t[1].clientX, t[0].clientY-t[1].clientY);
+}
+cv.addEventListener("touchstart", e => {
+  if(e.touches.length === 2){ prise = false; ecart0 = ecartDoigts(e.touches); loupe0 = loupe; }
+}, {passive:true});
+cv.addEventListener("touchmove", e => {
+  if(e.touches.length === 2 && ecart0 > 0){
+    loupe = Math.max(LOUPE_MIN, Math.min(LOUPE_MAX, loupe0 * ecartDoigts(e.touches)/ecart0));
+    majJauge();
+  }
+}, {passive:true});
+
 /* --- la boucle ------------------------------------------------------------ */
 /* L'astre est planté à 32° au-dessus de l'horizon, plein sud du repère. C'est
    une mise en scène, pas une éphéméride : la scène ne prétend pas dire OÙ la
    Lune se trouve ce soir, seulement quelle taille elle a. */
-const ALT_ASTRE = 32 * Math.PI/180;
+/* LA HAUTEUR DE L'ASTRE dans le ciel, et celle du regard au départ.
+
+   Le champ vaut maintenant une douzaine de degrés, pas soixante : un astre
+   planté à 32° sortait simplement du cadre, et la scène s'ouvrait sur un ciel
+   vide. Les deux valeurs se choisissent donc ensemble, pour qu'à l'ouverture on
+   voie L'ASTRE ET L'HORIZON à la fois. Neuf degrés de hauteur et quatre et demi
+   de regard : l'astre se tient à mi-hauteur du cadre, la mer occupe le bas.
+
+   Et Jupiter, qui fait vingt et un degrés de large, a désormais son bord
+   inférieur SOUS l'horizon : il se lève de la mer au lieu de flotter hors sol.
+   Ce n'est pas un effet ajouté — c'est la conséquence de sa taille. */
+const ALT_ASTRE = 9 * Math.PI/180;
 const dirAstre = [Math.sin(0)*Math.cos(ALT_ASTRE), Math.sin(ALT_ASTRE), -Math.cos(0)*Math.cos(ALT_ASTRE)];
 
 let t0 = performance.now();
@@ -476,7 +632,7 @@ function image(now){
   gl.uniform1f(U.uHorizon, scn.horizon_m);
   gl.uniform1f(U.uT, now/1000);
   gl.uniform2f(U.uRing, scn.anneaux?scn.anneaux.rInt:0, scn.anneaux?scn.anneaux.rExt:0);
-  gl.uniform1f(U.uTanChamp, Math.tan(CHAMP*Math.PI/360));
+  gl.uniform1f(U.uTanChamp, Math.tan(champ()*Math.PI/360));
   /* L'ÉTALON. Même fonction, même distance, donc même nombre que celui qui
      dimensionne l'astre du ciel — c'est ce qui interdit aux deux de diverger. */
   gl.uniform1f(U.uAngRLune, R.etalonLune(L, D)*Math.PI/360);

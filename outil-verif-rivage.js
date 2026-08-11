@@ -359,6 +359,72 @@ if(bloc){
   affirmeVrai("…et un accent grave de trop serait refusé", refuse);
 }
 
+/* ============================================================================
+   9. L'ÉCHELLE DU CIEL NE DÉPEND PAS DE LA FORME DE L'ÉCRAN
+
+   Hugo, le 11 août 2026, sans avoir eu besoin d'ouvrir la page : « c'est basé
+   sur le seize neuvième des écrans standards, il faut que ce soit une autre
+   dimension d'écran, ça fonctionne, responsive ». Il visait juste — le champ
+   était alors un ANGLE fixe, et un angle fixe ne dit rien tant qu'on ne sait
+   pas quelle surface le porte.
+
+   L'invariant qui remplace cet angle : UN PIXEL VAUT TOUJOURS LE MÊME ANGLE DE
+   CIEL. Une fenêtre plus grande montre plus de ciel, jamais une Lune plus
+   grosse.
+
+   Le contrôle prend la fonction telle qu'elle est ÉCRITE DANS LA PAGE et la
+   fait tourner ici, avec de fausses fenêtres. Il ne recopie pas la formule : il
+   exécute celle qui sera servie, et exige d'elle une propriété énoncée
+   ailleurs — la constance, que la formule ne mentionne nulle part.          */
+titre("9. La Lune fait le même nombre de pixels sur toutes les fenêtres");
+
+const mDeg = page.match(/const DEG_PAR_PIXEL\s*=\s*([0-9.]+)/);
+const mFn  = page.match(/function champ\(\)\{[\s\S]*?\n\}/);
+affirmeVrai("la page expose son échelle et sa fonction de champ", !!mDeg && !!mFn);
+
+if(mDeg && mFn){
+  const champDe = new Function("cv","loupe","DEG_PAR_PIXEL",
+                               mFn[0] + "\nreturn champ();");
+  const DEG = parseFloat(mDeg[1]);
+  const diamLune = R.scene(L, "lune", dLune, 0).diametreApparent_deg;
+
+  /* Quatre fenêtres de formes franchement différentes — portrait de téléphone,
+     tablette, seize neuvième, ultra-large. Seule la HAUTEUR entre dans le
+     calcul, ce qui est le point : la largeur ne peut pas changer l'échelle. */
+  const fenetres = [[390,844],[768,1024],[900,600],[1440,600],[2560,1080]];
+  let refPx = null, pire = 0;
+  for(const [w,h] of fenetres){
+    const c  = champDe({clientWidth:w, clientHeight:h}, 1, DEG);
+    const px = diamLune / (c/h);          // la Lune, en pixels CSS
+    if(refPx === null) refPx = px;
+    pire = Math.max(pire, Math.abs(px - refPx)/refPx);
+  }
+  affirmeVrai("la Lune garde la même taille sur cinq fenêtres",
+    pire < 1e-12,
+    fenetres.map(f => f[0]+"×"+f[1]).join(" · ") + " → " + fr(refPx,1) + " px");
+
+  /* Et la mesure au navigateur, jouée à part, confirme ce compte : 24,0 px CSS
+     sur quatre formes d'écran (rapports 0,46 à 2,40). Cette ligne-ci exige que
+     le calcul retombe sur ce que l'image a montré — sinon les deux chemins ont
+     divergé, et c'est l'image qui a raison. */
+  affirme("…et ce compte est celui mesuré à l'écran", 24.0, refPx, 0.03, "px");
+
+  /* CONTRE-ÉPREUVE. Si l'échelle dépendait de la forme de l'écran — un angle
+     fixe, comme au deuxième jet — la Lune changerait de taille d'une fenêtre à
+     l'autre. Le contrôle doit le VOIR, sinon il ne surveille rien. */
+  const champFixe = new Function("cv","loupe","DEG_PAR_PIXEL","return 26/loupe;");
+  const pxFixe = fenetres.map(([w,h]) => diamLune / (champFixe({clientHeight:h},1,DEG)/h));
+  affirmeVrai("…et un champ fixe serait démasqué",
+    Math.max(...pxFixe)/Math.min(...pxFixe) > 1.5,
+    "de " + fr(Math.min(...pxFixe),1) + " à " + fr(Math.max(...pxFixe),1) + " px");
+
+  /* La loupe grossit, elle ne déforme pas : deux fois la loupe, deux fois la
+     Lune, sur n'importe quelle fenêtre. */
+  const px1 = diamLune / (champDe({clientHeight:844},1,DEG)/844);
+  const px2 = diamLune / (champDe({clientHeight:844},2,DEG)/844);
+  affirme("la loupe ×2 double exactement la Lune", 2, px2/px1, 1e-12, "×");
+}
+
 /* ============================================================================ */
 console.log("\n" + "=".repeat(72));
 console.log(echecs === 0
