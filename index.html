@@ -1416,6 +1416,15 @@ body.au-salon:not(.mode-boutons) #dock { opacity:0; pointer-events:none; }
     <div class="grille" id="rendu-choix"></div>
     <div id="rendu-note"></div>
   </div>
+  <!-- LE RYTHME DU VOYAGE — la demande d'Hugo du 7 août : « fais les deux,
+       paramétrable dans les options ». Les deux rythmes existaient dans
+       `recul.js` depuis ce soir-là ; le bouton, non, et `contenu.js` l'avouait
+       déjà. C'est le lieu que cet aveu nomme, et c'est ici qu'il se tient. -->
+  <div class="bloc">
+    <div class="etiq" id="rythme-etiq"></div>
+    <div class="grille" id="rythme-choix"></div>
+    <div id="rythme-note"></div>
+  </div>
   <div class="bloc">
     <div class="etiq">Voix de Lumen</div>
     <div class="grille" id="voix-choix"></div>
@@ -3433,6 +3442,13 @@ const CLE_RENDU = "periastre.rendu";
 let modeRendu = RENDU.DEFAUT;
 try { modeRendu = RENDU.borne(localStorage.getItem(CLE_RENDU)); } catch(e){}
 
+/* LE RYTHME DU VOYAGE — clé à part pour les mêmes deux raisons : c'est une
+   chaîne, que `CHAMPS` ne range pas, et l'écrire à part évite de réécrire toute
+   la mémoire de la partie à chaque clic — la panne du 7 août. L'état vit dans
+   `recul.js`, seul écrivain ; une mémoire abîmée y retombe sur le défaut. */
+const CLE_RYTHME = "periastre.rythme";
+try { RECUL.poseRythme(localStorage.getItem(CLE_RYTHME)); } catch(e){}
+
 poseAveux($("dossier"), "salon");
 
 $("in-titre").textContent  = T("tele.titre");
@@ -5026,6 +5042,36 @@ function poseChoixRendu(hote, idEtiq, idNote){
 }
 poseChoixRendu($("rendu-choix"), "rendu-etiq", "rendu-note");
 poseChoixRendu($("acc-rendu"),  "acc-rendu-etiq", null);
+
+/* LE RYTHME DU VOYAGE — le bouton demandé le 7 août, jamais posé jusqu'ici ;
+   `recul.js` raconte les quatre jours. Fabrique unique et liste de repeints
+   comme le rendu, bien qu'il n'y ait qu'un seul exemplaire aujourd'hui : le
+   second — l'accueil, ou le télescope au moment de partir — ne doit pas être
+   l'occasion de repayer la leçon de la langue puis du rendu. */
+const CHOIX_RYTHME = [];
+function poseChoixRythme(hote, idEtiq, idNote){
+  if(!hote) return;
+  if($(idEtiq)) $(idEtiq).textContent = T("rythme.etiq");
+  const boutons = RECUL.RYTHMES.map(r => {
+    const b = document.createElement("button");
+    b.textContent = T("rythme." + r);
+    b.title = T("rythme." + r + ".note");
+    b.onclick = () => {
+      RECUL.poseRythme(r);
+      try { localStorage.setItem(CLE_RYTHME, RECUL.rythme); } catch(e){}
+      CHOIX_RYTHME.forEach(p => p());
+    };
+    hote.appendChild(b);
+    return b;
+  });
+  const peint = () => {
+    boutons.forEach((b, i) => b.classList.toggle("actif", RECUL.RYTHMES[i] === RECUL.rythme));
+    if($(idNote)) $(idNote).textContent = T("rythme." + RECUL.rythme + ".note");
+  };
+  CHOIX_RYTHME.push(peint);
+  peint();
+}
+poseChoixRythme($("rythme-choix"), "rythme-etiq", "rythme-note");
 
 const boitierVol = $("volume");
 [["panneau.volume.discret", 0.28], ["panneau.volume.normal", 0.5],

@@ -20,6 +20,39 @@ en vol et le relevé aux sources du système solaire.
 
 ---
 
+## ❗ LE RYTHME DU VOYAGE A ENFIN SON BOUTON — et son défaut t'appartient
+
+**Il faut que je te dise d'abord ce qui n'allait pas.** Le 7 août tu avais
+demandé les deux rythmes, « paramétrable dans les options ». Les deux ont été
+faits ce soir-là. **L'option, non.** Il n'y a jamais eu de bouton — et pendant ce
+temps le site *annonçait* le réglage, noir sur blanc, dans son propre panneau.
+
+Le pire n'est pas le bouton manquant. C'est que **le 9 août, tu as jugé
+« ça va » un rythme que le site ne jouait pas.** La séance de jugement remettait
+l'autre en sortant, exprès, pour ne rien changer dans ton dos. Ton verdict
+portait donc sur quelque chose que tu ne revoyais plus une fois la séance finie.
+
+**Maintenant le bouton existe**, dans les réglages, juste sous « Rendu ». Ton
+choix est retenu d'une visite à l'autre.
+
+**Ce qui reste à toi : lequel des deux le site doit jouer par défaut**, pour
+quelqu'un qui arrive et qui ne touchera jamais à ce réglage. Sur le vrai trajet
+vers le système solaire, qui dure trente-quatre secondes à l'écran :
+
+| | ce que ça donne |
+|---|---|
+| **Fidèle** *(ce que le site joue aujourd'hui)* | plus de la moitié du voyage défile dans la **première seconde**, puis l'écran ne bouge plus pendant une douzaine de secondes |
+| **Régulier** | ça part doucement, ça file au milieu, ça ralentit à l'arrivée — c'est celui que tu avais regardé |
+
+**Ma recommandation est *régulier*.** Mais c'est ton œil, pas un calcul : je n'y
+ai pas touché, et le défaut reste « fidèle » tant que tu n'as pas répondu.
+
+*(Le rythme régulier garde son défaut connu — le freinage y commence à 80 % du
+temps d'écran au lieu de la moitié. C'est le chantier suivant, celui du système
+solaire vu de loin, et il ne dépend pas de cette réponse-ci.)*
+
+---
+
 ## ✅ D'OÙ ON REGARDE LE SYSTÈME SOLAIRE — tranché le 10 août au soir
 
 > **Verdict d'Hugo : (c), les deux, dans cet ordre.** On arrive dans le nuage de

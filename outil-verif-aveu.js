@@ -275,7 +275,94 @@ groupe("L'aveu suit le rendu — les modes viennent de `rendu.js`");
      + "court est posé par `textContent` et ne doit rien porter");
 }
 
-// ══════════════════════════════ 8. les sabotages
+// ══════════════════════════════ 8. un aveu qui nomme un réglage le trouve
+/* LE DÉFAUT DU 11 AOÛT, ET IL A TENU QUATRE JOURS EN LIGNE.
+
+   `rythme-voyage` avouait, dans le lieu « reglages » : « Le défilement du
+   voyage a deux rythmes ». Les deux rythmes existaient bel et bien dans
+   `recul.js` — mais AUCUN BOUTON ne les proposait, `poseRythme` n'étant appelé
+   que par la séance de jugement et par les outils. Le site annonçait donc un
+   réglage qui n'existait pas, et jouait le rythme que personne n'avait choisi.
+
+   Rien ne pouvait le dire. `contrat.js` vérifie que l'aveu est DÉCLARÉ, le
+   groupe 3 ci-dessus qu'il est MONTRABLE, `VERIF.aveux()` qu'il est POSÉ. Aucun
+   ne demandait si la chose avouée EXISTE. C'est un cran de plus que F4, et
+   c'est celui-là qui manquait : un aveu faux est pire qu'un aveu absent — il
+   apprend à ne plus les lire, ce qui défait tout le reste.
+
+   D'OÙ VIENT LA VÉRITÉ ICI. De deux fichiers qui ne se connaissent pas :
+   `contenu.js` dit quel réglage il avoue, `index.html` dit quels réglages
+   existent. Aucun des deux ne se compare à lui-même.
+
+   ET LA MARQUE EST OBLIGATOIRE dans un lieu de réglage : sans ça, on répare le
+   cas d'aujourd'hui et le prochain aveu passera au vert en omettant `regle`. */
+groupe("Un aveu posé dans un réglage doit trouver ce réglage dans la page");
+{
+  const PAGE = fs.readFileSync(path.join(ICI, "index.html"), "utf8");
+
+  /* Les lieux qui SONT des panneaux de réglage. Recopie gardée, comme celle des
+     lieux plus haut : si l'un d'eux est renommé dans `contrat.js`, ce contrôle
+     cesserait de mordre en silence — c'est-à-dire redeviendrait le contrôle
+     absent qui a laissé passer le défaut. */
+  const LIEUX_REGLAGE = ["reglages", "reglage-temps"];
+  const inconnus = LIEUX_REGLAGE.filter(l => !A.LIEUX.has(l));
+  ok("les lieux de réglage sont des lieux connus", inconnus.length === 0,
+     "aucun inconnu", inconnus.length ? inconnus.join(", ") : "aucun",
+     "un lieu renommé rendrait ce groupe muet, et il ne dirait plus rien de faux "
+     + "— il ne dirait plus rien du tout");
+
+  const dansUnReglage = A.tous(FR).filter(c => LIEUX_REGLAGE.indexOf(c.ou) >= 0);
+  ok("il y a bien des aveux dans les panneaux de réglage",
+     dansUnReglage.length > 0, "> 0", dansUnReglage.length,
+     "sinon ce groupe ne prouve rien");
+
+  const sansMarque = dansUnReglage.filter(c => typeof c.regle !== "string" || !c.regle.trim());
+  ok("chacun nomme le réglage qu'il avoue", sansMarque.length === 0, 0,
+     sansMarque.length ? sansMarque.map(c => c.id).join(", ") : 0,
+     "`regle` porte l'identifiant de l'hôte dans la page — sans lui, personne ne "
+     + "peut vérifier que la chose avouée existe");
+
+  // La marque ne se traduit pas : c'est un identifiant du document.
+  const parIdEN = new Map(A.tous(EN).map(c => [c.id, c]));
+  let divergent = null;
+  for(const c of A.tous(FR)){
+    const q = parIdEN.get(c.id);
+    if(q && (c.regle || null) !== (q.regle || null))
+      divergent = c.id + " : « " + c.regle + " » contre « " + q.regle + " »";
+  }
+  ok("et la marque est la même dans les deux langues", divergent === null,
+     "identiques", divergent || "identiques",
+     "c'est un identifiant du document, pas une phrase : deux valeurs voudraient "
+     + "dire qu'une des deux langues avoue un réglage qui n'est pas le sien");
+
+  /* Deux exigences, et il faut les deux. L'hôte doit être DANS le balisage — un
+     sélecteur posé dans un hôte absent ne peint rien, en silence — et la page
+     doit le REMPLIR. Un `<div>` vide qui porte le bon identifiant est encore un
+     réglage qui n'existe pas, et c'est la moitié du défaut d'aujourd'hui. */
+  const marques = A.tous(FR).filter(c => typeof c.regle === "string" && c.regle.trim());
+  const absents = [], vides = [];
+  for(const c of marques){
+    if(!new RegExp('id="' + c.regle + '"').test(PAGE)) absents.push(c.id + " → #" + c.regle);
+    else if(PAGE.indexOf('$("' + c.regle + '")') < 0) vides.push(c.id + " → #" + c.regle);
+  }
+  ok("l'hôte de chaque réglage avoué existe dans le balisage", absents.length === 0, 0,
+     absents.length ? absents.join(", ") : 0,
+     "c'est exactement ce qui manquait au rythme du voyage : l'aveu était écrit, "
+     + "le bloc n'existait pas");
+  ok("et la page le remplit vraiment", vides.length === 0, 0,
+     vides.length ? vides.join(", ") : 0,
+     "un hôte que personne ne va chercher reste un carré vide sous une étiquette "
+     + "— le visiteur lit l'aveu et ne trouve rien à régler");
+
+  // Le cas nommé, à part : c'est le défaut réparé, il mérite d'être visible.
+  const r = marques.find(c => c.id === "rythme-voyage");
+  ok("le rythme du voyage a son bouton", !!r && absents.length === 0 && vides.length === 0,
+     "posé dans #rythme-choix", r ? "#" + r.regle : "AVEU DISPARU",
+     "quatre jours en ligne à annoncer un réglage absent, et à jouer le rythme "
+     + "qu'Hugo n'avait pas choisi");
+}
+
+// ══════════════════════════════ 9. les sabotages
 groupe("Et ces contrôles savent tomber");
 {
   /* On rejoue une assertion sur un module modifié en mémoire. Le fichier sur le
@@ -333,6 +420,46 @@ groupe("Et ces contrôles savent tomber");
      sourd.descripteur(cible, "simulation").aveu === cible.aveu,
      "vu", sourd.descripteur(cible, "simulation").aveu === cible.aveu
              ? "vu" : "PASSÉ INAPERÇU");
+
+  /* LE GROUPE 8 SUR TROIS PAGES FABRIQUÉES. On ne casse pas `index.html` pour le
+     prouver : on tend au contrôle une page dont on connaît la réponse avant de
+     demander, et l'on exige qu'il rougisse sur chacune des trois façons de
+     mentir — l'aveu sans marque, la marque sans bloc, le bloc jamais rempli.
+
+     Les trois ont existé. La deuxième était l'état du dépôt ce matin. */
+  const jugeReglage = (contenu, page) => {
+    const m = A.tous(contenu).filter(c => typeof c.regle === "string" && c.regle.trim());
+    const sansMarque = A.tous(contenu).filter(c => c.ou === "reglages" && typeof c.regle !== "string");
+    if(sansMarque.length) return "sans marque";
+    for(const c of m){
+      if(!new RegExp('id="' + c.regle + '"').test(page)) return "hôte absent";
+      if(page.indexOf('$("' + c.regle + '")') < 0) return "hôte vide";
+    }
+    return null;
+  };
+  const bonneP = '<div id="r-choix"></div>' + '\n' + 'const h = $("r-choix");';
+  const bonC = { a: { id:"a", ou:"reglages", aveu:"A", regle:"r-choix" } };
+
+  ok("une page saine passe ce contrôle", jugeReglage(bonC, bonneP) === null,
+     "null", String(jugeReglage(bonC, bonneP)),
+     "sans ce point, les trois sabotages ci-dessous ne prouveraient rien : un "
+     + "contrôle qui rougit sur tout ne mesure rien non plus");
+
+  const nu = { a: { id:"a", ou:"reglages", aveu:"A" } };
+  ok("un aveu de réglage sans marque est vu", jugeReglage(nu, bonneP) === "sans marque",
+     "sans marque", String(jugeReglage(nu, bonneP)));
+
+  const fantome = { a: { id:"a", ou:"reglages", aveu:"A", regle:"r-fantome" } };
+  ok("une marque qui ne désigne aucun bloc est vue",
+     jugeReglage(fantome, bonneP) === "hôte absent", "hôte absent",
+     String(jugeReglage(fantome, bonneP)),
+     "c'est le défaut du 11 août, à la lettre");
+
+  const jamaisRempli = '<div id="r-choix"></div>';
+  ok("un bloc que la page ne remplit jamais est vu",
+     jugeReglage(bonC, jamaisRempli) === "hôte vide", "hôte vide",
+     String(jugeReglage(bonC, jamaisRempli)),
+     "un carré vide sous une étiquette est encore un réglage qui n'existe pas");
 }
 
 console.log("\n  " + (echecs ? "❌  " + echecs + " ÉCHECS sur " + n + " contrôles"

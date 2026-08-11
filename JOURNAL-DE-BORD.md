@@ -18,6 +18,68 @@ Hugo peut aussi le déclencher à tout moment : « on refait le cap ».
 
 ---
 
+## 11 août 2026 — le bouton du rythme, quatre jours après la demande
+
+**Le site annonçait un réglage qui n'existait pas.** `contenu.js` avoue depuis le
+9 août que « le défilement du voyage a deux rythmes ». Les deux étaient bien
+écrits dans `recul.js` — la demande d'Hugo du 7 au soir, « fais les deux,
+paramétrable dans les options » — mais `poseRythme` n'était appelé que par la
+séance de jugement et par les outils. Aucun bouton, nulle part. Un aveu qui
+décrit un bouton absent est pire qu'un aveu absent : il apprend à ne plus les
+lire, et c'est nous-mêmes qui l'avions écrit deux jours plus tôt.
+
+**Conséquence, et elle est plus grave que le bouton manquant** : ce qu'Hugo a
+jugé « ça va » le 9 août au soir — le rythme régulier — n'a jamais été ce que le
+site jouait. `juge.js` remet le défaut en sortant de séance, exprès. Son verdict
+portait donc sur un rythme que personne ne voyait en jouant.
+
+**Refait la mesure avant de coder**, sur le vrai trajet vers le système solaire
+(9,10 décades, 33,7 s d'écran) : le fidèle franchit **3,93 décades dans la
+première seconde**, finit sur douze secondes où l'écran ne bouge plus, et son
+freinage commence à 50 % ; le régulier part de 0,00 et freine à 79,8 %.
+
+**Le sélecteur est dans les réglages**, à côté du rendu et sur son patron :
+fabrique unique et liste de repeints, même s'il n'est posé qu'à un seul endroit
+aujourd'hui — la langue puis le rendu ont payé deux fois le prix des deux
+fabriques. Le choix se range sous sa propre clé, `periastre.rythme`, écrite au
+clic et jamais ailleurs : `CHAMPS` ne range pas de chaînes, et la panne du 7 août
+venait d'une mémoire réécrite trop souvent.
+
+**Trouvé en posant le bouton** : `rangeGrandTrajet` remettait « fidele » en dur à
+la sortie de séance. C'était juste tant que rien n'était réglable ; ça effaçait
+désormais le choix du joueur, c'est-à-dire exactement ce que cette précaution
+voulait empêcher. La séance retient ce qu'elle trouve et le repose.
+
+**Le contrôle qui manquait, et c'est le vrai livrable** — `outil-verif-aveu.js`,
+groupe 8 : un aveu posé dans un panneau de réglage doit **nommer** son hôte
+(`regle:`), cet hôte doit exister dans le balisage, **et** la page doit le
+remplir. Un `<div>` vide sous une étiquette est encore un réglage qui n'existe
+pas. Sa vérité vient de deux fichiers qui ne se connaissent pas — `contenu.js`
+dit ce qu'il avoue, `index.html` dit ce qui existe. Éprouvé faillible trois fois
+sur le vrai dépôt (hôte renommé, sélecteur retiré, `regle` effacé) et trois fois
+sur des pages fabriquées, plus un point qui vérifie qu'une page saine passe :
+sans lui, un contrôle qui rougit sur tout ne mesurerait rien non plus.
+
+Vingt-deux contrôles de plus dans `outil-verif-recul.js`. Le meilleur ne croit
+pas la liste des rythmes sur parole : il joue le vrai trajet et exige que deux
+noms donnent deux défilements **différents**, et qu'un nom inconnu joue
+exactement le défaut. Un bouton qui ne ferait rien est l'inverse du défaut
+d'aujourd'hui, et tout aussi menteur.
+
+**Le plafond de `index.html` monte de 3 865 à 3 902** — trente-sept lignes de
+DOM, écrites et justifiées dans `outil-verif-taille.js`. Pas fondu la fabrique du
+rythme avec celle du rendu : ce serait la bonne économie à la troisième, et pour
+deux ça aurait touché un réglage qui marche pour en poser un qui n'existait pas.
+
+**LE DÉFAUT N'EST PAS TRANCHÉ, ET C'EST À HUGO.** Il reste `fidele`, avec un
+contrôle qui le garde pour qu'il ne bascule pas par accident. Ma recommandation
+est *régulier* — c'est celui qu'il a jugé « ça va », et *fidèle* fige l'écran une
+douzaine de secondes sur ce trajet. Mais c'est une décision d'image, elle lui
+appartient, et son verdict du 9 août portait sur un rythme que le site ne jouait
+pas : il vaut un avis, pas une décision. **Question posée, réponse attendue.**
+
+---
+
 ## 10 août 2026, le soir — le système solaire est enfin sourcé
 
 Session lancée **exprès sur un réseau ouvert** : la précédente n'atteignait ni le

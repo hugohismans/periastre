@@ -376,7 +376,28 @@ const fs = require("fs"), path = require("path");
 
    Au passage, `poseArrivee(v)` n'ouvrait jamais son paramètre et le recevait
    sous deux formes selon l'appelant. Il reçoit la destination, et il s'en sert. */
-const PLAFOND = 3865;   // ... le quadrillage, la page fraîche, l'arrivée qui sait où elle est
+/* 3 902 le 11 août — trente-sept lignes, et la deuxième hausse qui répare une
+   chose FAUSSE : le site annonçait un réglage qui n'existait pas.
+
+   `contenu.js` avoue depuis le 9 août que « le défilement du voyage a deux
+   rythmes ». Les deux étaient bien dans `recul.js` — la demande d'Hugo du 7,
+   « fais les deux, paramétrable dans les options » — mais `poseRythme` n'était
+   appelé que par la séance de jugement et par les outils. Aucun bouton. Le site
+   jouait donc le fidèle, qui sur le vrai trajet vers le Soleil franchit 3,93
+   décades sur 9,10 dans la PREMIÈRE seconde puis fige l'écran douze secondes.
+
+   CE QUE ÇA COÛTE : le sélecteur et sa liste de repeints, plus la clé de mémoire
+   et sa relecture. Ce sont des lignes de DOM — fabriquer des boutons, poser une
+   classe « actif », écrire un `textContent` — et le tableau des irréductibles
+   les nomme depuis le début. La moitié éprouvable est dehors : `recul.js` porte
+   la liste des rythmes, le défaut et la borne, et `outil-verif-recul.js` prouve
+   par le COMPORTEMENT que deux noms jouent bien deux défilements.
+
+   CE QUI N'A PAS ÉTÉ TENTÉ : fondre cette fabrique avec celle du rendu. Elles se
+   ressemblent, et ce serait la bonne économie le jour où une troisième arrive.
+   Pour deux, généraliser aurait touché un réglage qui marche pour en poser un
+   qui n'existait pas — le mauvais ordre. C'est noté, pas fait. */
+const PLAFOND = 3902;   // ... l'arrivée qui sait où elle est, le rythme qui a son bouton
 
 // Le nombre de modules déjà sortis. Il ne descend jamais non plus : un module
 // qu'on ferait rentrer dans le bloc serait le contraire exact du chantier.

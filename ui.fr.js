@@ -297,6 +297,18 @@ window.UI = {
                        + "place : les étoiles sont posées au hasard, et ce noir "
                        + "n'existe pas — là-bas, il n'y fait jamais nuit.",
 
+/* Le rythme du voyage, 11 août. Les deux disent la vérité sur la vitesse et sur
+   les horloges ; ils ne répartissent pas le temps d'écran de la même façon. */
+"rythme.etiq":             "Rythme du voyage",
+"rythme.fidele":           "Fidèle",
+"rythme.regulier":         "Régulier",
+"rythme.fidele.note":      "Ce qu'on verrait par le hublot, sans retouche : on "
+                         + "s'éloigne très vite au début, puis l'écran bouge à "
+                         + "peine pendant qu'on freine.",
+"rythme.regulier.note":    "Le défilement est étalé : on part doucement, on file "
+                         + "au milieu du trajet, on ralentit à l'arrivée. Seule "
+                         + "la cadence est retouchée — les chiffres restent vrais.",
+
 "aveu.notif":            "ce que la simulation s'autorise",
 "aveu.reste":            "et {n} autre(s) à cet endroit",
 "aveu.centre.titre":     "Ce qu'on s'autorise",

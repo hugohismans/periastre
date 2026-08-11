@@ -611,9 +611,19 @@ function rameneAuDepart(){
 
    On rejoue donc le vrai départ, à la seule différence près qu'on saute au
    moment intéressant : `depuis` place l'animation là où les deux rythmes
-   divergent le plus. Le rythme se remet à « fidèle » à la sortie — c'est le
-   défaut du site, et une séance ne change pas un réglage en douce. */
+   divergent le plus.
+
+   ON REND LE RYTHME QU'ON A TROUVÉ, ET C'EST NOUVEAU. Cette fonction remettait
+   « fidele » en dur à la sortie, ce qui était juste tant que le rythme n'était
+   pas réglable : c'était le défaut du site, et une séance ne change pas un
+   réglage en douce. Le bouton existe depuis le 11 août — remettre le défaut
+   effacerait maintenant le choix du joueur, c'est-à-dire commettre exactement
+   ce que cette précaution voulait empêcher. On retient donc ce qui était en
+   place à l'entrée, et on le repose. */
+let rythmeAvantSeance = null;
+
 function rejoueGrandTrajet(rythme, depuis){
+  if(rythmeAvantSeance === null) rythmeAvantSeance = RECUL.rythme;
   rendPoseArrivee();
   fermeTelescope();
   auSalon(0, 0.6, 0, -0.05);
@@ -627,7 +637,8 @@ function rejoueGrandTrajet(rythme, depuis){
 }
 
 function rangeGrandTrajet(){
-  RECUL.poseRythme("fidele");
+  RECUL.poseRythme(rythmeAvantSeance === null ? RECUL.RYTHME_DEFAUT : rythmeAvantSeance);
+  rythmeAvantSeance = null;
   rangeVoyage();
 }
 

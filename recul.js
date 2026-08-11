@@ -200,9 +200,42 @@ function lance(vers_m, secondesEcran){
    qu'Hugo a demandé le même jour : « une vision du système solaire de loin, avec
    des tags ». Les deux ne font qu'un chantier, et celui-là vient d'abord.
 
-   C'est une décision d'image, elle n'est pas prise ici. */
-let rythme = "fidele";
-function poseRythme(r){ rythme = (r === "regulier") ? "regulier" : "fidele"; }
+   C'est une décision d'image, elle n'est pas prise ici.
+
+   ---------------------------------------------------------------------------
+   LE BOUTON A MIS QUATRE JOURS À ARRIVER — 11 août 2026
+
+   Hugo avait dit « fais les deux, paramétrable dans les options ». Les deux
+   rythmes ont été écrits ce soir-là ; l'option, non. `poseRythme` n'était appelé
+   que par la séance de jugement et par les outils, et `contenu.js` avouait
+   pourtant un réglage — « Le défilement du voyage a deux rythmes ». Un aveu qui
+   décrit un bouton absent est pire qu'un aveu absent : il apprend à ne plus les
+   lire. C'est la leçon écrite le 9 août, et elle s'est retournée contre nous.
+
+   Conséquence directe : ce qu'il a jugé « ça va » le 9 août au soir — le
+   régulier — n'a jamais été ce que le site jouait. `juge.js` reposait « fidele »
+   en sortant de séance, exprès, parce qu'une séance ne change pas un réglage en
+   douce. Le verdict portait donc sur un rythme que personne ne voyait en jouant.
+   (Depuis que le bouton existe, la séance repose le rythme QU'ELLE A TROUVÉ :
+   remettre le défaut effacerait maintenant le choix du joueur.)
+
+   LE DÉFAUT RESTE « fidele », ET CE N'EST PAS UNE PRÉFÉRENCE. C'est une décision
+   d'image, elle appartient à Hugo, et elle lui est posée. Ma recommandation est
+   « regulier » : c'est celui qu'il a jugé « ça va », et sur le vrai trajet vers
+   le système solaire — 9,10 décades, 33,7 s d'écran — le fidèle franchit 3,93
+   décades dans la PREMIÈRE seconde puis fige l'écran une douzaine de secondes
+   pendant le freinage. Mais tant qu'il n'a pas tranché, on ne change pas l'image
+   sous les pieds de qui n'a rien demandé : même règle que la langue et le rendu.
+
+   `borneRythme` existe pour la même raison que `RENDU.borne` : le choix se range
+   en chaîne dans le navigateur, et tout ce qui en revient doit retomber sur un
+   rythme connu — jamais sur un état que `avance` ne saurait pas jouer.        */
+const RYTHMES = ["fidele", "regulier"];
+const RYTHME_DEFAUT = "fidele";
+function borneRythme(r){ return RYTHMES.indexOf(r) >= 0 ? r : RYTHME_DEFAUT; }
+
+let rythme = RYTHME_DEFAUT;
+function poseRythme(r){ rythme = borneRythme(r); }
 
 // Une courbe douce aux deux bouts, pour le rythme régulier seulement.
 const adouci = x => x < 0.5 ? 4*x*x*x : 1 - Math.pow(-2*x + 2, 3)/2;
@@ -674,6 +707,7 @@ function dessineQuadrillage(ctx, W, H, projette, force){
 
 global.RECUL = { etat, lance, avance, decade, etiquette, dessineQuadrillage,
                  poseRythme, poseMots, duree, RS_M, UA_M, AL_M,
+                 RYTHMES, RYTHME_DEFAUT, borneRythme,
                  recentre, enVue, fondu, fondus, seuilEnVue,
                  get rythme(){ return rythme; },
                  get actif(){ return etat.actif; } };

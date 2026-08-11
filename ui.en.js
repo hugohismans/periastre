@@ -296,6 +296,18 @@ Object.assign(window.UI, {
                        + "on the spot: the stars are scattered at random, and "
                        + "this blackness does not exist — out there it is never night.",
 
+/* The pace of the journey, 11 August. Both tell the truth about speed and about
+   the clocks; they do not spread the screen time the same way. */
+"rythme.etiq":             "Journey pace",
+"rythme.fidele":           "Faithful",
+"rythme.regulier":         "Even",
+"rythme.fidele.note":      "What you would see through the window, untouched: you "
+                         + "pull away very fast at first, then the view barely "
+                         + "moves while you brake.",
+"rythme.regulier.note":    "The motion is spread out: a gentle start, full speed "
+                         + "mid-journey, slowing down on arrival. Only the pacing "
+                         + "is retouched — the figures stay true.",
+
 "aveu.notif":            "what the simulation allows itself",
 "aveu.reste":            "and {n} more here",
 "aveu.centre.titre":     "What we allow ourselves",

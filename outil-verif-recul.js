@@ -374,6 +374,181 @@ groupe("Les deux rythmes, et ce qui ne change pas entre eux");
      fid.fin.toExponential(4) + " et " + reg.fin.toExponential(4));
 }
 
+// ═══════════════════ 5 quater. le rythme est un RÉGLAGE, avec un bouton
+/* LE DÉFAUT DU 11 AOÛT. Hugo avait demandé le 7, en toutes lettres : « fais les
+   deux, paramétrable dans les options ». Les deux rythmes ont été écrits le
+   soir même ; le bouton, jamais. `poseRythme` n'était appelé que par `juge.js`
+   et par les outils — c'est-à-dire par personne qui joue. Le groupe 5 ter
+   au-dessus éprouvait magnifiquement deux rythmes dont un seul était jouable.
+
+   Ce que ce groupe garde est donc la MOITIÉ QUI MANQUAIT : le réglage existe,
+   il se mémorise, il se retrouve, et la séance de jugement le rend intact.
+
+   D'OÙ VIENT LA VÉRITÉ. La liste des rythmes n'est pas crue sur parole : on la
+   confronte au COMPORTEMENT de `avance` — deux noms qui jouent la même chose ne
+   sont pas deux rythmes, et un nom hors liste doit jouer exactement le défaut.
+   Le reste se lit dans `index.html`, `ui.fr.js`, `ui.en.js` et `juge.js`, quatre
+   fichiers qui ne savent rien de `recul.js`.                                  */
+groupe("Le rythme est un réglage — le bouton, la mémoire, la séance");
+{
+  const PAGE = fs.readFileSync(path.join(__dirname, "index.html"), "utf8");
+  const FR   = fs.readFileSync(path.join(__dirname, "ui.fr.js"), "utf8");
+  const EN   = fs.readFileSync(path.join(__dirname, "ui.en.js"), "utf8");
+  const JUGE = fs.readFileSync(path.join(__dirname, "juge.js"), "utf8");
+
+  /* Le vrai trajet, pas un trajet de laboratoire : la destination et le temps
+     d'écran se lisent dans la page. Le départ est la distance de stationnement
+     du module lui-même. Aucune de ces valeurs n'est recopiée ici. */
+  const mPar = PAGE.match(/PARSEC_M\s*=\s*([0-9.e+-]+)/);
+  const mSol = PAGE.match(/id:"soleil"[\s\S]{0,200}?d_m:\s*([0-9]+)\s*\*\s*PARSEC_M/);
+  const mDur = PAGE.match(/DUREE_VOYAGE\s*=\s*([0-9.]+)/);
+  ok("on retrouve le vrai trajet dans la page", !!(mPar && mSol && mDur),
+     "parsec, destination et temps d'écran", mPar && mSol && mDur ? "trouvés" : "INTROUVABLES",
+     "sans eux ce groupe mesurerait un voyage inventé — et la question posée à "
+     + "Hugo porterait sur des chiffres qui ne sont pas ceux du site");
+
+  const d0 = 16 * R.RS_M;
+  const d1 = mSol ? (+mSol[1]) * (+mPar[1]) : null;
+  const duree = d1 ? R.duree(d0, d1, +mDur[1]) : 0;
+  const decades = d1 ? Math.log10(d1) - Math.log10(d0) : 0;
+
+  /* Joue le vrai trajet et rend les décades franchies seconde par seconde. */
+  const parSeconde = r => {
+    R.poseRythme(r);
+    Object.assign(R.etat, { actif:true, d0, d1, t:0, duree, distance:d0 });
+    const suite = []; let avant = 0;
+    for(let s = 0; s < Math.round(duree); s++){
+      R.avance(1);
+      const f = Math.log10(R.etat.distance) - Math.log10(d0);
+      suite.push(f - avant); avant = f;
+    }
+    return suite;
+  };
+
+  // ── la liste des rythmes se prouve par le comportement, pas par sa longueur
+  const traces = R.RYTHMES.map(parSeconde);
+  let jumeaux = null;
+  for(let i = 0; i < traces.length; i++)
+    for(let j = i + 1; j < traces.length; j++)
+      if(traces[i].every((v, k) => Math.abs(v - traces[j][k]) < 1e-9))
+        jumeaux = R.RYTHMES[i] + " et " + R.RYTHMES[j];
+  ok("chaque rythme annoncé joue vraiment autre chose", jumeaux === null,
+     "tous distincts", jumeaux || "tous distincts",
+     "deux noms pour un seul défilement donneraient un bouton qui ne fait rien "
+     + "— exactement l'inverse du défaut qu'on répare, et tout aussi menteur");
+
+  const inconnu = parSeconde("cinemascope"), defaut = parSeconde(R.RYTHME_DEFAUT);
+  ok("un rythme inconnu joue exactement le défaut",
+     inconnu.every((v, k) => Math.abs(v - defaut[k]) < 1e-12),
+     "identique au défaut", inconnu.every((v, k) => Math.abs(v - defaut[k]) < 1e-12)
+       ? "identique" : "AUTRE CHOSE",
+     "la mémoire du navigateur rend des chaînes : ce qui en revient ne doit "
+     + "jamais fabriquer un état que `avance` ne sait pas jouer");
+
+  let passe = null;
+  for(const x of ["Fidele", "RÉGULIER", "", null, undefined, 0, {}, [], "regulier "])
+    if(R.borneRythme(x) !== R.RYTHME_DEFAUT) passe = String(x) + " → " + R.borneRythme(x);
+  ok("neuf mémoires abîmées retombent sur le défaut", passe === null,
+     "toutes sur « " + R.RYTHME_DEFAUT + " »", passe || "toutes");
+  ok("et les rythmes légitimes passent inchangés",
+     R.RYTHMES.every(r => R.borneRythme(r) === r), "identité",
+     R.RYTHMES.map(r => R.borneRythme(r)).join(" / "));
+
+  /* LE DÉFAUT N'EST PAS TRANCHÉ, ET CE CONTRÔLE EXISTE POUR QU'IL NE LE SOIT PAS
+     PAR ACCIDENT. C'est une décision d'image : elle appartient à Hugo, elle lui
+     est posée. Le jour où il répond, c'est cette ligne qu'on change — et on la
+     change exprès. */
+  ok("le défaut reste « fidele » tant qu'Hugo n'a pas tranché",
+     R.RYTHME_DEFAUT === "fidele", "fidele", R.RYTHME_DEFAUT,
+     "il a jugé « régulier » ça va le 9 août, mais sur un rythme que le site ne "
+     + "jouait pas : le verdict ne vaut pas décision, et on ne change pas l'image "
+     + "sous les pieds de qui n'a rien demandé");
+
+  // ── ce que la mesure dit, et qui fonde la question posée
+  const fid = parSeconde("fidele");
+  const morts = t => { let k = 0; for(let i = t.length - 1; i >= 0 && t[i] < 0.005; i--) k++; return k; };
+  ok("sur le vrai trajet, le fidèle vide plus du tiers du voyage en une seconde",
+     fid[0] > decades / 3, "> " + (decades/3).toFixed(2) + " décade",
+     fid[0].toFixed(2) + " sur " + decades.toFixed(2) + " en " + duree.toFixed(1) + " s");
+  ok("et il finit sur une dizaine de secondes où l'écran ne bouge plus",
+     morts(fid) >= 10, "≥ 10 s", morts(fid) + " s",
+     "c'est le fait qui motive ma recommandation — et c'est un fait, pas un goût : "
+     + "la décision reste à Hugo");
+
+  // ── le bouton, lu dans la page
+  ok("une seule fabrique pour le rythme",
+     (PAGE.match(/function\s+poseChoixRythme/g) || []).length === 1, 1,
+     (PAGE.match(/function\s+poseChoixRythme/g) || []).length,
+     "deux fabriques pour un réglage, c'est la divergence garantie — la langue "
+     + "puis le rendu ont déjà payé ce prix");
+  ok("l'hôte du sélecteur existe dans le balisage", /id="rythme-choix"/.test(PAGE),
+     "présent", /id="rythme-choix"/.test(PAGE) ? "présent" : "ABSENT");
+  ok("et la page l'y pose", /poseChoixRythme\(\$\("rythme-choix"\)/.test(PAGE),
+     "posé", /poseChoixRythme\(\$\("rythme-choix"\)/.test(PAGE) ? "posé" : "JAMAIS POSÉ",
+     "c'est le défaut du 11 août à la lettre : les deux rythmes existaient, "
+     + "aucun bouton ne les proposait");
+  ok("le sélecteur passe par `RECUL.RYTHMES`, pas par une liste en dur",
+     /RECUL\.RYTHMES/.test(PAGE), "par le module",
+     /RECUL\.RYTHMES/.test(PAGE) ? "par le module" : "EN DUR",
+     "deux listes pour un même réglage, c'est la maladie que ce dépôt traque");
+  ok("il tient une liste de repeints, comme le rendu", /CHOIX_RYTHME\.forEach/.test(PAGE),
+     "présente", /CHOIX_RYTHME\.forEach/.test(PAGE) ? "présente" : "ABSENTE",
+     "un second exemplaire — l'accueil, le télescope au moment de partir — ne "
+     + "doit pas être l'occasion de repayer la leçon");
+
+  // ── la mémoire : une clé à part, écrite au clic et relue au chargement
+  ok("le choix a sa propre clé de mémoire", /CLE_RYTHME\s*=\s*"periastre\.rythme"/.test(PAGE),
+     "periastre.rythme", /CLE_RYTHME\s*=\s*"periastre\.rythme"/.test(PAGE) ? "présente" : "ABSENTE",
+     "`CHAMPS` de `progression.js` ne range ni ne relit de chaînes — et écrire "
+     + "toute la mémoire de la partie à chaque clic est la panne du 7 août");
+  ok("il se relit au chargement",
+     /RECUL\.poseRythme\(localStorage\.getItem\(CLE_RYTHME\)\)/.test(PAGE), "relu",
+     /RECUL\.poseRythme\(localStorage\.getItem\(CLE_RYTHME\)\)/.test(PAGE) ? "relu" : "JAMAIS RELU",
+     "un réglage qui ne survit pas au rechargement se re-règle à chaque visite, "
+     + "et finit par ne plus être touché");
+  ok("il ne s'écrit qu'au clic",
+     (PAGE.match(/localStorage\.setItem\(CLE_RYTHME/g) || []).length === 1, 1,
+     (PAGE.match(/localStorage\.setItem\(CLE_RYTHME/g) || []).length,
+     "une écriture par image, ou par geste de manche, est ce qui a divisé par "
+     + "huit la cadence sur le téléphone d'Hugo");
+
+  // ── la séance de jugement rend ce qu'elle a trouvé
+  ok("la séance ne repose plus « fidele » en dur",
+     !/poseRythme\("fidele"\)/.test(JUGE), "aucun rythme en dur",
+     /poseRythme\("fidele"\)/.test(JUGE) ? "« fidele » EN DUR" : "aucun",
+     "tant que le rythme n'était pas réglable, remettre le défaut était juste ; "
+     + "maintenant ça effacerait le choix du joueur — c'est-à-dire précisément "
+     + "ce que cette précaution voulait empêcher");
+  ok("elle retient ce qui était en place et le repose",
+     /rythmeAvantSeance/.test(JUGE) && /RECUL\.poseRythme\(rythmeAvantSeance/.test(JUGE),
+     "retenu puis reposé",
+     /RECUL\.poseRythme\(rythmeAvantSeance/.test(JUGE) ? "retenu puis reposé" : "PERDU");
+
+  // ── les libellés existent dans les deux langues
+  const cles = ["rythme.etiq"];
+  for(const r of R.RYTHMES){ cles.push("rythme." + r); cles.push("rythme." + r + ".note"); }
+  const manque = (src) => cles.find(c => src.indexOf('"' + c + '"') < 0) || null;
+  ok("chaque libellé existe en français", manque(FR) === null, "tous", manque(FR) || "tous",
+     "une clé absente s'affiche telle quelle : « rythme.regulier » en toutes "
+     + "lettres devant un visiteur");
+  ok("et en anglais", manque(EN) === null, "tous", manque(EN) || "tous");
+
+  // ── et ces contrôles savent tomber
+  const listePassoire = ["fidele", "fidele-bis"];
+  const tracesP = listePassoire.map(parSeconde);
+  ok("un rythme en double dans la liste serait vu",
+     tracesP[0].every((v, k) => Math.abs(v - tracesP[1][k]) < 1e-9), "vu",
+     tracesP[0].every((v, k) => Math.abs(v - tracesP[1][k]) < 1e-9) ? "vu" : "PASSÉ INAPERÇU",
+     "« fidele-bis » n'est pas un rythme : il retombe sur le défaut et joue la "
+     + "même chose — c'est ce que le contrôle du dessus refuse");
+  const borneMolle = x => x || "fidele";
+  ok("une borne qui laisse passer n'importe quoi serait vue",
+     borneMolle("netflix") !== R.RYTHME_DEFAUT, "vue",
+     borneMolle("netflix") === R.RYTHME_DEFAUT ? "PASSÉE INAPERÇUE" : "vue");
+
+  R.poseRythme(R.RYTHME_DEFAUT);
+}
+
 // ════════════════════════════════════════════ 5 bis. le temps d'écran suit
 /* Une durée fixe ne peut pas servir 3,87 décades et 9,10. Mesuré : à vingt-deux
    secondes, le grand trajet renumérote la grille 1,68 fois par seconde au
