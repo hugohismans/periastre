@@ -409,3 +409,75 @@ questions sur le voyage refait.
 État à la fin de la journée : 86 contrôles dans la page, 13 outils hors
 navigateur, tout au vert. Séance de jugement vide — rien à faire juger tant que
 le voyage n'est pas refait.
+
+---
+
+## 11 août 2026 — Le rivage
+
+Hugo, deux fois de suite : « tu m'en parles, tu m'en parles, mais toujours pas
+vu ». Il avait raison, et la cause était bête : je lui avais posé une question
+deux fois sans jamais insister, et j'avais attendu.
+
+### Ce qui était déjà là et que personne ne lui avait montré
+
+`lune.html` existait, éprouvée, publiée — **et liée depuis nulle part**. Il l'a
+trouvée « vraiment super », puis a tranché net : *« c'est une page
+d'explication, ce n'est pas une page de jeu. Je veux que le joueur il soit dans
+un monde interactif. Il peut cliquer, voilà, je mets la Lune. Il voit comment
+c'est la Lune. EN TANT QUE JOUEUR SUR TERRE. »*
+
+Et son cadrage, une minute après, meilleur que le mien : le sujet est **la
+taille, ressentie par substitution** — « ah ouais, c'était à la place de la
+Lune, aussi gros que ça ».
+
+### Ce qu'il a tranché, à l'outil à boutons
+
+Deux questions posées, deux réponses immédiates. La règle 4 fonctionne quand on
+s'en sert.
+
+- **Dehors, sur Terre, la nuit**, première personne, un cadran à hauteur de main.
+- **Le ciel fixe, la mer vivante** — il a pris « 1 et 3 ».
+- Puis, devant le premier jet : **la Lune reste dans le cadre, à la même
+  échelle**, parce qu'un étalon invisible ne mesure rien.
+
+Il a aussi demandé, de lui-même : *« tu fais une skybox ou tu intègres l'élément
+dans la skybox ? »* La bonne question. Le fond en est une ; **l'astre n'en est
+pas une**, sinon sa taille serait figée dans une image — et la taille est le
+seul sujet de la scène.
+
+### Ce qui a été bâti
+
+- **`rivage.js`** — la physique, sans DOM ni WebGL. Aucun chiffre d'astre n'y est
+  saisi : tout dérive de `LUNE.ASTRES`. Marée d'équilibre, rythme par Kepler sur
+  le couple, limite de Roche, verdict rivage/englouti/brisée.
+- **`outil-verif-rivage.js`** — 35 affirmations. Sa vérité vient d'ailleurs : il
+  ignore le développement du module et **recalcule la marée par la loi de Newton
+  nue**. Plus trois ancres hors dépôt : 54 cm, 46 %, 12 h 25.
+- **`rivage.html`** — ciel et sol calculés par direction de regard, pixel par
+  pixel, donc taille angulaire exacte.
+
+### Trois fois que je me suis fait prendre, dans ma propre session
+
+1. **L'outil exigeait 0,1 mm** d'accord là où le terme d'ordre 3 en impose 6. La
+   tolérance se dérive maintenant, elle ne se choisit plus.
+2. **« Mars = 2,06 Lunes », écrit de mémoire.** Le vrai rapport des rayons
+   sourcés est 1,95. La règle 7 s'est refermée sur l'outil censé la faire
+   respecter. Les attendus se dérivent des rayons.
+3. **Un accent grave dans un commentaire du nuanceur** a fermé le texte qui le
+   portait. La page ne construisait plus rien. `node tout.js` ne lit pas les
+   pages : l'outil extrait maintenant le script et le fait analyser, avec sa
+   contre-épreuve.
+
+### Où ça en est
+
+Publié. **46 outils, aucun échec.** Hugo va regarder avant de juger — c'est son
+choix, et c'est le bon ordre.
+
+**Ce que je sais déjà de travers, et que je lui ai dit avant qu'il l'ouvre :**
+la marée ne se voit pas (54 cm sans repère dans l'eau — il manque un piquet
+gradué) ; le rivage n'est pas un lieu de `lieux.js`, on y arrive par un lien ;
+le cadran est un menu posé par-dessus, pas un objet du monde.
+
+**Et le déséquilibre du projet bouge dans le bon sens** : pour une fois, du jeu
+neuf. La règle qui a débloqué la journée n'est pas technique — c'est *« ce genre
+de questions, tu peux me les poser »*, du 7 août, que je n'appliquais pas.
