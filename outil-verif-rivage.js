@@ -76,6 +76,13 @@ if(CASSE){
   R.hauteurMaree = (l,a,d,t) => vrai(l,a,d,t) * 1.05;
   const vraiM = R.marnage;
   R.marnage = (l,a,d) => vraiM(l,a,d) * 1.05;
+  /* Et l'on glisse au passage une carte comme quelqu'un de pressé en écrirait
+     une : la clé mal tapée, le fichier jamais déposé. Elle passe la serrure —
+     elle porte bien une source et une licence — et c'est précisément pour cela
+     que la section 11 bis doit la voir tomber. */
+  R.CARTES.push({ cle:"jupiterr", fichier:"cartes/jamais-deposee.jpg",
+    source:"une provenance assez longue pour franchir la serrure",
+    licence:"domaine public" });
 }
 
 // --- affirmation ------------------------------------------------------------
@@ -458,20 +465,19 @@ affirmeVrai("…et aucun n'est servi sans estampille", nus.length === 0,
    site, et une image qu'on n'a pas le droit de servir est un défaut qui ne se
    voit sur AUCUN écran — donc que seul un contrôle peut attraper.
 
-   Le registre est vide aujourd'hui. Cette section garde la serrure, pas le
-   contenu : elle prouve que la serrure refuse ce qu'elle doit refuser, pour que
-   le jour où quelqu'un ajoute une carte à la hâte, elle soit déjà là.        */
+   Cette section garde la serrure ET, depuis que le registre n'est plus vide,
+   les fichiers eux-mêmes. Elle prouve d'abord que la serrure refuse ce qu'elle
+   doit refuser, pour que le jour où quelqu'un ajoute une carte à la hâte elle
+   soit déjà là.                                                              */
 titre("11. La serrure des cartes importées");
 
 affirmeVrai("le registre est un tableau", Array.isArray(R.CARTES),
   R.CARTES.length + " carte(s)");
 
-/* Chaque carte réellement déclarée doit être complète. Vide aujourd'hui : la
-   boucle ne tourne pas, et c'est justement pourquoi les refus ci-dessous
-   comptent — sans eux, cette section passerait sans rien éprouver. */
+/* Chaque carte réellement déclarée doit être complète. */
 for(const c of R.CARTES)
   affirmeVrai("« " + (c && c.cle) + " » porte source et licence", R.carteValide(c),
-    JSON.stringify(c));
+    (c && c.source ? c.source.slice(0, 46) + "…" : "—"));
 
 const refus = [
   ["sans source",   {cle:"jupiter", fichier:"cartes/j.jpg", licence:"domaine public"}],
@@ -491,7 +497,160 @@ affirmeVrai("…et une carte complète est acceptée",
                  licence:"domaine public (NASA)"}) === true);
 
 affirmeVrai("un astre sans carte rend null, sans jeter",
-  R.carteDe("jupiter") === null && R.carteDe("nexistepas") === null);
+  R.carteDe("nexistepas") === null && R.carteDe("soleil") === null);
+
+/* ============================================================================
+   11 bis. LES FICHIERS EUX-MÊMES — mesurés, pas crus sur parole
+
+   Trois défauts qu'aucun œil ne rattrape à temps, et que les octets sur le
+   disque tranchent en une milliseconde :
+
+   1. LES PUISSANCES DE DEUX. WebGL 1 n'accepte l'enroulement en longitude que
+      sur des textures dont les DEUX côtés en sont. Une mire de 360×180 — un
+      pixel par degré, la taille la plus naturelle du monde pour une carte
+      planétaire — a rendu un disque ENTIÈREMENT NOIR le 11 août 2026, sans
+      message, sans erreur, sans rien. La page rattrape désormais le cas au prix
+      d'une couture à la longitude 180° ; ici on refuse le cas tout court.
+
+   2. LE RAPPORT DEUX POUR UN. Une carte cylindrique équidistante couvre 360° de
+      longitude et 180° de latitude : elle est deux fois plus large que haute.
+      Une carte carrée s'afficherait sans erreur, avec les pôles au mauvais
+      endroit et les continents étirés — un défaut d'image, mais qui se mesure.
+
+   3. LE POIDS. Ces images pèsent plus que tout le reste du site réuni. Une
+      carte qu'on remplace par la version pleine résolution ne casse rien, ne
+      prévient pas, et fait payer le téléphone d'Hugo.
+
+   SA VÉRITÉ VIENT D'AILLEURS QUE DU REGISTRE (règle 3) : rien ici ne fait
+   confiance à ce que `rivage.js` déclare. On ouvre le fichier, on lit l'en-tête
+   JPEG, on prend les dimensions que le décodeur prendra.                     */
+titre("11 bis. Les fichiers de cartes, mesurés sur le disque");
+
+/* Les dimensions d'un JPEG vivent dans un marqueur SOF. On parcourt les
+   segments jusqu'à en trouver un : c'est exactement ce que fait le navigateur,
+   donc on lit le même nombre que lui. */
+function tailleJPEG(octets){
+  if(octets.length < 4 || octets[0] !== 0xFF || octets[1] !== 0xD8) return null;
+  let i = 2;
+  while(i + 9 < octets.length){
+    if(octets[i] !== 0xFF){ i++; continue; }
+    const marq = octets[i+1];
+    if(marq === 0xFF){ i++; continue; }
+    if(marq === 0xD8 || marq === 0x01 || (marq >= 0xD0 && marq <= 0xD7)){ i += 2; continue; }
+    const longueur = octets.readUInt16BE(i+2);
+    const estSOF = marq >= 0xC0 && marq <= 0xCF
+                && marq !== 0xC4 && marq !== 0xC8 && marq !== 0xCC;
+    if(estSOF) return { h: octets.readUInt16BE(i+5), l: octets.readUInt16BE(i+7) };
+    i += 2 + longueur;
+  }
+  return null;
+}
+
+const pot = n => n > 0 && (n & (n-1)) === 0;
+const PLAFOND_KO = 400;
+let poidsTotal = 0;
+
+affirmeVrai("il y a au moins une carte déposée", R.CARTES.length >= 1,
+  R.CARTES.length + " carte(s)");
+
+for(const c of R.CARTES){
+  const chemin = path.join(__dirname, c.fichier);
+  const la = fs.existsSync(chemin);
+  affirmeVrai(c.cle + " : le fichier existe", la, c.fichier);
+  if(!la) continue;
+
+  const octets = fs.readFileSync(chemin);
+  const ko = octets.length / 1024;
+  poidsTotal += ko;
+  const t = tailleJPEG(octets);
+
+  affirmeVrai(c.cle + " : l'en-tête JPEG se lit", !!t,
+    t ? t.l + "×" + t.h : "illisible");
+  if(!t) continue;
+
+  affirmeVrai(c.cle + " : les deux côtés sont des puissances de deux",
+    pot(t.l) && pot(t.h), t.l + "×" + t.h);
+  affirmeVrai(c.cle + " : deux fois plus large que haute", t.l === 2*t.h,
+    "rapport " + fr(t.l/t.h, 3));
+  affirmeVrai(c.cle + " : sous " + PLAFOND_KO + " Ko", ko <= PLAFOND_KO,
+    fr(ko, 0) + " Ko");
+}
+
+/* Le poids total est un CHIFFRE À REGARDER, pas un seuil : c'est ce que coûte
+   le rivage à quelqu'un qui parcourt tout le cadran sur son forfait. */
+affirmeVrai("le dossier des cartes reste sous 3 Mo", poidsTotal < 3072,
+  fr(poidsTotal/1024, 2) + " Mo pour " + R.CARTES.length + " cartes");
+
+/* Et la contre-épreuve du couple carte/astre : chaque clé déclarée doit
+   correspondre à un astre qui existe vraiment chez la Lune. Une faute de frappe
+   dans une clé donnerait une carte que rien ne va jamais chercher — un fichier
+   téléchargé pour rien, et un astre qui reste dessiné sans qu'on comprenne. */
+for(const c of R.CARTES){
+  affirmeVrai(c.cle + " : la clé désigne un astre de la table",
+    L.ASTRES.some(a => a.cle === c.cle));
+  affirmeVrai(c.cle + " : et carteDe la retrouve", R.carteDe(c.cle) === c);
+}
+
+/* LA CONTRE-ÉPREUVE DE L'INSTRUMENT. Les affirmations ci-dessus ne valent que
+   si `tailleJPEG` lit vraiment quelque chose : un lecteur qui rendrait toujours
+   2048×1024 les ferait toutes passer sans regarder un seul octet. On lui donne
+   donc un en-tête fabriqué, de la taille EXACTE qui a rendu le disque noir le
+   11 août — 360×180 —, et l'on exige qu'il la retrouve puis que le crible la
+   refuse. Ce couple-là ne peut pas s'auto-satisfaire. */
+const enTeteFactice = Buffer.from([
+  0xFF,0xD8,                                  // début d'image
+  0xFF,0xE0, 0x00,0x04, 0x00,0x00,            // un segment quelconque, sauté
+  0xFF,0xC0, 0x00,0x11, 0x08,                 // SOF0, longueur, précision
+  0x00,0xB4,                                  // hauteur 180
+  0x01,0x68,                                  // largeur 360
+  0x03, 0x01,0x11,0x00, 0x02,0x11,0x01, 0x03,0x11,0x01,
+]);
+const factice = tailleJPEG(enTeteFactice);
+affirmeVrai("le lecteur d'en-tête retrouve une taille qu'il n'a pas choisie",
+  !!factice && factice.l === 360 && factice.h === 180,
+  factice ? factice.l + "×" + factice.h : "illisible");
+affirmeVrai("…et le crible refuse ce 360×180 qui a noirci le disque",
+  !!factice && !(pot(factice.l) && pot(factice.h)));
+
+/* ============================================================================
+   11 ter. LE CRÉDIT DOIT ÊTRE À L'ÉCRAN, PAS DANS LE CODE
+
+   Deux des cartes servies sont sous Creative Commons Attribution : le droit de
+   les servir est CONDITIONNEL, et la condition est de citer l'auteur. Les
+   quatre autres viennent d'agences publiques qui demandent aussi d'être
+   créditées. Une citation enfouie dans un fichier JavaScript ne remplit aucune
+   de ces conditions.
+
+   C'est le défaut parfait pour ce projet : il ne se voit sur aucun écran, il
+   n'affecte aucun pixel, et il rend le site fautif. Seul un contrôle l'attrape,
+   et il doit l'attraper des deux côtés — la donnée ET la page qui la montre. */
+titre("11 ter. Le crédit des cartes, jusqu'à l'écran");
+
+for(const c of R.CARTES){
+  affirmeVrai(c.cle + " : porte un crédit court",
+    typeof c.credit === "string" && c.credit.length >= 8, c.credit || "—");
+  affirmeVrai(c.cle + " : et creditDe le rend", R.creditDe(c.cle) === c.credit);
+}
+
+/* Les deux cartes sous CC BY doivent nommer leur auteur dans le crédit COURT,
+   celui qui va à l'écran — pas seulement dans la source longue que personne ne
+   lit. La vérité vient d'ailleurs que du crédit : c'est la licence qui décide
+   quelles entrées sont concernées. */
+for(const c of R.CARTES.filter(x => /creativecommons\.org|CC BY/i.test(x.licence || "")))
+  affirmeVrai(c.cle + " : son crédit d'écran nomme l'auteur exigé par CC BY",
+    /Solar System Scope/i.test(c.credit || ""), c.credit);
+
+affirmeVrai("un astre sans carte n'a pas de crédit à montrer",
+  R.creditDe("soleil") === null && R.creditDe("trounoir") === null);
+
+/* ET LA PAGE. Le module peut rendre le crédit parfait sans que rien ne
+   l'affiche : c'est arrivé à d'autres valeurs de ce dépôt. On exige donc que
+   `rivage.html` porte l'emplacement et l'appelle. */
+affirmeVrai("la page réserve un emplacement au crédit",
+  /id="credit"/.test(page));
+affirmeVrai("…le remplit depuis le module", /R\.creditDe\(/.test(page));
+affirmeVrai("…et le met à jour à chaque cran du cadran",
+  /majCredit\(k\)/.test(page));
 
 /* ============================================================================
    12. LE PIQUET RESTE LISIBLE POUR LA PLUS PETITE MARÉE

@@ -23,8 +23,16 @@
        · le fait que le trou noir ne se voie pas, et que sa marée soit
          rigoureusement celle de la Lune.
 
+     OBSERVÉ, et servi tel quel, avec sa provenance à l'écran :
+       · la surface des six astres qui ont une carte — Jupiter par Cassini,
+         Mars par Viking, la Terre par MODIS, la Lune par LRO. Saturne et
+         Neptune n'ont de carte globale chez personne : les leurs sont des
+         textures dérivées d'imagerie NASA, aux couleurs retouchées, et elles
+         le disent dans `RIVAGE.CARTES`.
+
      DESSINÉ, et qui ne prétend à rien :
-       · les taches des astres, les bandes de Jupiter, les anneaux de Saturne ;
+       · les taches d'un astre qui n'aurait pas de carte, et les anneaux de
+         Saturne ;
        · la couleur du sable, la forme des vagues, le champ d'étoiles ;
        · l'échelle de marée plantée dans l'eau — elle n'existe pas dans la
          nature, mais sans elle les 54 cm de la Lune sont invisibles, et la
@@ -84,11 +92,23 @@
         text-align:center;color:#5d6f88;font:400 12px/1.5 ui-sans-serif;
         pointer-events:none;transition:opacity .6s;text-shadow:0 1px 6px #000}
   #aide.parti{opacity:0}
+
+  /* LE CRÉDIT DE LA CARTE. Deux des six licences sont des Creative Commons
+     Attribution : elles autorisent l'image contre citation de l'auteur, et une
+     citation qui vit dans un fichier de code n'en est pas une. Il se tient donc
+     à l'écran, discret mais lisible, et il dit aussi ce qu'aucune autre ligne
+     ne disait — si l'on regarde une photographie ou un dessin. */
+  #credit{position:fixed;top:max(14px,env(safe-area-inset-top));
+          right:max(18px,env(safe-area-inset-right));max-width:46vw;
+          text-align:right;color:#6b7d93;font:400 10.5px/1.5 ui-sans-serif;
+          letter-spacing:.02em;pointer-events:none;text-shadow:0 1px 6px #000}
 </style>
 
 <canvas id="c"></canvas>
 
 <div id="aide">glissez pour regarder autour de vous &nbsp;·&nbsp; deux doigts pour grossir</div>
+
+<div id="credit"></div>
 
 <div id="jauge">
   <s id="jTitre">la Lune</s>
@@ -831,7 +851,20 @@ function choisis(k){
     b.setAttribute("aria-current", String(b.dataset.cle === k));
   poseCarte(k);
   document.getElementById("etalon").classList.toggle("parti", k === "lune");
+  majCredit(k);
   majJauge();
+}
+
+/* Le crédit suit le cran, pas la texture : il se pose AVANT que l'image soit
+   arrivée. C'est voulu — il annonce ce qu'on va servir, et si le fichier
+   n'arrive jamais la page retombe sur le dessin, que la ligne suivante dit
+   déjà. Un crédit qui n'apparaîtrait qu'après le chargement serait absent
+   précisément le jour où le réseau est mauvais. */
+const credit = document.getElementById("credit");
+function majCredit(k){
+  const c = R.creditDe(k);
+  credit.textContent = c ? "carte : " + c
+    : (k === "trounoir" ? "" : "astre dessiné — aucune carte photographique");
 }
 
 /* --- la jauge : trois constats, aucun discours ---------------------------- */
