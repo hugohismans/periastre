@@ -493,6 +493,55 @@ affirmeVrai("…et une carte complète est acceptée",
 affirmeVrai("un astre sans carte rend null, sans jeter",
   R.carteDe("jupiter") === null && R.carteDe("nexistepas") === null);
 
+/* ============================================================================
+   12. LE PIQUET RESTE LISIBLE POUR LA PLUS PETITE MARÉE
+
+   Un défaut d'IMAGE, invisible dans un chiffre — et c'est précisément pour cela
+   qu'il faut le mesurer. Un piquet gradué tous les mètres serait inutile pour
+   la Lune ; un piquet trop court serait noyé avant d'avoir servi ; un piquet
+   trop près sortirait du cadre. Aucune de ces trois fautes ne se voit dans une
+   valeur de marée : elles ne se voient que dans le RAPPORT entre la graduation
+   et la marée, et c'est ce rapport que cette section garde.
+
+   Sa vérité vient d'ailleurs que du piquet : la marée, elle, sort de Newton.  */
+titre("12. Le piquet de marée, confronté à ce qu'il doit montrer");
+
+const lisLune = R.lisibilite(L, "lune", dLune);
+affirmeVrai("la marée de la Lune balaie au moins 4 traits",
+  lisLune.graduations >= 4,
+  fr(lisLune.graduations, 1) + " traits de " + (R.PIQUET.graduation_m*100) + " cm");
+affirmeVrai("…sans noyer le piquet", !lisLune.noye,
+  "pleine mer " + fr(lisLune.haute_m, 2) + " m, sommet " + R.PIQUET.haut + " m");
+affirmeVrai("…ni le déchausser", !lisLune.aDecouvert,
+  "basse mer " + fr(lisLune.basse_m, 2) + " m, pied " + R.PIQUET.bas + " m");
+
+/* LA DÉMONSTRATION, VUE DEPUIS L'INSTRUMENT. C'est la ligne qui compte : le
+   trou noir doit faire monter la mer sur EXACTEMENT les mêmes traits que la
+   Lune. Si un jour quelqu'un fait dépendre la marée d'autre chose que la masse
+   et la distance, c'est ici que ça casse. */
+const lisTrou = R.lisibilite(L, "trounoir", dLune);
+affirmeVrai("le trou noir lit les mêmes traits que la Lune",
+  lisTrou.graduations === lisLune.graduations
+  && lisTrou.haute_m === lisLune.haute_m
+  && lisTrou.basse_m === lisLune.basse_m,
+  fr(lisTrou.graduations, 1) + " traits, pleine mer " + fr(lisTrou.haute_m, 4) + " m");
+
+/* ET LA CONTRE-ÉPREUVE : le piquet doit être DÉBORDÉ par les gros astres.
+   Un instrument qui reste lisible pour Jupiter mentirait sur quatorze
+   kilomètres de marée. */
+affirmeVrai("Jupiter noie le piquet, comme il se doit",
+  R.lisibilite(L, "jupiter", dLune).noye);
+affirmeVrai("Mars aussi", R.lisibilite(L, "mars", dLune).noye);
+
+/* Le piquet doit tenir dans le champ, sinon on ne voit pas la mer ET le ciel.
+   Premier jet : planté à 7,50 m, il couvrait 28° de haut pour une douzaine de
+   degrés montrés. La hauteur visible se calcule ici, en trigonométrie nue. */
+const sousOeil = (1.70 - R.PIQUET.bas), surOeil = (R.PIQUET.haut - 1.70);
+const ouverture = (Math.atan(sousOeil/Math.abs(R.PIQUET.z))
+                 + Math.atan(surOeil/Math.abs(R.PIQUET.z))) * 180/Math.PI;
+affirmeVrai("il tient dans une douzaine de degrés de ciel",
+  ouverture < 12, fr(ouverture, 1) + "° de haut à " + Math.abs(R.PIQUET.z) + " m");
+
 /* ============================================================================ */
 console.log("\n" + "=".repeat(72));
 console.log(echecs === 0
