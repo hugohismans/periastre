@@ -450,6 +450,49 @@ affirmeVrai("la page charge bien des modules locaux", scripts.length >= 2,
 affirmeVrai("…et aucun n'est servi sans estampille", nus.length === 0,
   nus.length ? "SANS ESTAMPILLE : " + nus.join(", ") : scripts.length + " estampillés");
 
+/* ============================================================================
+   11. AUCUNE CARTE NE PEUT ENTRER SANS SA SOURCE NI SA LICENCE
+
+   Hugo a ouvert la porte aux images importées le 11 août 2026. Elle doit être
+   une porte, pas un trou : ce qui entre porte ses références comme le reste du
+   site, et une image qu'on n'a pas le droit de servir est un défaut qui ne se
+   voit sur AUCUN écran — donc que seul un contrôle peut attraper.
+
+   Le registre est vide aujourd'hui. Cette section garde la serrure, pas le
+   contenu : elle prouve que la serrure refuse ce qu'elle doit refuser, pour que
+   le jour où quelqu'un ajoute une carte à la hâte, elle soit déjà là.        */
+titre("11. La serrure des cartes importées");
+
+affirmeVrai("le registre est un tableau", Array.isArray(R.CARTES),
+  R.CARTES.length + " carte(s)");
+
+/* Chaque carte réellement déclarée doit être complète. Vide aujourd'hui : la
+   boucle ne tourne pas, et c'est justement pourquoi les refus ci-dessous
+   comptent — sans eux, cette section passerait sans rien éprouver. */
+for(const c of R.CARTES)
+  affirmeVrai("« " + (c && c.cle) + " » porte source et licence", R.carteValide(c),
+    JSON.stringify(c));
+
+const refus = [
+  ["sans source",   {cle:"jupiter", fichier:"cartes/j.jpg", licence:"domaine public"}],
+  ["sans licence",  {cle:"jupiter", fichier:"cartes/j.jpg", source:"NASA/JPL, Cassini ISS, carte cylindrique"}],
+  ["sans fichier",  {cle:"jupiter", source:"NASA/JPL, Cassini ISS, carte cylindrique", licence:"domaine public"}],
+  ["source vide",   {cle:"jupiter", fichier:"cartes/j.jpg", source:"NASA", licence:"domaine public"}],
+  ["rien du tout",  null],
+];
+for(const [quoi, c] of refus)
+  affirmeVrai("une carte " + quoi + " est refusée", R.carteValide(c) === false);
+
+/* Et la contre-épreuve : une carte COMPLÈTE doit passer. Une serrure qui
+   refuse tout est aussi inutile qu'une serrure qui accepte tout. */
+affirmeVrai("…et une carte complète est acceptée",
+  R.carteValide({cle:"jupiter", fichier:"cartes/jupiter.jpg",
+                 source:"NASA/JPL-Caltech, mosaïque Cassini ISS, carte cylindrique équidistante",
+                 licence:"domaine public (NASA)"}) === true);
+
+affirmeVrai("un astre sans carte rend null, sans jeter",
+  R.carteDe("jupiter") === null && R.carteDe("nexistepas") === null);
+
 /* ============================================================================ */
 console.log("\n" + "=".repeat(72));
 console.log(echecs === 0

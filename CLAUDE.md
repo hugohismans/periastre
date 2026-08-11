@@ -3,8 +3,18 @@
 Simulateur pédagogique de Sagittarius A*, en WebGL, français et anglais.
 Statique, sans dépendance, en ligne sur **https://hugohismans.github.io/periastre/**.
 
-Rien n'est importé : les images sont calculées à partir des équations d'Einstein.
-C'est la promesse du site, et elle contraint tout le reste.
+**L'image du trou noir** est calculée à partir des équations d'Einstein — la
+déviation, l'ombre, la sphère des photons, le disque. C'est la promesse du site,
+et elle contraint tout ce qui touche au trou noir.
+
+**Elle ne s'étend pas au reste du ciel.** Amendé par Hugo le 11 août 2026, devant
+un Jupiter dessiné à la main qu'il a jugé « une merde orange » : *« tu ne
+t'acharnes pas trop avec cette promesse de tout est calculé, si on importe des
+trucs, aussi bien. »* Une carte photographique d'une planète est une OBSERVATION,
+au même titre que les rayons et les masses du JPL que le site importe déjà — et
+elle est plus honnête qu'un motif que j'ai inventé, qui est le seul genre de
+chose au monde à n'avoir aucune source. Ce qui est importé porte donc ses
+références comme tout le reste, et rien de plus n'est exigé de lui.
 
 ---
 
