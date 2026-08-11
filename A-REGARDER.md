@@ -15,8 +15,37 @@ Tout ce qui ne peut pas se vérifier par la mesure, et qui attend donc qu'un
 humain regarde. **Rien ici ne bloque quoi que ce soit** — c'est une file, pas
 une dette. Elle existe pour que ça ne se perde pas dans une conversation.
 
-Mise à jour le 10 août 2026 au soir, après la séance sur le regard
-en vol et le relevé aux sources du système solaire.
+Mise à jour le 11 août 2026, après la construction de la scène solaire.
+
+---
+
+## 🔎 LA SCÈNE SOLAIRE EST FAITE — et une seule question t'attend
+
+**`?juge` → « Il n'y a rien à voir : intention ou panne ? »**
+
+On arrive dans le nuage de Oort, comme tu l'as demandé, et on tombe. Tout ce qui
+pouvait se mesurer l'a été : le droit de nommer, les deux bouts de la chute, sa
+physique, et le fait que la scène soit bien devant la baie. Il reste ce qu'aucun
+calcul ne tranche — **un écran presque vide se lit de deux façons**, et l'une des
+deux tue la scène. La séance te met à l'arrivée, panneau compris, puis te laisse
+descendre.
+
+**Trois choses au passage, si ton œil veut bien s'y arrêter :**
+
+- **La chute s'arrête à 120 unités astronomiques**, et ce n'est pas un chiffre
+  choisi : c'est la distance où le cinquième nom tient debout, celle où Mars
+  rejoint les quatre géantes. Plus loin il n'y a que trois ou quatre noms, plus
+  près on n'est plus vraiment « dehors ». Si ça te paraît trop près ou pas assez,
+  c'est réglable d'un nombre.
+- **Les anneaux débordent de la baie** en bas de la chute : Neptune ne tient pas
+  dans la vitre. C'est honnête — on voit ce qui passe par la fenêtre — mais c'est
+  peut-être frustrant.
+- **Le rythme de la chute suit ton réglage**, le même que le grand trajet — et tu
+  viens de trancher « fidèle » pour de bon. Ça se voit ici : la chute passe
+  **treize secondes sans que rien n'arrive**, puis tout se produit dans les trois
+  dernières. C'est exact — c'est ce qu'on verrait — et c'est peut-être justement
+  ce qui fera lire le début comme une panne. En « régulier », les noms
+  apparaissent étalés du début à la fin. Le bouton est dans les réglages.
 
 ---
 
@@ -138,6 +167,12 @@ ton œil qui tranche, pas mon argument.
 
 *Chiffres dérivés des demi-grands axes relevés au JPL et de l'ouverture de
 caméra de `echelle.js` (0,9 radian, soit 171,9″ par pixel à 1 080 points).*
+
+> **Et ce tableau était 28 % optimiste.** Refait le 11 août avec l'optique RÉELLE
+> du site — `camera.js`, focale 1,55 — au lieu de celle d'`echelle.js` : quatre
+> noms tiennent à 300 ua, trois à 500, **un seul à 1 000**, aucun au-delà de
+> 2 361. Une chute qui se serait arrêtée à 1 000 ua n'aurait donc pas fait une
+> scène, mais un mot posé sur un point. Elle descend à 120.
 
 ## ✅ LE RYTHME DU GRAND TRAJET — tranché le 11 août, sur iPhone
 

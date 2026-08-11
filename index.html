@@ -2505,6 +2505,9 @@ void main(){
 <script src="voyage1g.js?v=d72d637"></script>
 <script src="recul.js?v=d72d637"></script>
 <script src="etoiles.js?v=d72d637"></script>
+<script src="solaire.js?v=d72d637"></script>
+<script src="etiquettes.js?v=d72d637"></script>
+<script src="approche.js?v=d72d637"></script>
 <script src="format.js?v=d72d637"></script>
 <script src="spectre.js?v=d72d637"></script>
 <script src="banc.js?v=d72d637"></script>
@@ -2685,6 +2688,9 @@ const salon = {
   apo:16, k:0.82,            // vitesse à l'apoastre, en fraction de la circulaire
   p:[16,0,0], v:[0,0,0], rmin:1e9, rmax:0, trace:[], horloge:0,
   versAstre:[0,0,-1], eclat:1,   // direction et intensité de l'astre, en repère pièce
+  // 0 à 1 : le demi-tour du vaisseau à l'arrivée. `majVoyage` en est le seul
+  // écrivain ; `camera.js` le lit et l'ajoute à la dérive de la baie.
+  retourne:0,
 };
 
 /* `salon.actif` n'est plus une donnée : c'est une question posée à `lieu`.
@@ -2698,6 +2704,7 @@ Object.defineProperty(salon, "actif", {
 
 function poseSalon(){
   const r = salon.apo;
+  salon.retourne = 0;             // on rentre : la baie regarde de nouveau l'astre
   salon.p = [r, 0, 0];
   const t = norm(cross([0,1,0], salon.p));
   const w = vCirc(r) * salon.k;
@@ -3907,8 +3914,10 @@ const DESTINATIONS = [
     d_m: 10000*VOYAGE.UA, atteignable:true, carte:true },
   /* ON Y VA. Elle était REFUSÉE — « le vaisseau reste ici ». La leçon n'était
      pas dans le refus mais dans le chiffre, et le chiffre reste sur la carte. */
+  /* `scene` DIT CE QU'ON VOIT EN ARRIVANT — même manœuvre que `carte` : une
+     donnée portée par la destination, jamais un test enterré dans le dessin. */
   { id:"soleil",  nom:"dest.soleil.nom",  quoi:"dest.soleil.quoi",
-    d_m: 8277*PARSEC_M,  atteignable:true, prix:true, carte:false },
+    d_m: 8277*PARSEC_M,  atteignable:true, prix:true, carte:false, scene:"solaire" },
 ];
 
 function choisitDestination(d, v){
@@ -3922,6 +3931,10 @@ $("in-fermer").onclick = fermeTelescope;
 // module ne résout pas de clé : il ne connaît pas `T`, donc on les lui tend.
 RECUL.poseMots({ case: T("recul.case"), distance: T("recul.distance"), rs: T("recul.rs"),
   ua: T("recul.ua"), al: T("recul.al"), locale: enAnglais() ? "en-US" : "fr-FR" });
+// Et ceux de la scène solaire, pour la même raison : `approche.js` ne connaît
+// pas `T` et ne doit pas le connaître.
+const MOTS_SOLAIRE = {};
+["soleil"].concat(SOLAIRE.ORDRE).forEach(k => MOTS_SOLAIRE[k] = T("solaire." + k.toLowerCase()));
 
 /* ---- le registre temporel ---- */
 // Il vit dans `registre.js`, avec sa mémoire reçue en argument : le 7 août, un
@@ -4052,27 +4065,45 @@ function majVoyage(dt){
      L'ORDRE N'EST PAS INTERCHANGEABLE : `regardSalon()` se lit APRÈS le
      recentrage, pour que le quadrillage juge la visée qu'on AURA et non celle
      qu'on avait — sinon il commente avec une image de retard. */
+  /* ET À L'ARRIVÉE, LE VAISSEAU SE RETOURNE. La baie regarde l'astre pendant
+     tout le vol — c'est ce qui rend le recul visible — mais on arrive DOS à sa
+     destination : le Soleil est au bout du rayon qu'on a suivi. Sans ce
+     demi-tour, la scène qu'on vient de traverser vingt-sept mille années-lumière
+     pour voir est dans le dos, et rien ne le dit. La main reprend la main dès
+     qu'elle touche à la visée, comme partout ailleurs depuis le 10 août. */
+  /* Trois secondes pour un demi-tour : c'est une manœuvre, pas une coupure. Le
+     panneau d'arrivée est ouvert pendant ce temps-là, donc on la découvre en le
+     refermant — et l'on peut la regarder en le rouvrant. */
+  const retourner = tr.arrive && tr.dest.scene;
+  salon.retourne = Math.max(0, Math.min(1, salon.retourne + (retourner ? dt/3 : -dt/3)));
   const va = salon.versAstre, im = vue();
-  const vise = RECUL.recentre(va, salon.lacet, salon.tangage, dt, tr.mainPrise);
+  /* Et pendant le demi-tour, le recentrage se TAIT. C'est le vaisseau qui
+     tourne, pas la tête : la viser vers l'astre la ferait balayer la pièce en
+     sens inverse de la coque, ce qui donne le tournis et ne veut rien dire. */
+  const vise = RECUL.recentre(retourner ? null : va, salon.lacet, salon.tangage, dt, tr.mainPrise);
   salon.lacet = vise.lacet;
   salon.tangage = vise.tangage;
   RECUL.fondus(TELESCOPE, dt, RECUL.enVue(regardSalon().av, va),
                RECUL.seuilEnVue(cam.focale, im.W, im.H));
 
-  majChrono();
+  majChrono(tr.calcul.d_m, Math.abs(RECUL.etat.distance - tr.depart));
 
   if(!RECUL.actif && !tr.arrive){ tr.arrive = true; arriveVoyage(); }
+  if(APPROCHE.etat.chute) majChute(dt);
 }
 
 /* Le chronomètre dit la vérité, et il ne l'interpole pas.
 
    Le temps propre ne croît pas comme la distance — c'est tout l'objet du
    voyage. On le calcule donc exactement pour la distance déjà parcourue, au
-   lieu d'étaler le total sur la barre d'avancement. */
-function majChrono(){
-  const tr = TELESCOPE.trajet;
-  const parcouru = Math.abs(RECUL.etat.distance - tr.depart);
-  const e = VOYAGE.enChemin(tr.calcul.d_m, parcouru);
+   lieu d'étaler le total sur la barre d'avancement.
+
+   IL REÇOIT LE TRAJET plutôt que d'aller le lire : il y a DEUX mouvements
+   depuis le 11 août, le grand voyage et la chute vers le Soleil, et ils ne
+   comptent pas dans le même espace. Deux fonctions écrivant les deux mêmes
+   cadrans, c'eût été deux écrivains pour une valeur. */
+function majChrono(d_m, parcouru){
+  const e = VOYAGE.enChemin(d_m, Math.min(d_m, parcouru));
   $("ch-bord").textContent = VOYAGE.joli.duree(e.tau);
   $("ch-loin").textContent = VOYAGE.joli.duree(e.t);
 }
@@ -4084,10 +4115,16 @@ function arriveVoyage(){
   if(TELESCOPE.retour){
     // On rentre : la carte s'efface, l'orbite se rétablit.
     TELESCOPE.trajet = null;
+    APPROCHE.range();
     $("chrono").classList.remove("vu");
     poseSalon();
     return;
   }
+  // ON ARRIVE DANS LE NUAGE, ET ON N'Y VOIT RIEN. C'est voulu — cadrage d'Hugo,
+  // 10 août au soir. La chute vient après, et c'est lui qui la déclenche.
+  // Et l'on rend la visée au recentrage, une fois : arriver est un événement, il
+  // a le droit de cadrer. Elle se reprend au premier geste, comme toujours.
+  if(tr.dest.scene === "solaire"){ APPROCHE.pose(APPROCHE.DEPART_UA); tr.mainPrise = false; }
   poseArrivee(tr.dest);
 }
 
@@ -4114,6 +4151,19 @@ function poseArrivee(dest){
   b.querySelector("h2").textContent = T("tele.retour.titre");
   b.querySelector("p").textContent  = T("tele.retour.quoi");
   b.onclick = () => { fermeTelescope(); repartVoyage(); };
+  /* TOMBER, ET C'EST UN VRAI TRAJET : un an de vol à un g pour descendre du
+     nuage jusqu'aux géantes, donc une carte avec son prix comme les autres.
+     Elle ne paraît que tant qu'il reste à tomber. */
+  if(dest && dest.scene === "solaire" && APPROCHE.etat.dUa > APPROCHE.ARRIVEE_UA*1.01){
+    const c = document.createElement("button");
+    c.className = "carte";
+    c.innerHTML = '<span class="duree"></span><h2></h2><p></p>';
+    c.querySelector(".duree").textContent = VOYAGE.joli.duree(APPROCHE.prix().tau);
+    c.querySelector("h2").textContent = T("solaire.chute");
+    c.querySelector("p").textContent  = T("solaire.chute.quoi");
+    c.onclick = () => { fermeTelescope(); lanceChute(); };
+    liste.appendChild(c);
+  }
   liste.appendChild(b);
   /* LE PIED ET LES AVEUX SUIVENT LA DESTINATION.
 
@@ -4130,8 +4180,34 @@ function poseArrivee(dest){
   $("instrument").classList.add("vu", "arrivee");
 }
 
+/* LA CHUTE — le second mouvement de la scène solaire. Son état et sa loi sont
+   dans `approche.js` ; ici il n'y a que le panneau et les cadrans.
+   Le bandeau de vol se cache : ses chiffres viennent de `RECUL.etat.vol`, qui
+   parle d'un trajet TERMINÉ, et les garder pendant un autre mouvement serait un
+   mensonge silencieux. */
+function lanceChute(){
+  APPROCHE.tombe();
+  $("ch-vol").style.display = "none";
+  $("chrono").classList.add("vu");
+  $("ch-quoi").textContent = T("solaire.chute");
+  $("ch-note").textContent = T("chrono.note");
+  MUSIQUE.frappe(0.75);
+}
+
+function majChute(dt){
+  const A = APPROCHE, p = A.prix();
+  A.avance(dt);
+  majChrono(p.d_m, (A.DEPART_UA - A.etat.dUa) * SOLAIRE.UA);
+  if(!A.etat.chute){
+    inscritRegistre(T("solaire.chute"), p);
+    $("chrono").classList.remove("vu");
+    poseArrivee(TELESCOPE.trajet.dest);
+  }
+}
+
 function repartVoyage(){
   const retour = TELESCOPE.trajet.depart;
+  APPROCHE.range();
   TELESCOPE.retour = true;
   // `carte: true` — on revient vers l'astre que ces orbites entourent, et elles
   // grandissent en s'approchant pour de vraies raisons.
@@ -4244,6 +4320,22 @@ function dessineVoyage(dt){
     ETOILES_S.cadre(RECUL.etat.distance, RECUL.etat.d0, RECUL.etat.d1);
     ETOILES_S.dessine(ctx, W, H, dt, fond);
     ctx.restore();
+  }
+
+  /* L'AUTRE ARRIVÉE — et le Soleil n'est pas au centre : il est DEVANT, au bout
+     du rayon qu'on a suivi en partant. On projette un point lointain dans cette
+     direction avec LA caméra de la page, et `projette` rend `null` quand on lui
+     tourne le dos : on ne dessine alors rien: le rabattement au centre ÉTAIT le
+     défaut du 9 août. Le reste est dans `approche.js`. */
+  if(orbite > 0.005 && E.trajet && E.trajet.dest.scene === "solaire"){
+    const us = norm(salon.p), loin = Math.max(1e6, len(cam.pos)*1000);
+    const so = projette([cam.pos[0]+us[0]*loin, cam.pos[1]+us[1]*loin, cam.pos[2]+us[2]*loin]);
+    if(so){
+      ctx.save();
+      decoupeBaie();                    // dehors, pas devant la vitre
+      APPROCHE.dessine(ctx, so[0], so[1], cam.focale, { W, H }, orbite, MOTS_SOLAIRE);
+      ctx.restore();
+    }
   }
   /* LE QUADRILLAGE AUSSI SE VOIT PAR LA VITRE, ET PAS AILLEURS.
 

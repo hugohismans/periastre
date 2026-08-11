@@ -397,7 +397,54 @@ const fs = require("fs"), path = require("path");
    ressemblent, et ce serait la bonne économie le jour où une troisième arrive.
    Pour deux, généraliser aurait touché un réglage qui marche pour en poser un
    qui n'existait pas — le mauvais ordre. C'est noté, pas fait. */
-const PLAFOND = 3902;   // ... l'arrivée qui sait où elle est, le rythme qui a son bouton
+/* PUIS LA SCÈNE SOLAIRE, LE MÊME JOUR — et c'est LA PLUS GROSSE HAUSSE DEPUIS
+   LE DÉBUT. Elle porte une scène entière : on arrive dans le nuage de Oort, et
+   on tombe vers le Soleil. Elle se justifie ici comme l'outil l'exige.
+
+   CE QUI A ÉTÉ SORTI D'ABORD, et c'est presque tout. La scène pèse environ neuf
+   cents lignes, réparties en trois modules dont AUCUNE ligne n'est dans la
+   page : `etiquettes.js` (le droit de parler d'un point du monde), les ajouts du
+   Soleil et des anneaux dans `solaire.js`, et `approche.js` (les deux bouts de
+   la chute, sa physique, et son dessin). Le dessin lui-même a suivi le chemin de
+   `RECUL.dessineQuadrillage` : le contexte arrive en argument, donc il est hors
+   de la page ET éprouvable — sept contrôles lui tendent un faux contexte et
+   comptent ce qu'il a tracé.
+
+   La loi du trajet à 1 g est même SORTIE DU CORPS d'`avance` au passage, dans
+   `RECUL.ou`, parce que la chute avait besoin de la même : deux copies d'une loi
+   de mouvement finissent toujours par diverger, et l'œil d'Hugo l'a déjà vu une
+   fois sur le quadrillage et les orbites.
+
+   CE QUI RESTE, ET NE PEUT PAS SORTIR :
+     · la projection du Soleil — elle a besoin de LA caméra de la page, et une
+       seconde projection pour le même espace est la faute que `camera.js`
+       raconte au long ;
+     · le découpage à la baie — il a besoin des vitres et du contexte ;
+     · les deux cartes du panneau et les deux cadrans — c'est du DOM, et le
+       7 août on a déjà refusé de déplacer des lignes pour satisfaire ce compteur
+       en fabriquant un module qui touche au document ;
+     · l'appel dans la boucle, et le rangement à chaque sortie ;
+     · LE DEMI-TOUR DU VAISSEAU, vingt de ces lignes, et il répare un défaut
+       trouvé à l'œil : la baie regarde l'astre pendant tout le vol, donc on
+       arrivait DOS à sa destination — vingt-sept mille années-lumière pour
+       arriver le nez contre une cloison. La rotation elle-même n'a coûté qu'une
+       ligne dans `camera.js`, où elle s'ajoute à la dérive que la baie faisait
+       déjà : une seconde rotation écrite à côté aurait été une seconde loi pour
+       l'orientation d'une même pièce. Ce qui reste ici est l'état, son unique
+       écrivain, et la raison écrite. `VERIF.sceneSolaire()` le garde.
+
+   ET LE COMPTEUR A RENDU DES LIGNES AVANT DE CÉDER : `majChrono` allait lire le
+   trajet lui-même, donc la chute aurait eu besoin d'une seconde fonction pour
+   écrire les deux mêmes cadrans. Il reçoit maintenant ce qu'il doit afficher, et
+   les deux mouvements le partagent. Quatorze lignes rendues, et un écrivain de
+   moins pour une même valeur — la réparation valait mieux que l'économie.
+
+   ET LE CHIFFRE FINAL EST 3 991, PAS 3 954. Les deux hausses de la journée se
+   sont croisées : le bouton du rythme montait à 3 902 pendant que la scène
+   solaire était écrite sur le point d'avant. Aucune des deux n'est en cause, et
+   il n'y a rien à retrancher — c'est la somme des deux, mesurée après fusion
+   plutôt que devinée. */
+const PLAFOND = 3991;   // ... le rythme qui a son bouton, et la chute vers le Soleil
 
 // Le nombre de modules déjà sortis. Il ne descend jamais non plus : un module
 // qu'on ferait rentrer dans le bloc serait le contraire exact du chantier.
@@ -413,8 +460,9 @@ const PLAFOND = 3902;   // ... l'arrivée qui sait où elle est, le rythme qui a
 // serait resté vert, puisqu'il n'exigeait que vingt-six. Un cliquet qu'on ne
 // remonte pas cesse d'être un cliquet — il devient un plancher sous le sol.
 //
-// Cinquante aujourd'hui, `solaire.js` compris.
-const MODULES_SORTIS = 50;
+// Cinquante aujourd'hui, `solaire.js` compris. Puis CINQUANTE-DEUX le soir même,
+// avec `etiquettes.js` et `approche.js` : la scène solaire est sortie entière.
+const MODULES_SORTIS = 52;
 
 let n = 0, echecs = 0;
 const groupe = t => console.log("\n  " + t + "\n  " + "─".repeat(t.length));

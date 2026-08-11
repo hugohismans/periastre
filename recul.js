@@ -240,30 +240,50 @@ function poseRythme(r){ rythme = borneRythme(r); }
 // Une courbe douce aux deux bouts, pour le rythme régulier seulement.
 const adouci = x => x < 0.5 ? 4*x*x*x : 1 - Math.pow(-2*x + 2, 3)/2;
 
+/* OÙ EN EST-ON D'UN TRAJET À 1 g — et cette loi n'est écrite qu'ICI.
+
+   Elle vivait dans le corps d'`avance`, ce qui allait tant qu'il n'y avait
+   qu'un trajet. Il y en a deux depuis le 11 août : le recul depuis Sagittarius,
+   et la CHUTE vers le Soleil, qui se joue dans un tout autre espace — des
+   unités astronomiques et non des rayons de Schwarzschild, et qui ne peut donc
+   pas passer par `etat`, sous peine de donner deux sens à une même valeur.
+
+   Deux copies d'une loi de mouvement finissent toujours par diverger, et l'œil
+   d'Hugo l'a déjà vu une fois : le quadrillage et les orbites employaient
+   chacun 1/distance de son côté. C'est la règle 4. On sort donc la loi, PURE —
+   elle ne lit ni n'écrit `etat` — et les deux scènes la lisent.
+
+   Le rythme reste celui du module, parce que c'est un réglage du visiteur et
+   qu'il vaut pour tout ce qui bouge à l'écran. Un appelant peut le forcer, et
+   c'est ce dont les contrôles ont besoin pour éprouver les deux branches sans
+   toucher au réglage courant.
+
+   @param d0, d1  départ et arrivée, en mètres, dans l'espace de l'appelant
+   @param t       avancement de 0 à 1
+   @return { distance, parcouru, vol } — jamais autre chose, jamais d'effet */
+function ou(d0, d1, t, r){
+  const D = Math.abs(d1 - d0);
+  const sens = d1 >= d0 ? 1 : -1;
+  const V = global.VOYAGE;
+  if(!(D > 0) || !V || !V.etat) return { distance: d1, parcouru: 0, vol: null };
+  if((r || rythme) === "regulier"){
+    const l0 = Math.log10(d0), l1 = Math.log10(d1);
+    const distance = Math.pow(10, l0 + (l1 - l0)*adouci(t));
+    const parcouru = Math.min(D, Math.abs(distance - d0));
+    return { distance, parcouru, vol: V.etat(D, V.enChemin(D, parcouru).tau) };
+  }
+  const e = V.etat(D, t * V.etat(D, 0).tauTotal);
+  return { distance: d0 + sens*e.s, parcouru: e.s, vol: e };
+}
+
 function avance(dt){
   if(!etat.actif) return;
   etat.t = Math.min(1, etat.t + dt/etat.duree);
 
-  const D = Math.abs(etat.d1 - etat.d0);
-  const sens = etat.d1 >= etat.d0 ? 1 : -1;
-  const V = global.VOYAGE;
-  if(D > 0 && V && V.etat){
-    if(rythme === "regulier"){
-      const l0 = Math.log10(etat.d0), l1 = Math.log10(etat.d1);
-      etat.distance = Math.pow(10, l0 + (l1 - l0)*adouci(etat.t));
-      etat.parcouru = Math.min(D, Math.abs(etat.distance - etat.d0));
-      etat.vol = V.etat(D, V.enChemin(D, etat.parcouru).tau);
-    } else {
-      const e = V.etat(D, etat.t * V.etat(D, 0).tauTotal);
-      etat.vol = e;
-      etat.parcouru = e.s;
-      etat.distance = etat.d0 + sens*e.s;
-    }
-  } else {
-    etat.vol = null;
-    etat.parcouru = 0;
-    etat.distance = etat.d1;
-  }
+  const p = ou(etat.d0, etat.d1, etat.t);
+  etat.distance = p.distance;
+  etat.parcouru = p.parcouru;
+  etat.vol = p.vol;
 
   if(etat.t >= 1) etat.actif = false;
 }
@@ -705,7 +725,7 @@ function dessineQuadrillage(ctx, W, H, projette, force){
   ctx.restore();
 }
 
-global.RECUL = { etat, lance, avance, decade, etiquette, dessineQuadrillage,
+global.RECUL = { etat, lance, avance, ou, decade, etiquette, dessineQuadrillage,
                  poseRythme, poseMots, duree, RS_M, UA_M, AL_M,
                  RYTHMES, RYTHME_DEFAUT, borneRythme,
                  recentre, enVue, fondu, fondus, seuilEnVue,

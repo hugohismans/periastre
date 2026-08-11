@@ -73,11 +73,28 @@ Object.assign(window.UI, {
     "at random and its nebula is invented. What is exact here are the orbits, and " +
     "the way gravity bends light.",
   "tele.arrive.pied.soleil":
-    "The journey ends here. What you were looking at a moment ago — the black " +
-    "hole and the ten measured orbits around it — is now twenty-seven thousand " +
-    "light years behind you, and nothing can pick it out any more: the orbits " +
-    "you watched turning now fall far below a single pixel, just as the black " +
-    "hole itself did earlier. What you have just been shown is the distance.",
+    "The journey ends here, and you are home: that point is the Sun. But you " +
+    "are still in the Oort cloud, twenty thousand times the Earth-Sun " +
+    "distance — and from here there is nothing to see. All eight planets fit " +
+    "together inside two pixels; naming them would be a lie, since every label " +
+    "would point at the same place. You have to keep falling for the orbits to " +
+    "come apart. Behind you, the black hole and its ten orbits are twenty-seven " +
+    "thousand light years away, and nothing can pick them out any more.",
+  /* ---- the solar scene ---- */
+  "solaire.soleil":        "Sun",
+  "solaire.mercure":       "Mercury",
+  "solaire.venus":         "Venus",
+  "solaire.terre":         "Earth",
+  "solaire.mars":          "Mars",
+  "solaire.jupiter":       "Jupiter",
+  "solaire.saturne":       "Saturn",
+  "solaire.uranus":        "Uranus",
+  "solaire.neptune":       "Neptune",
+  "solaire.chute":         "Fall towards the Sun",
+  "solaire.chute.quoi":
+    "Down from the cloud to the giant planets, still at one g. The orbits " +
+    "come apart on the way, and the names become true one at a time.",
+
   "tele.retour.etiq":      "return",
   "tele.retour.titre":     "Back towards the black hole",
   "tele.retour.quoi":      "The same trip the other way, at the same price in time.",

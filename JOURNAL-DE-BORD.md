@@ -18,6 +18,75 @@ Hugo peut aussi le déclencher à tout moment : « on refait le cap ».
 
 ---
 
+## 11 août 2026 — la scène solaire : on arrive dans le vide, et on tombe
+
+Le cadrage était d'Hugo, tranché la veille au soir : *« les deux, dans cet
+ordre »*. On arrive dans le nuage de Oort, où les huit planètes tiennent dans
+deux pixels et où **aucune étiquette n'a le droit d'exister**, puis on continue à
+tomber jusqu'à ce que les orbites s'écartent. Le passage d'un régime à l'autre
+est le sujet, pas un fondu.
+
+**Trois modules neufs, et pas une ligne de leur logique dans la page.**
+
+- **`etiquettes.js`** — « point du monde → étiquette », et sa première
+  responsabilité est de **se taire**. Trois silences distincts, et **aucun seuil
+  de repli** : un appelant qui ne dit pas son écartement n'obtient rien.
+- **le Soleil, dans `solaire.js`** — doctrine de `lune.js` : son disque reste
+  **sous le demi-pixel partout** dans la scène (le premier pixel arrive à 8,8 ua,
+  soit dans l'orbite de Saturne), donc jamais de disque, on dit le grossissement
+  qu'il faudrait. Mais il rayonne : sa magnitude est **dérivée** de la luminosité
+  nominale et du point zéro de l'UAI.
+- **`approche.js`** — les deux bouts de la chute et sa physique. Départ à
+  20 000 ua, le bord du nuage externe que la fiche porte déjà ; **arrivée pas
+  écrite**, cherchée à la distance où le cinquième nom tient debout — 119,7 ua.
+
+**Une seule loi, deux fois plutôt qu'une.** Les deux tests de `solaire.js` et le
+test unique d'`etiquettes.js` sont **le même**, et c'est prouvé sur 73 distances
+plutôt qu'affirmé. Et la loi du trajet à 1 g est **sortie du corps d'`avance`**
+dans `RECUL.ou`, parce que la chute en avait besoin : deux copies d'une loi de
+mouvement finissent toujours par diverger, l'œil d'Hugo l'a déjà vu une fois.
+
+**Ce qu'on dessine sont des anneaux, pas des orbites.** On ne sait pas où est
+Jupiter — les colonnes du JPL donnent le demi-grand axe et rien d'autre. On trace
+donc le cercle qui **borne** l'écart au Soleil, et l'aveu le dit au visiteur.
+
+**Le défaut, et il a fallu regarder pour le voir.** Première image de la scène :
+le Soleil n'était pas mal placé, il était **absent**. La baie regarde l'astre
+pendant tout le vol — c'est ce qui rend le recul visible — donc on arrivait
+**dos à sa destination**. Vingt-sept mille années-lumière pour arriver le nez
+contre une cloison. Aucun outil ne pouvait le dire : le module rendait les bons
+nombres. Le vaisseau se retourne maintenant en trois secondes, par la **même**
+rotation que la dérive de la baie. Règle 1 : `VERIF.sceneSolaire()`.
+
+**Et je me suis fait avoir deux fois par mes propres mesures.**
+
+1. `distanceParlante` rendait `NaN` dès qu'on lui demandait trois noms : sa borne
+   basse était à une unité astronomique, c'est-à-dire **dedans**, là où la
+   monotonie sur laquelle repose sa bissection n'existe pas.
+2. Le contrôle de la page comptait **tous** les pixels peints. Le voile de la
+   scène couvre toute la baie à n'importe quelle distance : « bien moins qu'en
+   bas » passait au vert à vingt-deux pixels près, en ne mesurant rien. On compte
+   les pixels **clairs** — 972 en bas, 75 dans le nuage, 0 quand on regarde
+   ailleurs.
+
+**Et une fausse piste, notée pour ne pas y revenir.** J'ai pris pour un artefact
+du nuanceur un disque noir cerclé d'orange qui restait dans la baie après le
+demi-tour, et j'ai modifié le lanceur de géodésiques pour le corriger. C'était
+**Lumen**, le drone, en silhouette devant la vitre. Le nuanceur a été remis
+intact : une correction fondée sur un mauvais diagnostic est pire que rien.
+
+**Et le rythme tranché le même jour change ce qu'on voit.** La chute lit le même
+réglage que le grand trajet — une seule loi — donc « fidèle » y produit treize
+secondes où rien n'arrive, puis trois où tout arrive. C'est exact, et c'est
+exactement ce que la question posée à Hugo doit départager.
+
+**Compte : 45 outils, 3 neufs (19 + 38 contrôles), et 8 contrôles de plus dans la
+page.** Plafond de taille monté de 3 865 à 3 954, justifié par écrit. Une
+question dans `?juge`, et c'est celle qu'aucun calcul ne tranche : est-ce que
+« il n'y a rien à voir » se lit comme une intention, ou comme une panne ?
+
+---
+
 ## 11 août 2026 — le bouton du rythme, quatre jours après la demande
 
 **Le site annonçait un réglage qui n'existait pas.** `contenu.js` avoue depuis le
