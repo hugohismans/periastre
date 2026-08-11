@@ -425,6 +425,31 @@ if(mDeg && mFn){
   affirme("la loupe ×2 double exactement la Lune", 2, px2/px1, 1e-12, "×");
 }
 
+/* ============================================================================
+   10. LES MODULES DE LA PAGE PORTENT LEUR ESTAMPILLE
+
+   Payé le 11 août 2026, devant Hugo. Il a rechargé la page publiée et n'a rien
+   vu changer. La cause immédiate était le cache de GitHub Pages, qui garde dix
+   minutes — mais dessous il y avait un vrai défaut : `rivage.html` chargeait
+   ses deux modules SANS estampille de version, donc un navigateur qui les avait
+   déjà pouvait servir l'ancien ciel indéfiniment.
+
+   `outils/version.mjs` le criait pourtant, à chaque publication. Je n'avais pas
+   ignoré son avertissement : j'avais redirigé sa sortie vers le néant dans ma
+   commande de publication. L'outil disait vrai, et personne n'écoutait.
+
+   Un avertissement qu'on peut faire taire n'est pas un garde-fou. Celui-ci est
+   une AFFIRMATION : elle traverse `node tout.js`, elle sort en code 1, et
+   aucune redirection ne la rend muette.                                      */
+titre("10. Aucun module servi sans estampille de version");
+
+const scripts = (page.match(/src="(?!https?:)[^"]+\.js[^"]*"/g) || []);
+const nus = scripts.filter(s => !/\?v=/.test(s));
+affirmeVrai("la page charge bien des modules locaux", scripts.length >= 2,
+  scripts.join(" · "));
+affirmeVrai("…et aucun n'est servi sans estampille", nus.length === 0,
+  nus.length ? "SANS ESTAMPILLE : " + nus.join(", ") : scripts.length + " estampillés");
+
 /* ============================================================================ */
 console.log("\n" + "=".repeat(72));
 console.log(echecs === 0
