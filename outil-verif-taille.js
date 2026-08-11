@@ -382,7 +382,16 @@ const PLAFOND = 3865;   // ... le quadrillage, la page fraîche, l'arrivée qui 
 // qu'on ferait rentrer dans le bloc serait le contraire exact du chantier.
 // Monté de 24 à 26 le 7 août 2026 : `kerrschild.js` et `contrat.js` — l'outil
 // l'avait signalé lui-même, c'est le seul entretien qu'il demande.
-const MODULES_SORTIS = 26;
+//
+// MONTÉ DE 26 À 50 LE 11 AOÛT 2026, et le retard est la leçon. L'outil réclamait
+// ce relèvement depuis le 8 août, à chaque exécution, et personne ne l'a fait —
+// y compris moi, quatre fois aujourd'hui, en lisant sa ligne sans la voir.
+//
+// Ce n'était pas cosmétique. Vingt-trois modules sortis n'étaient gardés par
+// RIEN : on pouvait en refaire rentrer vingt-deux dans le bloc et l'outil serait
+// resté vert, puisqu'il n'exigeait que vingt-six. Cinquante aujourd'hui,  compris. Un cliquet qu'on ne remonte
+// pas cesse d'être un cliquet — il devient un plancher sous le sol.
+const MODULES_SORTIS = 50;
 
 let n = 0, echecs = 0;
 const groupe = t => console.log("\n  " + t + "\n  " + "─".repeat(t.length));
