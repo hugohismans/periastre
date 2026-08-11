@@ -74,12 +74,15 @@ Une ligne `## ARRÊT — <pourquoi>` en tête de ce fichier suspend le hook.
 >    `index.html:4185` dessine les dix orbites d'étoiles S, pendant que
 >    `ui.fr.js:80-87` écrit « le trou noir est là, au centre ». Une affirmation
 >    fausse à l'écran, en ligne aujourd'hui.
-> 2. **Le rythme jugé n'est pas celui que le site joue.** `poseRythme` n'est
->    appelé que par `juge.js` et les outils : le bouton demandé le 7 août n'a
->    jamais été posé, et le jeu tourne sur le défaut `"fidele"`. Mesuré sur le
->    vrai trajet de 33,7 s — **3,93 décades sur 9,10 dans la première seconde**,
->    puis onze secondes d'écran figé. Et `contenu.js:1564` avoue déjà ce réglage :
->    le site annonce un bouton qui n'existe pas.
+> 2. ~~**Le rythme jugé n'est pas celui que le site joue.**~~ **RÉPARÉ LE
+>    11 AOÛT — voir 3.2a.** `poseRythme` n'était appelé que par `juge.js` et les
+>    outils : le bouton demandé le 7 août n'avait jamais été posé, et le jeu
+>    tournait sur le défaut `"fidele"`. Mesuré sur le vrai trajet de 33,7 s —
+>    **3,93 décades sur 9,10 dans la première seconde**, puis douze secondes
+>    d'écran figé. Et `contenu.js` avouait déjà ce réglage : le site annonçait un
+>    bouton qui n'existait pas. Le bouton est posé, gardé par un contrôle qui
+>    exige qu'un aveu de réglage trouve son réglage. **Le DÉFAUT, lui, reste
+>    `fidele` et appartient toujours à Hugo (HUGO).**
 > 3. **On te ramène la tête vers le trou noir pendant tout le vol.** `recentre`
 >    (`recul.js:403`, 0,8/s) tire `salon.lacet` vers l'astre à chaque image, et
 >    `index.html:4017` l'applique sans condition : la main du joueur est reprise
