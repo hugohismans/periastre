@@ -240,8 +240,7 @@ const POURQUOI_PAS_BRANCHE = {
     "EN ATTENTE D'UNE DÉCISION — moteur de voyage d'échelle sans lieu où vivre. "
     + "À trancher avec le chantier des scènes, pas avant.",
   "lune.js":
-    "ÉCARTÉ — le carnet lui reproche de ne pas être sourçable, et le désaccord "
-    + "n'a jamais été tranché. Décision d'Hugo du 6 août : on la laisse de côté.",
+    "BRANCHÉ — DÉCIDÉ PAR HUGO LE 11 AOÛT 2026. Le reproche du 6 août — « pas sourçable » — n'est plus vrai : le système solaire est entré dans contenu.js le 10 août avec ses DOI, et quatre des sources de ce module y sont déjà. Sa raison à lui, et elle est juste : « tu m'en parles, tu m'en parles, mais toujours pas vu ». Ce qui reste est de la mise aux normes, pas un obstacle de fond : ses textes sont en français en dur (lune.js:171-232, 851-963) et son registre de sources est parallèle au contrat. 58 affirmations le gardent déjà.",
 };
 
 if(horsPage.length){
