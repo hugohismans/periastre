@@ -19,7 +19,7 @@
       immédiatement.
 
    2. **La condition qui ne peut pas devenir vraie.** Un blocage adossé à rien
-      ne se termine jamais. Celui-ci lit `CHANTIER-F2.md` et ne bloque que s'il
+      ne se termine jamais. Celui-ci lit `CHANTIER-P.md` et ne bloque que s'il
       reste une case `- [ ]`. Cocher une case est un geste réel, qui rapproche
       la fin.
 
@@ -124,8 +124,8 @@ process.stdin.on("end", () => {
   console.log(JSON.stringify({
     decision: "block",
     reason:
-      "Le chantier des fondations n'est pas fini : " + restantes + " étape(s) "
-      + "restante(s) sur " + (restantes + faites) + " dans CHANTIER-F2.md.\n\n"
+      "La descente au périastre n'est pas finie : " + restantes + " étape(s) "
+      + "restante(s) sur " + (restantes + faites) + " dans CHANTIER-P.md.\n\n"
       + "PROCHAINE ÉTAPE : " + suivante + "\n\n"
       + "Enchaîne maintenant, sans annoncer que tu enchaînes. Le protocole de "
       + "chaque étape est le même : sortir le domaine dans son module, écrire "
@@ -134,7 +134,7 @@ process.stdin.on("end", () => {
       + "case ici, committer et publier.\n\n"
       + "Si tu as besoin de l'œil d'Hugo, d'une décision qui lui revient, ou si "
       + "quelque chose est cassé : écris une ligne `## ARRÊT — <pourquoi>` en "
-      + "tête de CHANTIER-F2.md et termine ton tour. C'est la seule façon "
+      + "tête de CHANTIER-P.md et termine ton tour. C'est la seule façon "
       + "légitime de t'arrêter avant la fin.",
   }));
   process.exit(0);
