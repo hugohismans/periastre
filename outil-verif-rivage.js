@@ -311,6 +311,54 @@ affirmeVrai("un cran par astre, dans le même ordre",
   c.length === L.ASTRES.length && c.every((x,i) => x.cle === L.ASTRES[i].cle),
   c.map(x => x.court).join(" · "));
 
+/* ============================================================================
+   7. L'ÉTALON NE PEUT PAS DIVERGER DE CE QU'IL MESURE                       */
+titre("7. L'étalon de la Lune, et le rapport qu'il donne à voir");
+
+/* Le disque de référence est dimensionné par `etalonLune`, et le texte annonce
+   `enLunes`. Si les deux venaient d'endroits différents, l'image pourrait dire
+   « quarante fois » en dessinant trente — la maladie des deux écrivains, celle
+   qui a donné le disque à 622×. Cette ligne interdit l'écart. */
+for(const cle of ["mars","terre","neptune","saturne","jupiter"]){
+  const s = R.scene(L, cle, dLune, 0);
+  affirme("« " + s.court + " » : dessin et texte s'accordent",
+          s.diametreApparent_deg / R.etalonLune(L, dLune), s.enLunes, 1e-12, "×");
+}
+affirmeVrai("l'étalon vaut exactement la Lune de la table",
+  R.etalonLune(L, dLune) === R.scene(L, "lune", dLune, 0).diametreApparent_deg,
+  fr(R.etalonLune(L, dLune), 4) + "°");
+
+/* ============================================================================
+   8. LA PAGE SE COMPILE — le piège de l'accent grave
+
+   Payé le 11 août 2026, et il aurait été payé EN LIGNE. Le nuanceur de
+   `rivage.html` est écrit dans un texte délimité par des accents graves ; un
+   commentaire à l'intérieur citait un nom de fonction entre accents graves, et
+   a donc FERMÉ le texte qui le portait. La page ne construisait plus rien : ni
+   cadran, ni ciel. Aucun outil du dépôt ne l'aurait vu, parce que le défaut est
+   dans une page et non dans un module.
+
+   Celui-ci le voit, sans navigateur : il extrait le script de la page et le
+   fait analyser par le moteur. `new Function` analyse sans exécuter — le DOM
+   n'est jamais touché.                                                       */
+titre("8. Le script de rivage.html s'analyse sans erreur");
+
+const page = fs.readFileSync(path.join(__dirname, "rivage.html"), "utf8");
+const bloc = page.match(/<script>\n([\s\S]*?)\n<\/script>/);
+affirmeVrai("la page contient bien un script à analyser", !!bloc);
+if(bloc){
+  let erreur = null;
+  try { new Function(bloc[1]); } catch(e){ erreur = e.message; }
+  affirmeVrai("il s'analyse", erreur === null, erreur || "");
+
+  /* Et la contre-épreuve, pour que cette ligne ne soit pas décorative : le
+     même script avec un accent grave de trop DOIT être refusé. */
+  let refuse = false;
+  try { new Function(bloc[1].replace("uniform vec2  uRes;", "uniform vec2 `uRes;")); }
+  catch(e){ refuse = true; }
+  affirmeVrai("…et un accent grave de trop serait refusé", refuse);
+}
+
 /* ============================================================================ */
 console.log("\n" + "=".repeat(72));
 console.log(echecs === 0

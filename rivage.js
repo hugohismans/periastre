@@ -287,10 +287,31 @@ function crans(L){
   return L.ASTRES.map(a => ({ cle: a.cle, court: a.court }));
 }
 
+/* --------------------------------------------------------------------------
+   L'ÉTALON — la Lune, toujours présente, à la même échelle
+
+   Décidé par Hugo le 11 août 2026, contre le premier jet du rivage : la Lune y
+   faisait cinq pixels, ce qui est EXACT, mais elle est l'étalon auquel toute la
+   scène compare. « Aussi gros que ça » n'a rien à quoi s'accrocher quand la
+   chose à laquelle on compare est invisible. Son choix : garder chaque astre à
+   sa taille vraie, et poser à côté un petit disque — la Lune, même ciel, même
+   échelle — pour que « quarante fois » devienne une chose qu'on VOIT.
+
+   Rien n'est faussé : les deux sont vrais en même temps. C'est pour cela que
+   l'étalon se calcule ICI, au même endroit et par la même fonction que le
+   diamètre de l'astre choisi. S'ils venaient de deux endroits, ils pourraient
+   diverger — et ce serait la maladie des deux écrivains, celle qui a donné le
+   disque à 622× (règle 4).                                                  */
+function etalonLune(L, distance_km){
+  const d = (distance_km === undefined) ? L.D_LUNE_KM : distance_km;
+  const lune = L.ASTRES.find(a => a.cle === "lune");
+  return L.diametreApparent(L.rayonDe(lune), d);
+}
+
 global.RIVAGE = {
   SOURCES, JOUR_SIDERAL_S, ROCHE_FLUIDE, OEIL_M,
   P2, hauteurMaree, marnage, periodeOrbite_s, periodeMaree_s,
-  limiteRoche_km, densite, verdict, horizonM, scene, crans,
+  limiteRoche_km, densite, verdict, horizonM, scene, crans, etalonLune,
 };
 
 })(typeof window !== "undefined" ? window : globalThis);

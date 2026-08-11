@@ -70,6 +70,15 @@
   #jauge em{color:#c9a961;font-style:normal}
   #alerte{color:#e08a6a}
 
+  /* La légende de l'étalon. Elle se cale sous le viseur — 13 % de la largeur,
+     74 % de la hauteur — et disparaît quand l'astre choisi EST la Lune. */
+  #etalon{position:fixed;left:13%;top:26%;transform:translate(-50%,42px);
+          text-align:center;color:#93a4ba;font:500 11px/1.35 ui-sans-serif;
+          letter-spacing:.02em;pointer-events:none;text-shadow:0 1px 6px #000;
+          transition:opacity .25s}
+  #etalon span{color:#5f7189;font-weight:400}
+  #etalon.parti{opacity:0}
+
   #aide{position:fixed;top:max(14px,env(safe-area-inset-top));left:0;right:0;
         text-align:center;color:#5d6f88;font:400 12px/1.5 ui-sans-serif;
         pointer-events:none;transition:opacity .6s;text-shadow:0 1px 6px #000}
@@ -86,6 +95,8 @@
   <span id="jMaree"></span><br>
   <span id="jAlerte" ></span>
 </div>
+
+<div id="etalon">la Lune<br><span>à la même échelle</span></div>
 
 <nav id="cadran"><b>dans le ciel</b></nav>
 
@@ -150,6 +161,8 @@ uniform float uHorizon;      // distance de l'horizon, en mètres
 uniform float uT;
 uniform vec2  uRing;         // anneaux : rayons interne/externe, 0 = aucun
 uniform float uTanChamp;     // tangente du demi-champ vertical
+uniform float uAngRLune;     // rayon angulaire de la Lune — L'ÉTALON
+uniform float uEstLune;      // 1 quand l'astre choisi EST la Lune
 
 float h21(vec2 p){ return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453); }
 
@@ -295,6 +308,37 @@ void main(){
     if(dh <= 0.0) col = vec3(0.010,0.020,0.034);   // submergé
   }
 
+  /* ------------------------------------------------------------------------
+     L'ÉTALON — la Lune, posée à part, À LA MÊME ÉCHELLE
+
+     Choix d'Hugo le 11 août 2026. La Lune fait cinq pixels, ce qui est exact,
+     mais c'est elle que « quarante fois plus gros » prend pour unité : un
+     étalon invisible ne mesure rien.
+
+     ELLE N'EST PAS GROSSIE. Son rayon en pixels se déduit du rayon angulaire
+     que RIVAGE.etalonLune rend — le même nombre, par la même fonction, que
+     celui qui dimensionne l'astre du ciel. Le disque est donc dans le rapport
+     vrai avec ce qu'il y a au-dessus : quarante fois plus petit que Jupiter,
+     et pas un pixel de faveur.
+
+     Ce qui est DESSINÉ, c'est le viseur autour — un cercle fin qui n'a aucune
+     taille physique et ne sert qu'à ce que l'œil trouve le point. Sans lui on
+     chercherait cinq pixels dans un ciel étoilé.                            */
+  float pxParRad = (uRes.y*0.5) / uTanChamp;
+  vec2  centre   = vec2(0.13, 0.74) * uRes;
+  float dPix     = length(gl_FragCoord.xy - centre);
+  float rLune    = uAngRLune * pxParRad;
+
+  if(uEstLune < 0.5){
+    float viseur = rLune*3.0 + 9.0;
+    // le viseur : un anneau fin, dessiné, sans prétention de taille
+    float anneau = smoothstep(1.6,0.0,abs(dPix - viseur));
+    col = mix(col, vec3(0.55,0.62,0.74), anneau*0.40);
+    // et la Lune, elle, à sa taille vraie
+    float disque = smoothstep(rLune+0.9, rLune-0.9, dPix);
+    col = mix(col, vec3(0.84,0.82,0.77), disque);
+  }
+
   col = pow(clamp(col,0.,1.), vec3(0.86));
   gl_FragColor = vec4(col,1.0);
 }`;
@@ -320,7 +364,7 @@ gl.vertexAttribPointer(ap,2,gl.FLOAT,false,0,0);
 
 const U = {};
 for(const n of ["uRes","uFwd","uRight","uUp","uBodyDir","uAngR","uTint","uKind",
-                "uVisible","uSea","uEye","uHorizon","uT","uRing","uTanChamp"])
+                "uVisible","uSea","uEye","uHorizon","uT","uRing","uTanChamp","uAngRLune","uEstLune"])
   U[n] = gl.getUniformLocation(prog,n);
 
 /* --- le cadran, construit depuis RIVAGE.crans ---------------------------- */
@@ -339,6 +383,7 @@ function choisis(k){
   scn = R.scene(L, cle, D, phase);
   for(const b of nav.querySelectorAll(".cran"))
     b.setAttribute("aria-current", String(b.dataset.cle === k));
+  document.getElementById("etalon").classList.toggle("parti", k === "lune");
   majJauge();
 }
 
@@ -432,6 +477,10 @@ function image(now){
   gl.uniform1f(U.uT, now/1000);
   gl.uniform2f(U.uRing, scn.anneaux?scn.anneaux.rInt:0, scn.anneaux?scn.anneaux.rExt:0);
   gl.uniform1f(U.uTanChamp, Math.tan(CHAMP*Math.PI/360));
+  /* L'ÉTALON. Même fonction, même distance, donc même nombre que celui qui
+     dimensionne l'astre du ciel — c'est ce qui interdit aux deux de diverger. */
+  gl.uniform1f(U.uAngRLune, R.etalonLune(L, D)*Math.PI/360);
+  gl.uniform1f(U.uEstLune, scn.cle === "lune" ? 1 : 0);
 
   gl.drawArrays(gl.TRIANGLES,0,3);
   requestAnimationFrame(image);
