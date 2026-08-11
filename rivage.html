@@ -102,8 +102,8 @@
 
 <nav id="cadran"><b>dans le ciel</b></nav>
 
-<script src="lune.js?v=7e4c8df"></script>
-<script src="rivage.js?v=7e4c8df"></script>
+<script src="lune.js?v=9fbdbcb"></script>
+<script src="rivage.js?v=9fbdbcb"></script>
 <script>
 "use strict";
 /* ==========================================================================
@@ -213,6 +213,8 @@ uniform vec2  uRing;         // anneaux : rayons interne/externe, 0 = aucun
 uniform float uTanChamp;     // tangente du demi-champ vertical
 uniform float uAngRLune;     // rayon angulaire de la Lune — L'ÉTALON
 uniform float uEstLune;      // 1 quand l'astre choisi EST la Lune
+uniform sampler2D uCarte;    // la carte photographique, si elle existe
+uniform float uAvecCarte;    // 1 quand elle est chargee et utilisable
 
 /* Un brassage 2D sans sinus. sin(dot(...))*43758 se répète à grande échelle
    sur les cartes mobiles, qui n'ont pas la précision qu'il réclame — c'est une
@@ -377,6 +379,25 @@ vec3 corps(vec3 d, out float couvre){
     float latOnd = sinLat + 0.045*(w1-0.5) + 0.022*(fbm(q*5.5 + w1*1.4)-0.5);
 
     vec3 base = uTint;
+
+    /* LA CARTE PHOTOGRAPHIQUE, quand il y en a une.
+
+       Hugo, le 11 août 2026, après deux tentatives de dessin : « tu peux dire
+       ce que tu veux, mais c'est super moche. Ce n'est pas simulation, c'est
+       juste vraiment moche. » Il a raison, et la raison profonde est simple :
+       quand Jupiter occupe tout l'écran, il faut du détail VRAI sur toute la
+       surface, et du bruit n'en fabrique pas — il fabrique du flou.
+
+       La carte est plaquée en projection cylindrique équidistante, celle de
+       toutes les cartes planétaires publiées : la longitude sur l'axe des x,
+       la latitude sur l'axe des y, linéairement. Elle n'est donc pas déformée
+       par ma main non plus. */
+    if(uAvecCarte > 0.5){
+      float latitude  = asin(clamp(n.y, -1.0, 1.0));
+      float longitude = atan(n.x, n.z);
+      vec2 uvC = vec2(longitude/6.2831853 + 0.5, 0.5 - latitude/3.1415927);
+      base = texture2D(uCarte, uvC).rgb;
+    } else
     // les motifs : DESSINÉS, ils ne portent aucun chiffre
     if(uKind < 0.5){                              // Lune : mers sombres
       float m = smoothstep(0.55,0.9, h21(floor(vec2(u,v)*4.7)));
@@ -531,8 +552,86 @@ gl.vertexAttribPointer(ap,2,gl.FLOAT,false,0,0);
 
 const U = {};
 for(const n of ["uRes","uFwd","uRight","uUp","uBodyDir","uAngR","uTint","uKind",
-                "uVisible","uSea","uEye","uHorizon","uT","uRing","uTanChamp","uAngRLune","uEstLune"])
+                "uVisible","uSea","uEye","uHorizon","uT","uRing","uTanChamp","uAngRLune","uEstLune","uCarte","uAvecCarte"])
   U[n] = gl.getUniformLocation(prog,n);
+
+/* --- LES CARTES PHOTOGRAPHIQUES ------------------------------------------
+   Une texture, réutilisée : on ne garde qu'un astre à l'écran à la fois, donc
+   un seul emplacement suffit. Le chargement est PARESSEUX — rien n'est
+   téléchargé pour un astre qu'on ne regarde pas, ce qui compte sur téléphone
+   où ces images pèsent plus que tout le reste du site.
+
+   Si le fichier manque ou refuse de se charger, `avecCarte` reste faux et la
+   page DESSINE l'astre comme avant. Une carte absente n'est jamais une page
+   cassée : c'est un astre moins beau, et il se voit. */
+const texture = gl.createTexture();
+gl.bindTexture(gl.TEXTURE_2D, texture);
+gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, 1, 1, 0, gl.RGB, gl.UNSIGNED_BYTE,
+              new Uint8Array([40,40,40]));
+gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+
+let avecCarte = false;
+const chargees = {};
+
+/* LE PIÈGE DES PUISSANCES DE DEUX — payé le 11 août 2026, sur une mire.
+
+   WebGL 1 n'accepte l'enroulement (REPEAT) que sur des textures dont les deux
+   côtés sont des puissances de deux. Une carte de 360×180 — la taille la plus
+   naturelle du monde pour une carte planétaire, un pixel par degré — donne un
+   disque ENTIÈREMENT NOIR, sans message, sans erreur, sans rien.
+
+   Quelqu'un qui dépose une image de travers verrait donc sa planète disparaître
+   et n'aurait aucun moyen de comprendre pourquoi. On ne le lui inflige pas :
+   les côtés sont mesurés, et l'enroulement n'est demandé que s'il est permis.
+   Une carte non conforme perd la continuité à la longitude 180° — une couture
+   fine — au lieu de perdre la planète entière.
+
+   La couture est signalée dans la console : c'est un défaut réel, réparable en
+   redimensionnant l'image, et le taire serait le rendre éternel. */
+const puissanceDeDeux = n => n > 0 && (n & (n-1)) === 0;
+
+function televerse(img){
+  const pot = puissanceDeDeux(img.width) && puissanceDeDeux(img.height);
+  gl.bindTexture(gl.TEXTURE_2D, texture);
+  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, img);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S,
+                   pot ? gl.REPEAT : gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  if(!pot)
+    console.warn("rivage : carte " + img.width + "×" + img.height +
+      " — les côtés ne sont pas des puissances de deux, la longitude 180° " +
+      "portera une couture. Redimensionner en 1024×512 ou 2048×1024 la ferait " +
+      "disparaître.");
+}
+
+function poseCarte(k){
+  const c = R.carteDe(k);
+  avecCarte = false;
+  if(!c) return;                       // pas de carte déclarée : on dessine
+
+  if(chargees[k] === "echec") return;  // déjà tenté et raté : on ne réessaie pas
+  if(chargees[k]){                     // déjà en mémoire
+    televerse(chargees[k]);
+    avecCarte = true;
+    return;
+  }
+  const img = new Image();
+  img.onload = () => {
+    chargees[k] = img;
+    if(cle === k){                     // il peut avoir changé d'astre entre-temps
+      televerse(img);
+      avecCarte = true;
+    }
+  };
+  img.onerror = () => { chargees[k] = "echec"; };
+  img.src = c.fichier;
+}
 
 /* --- le cadran, construit depuis RIVAGE.crans ---------------------------- */
 const nav = document.getElementById("cadran");
@@ -550,6 +649,7 @@ function choisis(k){
   scn = R.scene(L, cle, D, phase);
   for(const b of nav.querySelectorAll(".cran"))
     b.setAttribute("aria-current", String(b.dataset.cle === k));
+  poseCarte(k);
   document.getElementById("etalon").classList.toggle("parti", k === "lune");
   majJauge();
 }
@@ -683,6 +783,10 @@ function image(now){
      dimensionne l'astre du ciel — c'est ce qui interdit aux deux de diverger. */
   gl.uniform1f(U.uAngRLune, R.etalonLune(L, D)*Math.PI/360);
   gl.uniform1f(U.uEstLune, scn.cle === "lune" ? 1 : 0);
+  gl.activeTexture(gl.TEXTURE0);
+  gl.bindTexture(gl.TEXTURE_2D, texture);
+  gl.uniform1i(U.uCarte, 0);
+  gl.uniform1f(U.uAvecCarte, avecCarte ? 1 : 0);
 
   gl.drawArrays(gl.TRIANGLES,0,3);
   requestAnimationFrame(image);
