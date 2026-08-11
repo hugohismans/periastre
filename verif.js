@@ -1014,6 +1014,195 @@ function arriveeJuste(){
   return enCours;
 }
 
+/* 5 quater bis. LA SCÈNE SOLAIRE — ET LE DÉFAUT QU'ELLE A COÛTÉ.
+
+   TROUVÉ À L'ŒIL LE 11 AOÛT, en regardant la première image de la scène : le
+   Soleil n'était pas là. Pas mal placé — ABSENT. La baie regarde l'astre pendant
+   tout le vol, ce qui est exactement ce qui rend le recul visible ; mais on
+   arrive alors DOS à sa destination, puisqu'elle est au bout du rayon qu'on a
+   suivi. Vingt-sept mille années-lumière pour arriver le nez contre une cloison.
+
+   Aucun contrôle ne pouvait le dire : `outil-verif-approche.js` sait que le
+   module rend les bons nombres, et il les rendait. Ce qui manquait n'est pas
+   dans le module, c'est l'orientation de la pièce autour de lui — et ça, ça se
+   mesure dans un navigateur ou pas du tout. Règle 1 : le défaut devient un
+   contrôle, et le voici.
+
+   LA MESURE EST DIFFÉRENTIELLE, comme celle de l'arrivée : on compte ce que la
+   scène AJOUTE à l'écran, avec et sans son dessin. Un compte absolu serait
+   satisfait par le décor de la pièce.
+
+   ET ELLE SE JOUE DEUX FOIS : vaisseau retourné, puis vaisseau NON retourné —
+   c'est-à-dire le code d'avant. La première doit peindre, la seconde presque
+   rien. C'est l'écart entre les deux qui est le contrôle ; sans le second point,
+   une scène peinte au hasard sur tout l'écran passerait au vert. */
+function sceneSolaire(){
+  ouvre("La scène solaire est devant la baie, pas dans le dos");
+  const av = { lieu, p: joueur.p.slice(), sp: salon.p.slice(),
+               lacet: salon.lacet, tangage: salon.tangage, retourne: salon.retourne,
+               trajet: TELESCOPE.trajet, retour: TELESCOPE.retour,
+               carte: TELESCOPE.carte, grille: TELESCOPE.grille,
+               dUa: APPROCHE.etat.dUa, actif: APPROCHE.etat.actif };
+  const degele = fige();
+  const vraiDessine = APPROCHE.dessine;
+  const cvs = ctx.canvas;
+  try {
+    if(lieu !== "salon") vaAu("salon");
+    joueur.p = [0, hauteurSol(0, 0.6), 0.6];
+
+    /* ON COMPTE LES PIXELS CLAIRS, PAS LES PIXELS PEINTS — et cette distinction
+       m'a repris au premier jet. Le voile de la scène couvre toute la baie dès
+       la première image, à n'importe quelle distance : compter tout ce qui n'est
+       pas transparent donnait 59 070 en bas de la chute et 59 048 dans le nuage.
+       Le contrôle « bien moins qu'en bas » passait donc au vert, à vingt-deux
+       pixels près, en ne mesurant rien du tout.
+
+       Ce qui distingue les deux régimes, ce sont les ANNEAUX, les noms et le
+       halo — tout ce qui est clair. Le voile, lui, est à peine plus qu'un noir :
+       #05050a sous une opacité de 0,45. On pèse donc chaque pixel par son éclat
+       ET par son alpha, et le seuil laisse le voile dehors sans discuter. */
+    const clairs = () => {
+      const img = ctx.getImageData(0, 0, cvs.width, cvs.height).data;
+      let n = 0;
+      for(let y = 0; y < cvs.height; y += 2) for(let x = 0; x < cvs.width; x += 2){
+        const i = (y*cvs.width + x)*4;
+        if((img[i] + img[i+1] + img[i+2])/3 * img[i+3]/255 >= 20) n++;
+      }
+      return n;
+    };
+
+    const d = DESTINATIONS.find(x => x.scene === "solaire");
+    point("une destination déclare une scène", !!d,
+          "au moins une", d ? d.id : "aucune",
+          "sans elle, tout ce qui suit ne mesurerait rien");
+    if(!d) return enCours;
+
+    /* On rejoue le VRAI voyage, comme `arriveeJuste` : un contrôle qui refait la
+       décision qu'il surveille se met d'accord avec lui-même. Puis on ATTEND que
+       le demi-tour soit fini, au lieu de le supposer — c'est la règle 5, et
+       c'est exactement ce qui a fait mentir cette mesure au premier jet : je
+       posais `salon.retourne` à la main entre deux images, et `majVoyage`, qui
+       en est le seul écrivain, le ramenait à sa valeur à l'image suivante. */
+    let t = 0;
+    const arrive = (dUa) => {
+      TELESCOPE.trajet = null; TELESCOPE.retour = false;
+      TELESCOPE.carte = 0; TELESCOPE.grille = 0;
+      salon.lacet = 0; salon.tangage = -0.05; salon.retourne = 0;
+      salon.p = [salon.apo, 0, 0];
+      lanceVoyage(d, VOYAGE.entre(distanceVaisseau(), d.d_m));
+      RECUL.etat.t = 0.999;
+      t = avanceImages(4, t);
+      APPROCHE.pose(dUa);
+      /* LE DEMI-TOUR EST POSÉ À SON POINT FIXE, PAS JOUÉ. Il dure trois
+         secondes, soit cent quatre-vingts images à la cadence de ce contrôle,
+         et trois arrivées en coûtaient sept minutes.
+
+         Un est un POINT FIXE de son écrivain : `majVoyage` calcule
+         `min(1, retourne + dt/3)` tant qu'on est arrivé à une destination qui
+         porte une scène. Le poser à un et laisser tourner trois images ne
+         court-circuite donc rien — au contraire, ça ÉPROUVE que `majVoyage` le
+         maintient, et le point qui suit le vérifie avant de conclure. S'il
+         redescendait, c'est que le demi-tour ne serait pas armé du tout. */
+      salon.retourne = 1;
+      TELESCOPE.carte = 1;
+      t = avanceImages(3, t);
+    };
+
+    // Où le Soleil tombe-t-il à l'écran ? C'est la question du défaut, posée
+    // directement : la page projette la même direction que le dessin.
+    const ouSoleil = () => {
+      const u = norm(salon.p), loin = Math.max(1e6, len(cam.pos)*1000);
+      return projette([cam.pos[0]+u[0]*loin, cam.pos[1]+u[1]*loin, cam.pos[2]+u[2]*loin]);
+    };
+
+    /* LE DÉFAUT DU 11 AOÛT, ET IL SE DIT EN UNE LIGNE. La baie regarde l'astre
+       pendant tout le vol ; sans demi-tour, on arrive DOS à sa destination et
+       `projette` rend `null`. Le contrôle a donc deux moitiés qui doivent être
+       vraies ENSEMBLE : avant, rien ; après, quelque chose. */
+    arrive(APPROCHE.ARRIVEE_UA);
+    point("le vaisseau s'est retourné en arrivant", salon.retourne >= 1,
+          "1", +salon.retourne.toFixed(3),
+          "trois secondes de manœuvre, et c'est `majVoyage` qui les écrit");
+    const apres = ouSoleil();
+    point("et le Soleil est devant la baie", !!apres,
+          "une position à l'écran", apres ? `${Math.round(apres[0])}, ${Math.round(apres[1])}` : "DANS LE DOS",
+          "c'est le défaut du 11 août : vingt-sept mille années-lumière pour "
+          + "arriver le nez contre une cloison");
+
+    /* ET LA MOITIÉ QUI PROUVE L'AUTRE : sans le demi-tour, il n'y a rien. On ne
+       repose pas `salon.retourne` — `majVoyage` en est le seul écrivain et le
+       reprendrait — on regarde AVANT que la manœuvre commence. */
+    TELESCOPE.trajet = null; TELESCOPE.carte = 0;
+    salon.lacet = 0; salon.tangage = -0.05; salon.retourne = 0;
+    salon.p = [salon.apo, 0, 0];
+    lanceVoyage(d, VOYAGE.entre(distanceVaisseau(), d.d_m));
+    RECUL.etat.t = 0.999;
+    t = avanceImages(2, t);
+    const avant = ouSoleil();
+    point("alors qu'avant le demi-tour, il était dans le dos",
+          !avant && salon.retourne < 0.2,
+          "aucune position, manœuvre à peine entamée",
+          (avant ? `${Math.round(avant[0])}, ${Math.round(avant[1])}` : "dans le dos")
+          + ` (retourne ${salon.retourne.toFixed(3)})`,
+          "si les deux moitiés répondaient pareil, cette mesure ne mesurerait rien");
+
+    /* LES DEUX RÉGIMES, À L'ÉCRAN. La mesure est différentielle : on compte ce
+       que la scène AJOUTE, avec et sans son dessin. Un compte absolu serait
+       satisfait par le décor de la pièce. */
+    const ajout = () => {
+      APPROCHE.dessine = () => {};
+      t = avanceImages(3, t); const sans = clairs();
+      APPROCHE.dessine = vraiDessine;
+      t = avanceImages(3, t); const avec = clairs();
+      return avec - sans;
+    };
+
+    arrive(APPROCHE.ARRIVEE_UA);
+    const bas = ajout();
+    point("en bas de la chute, la scène se peint", bas > 200,
+          "> 200 pixels clairs ajoutés", bas,
+          "les anneaux, le Soleil et les noms — ce qu'on a traversé vingt-sept "
+          + "mille années-lumière pour voir");
+
+    arrive(APPROCHE.DEPART_UA);
+    const nuage = ajout();
+    point("depuis le nuage, il y a quelque chose — un point", nuage > 20,
+          "> 20 pixels clairs ajoutés", nuage,
+          "un écran rigoureusement vide se lirait comme une panne, et c'est "
+          + "justement la question posée à Hugo");
+    point("et bien moins qu'en bas de la chute", nuage < bas/3,
+          "< " + Math.round(bas/3), nuage,
+          "c'est le passage d'un régime à l'autre, mesuré : « rien à voir » "
+          + "devient « ah, il y a quelque chose »");
+
+    /* Et l'on regarde AILLEURS. La scène est posée là où le Soleil se trouve
+       vraiment, pas au milieu de l'image : tourner la tête doit la faire sortir
+       du champ, comme ce qu'on voit par une fenêtre. C'est la leçon du 9 août,
+       et le recentrage se tait pendant cette scène, donc la tête reste où on la
+       met. */
+    salon.lacet += Math.PI;
+    t = avanceImages(3, t);
+    const dos = ajout();
+    point("et si l'on regarde ailleurs, elle sort du champ", Math.abs(dos) < 40,
+          "< 40 pixels clairs ajoutés", dos,
+          "`projette` rend `null` derrière le plan de coupure, et l'on ne "
+          + "dessine alors rien plutôt que de rabattre la scène au centre");
+  } finally {
+    APPROCHE.dessine = vraiDessine;
+    APPROCHE.range();
+    APPROCHE.etat.dUa = av.dUa; APPROCHE.etat.actif = av.actif;
+    TELESCOPE.trajet = av.trajet; TELESCOPE.retour = av.retour;
+    TELESCOPE.carte = av.carte; TELESCOPE.grille = av.grille;
+    RECUL.etat.actif = false;
+    joueur.p = av.p; salon.p = av.sp;
+    salon.lacet = av.lacet; salon.tangage = av.tangage; salon.retourne = av.retourne;
+    degele();
+    if(lieu !== av.lieu) vaAu(av.lieu);
+    avanceImages(2);
+  }
+  return enCours;
+}
+
 /* 5 quinquies. UNE SÉANCE DE JUGEMENT NE DOIT RIEN LAISSER DERRIÈRE ELLE.
 
    Le 7 août au soir : « c'est hyper lent, j'ai deux images par seconde ». Son
@@ -1595,15 +1784,21 @@ function joue(nom, f){
    les compte plutôt que de les taire, et le compte ne remonte jamais — même
    mécanique que `PLAFOND` et `INCONNUS`. Un compromis déclaré demain sans être
    montré fera rougir cette ligne le jour même. */
-/* DEUX, et ce sont `recul` et `arrivee`. Leurs panneaux n'existent que pendant
-   un voyage : les ouvrir depuis la passe non destructive demanderait de lancer
-   un trajet, donc de casser l'état de qui joue. Ils sont posés dans la page —
-   `poseAveux($("chrono"), "recul")` et `poseAveux($("in-pied"), "arrivee")` —
-   et c'est `parcours`/`voyage`, la passe longue, qui les traversera.
+/* UN, et c'est `recul`. Son panneau — le chronomètre — n'existe vraiment que
+   pendant un voyage, et l'ouvrir depuis la passe non destructive demanderait de
+   lancer un trajet, donc de casser l'état de qui joue. C'est `parcours`/`voyage`,
+   la passe longue, qui le traverse.
 
-   Deux, et jamais trois : le jour où l'on déclare un compromis dans un endroit
-   sans panneau, cette ligne rougit avant qu'il soit publié. */
-const AVEUX_SANS_PLACE = 2;
+   IL Y EN AVAIT DEUX, ET LE SECOND ÉTAIT UNE PARESSE. « L'arrivée » était rangée
+   ici pour la même raison supposée, et c'était faux : `poseArrivee` construit son
+   panneau et pose ses badges sans lancer quoi que ce soit. Trouvé le 11 août
+   parce que la scène solaire a déclaré son compromis, que le compte est monté à
+   trois, et que ce cliquet a rougi. Il a fait son travail ; la bonne réponse
+   n'était pas de le monter mais d'aller chercher les deux panneaux.
+
+   Un, et jamais deux : le jour où l'on déclare un compromis dans un endroit sans
+   panneau, cette ligne rougit avant qu'il soit publié. */
+const AVEUX_SANS_PLACE = 1;
 
 function aveux(){
   ouvre("Les aveux sont-ils à l'écran ?");
@@ -1625,6 +1820,20 @@ function aveux(){
        le contrôle accusait alors le site d'un défaut qui était le sien. */
     "telescope":     () => { fermeTelescope(); ouvreTelescope(); return document.getElementById("in-pied"); },
     "etude":         () => { fermeTelescope(); ouvreTelescope(); poseEtude(); return document.getElementById("in-pied"); },
+    /* LES DEUX ARRIVÉES, DEPUIS LE 11 AOÛT — et elles n'avaient pas à manquer.
+       Le commentaire du cliquet disait que leur panneau « n'existe que pendant un
+       voyage », donc qu'il faudrait en lancer un. C'est faux : `poseArrivee`
+       CONSTRUIT le panneau et pose ses badges sans rien déplacer, et
+       `arriveeJuste` l'appelle déjà ainsi dans la passe non destructive.
+
+       C'est le compromis de la scène solaire qui l'a montré : en le déclarant,
+       le compte est passé de deux à trois et le cliquet a rougi. Il a fait
+       exactement ce pour quoi il existe, et la bonne réponse n'était pas de le
+       monter — c'était d'aller chercher le panneau qu'on croyait inaccessible. */
+    "arrivee-etoiles": () => { fermeTelescope();
+      poseArrivee(DESTINATIONS.find(d => d.carte === true)); return document.getElementById("in-pied"); },
+    "arrivee-soleil":  () => { fermeTelescope();
+      poseArrivee(DESTINATIONS.find(d => d.scene === "solaire")); return document.getElementById("in-pied"); },
   };
 
   /* Le texte cherché passe par le MODULE, jamais par `c.aveu` en direct : depuis
@@ -1681,6 +1890,7 @@ const PASSE = [
   ["Les nuanceurs", nuanceurs], ["Les clés nues", clesNues], ["Le banc d'essai", banc],
   ["Les pixels", pixels], ["La couture", couture], ["La carte fixe", carteFixe],
   ["La carte dehors", carteDehors], ["L'arrivée juste", arriveeJuste],
+  ["La scène solaire", sceneSolaire],
   ["La rotation calme", rotationCalme],
   ["Le même espace", memeEspace], ["La mise en page", mesurePage], ["Le budget", budget],
 ];
@@ -1704,7 +1914,7 @@ function tout(){
 
 global.VERIF = {
   vivant, coherence, lieux, aveux, tempsJuste, resolution, saisieLibre, nuanceurs, clesNues,
-  banc, pixels, couture, carteFixe, carteDehors, arriveeJuste, seanceSansTrace, rotationCalme, memeEspace, mesurePage, parcours, voyage, budget,
+  banc, pixels, couture, carteFixe, carteDehors, arriveeJuste, sceneSolaire, seanceSansTrace, rotationCalme, memeEspace, mesurePage, parcours, voyage, budget,
   sain, tout, bilan, texte, resultats, FORMATS, OR,
   // outillage exposé : d'autres contrôles pourront s'y adosser
   pose, fige, avanceImages,

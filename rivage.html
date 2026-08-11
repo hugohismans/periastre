@@ -1,0 +1,647 @@
+<!doctype html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
+<meta name="robots" content="noindex">
+<title>Le rivage — Périastre</title>
+<!--
+   LE RIVAGE — première personne, debout sur la Terre, la nuit.
+
+   Ceci est le PROTOTYPE DU LIEU, pas une page d'explication. La différence
+   compte, parce que c'est très exactement le reproche d'Hugo à `lune.html` le
+   11 août : « c'est très bien, mais c'est une page d'explication, ce n'est pas
+   une page de jeu. Je veux que le joueur il soit dans un monde interactif. »
+
+   Ici il n'y a ni panneau, ni tableau, ni paragraphe. Il y a un sol, une mer,
+   un ciel, et un cadran qu'on tourne. On regarde autour de soi.
+
+   CE QUI EST VRAI ET CE QUI EST DESSINÉ — l'aveu, en haut du fichier :
+
+     VRAI, dérivé de `rivage.js` et `lune.js`, jamais saisi à la main :
+       · le diamètre apparent de chaque astre, à la distance de la Lune ;
+       · la hauteur de la mer, marée d'équilibre, et son rythme ;
+       · la distance de l'horizon depuis 1,70 m ;
+       · le fait que le trou noir ne se voie pas, et que sa marée soit
+         rigoureusement celle de la Lune.
+
+     DESSINÉ, et qui ne prétend à rien :
+       · les taches des astres, les bandes de Jupiter, les anneaux de Saturne ;
+       · la couleur du sable, la forme des vagues, le champ d'étoiles ;
+       · l'échelle de marée plantée dans l'eau — elle n'existe pas dans la
+         nature, mais sans elle les 54 cm de la Lune sont invisibles, et la
+         scène ne montrerait rien.
+
+   LE CIEL NE BOUGE PAS. C'est le choix d'Hugo, le 11 août, et il est bon :
+   toute l'attention va à la taille. Seule la mer vit.
+-->
+<style>
+  html,body{margin:0;height:100%;background:#05070c;overflow:hidden;
+            font-family:ui-sans-serif,system-ui,"Segoe UI",Roboto,sans-serif;
+            -webkit-user-select:none;user-select:none;touch-action:none}
+  canvas{display:block;width:100vw;height:100vh;cursor:grab}
+  canvas.prise{cursor:grabbing}
+
+  /* LE CADRAN. Posé « à hauteur de main », en bas à droite, comme un objet
+     qu'on tient — pas comme une barre d'outils. Il est en 2D par-dessus la
+     scène : c'est le compromis assumé de ce prototype, et le seul. Dans le
+     vaisseau il deviendra un objet du monde, qu'on approche et qu'on tourne. */
+  #cadran{position:fixed;right:max(18px,env(safe-area-inset-right));
+          bottom:max(18px,env(safe-area-inset-bottom));
+          display:flex;flex-direction:column;gap:6px;align-items:stretch;
+          padding:10px;border-radius:14px;
+          background:linear-gradient(160deg,#241d10,#120e07);
+          border:1px solid #6b5730;box-shadow:0 10px 30px #000a,inset 0 1px 0 #ffffff14}
+  #cadran b{font:600 10px/1 ui-sans-serif;letter-spacing:.14em;color:#c9a961;
+            text-transform:uppercase;text-align:center;padding:2px 0 5px}
+  .cran{appearance:none;border:1px solid #6b5730;background:#1c1710;color:#e8dcc0;
+        font:500 13px/1 ui-sans-serif;padding:8px 12px;border-radius:8px;
+        cursor:pointer;text-align:left;min-width:104px;transition:background .12s}
+  .cran:hover{background:#2b2317}
+  .cran[aria-current="true"]{background:#c9a961;color:#1a1409;border-color:#e5c987;
+                             font-weight:700}
+
+  /* Le seul texte de la scène : ce que l'astre fait, en trois chiffres. Il se
+     tient en bas à gauche, discret, et ne raconte rien — il constate. */
+  #jauge{position:fixed;left:max(18px,env(safe-area-inset-left));
+         bottom:max(18px,env(safe-area-inset-bottom));color:#8fa4bd;
+         font:400 12px/1.6 ui-monospace,SFMono-Regular,Menlo,monospace;
+         text-shadow:0 1px 6px #000;pointer-events:none}
+  #jauge s{display:block;color:#e6eef8;font-size:15px;font-weight:600;
+           text-decoration:none;letter-spacing:.01em}
+  #jauge em{color:#c9a961;font-style:normal}
+  #alerte{color:#e08a6a}
+  #jLoupe{color:#c9a961;display:block}
+
+  /* La légende de l'étalon. Elle se cale sous le viseur — 13 % de la largeur,
+     74 % de la hauteur — et disparaît quand l'astre choisi EST la Lune. */
+  #etalon{position:fixed;left:13%;top:26%;transform:translate(-50%,42px);
+          text-align:center;color:#93a4ba;font:500 11px/1.35 ui-sans-serif;
+          letter-spacing:.02em;pointer-events:none;text-shadow:0 1px 6px #000;
+          transition:opacity .25s}
+  #etalon span{color:#5f7189;font-weight:400}
+  #etalon.parti{opacity:0}
+
+  #aide{position:fixed;top:max(14px,env(safe-area-inset-top));left:0;right:0;
+        text-align:center;color:#5d6f88;font:400 12px/1.5 ui-sans-serif;
+        pointer-events:none;transition:opacity .6s;text-shadow:0 1px 6px #000}
+  #aide.parti{opacity:0}
+</style>
+
+<canvas id="c"></canvas>
+
+<div id="aide">glissez pour regarder autour de vous &nbsp;·&nbsp; deux doigts pour grossir</div>
+
+<div id="jauge">
+  <s id="jTitre">la Lune</s>
+  <span id="jTaille"></span><br>
+  <span id="jMaree"></span><br>
+  <span id="jLoupe"></span>
+  <span id="jAlerte" ></span>
+</div>
+
+<div id="etalon">la Lune<br><span>à la même échelle</span></div>
+
+<nav id="cadran"><b>dans le ciel</b></nav>
+
+<script src="lune.js?v=5fbc645"></script>
+<script src="rivage.js?v=5fbc645"></script>
+<script>
+"use strict";
+/* ==========================================================================
+   Aucune valeur d'astre n'est écrite dans ce fichier. Tout vient de RIVAGE,
+   qui le tient de LUNE, qui porte les sources. Si un chiffre est faux, il est
+   faux à UN endroit.                                                        */
+const L = window.LUNE, R = window.RIVAGE;
+const D = L.D_LUNE_KM;
+
+/* --- état de la scène ---------------------------------------------------- */
+let cle = "lune";
+let scn = R.scene(L, cle, D, 0);
+let phase = 0;                 // 0→1, un cycle de marée complet
+let az = 0, alt = 4.5*Math.PI/180; // où l'on regarde — l'astre ET l'horizon
+
+/* LE TEMPS DE LA SCÈNE. La marée vraie met 12 h 25 ; on la joue en 24 s, et
+   c'est un compromis DÉCLARÉ, pas une loi inventée : le rapport est affiché
+   dans la jauge, et le module rend la vraie période. On accélère le temps,
+   on ne truque pas la physique. */
+const CYCLE_S = 24;
+
+/* ---------------------------------------------------------------------------
+   L'ÉCHELLE DU CIEL — refaite deux fois le 11 août 2026
+
+   PREMIER JET : 60°, repris de LUNE.CHAMP_FIGE. J'ai défendu ce choix en
+   écrivant que la Lune à cinq pixels « était le sujet même de la scène ».
+   C'était faux, et Hugo l'a dit en une phrase : « la pleine Lune, je la vois
+   quand elle est pleine, ce n'est pas possible que je la voie aussi petite ».
+   Un écran tenu à bout de bras n'occupe qu'une vingtaine de degrés du regard :
+   y peindre 60° de ciel comprimait tout d'un facteur deux et demi. La Lune
+   n'était pas rendue petite par honnêteté, elle était rendue FAUSSE.
+
+   DEUXIÈME JET : 26° en dur. Hugo, aussitôt : « c'est basé sur le seize
+   neuvième des écrans standards, il faut que ce soit une autre dimension
+   d'écran, ça fonctionne, responsive ». Il a raison de nouveau, et le défaut
+   est plus profond que le premier : un ANGLE fixe ne dit rien tant qu'on ne
+   sait pas quelle surface le porte. Le même 26° sur un téléphone en portrait
+   et sur un écran large ne donnent pas la même Lune.
+
+   CE QUI EST FIXE N'EST DONC PAS L'ANGLE, C'EST L'ÉCHELLE.
+
+   Un pixel de l'écran vaut toujours le même angle de ciel. Une fenêtre plus
+   grande montre PLUS DE CIEL, jamais une Lune plus grosse — exactement comme
+   une vraie fenêtre. Le rapport largeur/hauteur n'entre nulle part : les deux
+   axes emploient la même échelle, donc le 16:9, le 4:3 et le portrait d'un
+   téléphone donnent tous la même taille apparente.
+
+   L'échelle n'est pas inventée non plus. Le « pixel de référence » du web est
+   défini comme l'angle visuel d'un pixel à 96 points par pouce vu à bout de
+   bras, soit environ 0,0213° — c'est la définition du CSS, pas une valeur que
+   j'ai choisie. La rendre au ciel, c'est afficher 1:1.
+
+     source : CSS Values and Units Module, § « absolute lengths »,
+     W3C — https://www.w3.org/TR/css-values-4/#reference-pixel
+
+   À cette échelle, la Lune fait vingt-quatre pixels sur n'importe quel écran,
+   et Jupiter à la distance lunaire déborde du cadre. Les deux sont vrais.   */
+const DEG_PAR_PIXEL = 0.0213;      // pixel de référence CSS — W3C
+
+/* LA LOUPE. Hugo, le 11 août : « ça doit toujours être un peu interactif. »
+   Molette ou deux doigts. Tout grossit ensemble, les rapports entre astres
+   restent exacts, et la scène AVOUE son grossissement dès qu'il quitte 1. */
+let loupe = 1;
+const LOUPE_MIN = 1, LOUPE_MAX = 12;
+
+/* Le champ n'est plus une constante : il se DÉDUIT de la hauteur de la
+   fenêtre. Les bornes évitent l'absurde aux deux extrêmes — une montre
+   connectée et un mur de projection — et rien entre les deux n'est bridé. */
+function champ(){
+  const deg = cv.clientHeight * DEG_PAR_PIXEL / loupe;
+  return Math.max(2, Math.min(70, deg));
+}
+
+/* --- WebGL --------------------------------------------------------------- */
+const cv = document.getElementById("c");
+/* `?mesure` garde le tampon lisible après le dessin, pour qu'un contrôle
+   puisse compter les pixels d'un astre depuis le dehors. Éteint par défaut :
+   conserver le tampon coûte de la mémoire et du temps sur téléphone, et ce
+   coût n'a pas à être payé par quelqu'un qui regarde le ciel. C'est la même
+   convention que `?verif` dans le site. */
+const MESURABLE = location.search.includes("mesure");
+const gl = cv.getContext("webgl", {antialias:false, alpha:false,
+                                   preserveDrawingBuffer: MESURABLE});
+if(!gl){ document.body.innerHTML = "<p style='color:#eee;padding:2em'>WebGL indisponible.</p>"; }
+
+const VS = `attribute vec2 p; void main(){ gl_Position = vec4(p,0.,1.); }`;
+
+/* Le ciel et le sol sont calculés PAR DIRECTION DE REGARD, pixel par pixel.
+   C'est ce qui donne à l'astre sa taille angulaire exacte : on teste l'angle
+   entre le rayon et la direction de l'astre contre son rayon angulaire vrai.
+   Aucune texture, donc aucune taille figée — c'était la réponse à la question
+   d'Hugo sur la skybox : le fond est une skybox, l'astre n'en est pas une. */
+const FS = `
+precision highp float;
+uniform vec2  uRes;
+uniform vec3  uFwd, uRight, uUp;
+uniform vec3  uBodyDir;      // direction de l'astre, fixe
+uniform float uAngR;         // rayon angulaire vrai, en radians
+uniform vec3  uTint;
+uniform float uKind;         // 0 lune 1 mars 2 terre 3 neptune 4 saturne 5 jupiter 6 soleil 7 trou
+uniform float uVisible;      // 0 = rien à voir (trou noir)
+uniform float uSea;          // hauteur de la mer, en mètres, relative au repère
+uniform float uEye;          // hauteur de l'oeil
+uniform float uHorizon;      // distance de l'horizon, en mètres
+uniform float uT;
+uniform vec2  uRing;         // anneaux : rayons interne/externe, 0 = aucun
+uniform float uTanChamp;     // tangente du demi-champ vertical
+uniform float uAngRLune;     // rayon angulaire de la Lune — L'ÉTALON
+uniform float uEstLune;      // 1 quand l'astre choisi EST la Lune
+
+/* Un brassage 2D sans sinus. sin(dot(...))*43758 se répète à grande échelle
+   sur les cartes mobiles, qui n'ont pas la précision qu'il réclame — c'est une
+   des deux causes des anneaux qu'Hugo a vus. */
+float h21(vec2 p){
+  p = fract(p*vec2(443.8975,441.4234));
+  p += dot(p, p.yx + 19.19);
+  return fract((p.x + p.y)*p.x);
+}
+
+/* Un bruit lissé. Le premier jet employait floor() nu, qui pose une valeur
+   constante par case : la Voie lactée devenait un damier de pavés, visibles à
+   l'oeil sur l'image. L'interpolation les efface sans rien coûter. */
+float bruit(vec2 p){
+  vec2 i = floor(p), f = fract(p);
+  f = f*f*(3.0 - 2.0*f);
+  return mix(mix(h21(i),            h21(i+vec2(1.,0.)), f.x),
+             mix(h21(i+vec2(0.,1.)), h21(i+vec2(1.,1.)), f.x), f.y);
+}
+
+/* ---------------------------------------------------------------------------
+   LE CHAMP D'ÉTOILES — refait le 11 août 2026
+
+   Hugo, après avoir regardé : « le ciel est un peu bizarre, on dirait une
+   espèce de fractale un peu chelou, il y a des cercles concentriques ». Il
+   avait vu la signature d'un calcul faux, et il y en avait DEUX.
+
+   1. Le premier semis découpait l'espace en cubes et prenait leur empreinte en
+      repliant trois coordonnées sur deux — cell.xy + cell.z*37. Deux cubes
+      différents pouvaient ainsi tomber sur la même empreinte, et le motif se
+      répétait.
+
+   2. Surtout : les directions du regard sont toutes de longueur 1, donc les
+      points échantillonnés vivaient sur une SPHÈRE traversant un réseau de
+      cubes. L'intersection d'une sphère et d'un réseau cubique dessine des
+      anneaux — les cercles concentriques, exactement.
+
+   Le semis se fait donc maintenant sur les six faces d'un cube, en deux
+   dimensions, comme une carte du ciel : plus de sphère à travers un réseau,
+   donc plus d'anneaux possibles.
+
+   La taille des étoiles suit le champ de vision, pour qu'une étoile reste un
+   point de deux ou trois pixels quel que soit le cadrage. Une étoile plus
+   grosse que la Lune serait un mensonge sur le seul sujet de la scène.      */
+vec3 etoiles(vec3 d){
+  // sur quelle face du cube regarde-t-on, et où
+  vec3 a = abs(d);
+  float face; vec2 uv;
+  if(a.x >= a.y && a.x >= a.z){ face = (d.x > 0.) ? 0. : 1.; uv = vec2(d.z, d.y)/a.x; }
+  else if(a.y >= a.z)         { face = (d.y > 0.) ? 2. : 3.; uv = vec2(d.x, d.z)/a.y; }
+  else                        { face = (d.z > 0.) ? 4. : 5.; uv = vec2(d.x, d.y)/a.z; }
+
+  vec3 col = vec3(0.);
+  for(int o=0; o<3; o++){
+    float N = 34.0 + float(o)*61.0;          // trois densités superposées
+
+    /* COMBIEN D'ÉTOILES. Le seuil monte avec la densité : quelques centaines
+       de brillantes, quelques milliers de faibles. Un seuil constant en
+       donnait vingt mille — trois fois ce que l'œil nu voit vraiment. */
+    float seuil = 0.90 + float(o)*0.045;
+
+    vec2 q = uv*N;
+    vec2 cellule = floor(q);
+    vec2 k = cellule + face*137.31 + float(o)*57.77;
+    float r = h21(k);
+    if(r > seuil){
+      vec2 c = cellule + 0.5 + 0.38*(vec2(h21(k+1.7), h21(k+3.1))*2.0 - 1.0);
+      float dd = length(q - c);
+      float mag = (r - seuil)/(1.0 - seuil);
+
+      /* LE RAYON D'UNE ÉTOILE — dérivé, pas choisi.
+
+         Une face du cube couvre 90°, et vaut N cases : une case fait donc
+         90/N degrés. On veut qu'une étoile occupe environ deux pixels sur un
+         écran de six cents, soit champ/300 degrés. En cases, cela donne
+         champ·N/27000, et champ vaut sensiblement 114,6·tan(champ/2).
+
+         Premier jet : 0,030·N·tan — sept fois trop. Les étoiles débordaient de
+         leur case, s'y faisaient couper, et le ciel devenait un damier de
+         pavés. Hugo n'a pas eu à le signaler, l'image le criait. */
+      float rayon = 0.0042*N*uTanChamp;
+
+      float i = exp(-(dd*dd)/(rayon*rayon)) * (0.16 + 0.84*mag*mag*mag);
+      i *= 1.0 - float(o)*0.28;              // les denses sont les plus faibles
+      vec3 t = mix(vec3(0.70,0.79,1.0), vec3(1.0,0.85,0.66), h21(k+9.43));
+      col += t*i;
+    }
+  }
+
+  /* La Voie lactée : une bande diffuse, DESSINÉE, qui ne prétend à rien — ni
+     position vraie, ni structure. Elle est là parce qu'un ciel sans elle est
+     un ciel de ville, et qu'on est censé être loin de tout. */
+  float lat = d.y*0.94 - d.x*0.30;
+  float b = exp(-lat*lat*11.0);
+  float grain = 0.62 + 0.38*bruit(uv*7.0 + face*23.0);
+  col += vec3(0.030,0.034,0.048)*b*grain;
+  return col;
+}
+
+// --- l'astre --------------------------------------------------------------
+vec3 corps(vec3 d, out float couvre){
+  couvre = 0.0;
+  float ca = dot(d, uBodyDir);
+  float ang = acos(clamp(ca,-1.,1.));
+
+  vec3 col = vec3(0.);
+
+  // les anneaux d'abord (ils passent derrière et devant le globe)
+  if(uRing.y > 0.0){
+    // plan des anneaux : incliné, on projette dans un repère local
+    vec3 ax = normalize(cross(uBodyDir, vec3(0.,1.,0.2)));
+    vec3 ay = normalize(cross(uBodyDir, ax));
+    float u = dot(d,ax)/uAngR, v = dot(d,ay)/uAngR;
+    float rr = length(vec2(u, v/0.30));           // inclinaison des anneaux
+    if(rr > uRing.x && rr < uRing.y && ang < uAngR*uRing.y*1.3){
+      float band = 0.55 + 0.45*sin(rr*38.0);
+      float div  = smoothstep(1.52,1.58,rr)*step(rr,1.62);   // division de Cassini
+      float a = (0.62*band) * (1.0-div*0.85);
+      col += uTint*a*0.85;
+      couvre = max(couvre, a*0.9);
+    }
+  }
+
+  if(ang < uAngR && uVisible > 0.5){
+    // position sur le disque, en rayons
+    float s = sin(ang)/max(uAngR,1e-9);
+    vec3 ax = normalize(cross(uBodyDir, vec3(0.,1.,0.2)));
+    vec3 ay = normalize(cross(uBodyDir, ax));
+    float u = dot(d,ax)/uAngR, v = dot(d,ay)/uAngR;
+    float rr = clamp(length(vec2(u,v)),0.,1.);
+    float z = sqrt(max(0.,1.-rr*rr));            // relief sphérique
+
+    // ÉCLAIRAGE. Une seule source, cohérente pour tous les astres : le Soleil,
+    // posé à gauche et légèrement au-dessus. La phase qui en résulte n'est pas
+    // choisie astre par astre — c'est la même lumière pour tout le monde.
+    vec3 n = normalize(vec3(u,v,z));
+    vec3 sol = normalize(vec3(-0.62,0.34,0.70));
+    float lam = max(0.0, dot(n,sol));
+
+    vec3 base = uTint;
+    // les motifs : DESSINÉS, ils ne portent aucun chiffre
+    if(uKind < 0.5){                              // Lune : mers sombres
+      float m = smoothstep(0.55,0.9, h21(floor(vec2(u,v)*4.7)));
+      base *= mix(1.0, 0.72, m);
+      base *= 0.92 + 0.08*sin(u*29.0)*sin(v*23.0);
+    } else if(uKind < 1.5){                       // Mars : calotte + plaines
+      base *= 0.9 + 0.2*h21(floor(vec2(u,v)*6.3));
+      base = mix(base, vec3(1.0), smoothstep(0.72,0.95, v)*0.55);
+    } else if(uKind < 2.5){                       // Terre : océans et nuages
+      float terre = smoothstep(0.48,0.56, h21(floor(vec2(u*3.1,v*3.1))));
+      base = mix(vec3(0.13,0.25,0.52), vec3(0.22,0.42,0.20), terre);
+      float nu = smoothstep(0.62,0.85, h21(floor(vec2(u*7.,v*7.)+3.)));
+      base = mix(base, vec3(0.95), nu*0.6);
+    } else if(uKind < 3.5){                       // Neptune : lisse, une tache
+      base *= 0.95+0.05*sin(v*11.0);
+      base = mix(base, vec3(0.10,0.16,0.42), smoothstep(0.35,0.05,length(vec2(u-0.3,v+0.2))));
+    } else if(uKind < 4.5){                       // Saturne : bandes douces
+      base *= 0.92 + 0.08*sin(v*13.0);
+    } else if(uKind < 5.5){                       // Jupiter : bandes + tache
+      base *= 0.86 + 0.14*sin(v*17.0 + 0.7*sin(v*5.0));
+      float gr = smoothstep(0.20,0.0,length(vec2((u-0.28)*1.7, v+0.18)));
+      base = mix(base, vec3(0.78,0.36,0.26), gr*0.85);
+    } else {                                      // Soleil
+      base = vec3(1.0,0.93,0.76);
+    }
+
+    float ecl = (uKind > 5.5) ? 1.0 : (0.06 + 0.94*lam);
+    // assombrissement centre-bord, léger
+    ecl *= 0.82 + 0.18*z;
+    col = base*ecl;
+    couvre = 1.0;
+  }
+  return col;
+}
+
+void main(){
+  vec2 uv = (gl_FragCoord.xy - 0.5*uRes) / uRes.y;
+  vec3 d = normalize(uFwd + (uRight*uv.x + uUp*uv.y)*2.0*uTanChamp);
+
+  vec3 col;
+
+  if(d.y > 0.0001){
+    // ------------------------------------------------ le ciel
+    col = etoiles(d);
+    float couvre;
+    vec3 astre = corps(d, couvre);
+    col = mix(col, astre, couvre);
+    // une lueur très faible autour des gros astres, dessinée
+    float ang = acos(clamp(dot(d,uBodyDir),-1.,1.));
+    if(uVisible > 0.5)
+      col += uTint*0.035*exp(-ang/max(uAngR*0.9,0.02));
+  } else {
+    // ------------------------------------------------ la mer
+    // plan horizontal à la hauteur de la marée ; l'oeil est à uEye au-dessus
+    // du zéro des cartes. Si la mer monte au-dessus de l'oeil, on est dedans.
+    float dh = uEye - uSea;
+    float t = dh / max(-d.y, 1e-6);
+    vec3 p = vec3(d.x*t, 0.0, d.z*t);
+    float dist = length(p.xz);
+
+    // vagues, DESSINÉES
+    float w = sin(dist*0.09 - uT*1.7) * 0.5 + sin(dist*0.031 + uT*0.9 + p.x*0.02)*0.5;
+    float scint = smoothstep(0.4,1.0, w) * exp(-dist/900.0);
+
+    vec3 eau = vec3(0.016,0.030,0.050);
+    // le reflet de l'astre sur l'eau : un chemin de lumière vers l'horizon
+    float ali = smoothstep(0.986,1.0, dot(normalize(vec3(uBodyDir.x,0.,uBodyDir.z)), normalize(vec3(d.x,0.,d.z))));
+    eau += uTint*uVisible*(0.05*ali + 0.16*ali*scint);
+    eau += vec3(0.05,0.07,0.10)*scint*0.5;
+
+    // fondu vers l'horizon, à la VRAIE distance d'horizon
+    float f = smoothstep(uHorizon*0.55, uHorizon*1.25, dist);
+    col = mix(eau, vec3(0.020,0.028,0.042), f);
+    if(dh <= 0.0) col = vec3(0.010,0.020,0.034);   // submergé
+  }
+
+  /* ------------------------------------------------------------------------
+     L'ÉTALON — la Lune, posée à part, À LA MÊME ÉCHELLE
+
+     Choix d'Hugo le 11 août 2026. La Lune fait cinq pixels, ce qui est exact,
+     mais c'est elle que « quarante fois plus gros » prend pour unité : un
+     étalon invisible ne mesure rien.
+
+     ELLE N'EST PAS GROSSIE. Son rayon en pixels se déduit du rayon angulaire
+     que RIVAGE.etalonLune rend — le même nombre, par la même fonction, que
+     celui qui dimensionne l'astre du ciel. Le disque est donc dans le rapport
+     vrai avec ce qu'il y a au-dessus : quarante fois plus petit que Jupiter,
+     et pas un pixel de faveur.
+
+     Ce qui est DESSINÉ, c'est le viseur autour — un cercle fin qui n'a aucune
+     taille physique et ne sert qu'à ce que l'œil trouve le point. Sans lui on
+     chercherait cinq pixels dans un ciel étoilé.                            */
+  float pxParRad = (uRes.y*0.5) / uTanChamp;
+  vec2  centre   = vec2(0.13, 0.74) * uRes;
+  float dPix     = length(gl_FragCoord.xy - centre);
+  float rLune    = uAngRLune * pxParRad;
+
+  if(uEstLune < 0.5){
+    float viseur = rLune*3.0 + 9.0;
+    // le viseur : un anneau fin, dessiné, sans prétention de taille
+    float anneau = smoothstep(1.6,0.0,abs(dPix - viseur));
+    col = mix(col, vec3(0.55,0.62,0.74), anneau*0.40);
+    // et la Lune, elle, à sa taille vraie
+    float disque = smoothstep(rLune+0.9, rLune-0.9, dPix);
+    col = mix(col, vec3(0.84,0.82,0.77), disque);
+  }
+
+  col = pow(clamp(col,0.,1.), vec3(0.86));
+  gl_FragColor = vec4(col,1.0);
+}`;
+
+function compile(t, s){
+  const o = gl.createShader(t); gl.shaderSource(o,s); gl.compileShader(o);
+  if(!gl.getShaderParameter(o, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(o));
+  return o;
+}
+const prog = gl.createProgram();
+gl.attachShader(prog, compile(gl.VERTEX_SHADER, VS));
+gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, FS));
+gl.linkProgram(prog);
+if(!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(prog));
+gl.useProgram(prog);
+
+const buf = gl.createBuffer();
+gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1,3,-1,-1,3]), gl.STATIC_DRAW);
+const ap = gl.getAttribLocation(prog,"p");
+gl.enableVertexAttribArray(ap);
+gl.vertexAttribPointer(ap,2,gl.FLOAT,false,0,0);
+
+const U = {};
+for(const n of ["uRes","uFwd","uRight","uUp","uBodyDir","uAngR","uTint","uKind",
+                "uVisible","uSea","uEye","uHorizon","uT","uRing","uTanChamp","uAngRLune","uEstLune"])
+  U[n] = gl.getUniformLocation(prog,n);
+
+/* --- le cadran, construit depuis RIVAGE.crans ---------------------------- */
+const nav = document.getElementById("cadran");
+for(const cran of R.crans(L)){
+  const b = document.createElement("button");
+  b.className = "cran"; b.textContent = cran.court; b.dataset.cle = cran.cle;
+  b.onclick = () => choisis(cran.cle);
+  nav.appendChild(b);
+}
+
+const KIND = { lune:0, mars:1, terre:2, neptune:3, saturne:4, jupiter:5, soleil:6, trounoir:7 };
+
+function choisis(k){
+  cle = k;
+  scn = R.scene(L, cle, D, phase);
+  for(const b of nav.querySelectorAll(".cran"))
+    b.setAttribute("aria-current", String(b.dataset.cle === k));
+  document.getElementById("etalon").classList.toggle("parti", k === "lune");
+  majJauge();
+}
+
+/* --- la jauge : trois constats, aucun discours ---------------------------- */
+const jT = document.getElementById("jTitre"),
+      jS = document.getElementById("jTaille"),
+      jM = document.getElementById("jMaree"),
+      jA = document.getElementById("jAlerte"),
+      jL = document.getElementById("jLoupe");
+
+function majJauge(){
+  jT.textContent = scn.nom;
+  if(scn.diametreApparent_deg === null){
+    jS.innerHTML = "pas de taille : on est <em>à l'intérieur</em>";
+  } else {
+    const n = scn.enLunes;
+    jS.innerHTML = L.nombre(scn.diametreApparent_deg, 3).replace(".",",") + "° &nbsp;·&nbsp; <em>"
+                 + (n < 1.05 && n > 0.95 ? "la Lune même"
+                    : L.nombre(n, n<10?2:1) + " fois la Lune") + "</em>";
+  }
+  const m = scn.marnage_m;
+  const mm = m < 1 ? (m*100).toFixed(0)+" cm" : (m<10000? m.toFixed(m<10?2:0)+" m" : (m/1000).toFixed(0)+" km");
+  const h = scn.periodeMaree_s/3600;
+  jM.innerHTML = "marnage <em>" + mm.replace(".",",") + "</em> &nbsp;·&nbsp; cycle "
+               + (isFinite(h) ? (h<48? h.toFixed(1).replace(".",",")+" h" : (h/24).toFixed(1).replace(".",",")+" j") : "jamais")
+               + " <span style='opacity:.55'>(joué en " + CYCLE_S + " s)</span>";
+  jL.textContent = loupe > 1.02 ? "loupe ×" + loupe.toFixed(1).replace(".",",") : "";
+  jA.textContent = scn.verdict === "englouti"
+      ? "la Terre est à l'intérieur de cet astre — il n'y a plus de rivage"
+      : scn.verdict === "brisee" ? "sous la limite de Roche : la Terre se disloque"
+      : "";
+  jA.id = "alerte";
+}
+
+/* --- regarder autour ------------------------------------------------------ */
+let prise = false, lx = 0, ly = 0;
+const aide = document.getElementById("aide");
+function debut(x,y){ prise = true; lx=x; ly=y; cv.classList.add("prise"); aide.classList.add("parti"); }
+function bouge(x,y){
+  if(!prise) return;
+  az  -= (x-lx)*0.0032;
+  alt = Math.max(-0.35, Math.min(1.35, alt + (y-ly)*0.0032));
+  lx=x; ly=y;
+}
+function fin(){ prise=false; cv.classList.remove("prise"); }
+cv.addEventListener("mousedown", e=>debut(e.clientX,e.clientY));
+addEventListener("mousemove", e=>bouge(e.clientX,e.clientY));
+addEventListener("mouseup", fin);
+cv.addEventListener("touchstart", e=>{const t=e.touches[0];debut(t.clientX,t.clientY);}, {passive:true});
+cv.addEventListener("touchmove", e=>{const t=e.touches[0];bouge(t.clientX,t.clientY);}, {passive:true});
+cv.addEventListener("touchend", fin);
+
+/* LA LOUPE — molette au bureau, deux doigts sur le téléphone. */
+function grossis(f){
+  loupe = Math.max(LOUPE_MIN, Math.min(LOUPE_MAX, loupe*f));
+  aide.classList.add("parti");
+  majJauge();
+}
+cv.addEventListener("wheel", e => { e.preventDefault(); grossis(Math.exp(-e.deltaY*0.0016)); }, {passive:false});
+
+let ecart0 = 0, loupe0 = 1;
+function ecartDoigts(t){
+  return Math.hypot(t[0].clientX-t[1].clientX, t[0].clientY-t[1].clientY);
+}
+cv.addEventListener("touchstart", e => {
+  if(e.touches.length === 2){ prise = false; ecart0 = ecartDoigts(e.touches); loupe0 = loupe; }
+}, {passive:true});
+cv.addEventListener("touchmove", e => {
+  if(e.touches.length === 2 && ecart0 > 0){
+    loupe = Math.max(LOUPE_MIN, Math.min(LOUPE_MAX, loupe0 * ecartDoigts(e.touches)/ecart0));
+    majJauge();
+  }
+}, {passive:true});
+
+/* --- la boucle ------------------------------------------------------------ */
+/* L'astre est planté à 32° au-dessus de l'horizon, plein sud du repère. C'est
+   une mise en scène, pas une éphéméride : la scène ne prétend pas dire OÙ la
+   Lune se trouve ce soir, seulement quelle taille elle a. */
+/* LA HAUTEUR DE L'ASTRE dans le ciel, et celle du regard au départ.
+
+   Le champ vaut maintenant une douzaine de degrés, pas soixante : un astre
+   planté à 32° sortait simplement du cadre, et la scène s'ouvrait sur un ciel
+   vide. Les deux valeurs se choisissent donc ensemble, pour qu'à l'ouverture on
+   voie L'ASTRE ET L'HORIZON à la fois. Neuf degrés de hauteur et quatre et demi
+   de regard : l'astre se tient à mi-hauteur du cadre, la mer occupe le bas.
+
+   Et Jupiter, qui fait vingt et un degrés de large, a désormais son bord
+   inférieur SOUS l'horizon : il se lève de la mer au lieu de flotter hors sol.
+   Ce n'est pas un effet ajouté — c'est la conséquence de sa taille. */
+const ALT_ASTRE = 9 * Math.PI/180;
+const dirAstre = [Math.sin(0)*Math.cos(ALT_ASTRE), Math.sin(ALT_ASTRE), -Math.cos(0)*Math.cos(ALT_ASTRE)];
+
+let t0 = performance.now();
+function image(now){
+  const dt = Math.min(0.1, (now - t0)/1000); t0 = now;
+  phase = (phase + dt/CYCLE_S) % 1;
+  scn = R.scene(L, cle, D, phase);
+
+  const w = cv.clientWidth, h = cv.clientHeight;
+  const dpr = Math.min(devicePixelRatio||1, 2);
+  if(cv.width !== (w*dpr|0) || cv.height !== (h*dpr|0)){
+    cv.width = w*dpr|0; cv.height = h*dpr|0;
+  }
+  gl.viewport(0,0,cv.width,cv.height);
+
+  const ca=Math.cos(alt), sa=Math.sin(alt), cz=Math.cos(az), sz=Math.sin(az);
+  const fwd   = [ sz*ca, sa, -cz*ca ];
+  const right = [ cz, 0, sz ];
+  const up    = [ -sz*sa, ca, cz*sa ];
+
+  gl.uniform2f(U.uRes, cv.width, cv.height);
+  gl.uniform3fv(U.uFwd, fwd); gl.uniform3fv(U.uRight, right); gl.uniform3fv(U.uUp, up);
+  gl.uniform3fv(U.uBodyDir, dirAstre);
+
+  // LE CHIFFRE QUI PORTE TOUTE LA SCÈNE : le rayon angulaire vrai.
+  const angR = scn.diametreApparent_deg === null
+             ? 3.0                                    // englouti : tout l'écran
+             : scn.diametreApparent_deg*Math.PI/360;  // moitié du diamètre, en rad
+  gl.uniform1f(U.uAngR, angR);
+  gl.uniform3f(U.uTint, scn.teinte[0]/255, scn.teinte[1]/255, scn.teinte[2]/255);
+  gl.uniform1f(U.uKind, KIND[scn.cle]);
+  gl.uniform1f(U.uVisible, scn.cle === "trounoir" ? 0 : 1);
+  gl.uniform1f(U.uSea, scn.mer_m);
+  gl.uniform1f(U.uEye, scn.oeil_m);
+  gl.uniform1f(U.uHorizon, scn.horizon_m);
+  gl.uniform1f(U.uT, now/1000);
+  gl.uniform2f(U.uRing, scn.anneaux?scn.anneaux.rInt:0, scn.anneaux?scn.anneaux.rExt:0);
+  gl.uniform1f(U.uTanChamp, Math.tan(champ()*Math.PI/360));
+  /* L'ÉTALON. Même fonction, même distance, donc même nombre que celui qui
+     dimensionne l'astre du ciel — c'est ce qui interdit aux deux de diverger. */
+  gl.uniform1f(U.uAngRLune, R.etalonLune(L, D)*Math.PI/360);
+  gl.uniform1f(U.uEstLune, scn.cle === "lune" ? 1 : 0);
+
+  gl.drawArrays(gl.TRIANGLES,0,3);
+  requestAnimationFrame(image);
+}
+
+choisis("lune");
+requestAnimationFrame(image);
+</script>

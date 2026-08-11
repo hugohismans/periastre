@@ -140,19 +140,156 @@ function nommables(dUa, focale, H, ecartMin){
 
 /* La distance à partir de laquelle la scène a quelque chose à dire. Cherchée
    par bissection plutôt qu'écrite : elle dépend de l'écran, et un nombre écrit
-   ici deviendrait faux au premier changement de champ. */
-function distanceParlante(focale, H, ecartMin){
-  let bas = 1, haut = 1e6;                    // ua — encadre largement la réponse
-  if(!nommables(bas, focale, H, ecartMin).length) return NaN;
+   ici deviendrait faux au premier changement de champ.
+
+   `combien` a été ajouté le 11 août, avec la chute : « il y a quelque chose à
+   dire » et « il y a une SCÈNE » ne sont pas la même distance. Un seul nom, à
+   2 361 ua, ne fait pas une scène — c'est un mot posé sur un point. Le défaut
+   vaut un, ce qui laisse tous les appelants d'avant exacts.
+
+   La bissection est légitime parce que le compte est MONOTONE quand on
+   s'approche, et cette monotonie n'est pas supposée ici : elle est éprouvée
+   dans `outil-verif-nommables.js`, qui la balaie sur tout le domaine. */
+function distanceParlante(focale, H, ecartMin, combien){
+  const n = combien > 0 ? combien : 1;
+  /* LA BORNE BASSE SE DÉRIVE, ET ELLE M'A REPRIS. Elle valait une unité
+     astronomique, ce qui va tant qu'on ne demande qu'un seul nom. Dès qu'on en
+     demande trois, la bissection rendait `NaN` : à une unité astronomique on est
+     DEDANS pour six planètes sur huit, elles sortent de la liste, et le compte y
+     est plus bas qu'à trois cents. La monotonie sur laquelle repose la
+     bissection n'existe que DEHORS — c'est d'ailleurs le domaine sur lequel
+     `outil-verif-nommables.js` l'éprouve, et je ne l'avais pas lu.
+     On part donc juste au-delà de la dernière orbite, dérivée et non écrite. */
+  let bas = 1.05 * Math.max(...ORDRE.map(demiGrandAxe));
+  let haut = 1e6;                             // ua — encadre largement la réponse
+  if(nommables(bas, focale, H, ecartMin).length < n) return NaN;
   for(let i = 0; i < 80; i++){
     const m = Math.sqrt(bas * haut);          // en log : l'échelle du problème
-    if(nommables(m, focale, H, ecartMin).length) bas = m; else haut = m;
+    if(nommables(m, focale, H, ecartMin).length >= n) bas = m; else haut = m;
   }
   return bas;
 }
 
+/* ---------------------------------------------------------------------------
+   LE SOLEIL, RÉDUIT À CE QU'IL EST VRAIMENT DE LÀ-BAS — 11 août 2026
+
+   Deux constantes NOMINALES, au sens que l'UAI donne à ce mot : ce ne sont pas
+   des mesures mais des conventions de calcul, exactes par définition, pour que
+   tout le monde trouve le même nombre. Prša et al. 2016, résolution B3 de 2015 ;
+   `SOURCES-SOLAIRE.md` §3 garde l'adresse, la table et la ligne.
+
+   Le point zéro apparent vient de la résolution B2 de la même assemblée, lue à
+   son texte (Mamajek et al. 2015) : une source de flux f₀ a la magnitude
+   bolométrique apparente zéro. C'est lui qui fait de la magnitude une grandeur
+   DÉRIVÉE de la luminosité, et non un chiffre de plus à recopier — la règle 7.
+
+   `outil-verif-solaire.js` porte ses propres copies de ces deux nombres et
+   refait le calcul de son côté, contre ce que la fiche publiée affirme. C'est
+   voulu : il est l'arbitre, sa vérité doit venir d'ailleurs (règle 3). */
+const R_SOLEIL_M = 6.957e8;            // m — rayon solaire nominal, UAI 2015 B3
+const L_SOLEIL_W = 3.828e26;           // W — luminosité solaire nominale, idem
+const F_ZERO     = 2.518021002e-8;     // W m⁻² — point zéro apparent, UAI 2015 B2
+
+/* Diamètre apparent d'une SPHÈRE, en radians : 2·asin(R/d), et non 2·atan(R/d).
+   La silhouette est bornée par les tangentes issues de l'œil. C'est la
+   correction que `lune.js:255` porte déjà, avec son refus de répondre quand on
+   est dedans — ici on ne peut pas l'être, mais on ne va pas écrire une seconde
+   fois la même formule avec un domaine plus large : ce serait la même faute
+   sous un autre nom. */
+function diametreSoleil(dUa){
+  const x = R_SOLEIL_M / (dUa * UA);
+  return x >= 1 ? NaN : 2*Math.asin(x);
+}
+
+/* Le même diamètre, en pixels de l'écran, avec la caméra de la page. Même
+   conversion angle → pixel qu'`enPixels`, et pour la même raison : `H/2` pixels
+   couvrent `atan(1/focale)` radians. */
+function soleilEnPixels(dUa, focale, H){
+  const a = diametreSoleil(dUa);
+  if(!Number.isFinite(a) || !(focale > 0) || !(H > 0)) return NaN;
+  return a / Math.atan(1 / focale) * (H / 2);
+}
+
+/* La magnitude bolométrique APPARENTE, dérivée du flux reçu, lui-même dérivé de
+   la luminosité : f = L/(4πd²), puis m = −2,5 log₁₀(f/f₀). Rien n'est recopié —
+   depuis une unité astronomique, la formule rend −26,83, et l'irradiance rend
+   1 361 W m⁻², c'est-à-dire les deux valeurs de la même table de l'UAI, que
+   personne n'a écrites ici. Trois entrées qui se referment sur elles-mêmes. */
+function fluxSoleil(dUa){
+  const d = dUa * UA;
+  return L_SOLEIL_W / (4 * Math.PI * d * d);
+}
+function magnitudeSoleil(dUa){
+  const f = fluxSoleil(dUa);
+  return f > 0 ? -2.5 * Math.log10(f / F_ZERO) : NaN;
+}
+
+/* ---------------------------------------------------------------------------
+   SOUS LE DEMI-PIXEL, ON NE DESSINE RIEN — la doctrine de `lune.js:41-54`
+
+   Le trou noir de masse lunaire y mesure 0,117 microseconde d'arc, et `dessine`
+   ne trace RIEN tant que son diamètre reste sous le demi-pixel : pas un point
+   pâle, pas un halo. Ce qui se montre à sa place est le GROSSISSEMENT qu'il
+   faudrait — « on ne le verrait même pas », mot pour mot.
+
+   Le Soleil est dans le même cas, et c'est le fait le plus fort de la scène.
+   Depuis mille unités astronomiques son disque fait neuf MILLIÈMES de pixel ; le
+   premier pixel n'arrive qu'à dix-sept unités astronomiques, c'est-à-dire à
+   l'intérieur de l'orbite de Saturne. Toute la scène se joue donc sur un astre
+   dont on ne verra jamais la forme.
+
+   ON NE DESSINE PAS POUR AUTANT RIEN DU TOUT, et la différence avec `lune.js`
+   est entière : là-bas l'objet est NOIR, ici il RAYONNE. Une étoile est un point
+   sans taille qu'on voit quand même — c'est la définition d'une étoile. Ce qui
+   n'a pas le droit d'exister, c'est un DISQUE : dessiner le Soleil gros de
+   quelques pixels dirait « voilà sa taille », et ce serait faux d'un facteur
+   deux cents. On rend donc les deux choses séparément, et la page ne peut pas
+   les confondre :
+
+     `diametrePx`   ce qu'il mesure vraiment. Presque toujours invisible.
+     `dessinable`   a-t-on le droit de tracer un disque. Presque jamais.
+     `grossissement` ce qu'il faudrait pour que ce disque atteigne UN pixel.
+     `magnitude`    son éclat, qui lui est bien réel et qui, lui, se voit.       */
+const DEMI_PIXEL = 0.5;
+
+function soleilVu(dUa, focale, H){
+  const diametrePx = soleilEnPixels(dUa, focale, H);
+  const ok = Number.isFinite(diametrePx) && diametrePx > 0;
+  return {
+    diametrePx,
+    dessinable: ok && diametrePx >= DEMI_PIXEL,
+    grossissement: ok ? 1 / diametrePx : NaN,
+    magnitude: magnitudeSoleil(dUa),
+  };
+}
+
+/* ---------------------------------------------------------------------------
+   LES ANNEAUX — ET CE QU'ILS SONT VRAIMENT
+
+   On ne sait pas dire où est Jupiter. Les colonnes relevées au JPL donnent le
+   demi-grand axe et le taux de longitude moyenne, rien d'autre : ni la phase, ni
+   l'inclinaison de l'orbite vue depuis Sagittarius. Placer un point et écrire
+   « Jupiter » dessus serait une affirmation que rien dans ce dépôt ne soutient.
+
+   Ce qu'on peut dire, et qui est exactement `ecartMax`, c'est jusqu'où elle peut
+   s'écarter du Soleil vue d'ici. On trace donc le CERCLE QUI BORNE cet écart :
+   la planète est quelque part là-dedans, et l'anneau ne prétend rien de plus.
+   L'aveu de l'arrivée le dit au visiteur — c'est la règle de la maison, la baie
+   est honnête et la surcouche est déclarée.
+
+   Le même demi-pixel décide : un anneau dont le rayon tient sous le demi-pixel
+   est entièrement dans un pixel, et le tracer dessinerait une forme qui n'existe
+   pas. Depuis le nuage de Oort, ils y sont tous — d'où le point unique. */
+function anneaux(dUa, focale, H){
+  return ORDRE.map(nom => ({ nom, rayonPx: enPixels(nom, dUa, focale, H) }))
+              .filter(a => Number.isFinite(a.rayonPx) && a.rayonPx >= DEMI_PIXEL);
+}
+
 global.SOLAIRE = { ORDRE, LDOT, GM_KM3, GM_SOLEIL_KM3, UA,
                    demiGrandAxe, ecartMax, enPixels, nommables,
-                   distanceParlante, ECART_MIN };
+                   distanceParlante, ECART_MIN,
+                   R_SOLEIL_M, L_SOLEIL_W, F_ZERO, DEMI_PIXEL,
+                   diametreSoleil, soleilEnPixels, fluxSoleil, magnitudeSoleil,
+                   soleilVu, anneaux };
 
 })(typeof window !== "undefined" ? window : globalThis);

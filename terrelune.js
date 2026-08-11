@@ -306,44 +306,71 @@ const etat = {
   t: 0,               // secondes depuis l'ouverture
   d0: 0, d1: 0,       // les deux bouts, calculés à l'ouverture
   dSortie: 0,         // le moment de passage : le dernier où l'on voit les deux
-  dir: null,          // direction du monde, GELÉE à l'arrivée
   duree: DUREE,
 };
 
+/** Où la scène se tient — ET C'EST DANS LE REPÈRE DE LA PIÈCE, pas du monde.
+ *
+ *  Trois essais, trois défauts, aucun visible autrement qu'à l'écran. Ils sont
+ *  écrits parce que la prochaine main refera le premier.
+ *
+ *  1. UN POINT DU MONDE, À L'OPPOSÉ DU TROU NOIR — l'avant du voyage. C'était
+ *     géométriquement juste et bon à jeter : la baie ne regarde que dans un
+ *     sens, et `projette` rendait `null`. La scène était dans le dos du joueur.
+ *
+ *  2. LE MÊME POINT, RETOURNÉ, à distance écrite. Le voyage porte le vaisseau
+ *     de seize rayons à 1,7 × 10¹⁰ : une ancre à 10⁶ s'est retrouvée près du
+ *     centre plutôt que loin devant.
+ *
+ *  3. LA DIRECTION DU TROU NOIR, RECALCULÉE À CHAQUE IMAGE. Toujours faux, et
+ *     c'est le plus instructif : le vaisseau se DÉPLACE pendant le recul, mais
+ *     il ne se RETOURNE pas. La direction de l'astre balaie donc la baie —
+ *     mesuré à l'écran, 576 px, puis 614, puis 1 005, hors de la fenêtre. Le
+ *     recentrage de `recul.js` masque ça pendant le trajet ; à l'arrêt, non.
+ *
+ *  LA BONNE ANCRE EST LA BAIE ELLE-MÊME. On prend le centre des vitres, dans le
+ *  repère de la pièce, et on le pousse droit devant — la baie regarde vers les
+ *  z négatifs, comme `salon.versAstre` le dit depuis le premier jour. C'est fixe
+ *  dans le vaisseau, donc ça ne dérive jamais ; et ça sort du champ dès qu'on
+ *  tourne la tête, puisque la tête est dans la caméra et non dans la pièce.
+ *  C'est exactement ce qu'Hugo avait demandé le 9 août, obtenu par le repère
+ *  plutôt que par un calcul.
+ *
+ *  `LOIN` est en unités de la pièce. Il n'a pas d'échelle à suivre ici : la
+ *  pièce ne grandit pas. */
+const LOIN = 4000;
+function ou(vitres){
+  if(!vitres || !vitres.length) return null;
+  let y = 0, z = 0;
+  for(const v of vitres){ y += (v.y0 + v.y1)/2; z += v.z; }
+  y /= vitres.length; z /= vitres.length;
+  // droit devant, par la baie : le sens de `salon.versAstre`, les z négatifs
+  return [0, y, z - LOIN];
+}
+
 /** Ouvre la scène.
  *
- *  `dir` est une direction du monde — la page lui tend la position du vaisseau,
- *  puisque le trou noir est à l'origine et que l'avant du voyage en est le dos.
- *  On la NORMALISE et on la pousse très loin ici plutôt que chez l'appelant :
- *  c'est le geste qui fait que seule la rotation de la tête déplace la scène,
- *  et il n'a pas à être refait par qui l'appelle. Puis on la gèle, pour que
- *  l'orbite du vaisseau ne fasse pas dériver l'arrivée pendant la chute.
- *
  *  `k` est l'échelle en pixels par radian, `W` la largeur de la vue, `focale`
- *  celle de la caméra du site.
+ *  celle de la caméra du site. La scène n'a pas de direction à retenir : elle
+ *  la relit à chaque image, dans `peint`.
  *
  *  Rend false et ne s'ouvre pas si `lune.js` manque : une scène qui invente ses
  *  propres rayons serait pire qu'une baie vide. */
-const LOIN = 1e6;
-function ouvre(dir, k, W, focale){
+function ouvre(k, W, focale){
   if(!L || !L.ASTRES || !L.ECLAIRAGE) return false;
   if(!(k > 0) || !(W > 0) || !(focale > 0)) return false;
-  if(!dir || dir.length !== 3) return false;
-  const n = Math.hypot(dir[0], dir[1], dir[2]);
-  if(!(n > 0)) return false;
   etat.d1 = distanceTerreCadree(focale);
   etat.d0 = distanceDemiPixel(k);
   etat.dSortie = distanceSortieLune(k, W);
   // Une fenêtre minuscule pourrait mettre le demi-pixel plus près que le but :
   // il n'y aurait alors pas de chute à jouer, on se pose au but.
   if(!(etat.d0 > etat.d1)) etat.d0 = etat.d1;
-  etat.dir = [dir[0]/n*LOIN, dir[1]/n*LOIN, dir[2]/n*LOIN];
   etat.t = 0;
   etat.actif = true;
   return true;
 }
 
-function ferme(){ etat.actif = false; etat.dir = null; etat.t = 0; }
+function ferme(){ etat.actif = false; etat.t = 0; }
 
 function avance(dt){
   if(!etat.actif) return;
@@ -505,15 +532,17 @@ function legende(ctx, W, H, vu, o){
  *  focale — et n'a plus de composition à tenir. */
 function peint(ctx, W, H, o){
   if(!etat.actif || !o || !o.projette) return null;
-  const ou = o.projette(etat.dir);
-  if(!ou) return null;
+  const cible = ou(o.vitres);
+  if(!cible) return null;
+  const vu = o.projette(cible);
+  if(!vu) return null;
   ctx.save();
   if(o.decoupe) o.decoupe();
   voileLeCiel(ctx, W, H);
-  const vu = dessine(ctx, W, H, { x: ou[0], y: ou[1], k: echelle(o.focale, H) });
+  const r = dessine(ctx, W, H, { x: vu[0], y: vu[1], k: echelle(o.focale, H) });
   ctx.restore();
-  if(vu) legende(ctx, W, H, vu);
-  return vu;
+  if(r) legende(ctx, W, H, r);
+  return r;
 }
 
 /** LE VOILE, ET C'EST UN COMPROMIS QU'IL FAUT AVOUER PLUTÔT QUE CACHER.
@@ -565,7 +594,7 @@ global.TERRELUNE = {
   distanceDemiPixel, distanceTerreCadree, distanceSortieLune, distanceA,
   fractionEclairee, contourEclaire, directionSoleilEcran,
   // déroulé
-  etat, ouvre, ferme, avance, avancement, distance,
+  etat, ou, ouvre, ferme, avance, avancement, distance,
   // mots et dessin
   poseMots, dessine, legende, peint, visible, opaciteVoile,
   // les réglages déclarés, exposés pour que le contrôle les lise plutôt que de

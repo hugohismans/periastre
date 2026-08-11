@@ -214,7 +214,24 @@ function majSalon(cam, e){
   // En temps RÉEL, pas en temps simulé : TEMPS.geo est accéléré 850 fois, et la
   // dérive devenait un balayage frénétique. Une respiration de trente secondes.
   const ts = salon.horloge;
-  const ang = 0.10*Math.sin(ts*0.21) + 0.045*Math.sin(ts*0.073);
+  /* LE DEMI-TOUR, ET IL PASSE PAR LA MÊME ROTATION QUE LA DÉRIVE — 11 août 2026.
+
+     La baie regarde l'astre. C'est ce qui rend le recul visible : on part, et
+     l'on voit rétrécir ce qu'on quitte. Mais on arrive alors DOS à sa
+     destination — le système solaire est au bout du rayon qu'on a suivi, donc
+     derrière la coque. Le vaisseau se retourne, comme il le ferait vraiment.
+
+     `salon.retourne` va de 0 à 1 et vaut un demi-tour. La page en est le seul
+     écrivain, et c'est délibéré : c'est elle qui sait qu'on vient d'arriver. Le
+     module, lui, n'ajoute qu'un angle à celui qu'il tournait déjà — même axe,
+     même formule de Rodrigues. Une seconde rotation écrite à côté aurait été
+     une seconde loi pour l'orientation d'une même pièce.
+
+     `salon.versAstre` reste calculé dans le repère RÉSULTANT : l'astre passe
+     donc derrière, et la lumière avec lui. C'est ce qu'on veut — à vingt-sept
+     mille années-lumière il n'éclaire plus rien, et `eclat` le dit déjà. */
+  const ang = 0.10*Math.sin(ts*0.21) + 0.045*Math.sin(ts*0.073)
+            + Math.PI * (salon.retourne || 0);
   // rotation de `vise` autour de la normale orbitale (formule de Rodrigues)
   const ca = Math.cos(ang), sa = Math.sin(ang);
   const cr = cross(nOrb, vise), pd = dot(nOrb, vise);

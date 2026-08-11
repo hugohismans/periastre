@@ -314,12 +314,61 @@ titre("4 bis. Les trois défauts vus à l'écran, désormais gardés");
      `salon.p`, celle où la baie pointe, et c'est aussi l'ancre de la carte des
      étoiles S — une seule loi pour les deux arrivées. */
   const srcPage = fs.readFileSync(path.join(ici, "index.html"), "utf8");
-  const m = srcPage.match(/TERRELUNE\.ouvre\(([\s\S]{0,80})/);
-  point("la page pose la scène du côté où la baie regarde",
-        !!m && /\[\s*-q\[0\],\s*-q\[1\],\s*-q\[2\]\s*\]/.test(m[1]),
-        "l'opposé de salon.p", m ? m[1].split("\n")[0].trim() : "APPEL INTROUVABLE",
-        "posée de l'autre côté, `projette` rend null et le joueur ne voit "
-        + "rien — vu à l'écran le 11 août, pas dans un chiffre");
+  const m = srcPage.match(/TERRELUNE\.peint\(([\s\S]{0,300})/);
+  point("la page projette la scène DANS LE REPÈRE DE LA PIÈCE",
+        !!m && /projetteSalon/.test(m[1]) && /vitres:\s*VAISSEAU\.vitres\(\)/.test(m[1]),
+        "projetteSalon + VAISSEAU.vitres()",
+        m ? (/projetteSalon/.test(m[1]) ? "oui" : "elle projette dans le monde")
+          : "APPEL INTROUVABLE",
+        "projetée dans le monde, la scène dérive quand le vaisseau se déplace : "
+        + "mesuré à l'écran, 576 px puis 614 puis 1 005 — hors de la fenêtre");
+
+  /* L'ANCRE EST LA BAIE, ET ELLE NE DÉRIVE PAS.
+
+     Trois ancres essayées le 11 août, trois défauts, aucun visible autrement
+     qu'à l'écran — la dernière mesure disait 576 px, puis 614, puis 1 005,
+     c'est-à-dire hors de la fenêtre, sans que rien ne le signale.
+
+     Sa vérité vient d'ailleurs : la géométrie des vitres est lue dans
+     `vaisseau.js`, et l'on exige que l'ancre soit dans leur axe, devant elles,
+     et INDÉPENDANTE de tout ce qui bouge. */
+  {
+    const V = {};
+    charge("vaisseau.js", V);
+    const vitres = V.VAISSEAU.vitres();
+    const a = TL.ou(vitres);
+
+    point("l'ancre se lit sur la géométrie réelle des vitres",
+          !!a && a.length === 3, "trois nombres", JSON.stringify(a));
+
+    const zBaie = vitres.reduce((t, v) => t + v.z, 0) / vitres.length;
+    const yBaie = vitres.reduce((t, v) => t + (v.y0 + v.y1)/2, 0) / vitres.length;
+    point("elle est dans l'axe de la baie, à sa hauteur",
+          Math.abs(a[0]) < 1e-12 && Math.abs(a[1] - yBaie) < 1e-12,
+          "x = 0, y = " + yBaie.toFixed(2), a[0] + ", " + a[1].toFixed(2));
+    point("et DEVANT elles, du côté où la baie regarde",
+          a[2] < zBaie - 100, "bien au-delà de z = " + zBaie.toFixed(2), a[2].toFixed(0),
+          "la baie regarde les z négatifs — c'est ce que `salon.versAstre` dit "
+          + "depuis le premier jour, et une seule loi vaut mieux que deux");
+
+    /* ELLE NE DÉPEND DE RIEN QUI BOUGE. C'est LA propriété qui manquait aux
+       trois essais précédents : chacun était accroché à quelque chose que le
+       voyage déplaçait. On lui redemande l'ancre après avoir fait tourner
+       l'avancement et l'état, et l'on exige le même point. */
+    TL.ouvre(TL.echelle(FOCALE, 900), 1078, FOCALE);
+    for(let i = 0; i < 50; i++) TL.avance(0.1);
+    const b = TL.ou(vitres);
+    TL.ferme();
+    point("elle ne bouge pas d'un pouce pendant la chute",
+          a.every((x, i) => x === b[i]), JSON.stringify(a), JSON.stringify(b),
+          "les trois ancres essayées avant celle-ci dérivaient toutes : le "
+          + "vaisseau se DÉPLACE pendant le recul, mais il ne se retourne pas, "
+          + "donc la direction de l'astre balaie la baie");
+
+    point("et sans vitres, elle ne peint rien plutôt que d'inventer un point",
+          TL.ou(null) === null && TL.ou([]) === null, "null",
+          String(TL.ou(null)) + " / " + String(TL.ou([])));
+  }
 
   /* DEUXIÈME. La Lune sortait par le HAUT de la baie, qui est large et basse,
      au lieu d'employer la largeur. On exige que son azimut couche l'écart sur
@@ -372,7 +421,7 @@ titre("4 bis. Les trois défauts vus à l'écran, désormais gardés");
   point("le voile du ciel part de rien", TL.opaciteVoile() === 0, 0, TL.opaciteVoile());
   {
     const k = TL.echelle(FOCALE, 900);
-    TL.ouvre([-1,0,0], k, 1078, FOCALE);
+    TL.ouvre(k, 1078, FOCALE);
     const suite = [];
     for(let i = 0; i < 30; i++){ TL.avance(0.1); suite.push(TL.opaciteVoile()); }
     const monte = suite.every((v, i) => i === 0 || v >= suite[i-1]);
@@ -491,19 +540,17 @@ titre("7. Le déroulé, et ce qu'il refuse");
         "null", String(TL.dessine({}, 100, 100, { x:50, y:50, k:600 })));
 
   point("elle refuse de s'ouvrir sans échelle",
-        TL.ouvre([1,0,0], 0, 1000, FOCALE) === false, "false",
-        String(TL.ouvre([1,0,0], 0, 1000, FOCALE)));
+        TL.ouvre(0, 1000, FOCALE) === false, "false", String(TL.ouvre(0, 1000, FOCALE)));
   point("elle refuse de s'ouvrir sans focale",
-        TL.ouvre([1,0,0], 600, 1000, 0) === false, "false",
-        String(TL.ouvre([1,0,0], 600, 1000, 0)));
+        TL.ouvre(600, 1000, 0) === false, "false", String(TL.ouvre(600, 1000, 0)));
 
   const k = TL.echelle(FOCALE, 1304);
   point("et elle s'ouvre quand on lui donne de quoi",
-        TL.ouvre([1,0,0], k, 1078, FOCALE) === true, "true", String(TL.etat.actif));
-  point("la direction du monde est GELÉE à l'ouverture",
-        TL.etat.dir && TL.etat.dir.length === 3, "trois nombres",
-        JSON.stringify(TL.etat.dir),
-        "sinon l'orbite du vaisseau ferait dériver l'arrivée pendant la chute");
+        TL.ouvre(k, 1078, FOCALE) === true, "true", String(TL.etat.actif));
+  point("elle ne retient AUCUNE direction — elle la relit à chaque image",
+        TL.etat.dir === undefined, "rien de gelé", String(TL.etat.dir),
+        "une direction gelée survit au déplacement du vaisseau et sort du "
+        + "cadre : c'est le défaut mesuré à l'écran le 11 août");
 
   point("elle part du départ", TL.avancement() === 0, 0, TL.avancement());
   point("et la distance de départ est celle du demi-pixel",
@@ -519,7 +566,7 @@ titre("7. Le déroulé, et ce qu'il refuse");
 
   /* Un pas de temps aberrant — onglet en arrière-plan, machine qui rame — ne
      doit pas téléporter la scène. C'est le plafond que `lune.js` s'impose déjà. */
-  TL.ouvre([1,0,0], k, 1078, FOCALE);
+  TL.ouvre(k, 1078, FOCALE);
   TL.avance(1000);
   point("un pas de temps aberrant ne téléporte pas la chute",
         TL.avancement() <= 0.1/TL.etat.duree + 1e-12,
@@ -528,7 +575,8 @@ titre("7. Le déroulé, et ce qu'il refuse");
         + "scène entière serait jouée pendant qu'on ne regarde pas");
 
   TL.ferme();
-  point("fermée, elle oublie sa direction", TL.etat.dir === null, "null", String(TL.etat.dir));
+  point("fermée, elle repart de zéro", TL.etat.t === 0 && !TL.etat.actif,
+        "inactive et remise à zéro", TL.etat.actif + " / " + TL.etat.t);
 }
 
 /* -------------------------------------------------------------------------

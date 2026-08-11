@@ -397,43 +397,100 @@ const fs = require("fs"), path = require("path");
    ressemblent, et ce serait la bonne économie le jour où une troisième arrive.
    Pour deux, généraliser aurait touché un réglage qui marche pour en poser un
    qui n'existait pas — le mauvais ordre. C'est noté, pas fait. */
-/* 3 935 le 11 août — trente-trois lignes, et cette fois le plafond monte pour
-   AJOUTER. Il faut donc que ce soit dit franchement plutôt qu'habillé.
+/* PUIS LA SCÈNE SOLAIRE, LE MÊME JOUR — et c'est LA PLUS GROSSE HAUSSE DEPUIS
+   LE DÉBUT. Elle porte une scène entière : on arrive dans le nuage de Oort, et
+   on tombe vers le Soleil. Elle se justifie ici comme l'outil l'exige.
 
-   Ce qu'on ajoute : l'arrivée au système solaire montre enfin quelque chose.
-   Elle s'arrêtait sur un panneau qui disait « nous y sommes » devant une baie
-   vide, et Hugo l'a relevé le 11 août — « tu m'en parles, tu m'en parles, mais
-   toujours pas vu ». On tombe maintenant vers la Terre et la Lune.
+   CE QUI A ÉTÉ SORTI D'ABORD, et c'est presque tout. La scène pèse environ neuf
+   cents lignes, réparties en trois modules dont AUCUNE ligne n'est dans la
+   page : `etiquettes.js` (le droit de parler d'un point du monde), les ajouts du
+   Soleil et des anneaux dans `solaire.js`, et `approche.js` (les deux bouts de
+   la chute, sa physique, et son dessin). Le dessin lui-même a suivi le chemin de
+   `RECUL.dessineQuadrillage` : le contexte arrive en argument, donc il est hors
+   de la page ET éprouvable — sept contrôles lui tendent un faux contexte et
+   comptent ce qu'il a tracé.
 
-   CE QUE ÇA COÛTE ICI, ET RIEN DE PLUS : deux balises de script, un drapeau
-   `terreLune:` sur la destination, six lignes qui tendent ses mots au module,
-   trois qui l'ouvrent à l'arrivée, une qui la ferme au retour, et quatre qui la
-   peignent dans la boucle. Tout le reste — la géométrie, la chute, le
-   terminateur, la légende, et même la COMPOSITION (projeter, découper à la
-   baie, peindre, légender) — est dans `terrelune.js`, éprouvé par 70 contrôles
-   sans navigateur.
+   La loi du trajet à 1 g est même SORTIE DU CORPS d'`avance` au passage, dans
+   `RECUL.ou`, parce que la chute avait besoin de la même : deux copies d'une loi
+   de mouvement finissent toujours par diverger, et l'œil d'Hugo l'a déjà vu une
+   fois sur le quadrillage et les orbites.
 
-   CE QUI A ÉTÉ RESSERRÉ AVANT DE MONTER : la première version tenait 79 lignes.
+   CE QUI RESTE, ET NE PEUT PAS SORTIR :
+     · la projection du Soleil — elle a besoin de LA caméra de la page, et une
+       seconde projection pour le même espace est la faute que `camera.js`
+       raconte au long ;
+     · le découpage à la baie — il a besoin des vitres et du contexte ;
+     · les deux cartes du panneau et les deux cadrans — c'est du DOM, et le
+       7 août on a déjà refusé de déplacer des lignes pour satisfaire ce compteur
+       en fabriquant un module qui touche au document ;
+     · l'appel dans la boucle, et le rangement à chaque sortie ;
+     · LE DEMI-TOUR DU VAISSEAU, vingt de ces lignes, et il répare un défaut
+       trouvé à l'œil : la baie regarde l'astre pendant tout le vol, donc on
+       arrivait DOS à sa destination — vingt-sept mille années-lumière pour
+       arriver le nez contre une cloison. La rotation elle-même n'a coûté qu'une
+       ligne dans `camera.js`, où elle s'ajoute à la dérive que la baie faisait
+       déjà : une seconde rotation écrite à côté aurait été une seconde loi pour
+       l'orientation d'une même pièce. Ce qui reste ici est l'état, son unique
+       écrivain, et la raison écrite. `VERIF.sceneSolaire()` le garde.
+
+   ET LE COMPTEUR A RENDU DES LIGNES AVANT DE CÉDER : `majChrono` allait lire le
+   trajet lui-même, donc la chute aurait eu besoin d'une seconde fonction pour
+   écrire les deux mêmes cadrans. Il reçoit maintenant ce qu'il doit afficher, et
+   les deux mouvements le partagent. Quatorze lignes rendues, et un écrivain de
+   moins pour une même valeur — la réparation valait mieux que l'économie.
+
+   ET LE CHIFFRE FINAL EST 3 991, PAS 3 954. Les deux hausses de la journée se
+   sont croisées : le bouton du rythme montait à 3 902 pendant que la scène
+   solaire était écrite sur le point d'avant. Aucune des deux n'est en cause, et
+   il n'y a rien à retrancher — c'est la somme des deux, mesurée après fusion
+   plutôt que devinée. */
+/* 4 043 le 11 août — cinquante-deux lignes, et le plafond monte pour AJOUTER.
+   Il faut donc que ce soit dit franchement plutôt qu'habillé.
+
+   Ce qu'on ajoute : la DERNIÈRE MARCHE de la scène solaire. On arrive dans le
+   nuage de Oort, on tombe jusqu'à ce que les planètes gagnent leur nom — et
+   maintenant on continue jusqu'à la Terre et sa Lune. Hugo attendait cette
+   image depuis deux jours : « tu m'en parles, tu m'en parles, mais toujours
+   pas vu ».
+
+   CE QUE ÇA COÛTE ICI, ET RIEN DE PLUS : deux balises de script, six lignes qui
+   tendent ses mots au module, une carte de plus dans le panneau d'arrivée —
+   celle qui ne paraît qu'une fois la chute finie —, sept lignes qui l'ouvrent,
+   une qui la ferme au retour, et cinq qui la peignent dans la boucle. Tout le
+   reste — la géométrie, la chute, le terminateur, la légende, et même la
+   COMPOSITION (projeter, découper à la baie, peindre, légender) — est dans
+   `terrelune.js`, éprouvé par 76 contrôles sans navigateur.
+
+   CE QUI A ÉTÉ RESSERRÉ AVANT DE MONTER : la première version en tenait 79.
    Deux fonctions vivaient ici — celle qui plaçait la scène dans le monde et
    celle qui l'enchaînait à l'écran. Elles sont parties dans le module, qui
    reçoit la position du vaisseau et les outils de la page en arguments. Ce
    n'est pas un déplacement pour faire baisser un compte : les trois gestes que
-   cet enchaînement porte réparent chacun un défaut déjà payé, et ici ils
+   cet enchaînement porte réparent chacun un défaut vu à l'écran, et ici ils
    étaient hors de portée de tout contrôle sans navigateur. Là-bas, ils sont
-   gardés.
+   gardés — `outil-verif-terrelune.js` relit même cette page pour exiger que la
+   scène soit posée du côté où la baie regarde.
 
-   CE QUI N'A PAS ÉTÉ TENTÉ : sortir la pose des mots. Six lignes qui appellent
-   `T()` sept fois, exactement comme `RECUL.poseMots` juste au-dessus. Les
-   fondre demanderait un registre de modules-à-traduire, soit une indirection
-   pour deux clients. Le jour où il y en a quatre, ça vaudra le coup. */
-/* 3 941 le même jour, six lignes de plus, et elles paient un défaut VU À
-   L'ÉCRAN : la scène était posée à l'opposé du trou noir — l'avant du voyage —
-   et `projette` rendait `null`. La baie ne regarde que dans un sens, et Hugo
-   n'aurait rien vu du tout. Les six lignes sont le commentaire qui dit
-   pourquoi, à l'endroit exact où la prochaine main voudra « corriger » le signe
-   pour le remettre à l'endroit logique. `outil-verif-terrelune.js` relit cette
-   ligne et exige le moins. */
-const PLAFOND = 3941;   // ... et l'arrivée montre enfin la Terre et la Lune
+   CE QUI N'A PAS ÉTÉ TENTÉ : fondre les trois cartes du panneau d'arrivée en
+   une fabrique. Elles se ressemblent — étiquette, titre, texte, clic — et la
+   troisième est arrivée le jour même de la deuxième. Généraliser maintenant
+   toucherait la chute vers le Soleil, qui marche et qui a été jugée, pour poser
+   une carte qui n'existait pas : le mauvais ordre. C'est noté, pas fait, et
+   c'est la première chose à faire si une quatrième arrive. */
+/* 4 049, six lignes de plus le même jour, et elles paient LA TROISIÈME ANCRE.
+
+   Les deux premières se sont vues à l'écran et pas ailleurs. La scène était
+   d'abord posée à l'opposé du trou noir : `projette` rendait `null`, elle était
+   dans le dos du joueur. Puis du bon côté, mais accrochée à la direction de
+   l'astre — et le vaisseau se DÉPLACE pendant le recul sans se retourner, donc
+   cette direction balaie la baie : 576 px, puis 614, puis 1 005, hors de la
+   fenêtre, en neuf secondes.
+
+   La bonne ancre est la baie elle-même, dans le repère de la pièce, projetée
+   comme les vitres. Les six lignes sont le commentaire qui dit pourquoi, à
+   l'endroit exact où la prochaine main voudra « simplifier » en repassant au
+   repère du monde. `outil-verif-terrelune.js` relit cet appel et l'exige. */
+const PLAFOND = 4049;   // ... la chute vers le Soleil, puis la Terre et la Lune
 
 // Le nombre de modules déjà sortis. Il ne descend jamais non plus : un module
 // qu'on ferait rentrer dans le bloc serait le contraire exact du chantier.
@@ -449,8 +506,9 @@ const PLAFOND = 3941;   // ... et l'arrivée montre enfin la Terre et la Lune
 // serait resté vert, puisqu'il n'exigeait que vingt-six. Un cliquet qu'on ne
 // remonte pas cesse d'être un cliquet — il devient un plancher sous le sol.
 //
-// Cinquante aujourd'hui, `solaire.js` compris.
-const MODULES_SORTIS = 50;
+// Cinquante aujourd'hui, `solaire.js` compris. Puis CINQUANTE-DEUX le soir même,
+// avec `etiquettes.js` et `approche.js` : la scène solaire est sortie entière.
+const MODULES_SORTIS = 52;
 
 let n = 0, echecs = 0;
 const groupe = t => console.log("\n  " + t + "\n  " + "─".repeat(t.length));

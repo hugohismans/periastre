@@ -1829,6 +1829,16 @@ notes: {
         { id:"carte-etoiles", ou:"arrivee-etoiles",
           aveu:"C'est une reconstruction, pas une vue : personne n'a vu ces orbites tourner.",
           t:"<b>La carte des étoiles S.</b> C'est une reconstruction, pas une vue. Ces orbites durent de seize à trois cent trente et un ans : personne ne les a jamais vues tourner. On les a mesurées pendant trente ans, et c'est justement le sujet." },
+        /* L'AVEU DE LA SCÈNE SOLAIRE — 11 août 2026. Il porte les DEUX seules
+           choses que cette scène ne calcule pas jusqu'au bout : on ne sait pas
+           où sont les planètes sur leurs orbites, et l'éclat du Soleil est
+           peint sur l'échelle des magnitudes faute d'écran qui tienne un
+           facteur vingt-sept mille. Le reste — les rayons, le droit de nommer,
+           la chute — sort du calcul et n'a rien à avouer. */
+        { id:"anneaux-solaires", ou:"arrivee-soleil",
+          sources:["jplElementsPlanetes", "iau2015b3"],
+          aveu:"Ces cercles bornent l'écart au Soleil ; ils ne disent pas où est la planète.",
+          t:"<b>Les anneaux du système solaire.</b> Les colonnes relevées au JPL donnent le demi-grand axe de chaque planète, et rien d'autre : ni sa position sur son orbite aujourd'hui, ni l'inclinaison de cette orbite vue depuis le centre de la Galaxie. Poser un point et écrire « Jupiter » dessus serait une affirmation que rien ici ne soutient. Ce qu'on trace est donc le cercle qui <b>borne</b> son écart au Soleil — elle est quelque part là-dedans, et le cercle ne prétend rien de plus. L'éclat du Soleil, lui, est peint sur l'échelle des magnitudes : le flux reçu est multiplié par vingt-sept mille entre le nuage de Oort et l'arrivée, et aucun écran ne tient ce rapport. Son diamètre, en revanche, n'est jamais dessiné — il reste sous le demi-pixel partout dans cette scène." },
         { id:"decor-personnages", ou:"salon",
           aveu:"Le vaisseau et les gens sont dessinés, pas mesurés.",
           t:"<b>Le décor et les personnages.</b> Tout est calculé, rien n'est importé — mais un vaisseau et des gens ne sont pas des mesures." },

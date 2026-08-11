@@ -18,6 +18,75 @@ Hugo peut aussi le déclencher à tout moment : « on refait le cap ».
 
 ---
 
+## 11 août 2026 — la scène solaire : on arrive dans le vide, et on tombe
+
+Le cadrage était d'Hugo, tranché la veille au soir : *« les deux, dans cet
+ordre »*. On arrive dans le nuage de Oort, où les huit planètes tiennent dans
+deux pixels et où **aucune étiquette n'a le droit d'exister**, puis on continue à
+tomber jusqu'à ce que les orbites s'écartent. Le passage d'un régime à l'autre
+est le sujet, pas un fondu.
+
+**Trois modules neufs, et pas une ligne de leur logique dans la page.**
+
+- **`etiquettes.js`** — « point du monde → étiquette », et sa première
+  responsabilité est de **se taire**. Trois silences distincts, et **aucun seuil
+  de repli** : un appelant qui ne dit pas son écartement n'obtient rien.
+- **le Soleil, dans `solaire.js`** — doctrine de `lune.js` : son disque reste
+  **sous le demi-pixel partout** dans la scène (le premier pixel arrive à 8,8 ua,
+  soit dans l'orbite de Saturne), donc jamais de disque, on dit le grossissement
+  qu'il faudrait. Mais il rayonne : sa magnitude est **dérivée** de la luminosité
+  nominale et du point zéro de l'UAI.
+- **`approche.js`** — les deux bouts de la chute et sa physique. Départ à
+  20 000 ua, le bord du nuage externe que la fiche porte déjà ; **arrivée pas
+  écrite**, cherchée à la distance où le cinquième nom tient debout — 119,7 ua.
+
+**Une seule loi, deux fois plutôt qu'une.** Les deux tests de `solaire.js` et le
+test unique d'`etiquettes.js` sont **le même**, et c'est prouvé sur 73 distances
+plutôt qu'affirmé. Et la loi du trajet à 1 g est **sortie du corps d'`avance`**
+dans `RECUL.ou`, parce que la chute en avait besoin : deux copies d'une loi de
+mouvement finissent toujours par diverger, l'œil d'Hugo l'a déjà vu une fois.
+
+**Ce qu'on dessine sont des anneaux, pas des orbites.** On ne sait pas où est
+Jupiter — les colonnes du JPL donnent le demi-grand axe et rien d'autre. On trace
+donc le cercle qui **borne** l'écart au Soleil, et l'aveu le dit au visiteur.
+
+**Le défaut, et il a fallu regarder pour le voir.** Première image de la scène :
+le Soleil n'était pas mal placé, il était **absent**. La baie regarde l'astre
+pendant tout le vol — c'est ce qui rend le recul visible — donc on arrivait
+**dos à sa destination**. Vingt-sept mille années-lumière pour arriver le nez
+contre une cloison. Aucun outil ne pouvait le dire : le module rendait les bons
+nombres. Le vaisseau se retourne maintenant en trois secondes, par la **même**
+rotation que la dérive de la baie. Règle 1 : `VERIF.sceneSolaire()`.
+
+**Et je me suis fait avoir deux fois par mes propres mesures.**
+
+1. `distanceParlante` rendait `NaN` dès qu'on lui demandait trois noms : sa borne
+   basse était à une unité astronomique, c'est-à-dire **dedans**, là où la
+   monotonie sur laquelle repose sa bissection n'existe pas.
+2. Le contrôle de la page comptait **tous** les pixels peints. Le voile de la
+   scène couvre toute la baie à n'importe quelle distance : « bien moins qu'en
+   bas » passait au vert à vingt-deux pixels près, en ne mesurant rien. On compte
+   les pixels **clairs** — 972 en bas, 75 dans le nuage, 0 quand on regarde
+   ailleurs.
+
+**Et une fausse piste, notée pour ne pas y revenir.** J'ai pris pour un artefact
+du nuanceur un disque noir cerclé d'orange qui restait dans la baie après le
+demi-tour, et j'ai modifié le lanceur de géodésiques pour le corriger. C'était
+**Lumen**, le drone, en silhouette devant la vitre. Le nuanceur a été remis
+intact : une correction fondée sur un mauvais diagnostic est pire que rien.
+
+**Et le rythme tranché le même jour change ce qu'on voit.** La chute lit le même
+réglage que le grand trajet — une seule loi — donc « fidèle » y produit treize
+secondes où rien n'arrive, puis trois où tout arrive. C'est exact, et c'est
+exactement ce que la question posée à Hugo doit départager.
+
+**Compte : 45 outils, 3 neufs (19 + 38 contrôles), et 8 contrôles de plus dans la
+page.** Plafond de taille monté de 3 865 à 3 954, justifié par écrit. Une
+question dans `?juge`, et c'est celle qu'aucun calcul ne tranche : est-ce que
+« il n'y a rien à voir » se lit comme une intention, ou comme une panne ?
+
+---
+
 ## 11 août 2026 — le bouton du rythme, quatre jours après la demande
 
 **Le site annonçait un réglage qui n'existait pas.** `contenu.js` avoue depuis le
@@ -341,6 +410,77 @@ questions sur le voyage refait.
 navigateur, tout au vert. Séance de jugement vide — rien à faire juger tant que
 le voyage n'est pas refait.
 
+---
+
+## 11 août 2026 — Le rivage
+
+Hugo, deux fois de suite : « tu m'en parles, tu m'en parles, mais toujours pas
+vu ». Il avait raison, et la cause était bête : je lui avais posé une question
+deux fois sans jamais insister, et j'avais attendu.
+
+### Ce qui était déjà là et que personne ne lui avait montré
+
+`lune.html` existait, éprouvée, publiée — **et liée depuis nulle part**. Il l'a
+trouvée « vraiment super », puis a tranché net : *« c'est une page
+d'explication, ce n'est pas une page de jeu. Je veux que le joueur il soit dans
+un monde interactif. Il peut cliquer, voilà, je mets la Lune. Il voit comment
+c'est la Lune. EN TANT QUE JOUEUR SUR TERRE. »*
+
+Et son cadrage, une minute après, meilleur que le mien : le sujet est **la
+taille, ressentie par substitution** — « ah ouais, c'était à la place de la
+Lune, aussi gros que ça ».
+
+### Ce qu'il a tranché, à l'outil à boutons
+
+Deux questions posées, deux réponses immédiates. La règle 4 fonctionne quand on
+s'en sert.
+
+- **Dehors, sur Terre, la nuit**, première personne, un cadran à hauteur de main.
+- **Le ciel fixe, la mer vivante** — il a pris « 1 et 3 ».
+- Puis, devant le premier jet : **la Lune reste dans le cadre, à la même
+  échelle**, parce qu'un étalon invisible ne mesure rien.
+
+Il a aussi demandé, de lui-même : *« tu fais une skybox ou tu intègres l'élément
+dans la skybox ? »* La bonne question. Le fond en est une ; **l'astre n'en est
+pas une**, sinon sa taille serait figée dans une image — et la taille est le
+seul sujet de la scène.
+
+### Ce qui a été bâti
+
+- **`rivage.js`** — la physique, sans DOM ni WebGL. Aucun chiffre d'astre n'y est
+  saisi : tout dérive de `LUNE.ASTRES`. Marée d'équilibre, rythme par Kepler sur
+  le couple, limite de Roche, verdict rivage/englouti/brisée.
+- **`outil-verif-rivage.js`** — 35 affirmations. Sa vérité vient d'ailleurs : il
+  ignore le développement du module et **recalcule la marée par la loi de Newton
+  nue**. Plus trois ancres hors dépôt : 54 cm, 46 %, 12 h 25.
+- **`rivage.html`** — ciel et sol calculés par direction de regard, pixel par
+  pixel, donc taille angulaire exacte.
+
+### Trois fois que je me suis fait prendre, dans ma propre session
+
+1. **L'outil exigeait 0,1 mm** d'accord là où le terme d'ordre 3 en impose 6. La
+   tolérance se dérive maintenant, elle ne se choisit plus.
+2. **« Mars = 2,06 Lunes », écrit de mémoire.** Le vrai rapport des rayons
+   sourcés est 1,95. La règle 7 s'est refermée sur l'outil censé la faire
+   respecter. Les attendus se dérivent des rayons.
+3. **Un accent grave dans un commentaire du nuanceur** a fermé le texte qui le
+   portait. La page ne construisait plus rien. `node tout.js` ne lit pas les
+   pages : l'outil extrait maintenant le script et le fait analyser, avec sa
+   contre-épreuve.
+
+### Où ça en est
+
+Publié. **46 outils, aucun échec.** Hugo va regarder avant de juger — c'est son
+choix, et c'est le bon ordre.
+
+**Ce que je sais déjà de travers, et que je lui ai dit avant qu'il l'ouvre :**
+la marée ne se voit pas (54 cm sans repère dans l'eau — il manque un piquet
+gradué) ; le rivage n'est pas un lieu de `lieux.js`, on y arrive par un lien ;
+le cadran est un menu posé par-dessus, pas un objet du monde.
+
+**Et le déséquilibre du projet bouge dans le bon sens** : pour une fois, du jeu
+neuf. La règle qui a débloqué la journée n'est pas technique — c'est *« ce genre
+de questions, tu peux me les poser »*, du 7 août, que je n'appliquais pas.
 
 ---
 

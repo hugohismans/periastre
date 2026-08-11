@@ -88,13 +88,19 @@ window.UI = {
     "En revanche, le fond du ciel derrière elles est un décor : ses étoiles sont " +
     "posées au hasard et sa nébuleuse est inventée. Ce qui est exact ici, ce sont " +
     "les orbites et la façon dont la gravité dévie la lumière.",
+  /* CE PIED DIT MAINTENANT OÙ L'ON EST, et pas seulement ce qu'on a quitté.
+     Le vaisseau arrive dans le nuage de Oort : il n'y a rien à voir, et il faut
+     que ça se lise comme une intention. Sans cette phrase, un écran quasi vide
+     ressemble à une panne — c'est exactement la question posée à Hugo. */
   "tele.arrive.pied.soleil":
-    "Le voyage s'arrête ici. Ce que vous regardiez il y a un instant — le trou " +
-    "noir et les dix orbites mesurées autour de lui — est maintenant à " +
-    "vingt-sept mille années-lumière derrière vous, et plus rien ne permet de " +
-    "l'y distinguer : les orbites que vous avez vues tourner tiennent désormais " +
-    "très loin sous le pixel, comme le trou noir lui-même tout à l'heure. " +
-    "C'est la distance elle-même qui vient de vous être montrée.",
+    "Le voyage s'arrête ici, et vous êtes rentré : ce point est le Soleil. " +
+    "Mais vous êtes encore dans le nuage de Oort, à vingt mille fois la " +
+    "distance Terre-Soleil — et de là, il n'y a rien à voir. Les huit planètes " +
+    "tiennent ensemble dans deux pixels ; leur mettre des noms serait mentir, " +
+    "puisque toutes les étiquettes pointeraient le même endroit. Il faut " +
+    "continuer à tomber pour que les orbites s'écartent. " +
+    "Derrière vous, le trou noir et ses dix orbites sont à vingt-sept mille " +
+    "années-lumière, et plus rien ne permet de les y distinguer.",
   /* ---- l'arrivée Terre–Lune, lue par terrelune.js ----
      Le module ne porte aucun texte : il refuse d'écrire un mot qu'on ne lui a
      pas donné, comme `recul.js` pour son quadrillage. Ce sont des étiquettes
@@ -108,6 +114,13 @@ window.UI = {
   "tl.declare":
     "tailles et écart calculés · reliefs évoqués · l'heure de la scène est un "
     + "choix, la même lumière pour les deux",
+  /* Le troisième mouvement de la scène solaire : après la chute vers les
+     géantes, la dernière marche jusqu'à chez nous. */
+  "tl.carte":              "Continuer jusqu'à la Terre",
+  "tl.carte.quoi":
+    "La dernière marche : on tombe jusqu'à la Terre et sa Lune. Elles sont "
+    + "séparées de trente diamètres terrestres, et vous allez voir pourquoi "
+    + "aucune image ne peut les montrer grosses toutes les deux.",
 
   "tele.retour.etiq":      "retour",
   "tele.retour.titre":     "Revenir près du trou noir",
@@ -294,6 +307,24 @@ window.UI = {
    et un lecteur anglais les lisait tels quels pendant tout le trajet. L'unité
    des années-lumière est arrivée le 9 août avec le voyage vers le système
    solaire : en UA, une maille d'arrivée vaudrait mille sept cents milliards. */
+/* ---- la scène solaire ----
+   `approche.js` ne résout pas de clé, comme `recul.js` : la page lui tend ces
+   mots une fois. Les noms des planètes sont des noms propres, pas des
+   affirmations — les chiffres, eux, sont dans `contenu.js`. */
+"solaire.soleil":        "Soleil",
+"solaire.mercure":       "Mercure",
+"solaire.venus":         "Vénus",
+"solaire.terre":         "Terre",
+"solaire.mars":          "Mars",
+"solaire.jupiter":       "Jupiter",
+"solaire.saturne":       "Saturne",
+"solaire.uranus":        "Uranus",
+"solaire.neptune":       "Neptune",
+"solaire.chute":         "Tomber vers le Soleil",
+"solaire.chute.quoi":
+  "Descendre du nuage jusqu'aux planètes géantes, toujours à un g. Les " +
+  "orbites s'écartent en chemin, et les noms deviennent vrais un par un.",
+
 "recul.case":            "une case = ",
 "recul.distance":        "distance ",
 "recul.rs":              " rₛ",

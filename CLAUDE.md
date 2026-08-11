@@ -93,8 +93,10 @@ Ou tout d'un coup, ce qui évite d'avoir à connaître la liste :
 node tout.js
 ```
 
-Dans la page : `?verif` puis `VERIF.sain()` — 81 contrôles. `?test` le protocole
-joué, `?juge` la séance de jugement.
+Ou tout d'un coup : **45 outils**, `node tout.js`.
+
+Dans la page : `?verif` puis `VERIF.sain()`. `?test` le protocole joué, `?juge`
+la séance de jugement.
 
 ---
 
@@ -142,8 +144,11 @@ avec son outil ; ce qui reste dans `index.html` est du rendu et de l'orchestrati
 | `contrat.js` | ce qu'une information doit porter pour entrer |
 | `vaisseau.js` | la géométrie du salon, calculée |
 | `etoiles.js` | les dix étoiles S et leur carte |
+| `solaire.js` | le système solaire vu du dehors, et **le droit de nommer** |
+| `etiquettes.js` | point du monde → étiquette. Sa première charge est de **se taire** |
+| `approche.js` | on arrive dans le nuage de Oort, et on tombe |
 | `lune.js` | les astres, leurs rayons sourcés, l'angle apparent en arcsin |
-| `terrelune.js` | l'arrivée du voyage : la chute vers la Terre et la Lune |
+| `terrelune.js` | la dernière marche : la Terre et la Lune |
 | `contenu.js` / `.en.js` | **la seule source de vérité factuelle** |
 | `ncorps.js`, `echelle.js`, `aberration.js` | écrits, éprouvés, **pas encore branchés** — `node tout.js` dit pourquoi, un par un |
 | `kerrschild.js` | **arbitre, jamais chargé** : il éprouve le nuanceur du dehors (règle 3) |
@@ -188,17 +193,18 @@ tenir à jour au moment du cap, ou ne pas s'y fier.
 
 **Fait :** la vérification sans humain, le sourçage, le bilingue, le voyage, la
 carte des étoiles, F1 à F5, le carnet du voyageur, le mode simulation/cinéma, le
-départ pour le système solaire, et depuis le 11 août **l'arrivée** : on tombe
-vers la Terre et la Lune, et la baie montre enfin quelque chose. Le chantier
-courant est **la descente au périastre** (`CHANTIER-P.md`), P1 et P2 clos,
-P3 en cours.
+départ pour le système solaire — et **l'arrivée**, depuis le 11 août : on arrive
+dans le nuage de Oort, où il n'y a rien à voir, on tombe jusqu'à ce que les noms
+deviennent vrais, puis on continue jusqu'à **la Terre et la Lune**. Deux sessions
+du même jour, et les deux mouvements se suivent : la scène solaire pose la chute,
+`terrelune.js` en est la dernière marche. Le chantier courant est **la descente
+au périastre** (`CHANTIER-P.md`), P1 et P2 clos, P3 presque clos — il ne reste
+que le rythme.
 
 **Ouvert, et tranché par personne :**
-- **Le système solaire vu de loin, avec ses étiquettes** — et c'est le même
-  chantier que le rythme du grand trajet, qui se sent faux parce que l'animation
-  passe 28 s à accélérer et 6 à freiner. Un seul chantier, c'est le prochain.
-- **Regarder devant et derrière pendant le vol** (demandé le 9 août) : la baie ne
-  regarde que dans un sens.
+- **Le rythme du grand trajet**, qui se sent faux parce que l'animation passe
+  28 s à accélérer et 6 à freiner. Il attendait qu'il y ait quelque chose vers
+  quoi s'approcher : c'est fait depuis le 11 août, il n'attend plus rien.
 - **L'aberration** est calculée et éprouvée (`aberration.js`), pas branchée au
   nuanceur : jusqu'où l'atténuer se décide en regardant.
 - **Peindre le ciel de l'amas** — il n'y fait jamais nuit ; notre fond noir est

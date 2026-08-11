@@ -2398,7 +2398,7 @@ void main(){
 <!-- `accueil.js` est chargé ICI, et pas avec les autres modules plus bas : c'est
      lui qui décide de la langue, et cette décision doit précéder le
      `document.write` des fichiers de contenu. Il ne dépend de rien. -->
-<script src="accueil.js?v=c787cb3"></script>
+<script src="accueil.js?v=5fbc645"></script>
 <script>
 (function(){
   /* L'adaptateur de la mémoire de la langue. Il porte la clé et les `try` de la
@@ -2418,11 +2418,11 @@ void main(){
   window.LANGUE = d.code;
   window.MEMOIRE_LANGUE = m;                  // le sélecteur de langue s'en ressert
   document.documentElement.lang = d.html;
-  document.write('<script src="' + d.fichierContenu + '?v=c787cb3"><\/script>');
+  document.write('<script src="' + d.fichierContenu + '?v=5fbc645"><\/script>');
   // Les chaînes d'interface : le français TOUJOURS, l'anglais par-dessus. Une
   // clé oubliée retombe ainsi sur une phrase, jamais sur un identifiant nu.
   d.fichiersInterface.forEach(function(f){
-    document.write('<script src="' + f + '?v=c787cb3"><\/script>');
+    document.write('<script src="' + f + '?v=5fbc645"><\/script>');
   });
 })();
 </script>
@@ -2442,16 +2442,16 @@ void main(){
 <!-- La physique, sortie du bloc principal. Elle ne touche ni au document ni à
      WebGL, et son extraction rend le banc d'essai exécutable en ligne de
      commande — donc vérifiable sans navigateur. Premier morceau du chantier F2. -->
-<script src="physique.js?v=c787cb3"></script>
+<script src="physique.js?v=5fbc645"></script>
 <!-- Ce qui vole. Deuxième morceau de F2, et le socle de la salle de tir
      balistique : elle ne sera que `destin()` avec une vitesse choisie. -->
-<script src="vol.js?v=c787cb3"></script>
+<script src="vol.js?v=5fbc645"></script>
 <!-- L'horloge. Troisième morceau de F2, et celui qui rend structurellement
      impossible le défaut du disque à 622× : le temps simulé n'y est accessible
      qu'en lecture, et un second écrivain devient indicible. -->
-<script src="temps.js?v=c787cb3"></script>
-<script src="kerr.js?v=c787cb3"></script>
-<script src="vaisseau.js?v=c787cb3"></script>
+<script src="temps.js?v=5fbc645"></script>
+<script src="kerr.js?v=5fbc645"></script>
+<script src="vaisseau.js?v=5fbc645"></script>
 <!-- Marcher dans la pièce. Quatrième morceau de F2 : une fois sorti du bloc, on
      peut promener un corps dans le décor SANS navigateur — et le premier
      balayage a trouvé qu'on traversait le télescope.
@@ -2459,8 +2459,8 @@ void main(){
      APRÈS `vaisseau.js`, et l'ordre n'est pas négociable : le mobilier se
      construit à partir de la géométrie de la pièce, dès le chargement. Placé
      avant, il ne trouvait rien et emportait tout le bloc principal avec lui. -->
-<script src="arpente.js?v=c787cb3"></script>
-<script src="personnage.js?v=c787cb3"></script>
+<script src="arpente.js?v=5fbc645"></script>
+<script src="personnage.js?v=5fbc645"></script>
 <!-- `pantheon.js` N'EST PLUS CHARGÉ, et c'est délibéré.
 
      Il était chargé à chaque visite et `PANTHEON` n'était appelé nulle part —
@@ -2472,10 +2472,10 @@ void main(){
      pas encore — voir CHUTE.md, écrit et jamais branché. Le jour où la salle de
      tir existera, cette ligne revient telle quelle.
 
-     <script src="pantheon.js?v=c787cb3"></script> -->
+     <script src="pantheon.js?v=5fbc645"></script> -->
 
-<script src="robot.js?v=c787cb3"></script>
-<script src="musique.js?v=c787cb3"></script>
+<script src="robot.js?v=5fbc645"></script>
+<script src="musique.js?v=5fbc645"></script>
 
 <!-- LA PAGE ELLE-MÊME PEUT ÊTRE PÉRIMÉE, et l'estampille n'y peut rien : elle
      protège les scripts, dont l'adresse change, pas `index.html`, dont l'adresse
@@ -2484,7 +2484,7 @@ void main(){
      anciennes questions. Le pourquoi complet est dans `frais.js` ; ici on ne
      fait que demander et sauter, la décision est là-bas et s'éprouve sans
      navigateur — c'est elle qui peut faire clignoter le site. -->
-<script src="frais.js?v=c787cb3"></script>
+<script src="frais.js?v=5fbc645"></script>
 <script>
 (function(){
   var mienne = FRAIS.estampille(document.documentElement.outerHTML), vu = null;
@@ -2502,35 +2502,39 @@ void main(){
 
 <!-- Le voyage. L'ordre compte : recul.js appelle VOYAGE.entre au chargement de
      ses propres constantes, donc voyage1g.js doit être passé avant lui. -->
-<script src="voyage1g.js?v=c787cb3"></script>
-<script src="recul.js?v=c787cb3"></script>
-<script src="etoiles.js?v=c787cb3"></script>
-<!-- L'arrivée. L'ordre compte : `terrelune.js` prend tous ses chiffres d'astres
-     dans `lune.js`, qui entre dans la page le 11 août 2026 sur décision d'Hugo. -->
-<script src="lune.js?v=c787cb3"></script>
-<script src="terrelune.js?v=c787cb3"></script>
-<script src="format.js?v=c787cb3"></script>
-<script src="spectre.js?v=c787cb3"></script>
-<script src="banc.js?v=c787cb3"></script>
-<script src="ecrans.js?v=c787cb3"></script>
-<script src="dossier.js?v=c787cb3"></script>
-<script src="aveu.js?v=c787cb3"></script>
-<script src="spin.js?v=c787cb3"></script>
-<script src="rendu.js?v=c787cb3"></script>
-<script src="calque.js?v=c787cb3"></script>
-<script src="habitacle.js?v=c787cb3"></script>
-<script src="libelles.js?v=c787cb3"></script>
-<script src="resolution.js?v=c787cb3"></script>
-<script src="registre.js?v=c787cb3"></script>
-<script src="cockpit.js?v=c787cb3"></script>
-<script src="camera.js?v=c787cb3"></script>
-<script src="gestes.js?v=c787cb3"></script>
-<script src="manette.js?v=c787cb3"></script>
-<script src="lumen.js?v=c787cb3"></script>
+<script src="voyage1g.js?v=5fbc645"></script>
+<script src="recul.js?v=5fbc645"></script>
+<script src="etoiles.js?v=5fbc645"></script>
+<script src="solaire.js?v=5fbc645"></script>
+<script src="etiquettes.js?v=5fbc645"></script>
+<script src="approche.js?v=5fbc645"></script>
+<!-- La dernière marche de la scène solaire : la Terre et la Lune. L'ordre
+     compte — `terrelune.js` prend tous ses chiffres d'astres dans `lune.js`,
+     qui entre dans la page le 11 août 2026 sur décision d'Hugo. -->
+<script src="lune.js?v=5fbc645"></script>
+<script src="terrelune.js?v=5fbc645"></script>
+<script src="format.js?v=5fbc645"></script>
+<script src="spectre.js?v=5fbc645"></script>
+<script src="banc.js?v=5fbc645"></script>
+<script src="ecrans.js?v=5fbc645"></script>
+<script src="dossier.js?v=5fbc645"></script>
+<script src="aveu.js?v=5fbc645"></script>
+<script src="spin.js?v=5fbc645"></script>
+<script src="rendu.js?v=5fbc645"></script>
+<script src="calque.js?v=5fbc645"></script>
+<script src="habitacle.js?v=5fbc645"></script>
+<script src="libelles.js?v=5fbc645"></script>
+<script src="resolution.js?v=5fbc645"></script>
+<script src="registre.js?v=5fbc645"></script>
+<script src="cockpit.js?v=5fbc645"></script>
+<script src="camera.js?v=5fbc645"></script>
+<script src="gestes.js?v=5fbc645"></script>
+<script src="manette.js?v=5fbc645"></script>
+<script src="lumen.js?v=5fbc645"></script>
 <!-- `accueil.js` n'est pas ici : il est chargé en tête de page, avant le choix
      de la langue, parce que c'est lui qui le décide. -->
-<script src="progression.js?v=c787cb3"></script>
-<script src="lieux.js?v=c787cb3"></script>
+<script src="progression.js?v=5fbc645"></script>
+<script src="lieux.js?v=5fbc645"></script>
 <script>
 "use strict";
 
@@ -2689,6 +2693,9 @@ const salon = {
   apo:16, k:0.82,            // vitesse à l'apoastre, en fraction de la circulaire
   p:[16,0,0], v:[0,0,0], rmin:1e9, rmax:0, trace:[], horloge:0,
   versAstre:[0,0,-1], eclat:1,   // direction et intensité de l'astre, en repère pièce
+  // 0 à 1 : le demi-tour du vaisseau à l'arrivée. `majVoyage` en est le seul
+  // écrivain ; `camera.js` le lit et l'ajoute à la dérive de la baie.
+  retourne:0,
 };
 
 /* `salon.actif` n'est plus une donnée : c'est une question posée à `lieu`.
@@ -2702,6 +2709,7 @@ Object.defineProperty(salon, "actif", {
 
 function poseSalon(){
   const r = salon.apo;
+  salon.retourne = 0;             // on rentre : la baie regarde de nouveau l'astre
   salon.p = [r, 0, 0];
   const t = norm(cross([0,1,0], salon.p));
   const w = vCirc(r) * salon.k;
@@ -3911,12 +3919,10 @@ const DESTINATIONS = [
     d_m: 10000*VOYAGE.UA, atteignable:true, carte:true },
   /* ON Y VA. Elle était REFUSÉE — « le vaisseau reste ici ». La leçon n'était
      pas dans le refus mais dans le chiffre, et le chiffre reste sur la carte. */
-  /* `terreLune` est de la même famille que `carte` : une DONNÉE portée par la
-     destination, et non un test sur son identité au fond du rendu. C'est ce qui
-     permet à `outil-verif-arrivee.js` de l'exiger sans lire une ligne de dessin,
-     et à une destination neuve de ne pas pouvoir l'oublier. */
+  /* `scene` DIT CE QU'ON VOIT EN ARRIVANT — même manœuvre que `carte` : une
+     donnée portée par la destination, jamais un test enterré dans le dessin. */
   { id:"soleil",  nom:"dest.soleil.nom",  quoi:"dest.soleil.quoi",
-    d_m: 8277*PARSEC_M,  atteignable:true, prix:true, carte:false, terreLune:true },
+    d_m: 8277*PARSEC_M,  atteignable:true, prix:true, carte:false, scene:"solaire" },
 ];
 
 function choisitDestination(d, v){
@@ -3930,8 +3936,12 @@ $("in-fermer").onclick = fermeTelescope;
 // module ne résout pas de clé : il ne connaît pas `T`, donc on les lui tend.
 RECUL.poseMots({ case: T("recul.case"), distance: T("recul.distance"), rs: T("recul.rs"),
   ua: T("recul.ua"), al: T("recul.al"), locale: enAnglais() ? "en-US" : "fr-FR" });
+// Et ceux de la scène solaire, pour la même raison : `approche.js` ne connaît
+// pas `T` et ne doit pas le connaître.
+const MOTS_SOLAIRE = {};
+["soleil"].concat(SOLAIRE.ORDRE).forEach(k => MOTS_SOLAIRE[k] = T("solaire." + k.toLowerCase()));
 
-// Même remède pour la scène de l'arrivée : elle ne connaît pas `T`, donc on lui
+// Même remède pour la dernière marche : la scène ne connaît pas `T`, donc on lui
 // tend ses mots. Sans eux, sa légende se tait — elle n'affiche pas de clé nue.
 TERRELUNE.poseMots({ titre: T("tl.titre"), terre: T("tl.terre"), lune: T("tl.lune"),
   ecart: T("tl.ecart"), dehors: T("tl.dehors"), pasEncore: T("tl.pasEncore"),
@@ -4066,27 +4076,45 @@ function majVoyage(dt){
      L'ORDRE N'EST PAS INTERCHANGEABLE : `regardSalon()` se lit APRÈS le
      recentrage, pour que le quadrillage juge la visée qu'on AURA et non celle
      qu'on avait — sinon il commente avec une image de retard. */
+  /* ET À L'ARRIVÉE, LE VAISSEAU SE RETOURNE. La baie regarde l'astre pendant
+     tout le vol — c'est ce qui rend le recul visible — mais on arrive DOS à sa
+     destination : le Soleil est au bout du rayon qu'on a suivi. Sans ce
+     demi-tour, la scène qu'on vient de traverser vingt-sept mille années-lumière
+     pour voir est dans le dos, et rien ne le dit. La main reprend la main dès
+     qu'elle touche à la visée, comme partout ailleurs depuis le 10 août. */
+  /* Trois secondes pour un demi-tour : c'est une manœuvre, pas une coupure. Le
+     panneau d'arrivée est ouvert pendant ce temps-là, donc on la découvre en le
+     refermant — et l'on peut la regarder en le rouvrant. */
+  const retourner = tr.arrive && tr.dest.scene;
+  salon.retourne = Math.max(0, Math.min(1, salon.retourne + (retourner ? dt/3 : -dt/3)));
   const va = salon.versAstre, im = vue();
-  const vise = RECUL.recentre(va, salon.lacet, salon.tangage, dt, tr.mainPrise);
+  /* Et pendant le demi-tour, le recentrage se TAIT. C'est le vaisseau qui
+     tourne, pas la tête : la viser vers l'astre la ferait balayer la pièce en
+     sens inverse de la coque, ce qui donne le tournis et ne veut rien dire. */
+  const vise = RECUL.recentre(retourner ? null : va, salon.lacet, salon.tangage, dt, tr.mainPrise);
   salon.lacet = vise.lacet;
   salon.tangage = vise.tangage;
   RECUL.fondus(TELESCOPE, dt, RECUL.enVue(regardSalon().av, va),
                RECUL.seuilEnVue(cam.focale, im.W, im.H));
 
-  majChrono();
+  majChrono(tr.calcul.d_m, Math.abs(RECUL.etat.distance - tr.depart));
 
   if(!RECUL.actif && !tr.arrive){ tr.arrive = true; arriveVoyage(); }
+  if(APPROCHE.etat.chute) majChute(dt);
 }
 
 /* Le chronomètre dit la vérité, et il ne l'interpole pas.
 
    Le temps propre ne croît pas comme la distance — c'est tout l'objet du
    voyage. On le calcule donc exactement pour la distance déjà parcourue, au
-   lieu d'étaler le total sur la barre d'avancement. */
-function majChrono(){
-  const tr = TELESCOPE.trajet;
-  const parcouru = Math.abs(RECUL.etat.distance - tr.depart);
-  const e = VOYAGE.enChemin(tr.calcul.d_m, parcouru);
+   lieu d'étaler le total sur la barre d'avancement.
+
+   IL REÇOIT LE TRAJET plutôt que d'aller le lire : il y a DEUX mouvements
+   depuis le 11 août, le grand voyage et la chute vers le Soleil, et ils ne
+   comptent pas dans le même espace. Deux fonctions écrivant les deux mêmes
+   cadrans, c'eût été deux écrivains pour une valeur. */
+function majChrono(d_m, parcouru){
+  const e = VOYAGE.enChemin(d_m, Math.min(d_m, parcouru));
   $("ch-bord").textContent = VOYAGE.joli.duree(e.tau);
   $("ch-loin").textContent = VOYAGE.joli.duree(e.t);
 }
@@ -4098,27 +4126,17 @@ function arriveVoyage(){
   if(TELESCOPE.retour){
     // On rentre : la carte s'efface, l'orbite se rétablit.
     TELESCOPE.trajet = null;
-    TERRELUNE.ferme();
+    APPROCHE.range();
     $("chrono").classList.remove("vu");
     poseSalon();
     return;
   }
+  // ON ARRIVE DANS LE NUAGE, ET ON N'Y VOIT RIEN. C'est voulu — cadrage d'Hugo,
+  // 10 août au soir. La chute vient après, et c'est lui qui la déclenche.
+  // Et l'on rend la visée au recentrage, une fois : arriver est un événement, il
+  // a le droit de cadrer. Elle se reprend au premier geste, comme toujours.
+  if(tr.dest.scene === "solaire"){ APPROCHE.pose(APPROCHE.DEPART_UA); tr.mainPrise = false; }
   poseArrivee(tr.dest);
-  /* La scène ne s'ouvre qu'à l'arrivée qui la DÉCLARE — un test sur l'identité
-     de la destination au fond du rendu est la faute réparée le 10 août.
-
-     ON LA POSE DEVANT LA BAIE, ET ÇA S'EST TROUVÉ EN REGARDANT. Elle était
-     d'abord à l'opposé du trou noir — l'avant du voyage — et `projette` rendait
-     `null` : la scène était dans le dos du joueur, qui n'aurait rien vu du tout.
-     La baie ne regarde que dans un sens, et c'est ce sens-là qui commande.
-     `-salon.p` est la direction où elle pointe : le trou noir est à l'origine,
-     le vaisseau en `salon.p`. C'est exactement l'ancre de la carte des étoiles,
-     et donc une seule loi pour les deux arrivées. */
-  if(tr.dest && tr.dest.terreLune === true){
-    const H = vueH || cv.clientHeight, q = salon.p;
-    TERRELUNE.ouvre([-q[0], -q[1], -q[2]], TERRELUNE.echelle(cam.focale, H),
-                    vueW || cv.clientWidth, cam.focale);
-  }
 }
 
 /* À l'arrivée, l'instrument reprend la main — puisque c'est lui qui montre.
@@ -4144,6 +4162,35 @@ function poseArrivee(dest){
   b.querySelector("h2").textContent = T("tele.retour.titre");
   b.querySelector("p").textContent  = T("tele.retour.quoi");
   b.onclick = () => { fermeTelescope(); repartVoyage(); };
+  /* TOMBER, ET C'EST UN VRAI TRAJET : un an de vol à un g pour descendre du
+     nuage jusqu'aux géantes, donc une carte avec son prix comme les autres.
+     Elle ne paraît que tant qu'il reste à tomber. */
+  if(dest && dest.scene === "solaire" && APPROCHE.etat.dUa > APPROCHE.ARRIVEE_UA*1.01){
+    const c = document.createElement("button");
+    c.className = "carte";
+    c.innerHTML = '<span class="duree"></span><h2></h2><p></p>';
+    c.querySelector(".duree").textContent = VOYAGE.joli.duree(APPROCHE.prix().tau);
+    c.querySelector("h2").textContent = T("solaire.chute");
+    c.querySelector("p").textContent  = T("solaire.chute.quoi");
+    c.onclick = () => { fermeTelescope(); lanceChute(); };
+    liste.appendChild(c);
+  }
+  /* ET LA DERNIÈRE MARCHE, quand la chute est finie : la Terre et la Lune.
+
+     Elle ne paraît qu'APRÈS la chute, et c'est l'ordre de la scène : on arrive
+     où il n'y a rien à voir, on tombe jusqu'à ce que les planètes gagnent leur
+     nom, et alors seulement on va jusqu'à chez nous. La même condition que la
+     carte du dessus, retournée. */
+  if(dest && dest.scene === "solaire" && APPROCHE.etat.dUa <= APPROCHE.ARRIVEE_UA*1.01
+     && !TERRELUNE.etat.actif){
+    const t = document.createElement("button");
+    t.className = "carte";
+    t.innerHTML = '<span class="duree"></span><h2></h2><p></p>';
+    t.querySelector("h2").textContent = T("tl.carte");
+    t.querySelector("p").textContent  = T("tl.carte.quoi");
+    t.onclick = () => { fermeTelescope(); lanceTerreLune(); };
+    liste.appendChild(t);
+  }
   liste.appendChild(b);
   /* LE PIED ET LES AVEUX SUIVENT LA DESTINATION.
 
@@ -4160,13 +4207,55 @@ function poseArrivee(dest){
   $("instrument").classList.add("vu", "arrivee");
 }
 
+/* LA CHUTE — le second mouvement de la scène solaire. Son état et sa loi sont
+   dans `approche.js` ; ici il n'y a que le panneau et les cadrans.
+   Le bandeau de vol se cache : ses chiffres viennent de `RECUL.etat.vol`, qui
+   parle d'un trajet TERMINÉ, et les garder pendant un autre mouvement serait un
+   mensonge silencieux. */
+function lanceChute(){
+  APPROCHE.tombe();
+  $("ch-vol").style.display = "none";
+  $("chrono").classList.add("vu");
+  $("ch-quoi").textContent = T("solaire.chute");
+  $("ch-note").textContent = T("chrono.note");
+  MUSIQUE.frappe(0.75);
+}
+
+/* LA DERNIÈRE MARCHE. La scène solaire se range — ses étiquettes parlent d'un
+   endroit qu'on vient de quitter — et la Terre prend la baie.
+
+   ON LUI TEND LA POSITION DU VAISSEAU, et le module fait le reste. Deux défauts
+   payés là, tous deux invisibles au calcul et flagrants à l'écran : la scène
+   posée du mauvais côté (`projette` rendait `null`, elle était dans le dos), et
+   l'ancre posée à une distance ÉCRITE alors que le voyage porte maintenant le
+   vaisseau à 1,7 × 10¹⁰ — elle glissait hors de la baie pendant la chute. Les
+   deux se règlent dans `terrelune.js`, à un seul endroit. */
+function lanceTerreLune(){
+  APPROCHE.range();
+  const H = vueH || cv.clientHeight;
+  TERRELUNE.ouvre(TERRELUNE.echelle(cam.focale, H), vueW || cv.clientWidth, cam.focale);
+  MUSIQUE.frappe(0.75);
+}
+
+function majChute(dt){
+  const A = APPROCHE, p = A.prix();
+  A.avance(dt);
+  majChrono(p.d_m, (A.DEPART_UA - A.etat.dUa) * SOLAIRE.UA);
+  if(!A.etat.chute){
+    inscritRegistre(T("solaire.chute"), p);
+    $("chrono").classList.remove("vu");
+    poseArrivee(TELESCOPE.trajet.dest);
+  }
+}
+
 function repartVoyage(){
   const retour = TELESCOPE.trajet.depart;
-  TELESCOPE.retour = true;
+  APPROCHE.range();
   // On repart : la Terre et la Lune s'effacent tout de suite. Les laisser
   // pendant le trajet de retour les ferait suivre le vaisseau sur vingt-sept
   // mille années-lumière, ce qui est le contraire d'un objet du monde.
   TERRELUNE.ferme();
+  TELESCOPE.retour = true;
   // `carte: true` — on revient vers l'astre que ces orbites entourent, et elles
   // grandissent en s'approchant pour de vraies raisons.
   TELESCOPE.trajet = { dest:{ nom:"chrono.retour" }, arrive:false, depart:RECUL.etat.distance,
@@ -4206,13 +4295,20 @@ function decoupeBaie(){
 function dessineVoyage(dt){
   const E = TELESCOPE;      // pas `T` : ce nom est celui des chaînes d'interface
 
-  /* L'ARRIVÉE PASSE AVANT LE REPLI : ce qui suit s'arrête net quand carte,
-     quadrillage et recul sont tous éteints — c'est-à-dire exactement à
-     l'arrivée au système solaire, où la carte ne se montre pas. */
+  /* LA DERNIÈRE MARCHE PASSE AVANT LE REPLI : ce qui suit s'arrête net quand
+     carte, quadrillage et recul sont tous éteints — c'est-à-dire exactement
+     là où la Terre et la Lune se montrent. */
   if(TERRELUNE.etat.actif){
     TERRELUNE.avance(dt);
+    /* La scène est ancrée sur LA BAIE, dans le repère de la pièce, et projetée
+       comme les vitres elles-mêmes. Elle ne dérive donc pas quand le vaisseau
+       se déplace — il ne se retourne pas —, et elle sort du champ dès qu'on
+       tourne la tête. Trois ancres essayées avant celle-là : `terrelune.js`
+       les raconte. */
     TERRELUNE.peint(ctx, vueW || cv.clientWidth, vueH || cv.clientHeight,
-                    { projette, decoupe: decoupeBaie, focale: cam.focale });
+                    { projette: p => projetteSalon(p, mvpSalon()),
+                      decoupe: decoupeBaie, focale: cam.focale,
+                      vitres: VAISSEAU.vitres() });
   }
 
   /* Le retrait vit ICI, et non dans `majVoyage`.
@@ -4287,6 +4383,22 @@ function dessineVoyage(dt){
     ETOILES_S.cadre(RECUL.etat.distance, RECUL.etat.d0, RECUL.etat.d1);
     ETOILES_S.dessine(ctx, W, H, dt, fond);
     ctx.restore();
+  }
+
+  /* L'AUTRE ARRIVÉE — et le Soleil n'est pas au centre : il est DEVANT, au bout
+     du rayon qu'on a suivi en partant. On projette un point lointain dans cette
+     direction avec LA caméra de la page, et `projette` rend `null` quand on lui
+     tourne le dos : on ne dessine alors rien: le rabattement au centre ÉTAIT le
+     défaut du 9 août. Le reste est dans `approche.js`. */
+  if(orbite > 0.005 && E.trajet && E.trajet.dest.scene === "solaire"){
+    const us = norm(salon.p), loin = Math.max(1e6, len(cam.pos)*1000);
+    const so = projette([cam.pos[0]+us[0]*loin, cam.pos[1]+us[1]*loin, cam.pos[2]+us[2]*loin]);
+    if(so){
+      ctx.save();
+      decoupeBaie();                    // dehors, pas devant la vitre
+      APPROCHE.dessine(ctx, so[0], so[1], cam.focale, { W, H }, orbite, MOTS_SOLAIRE);
+      ctx.restore();
+    }
   }
   /* LE QUADRILLAGE AUSSI SE VOIT PAR LA VITRE, ET PAS AILLEURS.
 
@@ -6420,7 +6532,7 @@ requestAnimationFrame(boucle);
 <script>
 if(/[?&]verif\b/.test(location.search)){
   var s = document.createElement("script");
-  s.src = "verif.js?v=c787cb3";
+  s.src = "verif.js?v=5fbc645";
   document.body.appendChild(s);
 }
 /* Et le protocole d'essai joué : `?test`. Il pose ses questions au moment où la
@@ -6430,7 +6542,7 @@ if(/[?&]verif\b/.test(location.search)){
    script contrôle mieux. */
 if(/[?&]test\b/.test(location.search)){
   var e = document.createElement("script");
-  e.src = "essai.js?v=c787cb3";
+  e.src = "essai.js?v=5fbc645";
   document.body.appendChild(e);
 }
 /* Et la séance de jugement : `?juge`. Elle ne demande QUE ce qu'aucun calcul ne
@@ -6439,7 +6551,7 @@ if(/[?&]test\b/.test(location.search)){
    Claude, prêt à coller. On ne lit rien, on ne navigue pas. */
 if(/[?&]juge\b/.test(location.search)){
   var j = document.createElement("script");
-  j.src = "juge.js?v=c787cb3";
+  j.src = "juge.js?v=5fbc645";
   document.body.appendChild(j);
 }
 </script>

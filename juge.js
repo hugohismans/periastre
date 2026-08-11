@@ -230,6 +230,47 @@ const TOUTES = [
      `outil-verif-juge.js` refuse désormais une question à options qui ne dit pas
      laquelle des deux formes elle prend. Déclarée, jamais devinée — la même
      manœuvre que `carte:` sur les destinations, ce matin. */
+  /* LA SCÈNE SOLAIRE — posée le 11 août 2026.
+
+     Hugo a tranché le cadrage le 10 au soir : « les deux, dans cet ordre ». On
+     arrive dans le nuage de Oort, où les huit planètes tiennent dans deux
+     pixels et où aucune étiquette n'a le droit d'exister ; puis on tombe, et les
+     noms deviennent vrais un par un.
+
+     TOUT LE RESTE SE MESURE, et c'est mesuré : le droit de nommer (14 + 19
+     contrôles), les deux bouts de la chute et sa physique (38), le fait que la
+     scène est devant la baie et non dans le dos (4, dans la page). Ce qui ne se
+     mesure pas est la seule chose qui compte ici, et c'est une question de
+     lecture : un écran presque vide peut se lire de deux façons, et l'une des
+     deux tue la scène.
+
+     La première option est le moment réel, panneau compris — le panneau EST ce
+     qui dit que le vide est voulu. Les trois autres l'enlèvent et descendent :
+     c'est le même endroit vu de plus en plus près. */
+  { id: "solaire-rien-a-voir",
+    titre: "« Il n'y a rien à voir » : intention ou panne ?",
+    libre: true,
+    inspection: true,
+    quoi: "Tu voulais des étiquettes sur les planètes, vues du nuage de Oort. "
+        + "Le calcul a dit non : de là-bas, les huit tiennent dans deux pixels, "
+        + "et deux étiquettes y pointeraient le même endroit. Tu as répondu "
+        + "« les deux, dans cet ordre » — alors on arrive dans le vide, et on "
+        + "tombe. Regarde l'arrivée : un point, et rien autour. Est-ce que ça se "
+        + "lit comme quelque chose qu'on a VOULU te montrer, ou comme un écran "
+        + "qui n'a pas fini de charger ? Puis descends, et dis-moi si le moment "
+        + "où les noms arrivent vaut l'attente. Le rythme que tu viens de garder "
+        + "— « fidèle » — fait tenir la moitié de la chute dans ses trois "
+        + "dernières secondes : c'est exact, et c'est peut-être trop long avant.",
+    pose: () => rejoueSceneSolaire(APPROCHE.DEPART_UA, true),
+    options: [
+      { nom: "l'arrivée, panneau compris", fait: () => rejoueSceneSolaire(APPROCHE.DEPART_UA, true) },
+      { nom: "le vide seul",               fait: () => rejoueSceneSolaire(APPROCHE.DEPART_UA, false) },
+      { nom: "à mi-chute",                 fait: () => rejoueSceneSolaire(1500, false) },
+      { nom: "en bas, les noms posés",     fait: () => rejoueSceneSolaire(APPROCHE.ARRIVEE_UA, false) },
+    ],
+    rend: () => rangeSceneSolaire(),
+  },
+
   { id: "main-gagne", ignore: true,   // ✅ ça va, 10 août au soir — angle gardé : « en partant, je tourne », fenêtre 1078 × 1304.
     titre: "Regarder ailleurs pendant le vol",
     libre: true,
@@ -730,8 +771,7 @@ function rejoueTerreLune(depuis){
   // La même mesure que la page — `vueH` d'abord, le canevas sinon. Prendre une
   // autre hauteur donnerait à la séance une échelle que le jeu n'a pas.
   const H = vueH || cv.clientHeight, W = vueW || cv.clientWidth;
-  const q = salon.p;
-  TERRELUNE.ouvre([-q[0], -q[1], -q[2]], TERRELUNE.echelle(cam.focale, H), W, cam.focale);
+  TERRELUNE.ouvre(TERRELUNE.echelle(cam.focale, H), W, cam.focale);
   TERRELUNE.etat.t = (depuis || 0) * TERRELUNE.etat.duree;
 }
 
@@ -861,6 +901,44 @@ function rangeAveux(){
   if($$("temps").classList.contains("vu"))   $$("b-temps").click();
   $$("aveux").classList.remove("vu");
   $$("notif").classList.remove("vu");
+}
+
+/* LA SCÈNE SOLAIRE, POSÉE À LA DISTANCE QU'ON VEUT.
+
+   On rejoue le VRAI départ puis on saute à l'arrivée : la séance montre ce
+   qu'il verra en jouant, jamais une scène montée à la main.
+
+   DEUX CHOSES SONT POSÉES ET NON JOUÉES, et il faut le dire. Le demi-tour du
+   vaisseau dure trois secondes ; commencer au milieu ferait juger une manœuvre
+   au lieu d'une vue. Et la chute dure dix-sept secondes ; on ne fait pas
+   attendre quelqu'un dix-sept secondes pour lui montrer un instant. Ce qui est
+   posé est donc l'ENDROIT d'où l'on regarde — le reste est le vrai code. */
+function rejoueSceneSolaire(dUa, panneau){
+  rendPoseArrivee();
+  fermeTelescope();
+  auSalon(0, 0.6, 0, -0.05);
+  if(TELESCOPE.trajet){ TELESCOPE.trajet = null; TELESCOPE.retour = false; }
+  rameneAuDepart();
+  TELESCOPE.carte = 0;
+  const d = DESTINATIONS.find(x => x.scene === "solaire");
+  if(!d) return;
+  lanceVoyage(d, VOYAGE.entre(distanceVaisseau(), d.d_m));
+  RECUL.etat.t = 0.999;
+  // `arrive` posé à vrai : sinon `arriveVoyage` rouvrirait le panneau à la
+  // première image, y compris dans les variantes qui le veulent fermé.
+  TELESCOPE.trajet.arrive = true;
+  TELESCOPE.trajet.mainPrise = false;
+  APPROCHE.pose(dUa);
+  salon.retourne = 1;
+  salon.lacet = 0; salon.tangage = -0.05;
+  TELESCOPE.carte = 1;
+  if(panneau) poseArrivee(d); else fermeTelescope();
+}
+
+function rangeSceneSolaire(){
+  APPROCHE.range();
+  salon.retourne = 0;
+  rangeVoyage();
 }
 
 function rejoueVoyageTourne(ecart){
