@@ -82,7 +82,12 @@
 
 const G = 6.67430e-11;          // m³ kg⁻¹ s⁻²   — CODATA 2018
 const C = 299792458;            // m/s           — exact par définition du mètre
-const UA_KM = 1.495978707e8;    // km            — UAI 2012 résolution B2
+/* L'unité astronomique n'avait pas de clé de source dans le registre ci-dessous,
+   alors que la règle de ce fichier est « aucune valeur sans une clé en face ».
+   Elle en a une : `iau2012b2`, la même que dans `contenu.js`. Et sa valeur est
+   gardée du dehors — `outil-verif-constantes.js` la redemande à la définition,
+   au chiffre près, dans les huit fichiers qui la portent. */
+const UA_KM = 1.495978707e8;    // km — source iau2012b2 (UAI 2012 résolution B2, exact)
 
 const D_LUNE_KM = 384400;       // demi-grand axe de l'orbite lunaire
 
@@ -494,9 +499,20 @@ function reliefAlt(az){
    source : ils disent « ce n'est pas une bille lisse », rien de plus. Le seul
    chiffre qui engage cette page, c'est le diamètre. */
 
+/* D'OÙ VIENT LA LUMIÈRE — un seul écrivain.
+
+   Le reflet de `limbe` disait implicitement d'où le Soleil éclaire : en haut à
+   gauche. Tant que ce fichier était seul à peindre, ça pouvait rester dans une
+   expression. `terrelune.js` calcule maintenant un terminateur sur les mêmes
+   globes, et deux éclairages sur un même astre, c'est la soupe de drapeaux sous
+   un autre nom — l'ombre tomberait d'un côté et le reflet de l'autre.
+
+   La direction sort donc de la formule et devient une valeur, lue par les deux. */
+const ECLAIRAGE = { dx: -0.32, dy: -0.34 };
+
 function limbe(ctx, x, y, r, teinte, eclair){
   const [R, V, B] = teinte;
-  const g = ctx.createRadialGradient(x - r*0.32, y - r*0.34, r*0.03, x, y, r*1.02);
+  const g = ctx.createRadialGradient(x + r*ECLAIRAGE.dx, y + r*ECLAIRAGE.dy, r*0.03, x, y, r*1.02);
   const f = (k) => `rgb(${Math.round(R*k)},${Math.round(V*k)},${Math.round(B*k)})`;
   g.addColorStop(0,    f(1.00 * eclair));
   g.addColorStop(0.55, f(0.86 * eclair));
@@ -1087,7 +1103,7 @@ function bilan(distance_km){
 
 global.LUNE = {
   // données et sources
-  ASTRES, SOURCES, D_LUNE_KM, UA_KM, G, C, THETA_LUNE, SGRA_ANNEAU_UAS,
+  ASTRES, SOURCES, D_LUNE_KM, UA_KM, G, C, THETA_LUNE, SGRA_ANNEAU_UAS, ECLAIRAGE,
   // calcul
   diametreApparent, diametreApparentTangente, enLunes, rayonSchwarzschild,
   acceleration, coefficientMaree, gmDe, masseDe, rayonDe, englobe,
@@ -1095,8 +1111,10 @@ global.LUNE = {
   // mise en vue
   etat, astre, choisis, suivant, basculeChampFige, grossis, avance,
   champEffectif, GROSSISSEMENT_MAX, CHAMP_MIN, CHAMP_MAX, CHAMP_FIGE,
-  // rendu et mise en forme
-  dessine, etiquetteAngle, nombre,
+  // rendu et mise en forme. `dessineAstre` sort parce que `terrelune.js` peint
+  // les MÊMES globes à l'arrivée du voyage : une seconde façon de dessiner la
+  // Terre donnerait deux Terres, et l'œil d'Hugo l'a déjà vu une fois.
+  dessine, dessineAstre, etiquetteAngle, nombre,
 };
 
 })(window);
