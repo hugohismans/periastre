@@ -262,7 +262,7 @@ const TOUTES = [
      question cesse d'être « lequel préfères-tu en séance » pour devenir « lequel
      le site doit-il jouer », ce qui n'est pas la même chose et n'a jamais été
      posé. */
-  { id: "rythme-grand-trajet",
+  { id: "rythme-grand-trajet", ignore: true,   // ✅ ça va, 11 août sur iPhone — angle gardé : « fidèle, au départ ». Le défaut de « fidèle » est à la FIN, pas au départ : voir A-REGARDER.md.
     titre: "Le voyage vers le système solaire : quel rythme, POUR DE BON ?",
     libre: true,
     inspection: true,

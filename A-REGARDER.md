@@ -129,6 +129,30 @@ ton œil qui tranche, pas mon argument.
 *Chiffres dérivés des demi-grands axes relevés au JPL et de l'ouverture de
 caméra de `echelle.js` (0,9 radian, soit 171,9″ par pixel à 1 080 points).*
 
+## ✅ LE RYTHME DU GRAND TRAJET — tranché le 11 août, sur iPhone
+
+**« Quel rythme, POUR DE BON ? »** → ✅ **ça va**, regardé « fidèle, au départ »,
+sur iPhone (430 × 711, échelle 0,62). **« Fidèle » reste donc ce que le site
+joue**, et c'est la première fois que ce choix est fait en connaissance de cause :
+le bouton existe désormais, et son verdict du 9 août portait sur un rythme que
+personne ne voyait en jouant.
+
+**Deux précisions honnêtes, parce qu'un verdict se lit avec ce qu'il a vu.**
+
+**L'angle gardé est celui où « fidèle » est bon.** Son défaut mesuré n'est pas au
+départ mais à la FIN : 3,93 décades sur 9,10 dans la première seconde, puis
+**onze secondes d'écran figé** pendant le freinage. Les angles « fidèle, en
+freinage » et « régulier » existaient dans la séance ; il a retenu celui du
+départ. La question est rayée puisqu'il a tranché — **mais si l'écran figé le
+gêne un jour en jouant, elle revient**, et le bouton est là pour qu'il en change
+sans nous.
+
+**Et c'est le premier verdict rendu sur téléphone depuis longtemps**, à l'échelle
+0,62 choisie par la résolution adaptative. Le grand trajet n'avait jamais été
+jugé sur un appareil qui descend d'un palier.
+
+---
+
 ## ✅ REGARDER AILLEURS PENDANT LE VOL — jugé le 10 août au soir
 
 **« Regarder ailleurs pendant le vol »** → ✅ **ça va**, regardé « en partant, je
