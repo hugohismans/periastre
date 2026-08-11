@@ -15,8 +15,36 @@ Tout ce qui ne peut pas se vérifier par la mesure, et qui attend donc qu'un
 humain regarde. **Rien ici ne bloque quoi que ce soit** — c'est une file, pas
 une dette. Elle existe pour que ça ne se perde pas dans une conversation.
 
-Mise à jour le 10 août 2026 au soir, après la séance sur le regard
-en vol et le relevé aux sources du système solaire.
+Mise à jour le 11 août 2026, après le branchement de la Terre et de la Lune
+à l'arrivée du voyage.
+
+---
+
+## 👁 L'ARRIVÉE : LA TERRE ET LA LUNE — posée le 11 août, elle t'attend
+
+**C'est la question du jour, et elle est dans `?juge`.** Tu l'attendais depuis
+deux jours : le voyage vers le système solaire arrive enfin quelque part. On
+tombe vers la Terre, elle apparaît à l'instant exact où son disque atteint un
+demi-pixel, elle grossit, la Lune passe et sort par le côté, et la Terre finit
+par remplir la baie.
+
+**Ce que je ne sais pas trancher, et qui est pour toi.** La Terre et la Lune sont
+séparées de trente diamètres terrestres. Au moment où l'on voit LES DEUX, la
+Terre ne fait qu'une vingtaine de pixels — c'est la vérité, et c'est même ce que
+la scène est venue dire : aucune image honnête ne peut montrer les deux en gros.
+Mais je peux décaler le cadrage pour que le couple tienne en diagonale, ce qui
+doublerait la Terre à cet instant. Ce serait alors un cadrage choisi, pas subi.
+
+> **Est-ce que le moment « les deux ensemble » est trop maigre pour rester tel
+> quel ?** Quatre angles dans la séance : l'apparition, les deux ensemble, la
+> Lune qui sort, la Terre en grand.
+
+**Et une chose que je dois t'avouer avant que tu regardes.** Ce ciel noir est
+peint. Le vaisseau ne se déplace jamais — le voyage est un diagramme — donc la
+vitre montrait encore le trou noir qu'on venait de quitter, pendant que le
+panneau écrivait qu'il était à vingt-sept mille années-lumière derrière. Je le
+couvre pour montrer la Terre, et c'est écrit dans les aveux. Si ça te gêne, dis-le :
+c'est réversible.
 
 ---
 

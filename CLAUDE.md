@@ -83,6 +83,7 @@ node outil-verif-arpente.js  # marcher dans la pièce : parois, meubles, rampe
 node outil-verif-etoiles.js  # les orbites S, contre une bissection arbitre
 node outil-verif-ncorps.js   # énergie, moment cinétique, résonances, Roche
 node outil-verif-lune.js     # la Lune remplacée
+node outil-verif-terrelune.js # l'arrivée : la Terre et la Lune, la chute, le terminateur
 node outil-verif-contenu.js  # le contrat : sources, liens, parité fr/en
 ```
 
@@ -141,8 +142,10 @@ avec son outil ; ce qui reste dans `index.html` est du rendu et de l'orchestrati
 | `contrat.js` | ce qu'une information doit porter pour entrer |
 | `vaisseau.js` | la géométrie du salon, calculée |
 | `etoiles.js` | les dix étoiles S et leur carte |
+| `lune.js` | les astres, leurs rayons sourcés, l'angle apparent en arcsin |
+| `terrelune.js` | l'arrivée du voyage : la chute vers la Terre et la Lune |
 | `contenu.js` / `.en.js` | **la seule source de vérité factuelle** |
-| `ncorps.js`, `lune.js`, `echelle.js`, `aberration.js` | écrits, éprouvés, **pas encore branchés** — `node tout.js` dit pourquoi, un par un |
+| `ncorps.js`, `echelle.js`, `aberration.js` | écrits, éprouvés, **pas encore branchés** — `node tout.js` dit pourquoi, un par un |
 | `kerrschild.js` | **arbitre, jamais chargé** : il éprouve le nuanceur du dehors (règle 3) |
 
 Les modules ne touchent ni au DOM ni à WebGL : c'est ce qui les rend vérifiables
@@ -185,8 +188,10 @@ tenir à jour au moment du cap, ou ne pas s'y fier.
 
 **Fait :** la vérification sans humain, le sourçage, le bilingue, le voyage, la
 carte des étoiles, F1 à F5, le carnet du voyageur, le mode simulation/cinéma, le
-départ pour le système solaire. Le chantier courant est **la descente au
-périastre** (`CHANTIER-P.md`), P1 et P2 clos, P3 en cours.
+départ pour le système solaire, et depuis le 11 août **l'arrivée** : on tombe
+vers la Terre et la Lune, et la baie montre enfin quelque chose. Le chantier
+courant est **la descente au périastre** (`CHANTIER-P.md`), P1 et P2 clos,
+P3 en cours.
 
 **Ouvert, et tranché par personne :**
 - **Le système solaire vu de loin, avec ses étiquettes** — et c'est le même
@@ -198,6 +203,14 @@ périastre** (`CHANTIER-P.md`), P1 et P2 clos, P3 en cours.
   nuanceur : jusqu'où l'atténuer se décide en regardant.
 - **Peindre le ciel de l'amas** — il n'y fait jamais nuit ; notre fond noir est
   faux en soi. Décision d'image, elle appartient à Hugo (P2.7).
+- **Le vaisseau ne se déplace jamais** — le voyage est un diagramme, le salon
+  reste à seize rayons. À l'arrivée au système solaire, la baie peignait encore
+  le trou noir qu'on venait de quitter ; on la voile, et c'est le douzième
+  compromis déclaré. Le jour où le vaisseau bouge vraiment, le voile tombe seul.
+- **Le cadrage de l'arrivée** : quand on voit la Terre ET la Lune, la Terre fait
+  vingt pixels — trente diamètres terrestres d'écart, aucune image ne peut les
+  montrer gros à la fois. Fidèle, ou décalé pour doubler la Terre ? Posé dans
+  `?juge` le 11 août, il attend son œil.
 - **Une nouvelle aile du vaisseau** avec la salle de tir balistique. C'est la
   demande d'Hugo du 6 août : « agrandir le vaisseau, mettre le canon dans une
   nouvelle salle ». `vol.js` fait déjà toute la mécanique. (P4, P5)

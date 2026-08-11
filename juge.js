@@ -558,6 +558,58 @@ const TOUTES = [
     rend: () => rangeRendu(),
   },
 
+  /* LA QUESTION DU 11 AOÛT, ET C'EST UNE HÉSITATION QUE JE NE TRANCHE PAS SEUL.
+
+     Hugo attendait cette arrivée depuis deux jours : « tu m'en parles, tu m'en
+     parles, mais toujours pas vu ». Elle existe. Ce que je ne sais pas, c'est
+     si elle vaut le coup d'œil, et surtout si le passage où l'on voit LES DEUX
+     n'est pas trop maigre.
+
+     Le fait, mesuré : la Terre et la Lune sont séparées de trente diamètres
+     terrestres. Au dernier instant où la Lune tient dans la baie, la Terre ne
+     fait qu'une vingtaine de pixels. Aucune image ne peut montrer les deux gros
+     à la fois — c'est la scène qui le dit, et c'est même ce qu'elle est venue
+     dire. Mais on peut TRICHER : décaler la Terre vers le bord pour que le
+     couple tienne en diagonale, ce qui doublerait sa taille au moment où l'on
+     voit les deux, au prix d'un cadrage choisi et non subi.
+
+     Je ne le fais pas de mon côté. C'est sa règle du 7 août — « ce genre de
+     questions, tu peux me les poser » — et c'est exactement le cas : une
+     hésitation entre le fidèle et le lisible. Les quatre options sont des
+     ANGLES DE VUE sur la même chute, pas quatre propositions, donc
+     `inspection: true`. Le champ libre est là pour le vrai verdict : est-ce
+     qu'on triche sur le cadrage, oui ou non. */
+  { id: "arrivee-terre-lune",
+    titre: "L'arrivée : voit-on enfin la Terre et la Lune ?",
+    libre: true,
+    inspection: true,
+    quoi: "Tu l'attendais. Le voyage vers le système solaire s'arrêtait sur un "
+        + "panneau devant une vitre vide ; maintenant on tombe vers la Terre. "
+        + "Elle apparaît à l'instant exact où son disque atteint un demi-pixel, "
+        + "elle grossit, la Lune passe, sort par le côté, et la Terre finit par "
+        + "remplir la baie. Tout est calculé : les tailles, l'écart, la "
+        + "frontière jour/nuit. "
+        + "Regarde les quatre moments, et dis-moi surtout une chose. Quand on "
+        + "voit LES DEUX, la Terre ne fait qu'une vingtaine de pixels — parce "
+        + "que la Lune est à trente diamètres terrestres, et qu'aucune image "
+        + "honnête ne peut montrer les deux en gros. Je peux décaler le cadrage "
+        + "pour doubler la Terre à ce moment-là, mais ce serait un cadrage "
+        + "choisi et non subi. Est-ce que le moment « les deux ensemble » est "
+        + "trop maigre pour rester tel quel ? "
+        + "Et une chose que je dois t'avouer : ce ciel noir est peint. Le "
+        + "vaisseau ne se déplace jamais, alors la vitre montrait encore le trou "
+        + "noir qu'on venait de quitter. On le couvre, et c'est écrit dans les "
+        + "aveux.",
+    pose: () => rejoueTerreLune(0.42),
+    options: [
+      { nom: "l'apparition",        fait: () => rejoueTerreLune(0.03) },
+      { nom: "les deux ensemble",   fait: () => rejoueTerreLune(0.42) },
+      { nom: "la Lune qui sort",    fait: () => rejoueTerreLune(0.58) },
+      { nom: "la Terre en grand",   fait: () => rejoueTerreLune(0.94) },
+    ],
+    rend: () => rangeTerreLune(),
+  },
+
   { id: "arrivee-hors-file", ignore: true,
     titre: "L'arrivée du voyage",
     libre: true,
@@ -652,6 +704,40 @@ function rejoueGrandTrajet(rythme, depuis){
   const d = DESTINATIONS.find(x => x.id === "soleil");
   lanceVoyage(d, VOYAGE.entre(distanceVaisseau(), d.d_m));
   RECUL.etat.t = depuis || 0;
+}
+
+/* L'ARRIVÉE TERRE–LUNE, POSÉE À L'INSTANT QU'ON VEUT.
+
+   Règle 5 : un contrôle maîtrise l'état d'où il mesure. On ne se contente donc
+   pas d'ouvrir la scène — on démonte d'abord tout ce qui pourrait la recouvrir
+   (un trajet armé, la carte des étoiles, le panneau), on replace la pièce, et
+   ON REGARDE OÙ LE VAISSEAU EST avant d'en déduire la direction de la baie.
+   `couture()` avait été piégé exactement là : il réglait une caméra que
+   l'ouverture cinématique remettait ailleurs sans rien dire.
+
+   `depuis` est l'avancement de la chute, entre 0 et 1. Elle continue de jouer
+   à partir de là : c'est une scène, pas une image fixe, et la juger figée ne
+   dirait rien du rythme. */
+function rejoueTerreLune(depuis){
+  rendPoseArrivee();
+  fermeTelescope();
+  auSalon(0, 0.6, 0, -0.05);
+  if(TELESCOPE.trajet){ TELESCOPE.trajet = null; TELESCOPE.retour = false; }
+  rameneAuDepart();
+  RECUL.etat.actif = false;
+  TELESCOPE.carte = 0;
+  $$("chrono").classList.remove("vu");
+  // La même mesure que la page — `vueH` d'abord, le canevas sinon. Prendre une
+  // autre hauteur donnerait à la séance une échelle que le jeu n'a pas.
+  const H = vueH || cv.clientHeight, W = vueW || cv.clientWidth;
+  const q = salon.p;
+  TERRELUNE.ouvre([-q[0], -q[1], -q[2]], TERRELUNE.echelle(cam.focale, H), W, cam.focale);
+  TERRELUNE.etat.t = (depuis || 0) * TERRELUNE.etat.duree;
+}
+
+function rangeTerreLune(){
+  TERRELUNE.ferme();
+  rangeVoyage();
 }
 
 function rangeGrandTrajet(){

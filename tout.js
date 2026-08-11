@@ -239,8 +239,12 @@ const POURQUOI_PAS_BRANCHE = {
   "echelle.js":
     "EN ATTENTE D'UNE DÉCISION — moteur de voyage d'échelle sans lieu où vivre. "
     + "À trancher avec le chantier des scènes, pas avant.",
-  "lune.js":
-    "BRANCHÉ — DÉCIDÉ PAR HUGO LE 11 AOÛT 2026. Le reproche du 6 août — « pas sourçable » — n'est plus vrai : le système solaire est entré dans contenu.js le 10 août avec ses DOI, et quatre des sources de ce module y sont déjà. Sa raison à lui, et elle est juste : « tu m'en parles, tu m'en parles, mais toujours pas vu ». Ce qui reste est de la mise aux normes, pas un obstacle de fond : ses textes sont en français en dur (lune.js:171-232, 851-963) et son registre de sources est parallèle au contrat. 58 affirmations le gardent déjà.",
+  /* `lune.js` N'EST PLUS ICI, ET C'EST LE POINT — branché le 11 août 2026.
+     Il a passé cinq jours dans cette liste sous le reproche « pas sourçable ».
+     Le reproche est tombé quand le système solaire est entré dans `contenu.js`,
+     et Hugo a tranché : « tu m'en parles, tu m'en parles, mais toujours pas
+     vu ». `terrelune.js` prend ses astres et l'arrivée du voyage les montre.
+     Une ligne qui disparaît d'ici vaut mieux qu'une ligne bien écrite. */
 };
 
 if(horsPage.length){

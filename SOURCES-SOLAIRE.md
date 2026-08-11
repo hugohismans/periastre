@@ -192,22 +192,38 @@ en fait à lui seul 71 %.
 
 ---
 
-## 6. Ce qui reste dans `lune.js` et n'est pas monté
+## 6. Ce qui restait dans `lune.js` — **monté le 11 août 2026**
 
-`lune.js:89-148` tient un registre parallèle au contrat. Trois de ses entrées y
-restent, et ce n'est pas un oubli :
+Cette section disait, le 10 août : « elles monteront avec la fiche qui les
+emploiera — `lune.js` branché, ou la fiche des tailles apparentes ». C'est fait.
+`lune.js` est entré dans la page, l'arrivée du voyage montre la Terre et la Lune,
+et la fiche **« La Terre et la Lune, de loin »** les cite toutes les quatre.
 
-| clé | pourquoi elle reste |
+**Les trois pages du JPL ont été rouvertes ce jour-là** et les valeurs relues à
+leur ligne, plutôt que recopiées du module — la règle 7 vaut aussi pour un
+chiffre déjà écrit dans le dépôt :
+
+| clé | ce qui a été relu, et où |
 |---|---|
-| `jplSatellites` | rayon et GM de la **Lune** — la fiche du système solaire vu du dehors n'en dit rien |
-| `jplElements` | demi-grand axe de l'**orbite lunaire** — idem |
-| `jplPlanetes` | rayons moyens des planètes ; la fiche dérive celui de Jupiter des deux rayons nominaux de l'UAI (rayon moyen volumétrique = ∛(Rₑ²Rₚ), la formule que Prša et al. donnent pour les volumes nominaux), donc une source de moins |
-| `codata2018` | G et c ; la fiche n'a besoin ni de l'un ni de l'autre |
+| `jplPlanetes` | rayon moyen de la Terre **6 371,0084 km**, masse **5,972 17 × 10²⁴ kg** — `ssd.jpl.nasa.gov/planets/phys_par.html` |
+| `jplSatellites` | rayon moyen de la Lune **1 737,4 km**, GM **4 902,800 km³/s²** — `ssd.jpl.nasa.gov/sats/phys_par/` |
+| `jplElements` | demi-grand axe lunaire **384 400 km**, et sur la même ligne l'excentricité **0,0554**, l'éphéméride **DE405/LE405**, plan écliptique, époque 2000-01-01,5 — `ssd.jpl.nasa.gov/sats/elem/` |
+| `codata2018` | G = **6,674 30 × 10⁻¹¹** — `ssd.jpl.nasa.gov/astro_par.html` |
 
-Le contrat refuse une source déclarée que personne ne cite, et il a raison : une
-référence morte ment sur ce qui a été lu. Elles monteront avec la fiche qui les
-emploiera — `lune.js` branché, ou la fiche des tailles apparentes.
+**Trois réserves relevées au passage**, et la fiche les porte plutôt que de les
+taire : 384 400 km est un demi-grand axe et non une distance du jour (± 5,5 % au
+fil du mois) ; les deux nombres de la Lune ne viennent pas de la même éphéméride
+(GM de DE440, éléments moyens de DE405/LE405) ; et c'est GM qui est mesuré, pas
+la masse — repasser à une masse coûte les six chiffres de G, d'où un rapport
+Terre/Lune de 81,30 à cinq chiffres et non onze.
 
-`iau2015b3` en revanche est **montée**, et son entrée dans `lune.js` reste : les
-deux registres portent maintenant la même référence, ce qui est une copie de
-plus. Elle disparaîtra quand `lune.js` lira le contrat.
+`birkhoff1923` et `schwarzschild1916` restent dans le registre de `lune.js` sans
+monter : la fiche de l'arrivée ne parle pas de l'anticlimax du trou noir de masse
+lunaire, et le contrat refuse toujours, à raison, une source que personne ne cite.
+
+Les deux registres portent donc encore des entrées communes — `iau2015b3`,
+`jplPlanetes`, `jplSatellites`, `jplElements`, `codata2018`. C'est une copie, et
+elle est assumée pour la même raison que les neuf déclarations de l'unité
+astronomique : le remède est de les GARDER, pas de les fondre dans un module que
+`lune.html`, page autonome, devrait charger. Elle disparaîtra quand `lune.js`
+lira le contrat.

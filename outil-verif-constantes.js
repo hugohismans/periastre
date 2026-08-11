@@ -18,10 +18,11 @@
    portait des distances DIFFÉRENTES de celles de la page — mille unités
    astronomiques ici, dix mille là-bas — sans que personne puisse le voir.
 
-   Réunir les neuf déclarations en une seule demanderait un module partagé que
-   `lune.js` et `echelle.js` devraient charger, alors qu'aucun des deux n'est
-   branché à la page. Ce serait une dette de plus, pas une de moins. On garde
-   donc les copies ET ON LES GARDE — c'est le même remède que pour la liste des
+   Réunir les neuf déclarations en une seule demanderait un module partagé.
+   `lune.js` est entré dans la page le 11 août ; `echelle.js` n'y est toujours
+   pas, et le module commun devrait donc vivre pour un seul client réel. Ce
+   serait une dette de plus, pas une de moins. On garde donc les copies ET ON
+   LES GARDE — c'est le même remède que pour la liste des
    lieux d'aveu, recopiée dans `aveu.js` et surveillée depuis `contrat.js`.
 
    ---------------------------------------------------------------------------

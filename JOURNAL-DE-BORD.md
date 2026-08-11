@@ -340,3 +340,88 @@ questions sur le voyage refait.
 État à la fin de la journée : 86 contrôles dans la page, 13 outils hors
 navigateur, tout au vert. Séance de jugement vide — rien à faire juger tant que
 le voyage n'est pas refait.
+
+
+---
+
+## 11 août 2026 — l'arrivée montre enfin la Terre et la Lune
+
+> « J'aimerais bien qu'on voie enfin cette Terre et cette Lune, parce que tu m'en
+> parles, tu m'en parles, mais toujours pas vu. » — Hugo, et il avait raison :
+> on lui promettait cette arrivée depuis deux jours et la baie était vide.
+
+Il a tranché la contradiction qui bloquait — `lune.js` était dit « branché » dans
+`CHANTIER-P.md` et « écarté, pas sourçable » dans `tout.js`. **On le branche.**
+
+### Ce qui existe maintenant
+
+- **`terrelune.js`** — la chute vers le couple Terre–Lune, à l'arrivée du voyage.
+  Elle part de la distance où le disque de la Terre atteint **un demi-pixel**
+  (le seuil de `lune.js` : sous lui on ne dessine rien, et le prendre comme
+  départ fait commencer la scène à l'instant où la Terre a le droit d'exister) et
+  finit quand elle occupe la moitié de la baie. Entre les deux, taux relatif
+  constant — la loi de `recul.js`, pas une quatrième.
+- **Aucun chiffre d'astre dans le fichier**, et un contrôle relit son source pour
+  l'exiger. Rayons, masses et demi-grand axe lunaire viennent de `lune.js`.
+- Les pixels viennent de la **focale du site**, pas d'un réglage : `projette`
+  pose px = tan(α)·F·H/2, et c'est cette échelle-là qui est employée.
+- Le **terminateur est calculé**, et les deux astres reçoivent la même lumière —
+  ce qui est physique : à 384 400 km l'un de l'autre et à 1 ua du Soleil, leurs
+  directions d'éclairement diffèrent de 0,147°.
+
+### Ce que la scène est venue dire, et que j'ai failli rater deux fois
+
+La Terre et la Lune sont séparées de **trente diamètres terrestres**. Au dernier
+instant où la Lune tient dans la baie, la Terre ne fait que **dix-huit pixels**.
+Aucune image ne peut montrer les deux astres gros à la fois. La chute traverse
+donc ce moment au lieu de s'y arrêter : on voit les deux et le gouffre, puis la
+Lune sort par le côté et la Terre grandit jusqu'à remplir la vitre.
+
+### Trois défauts trouvés EN REGARDANT, et un aveu
+
+Aucun des trois n'était un nombre faux. Ils se sont vus en jouant la scène dans
+un navigateur, et chacun a laissé un contrôle derrière lui.
+
+1. **La scène était dans le dos du joueur.** Je l'avais posée à l'opposé du trou
+   noir — l'avant du voyage — et `projette` rendait `null`. La baie ne regarde
+   que dans un sens, et c'est ce sens qui commande.
+2. **Le voile du ciel tombait d'un coup.** Après trente-quatre secondes de
+   nébuleuse, l'arrivée se lisait comme un écran qui s'éteint. Il monte en 1,2 s.
+3. **L'azimut de la Lune — et là c'est le contrôle qui m'a corrigé.** J'avais cru
+   la voir sortir par le haut, j'ai couché l'azimut à plat « pour employer la
+   largeur ». Le contrôle a chiffré les deux : à plat elle sort à 766 000 km, en
+   diagonale à 720 000. La diagonale est le point le plus éloigné du centre dans
+   une baie large et basse, et c'est démontrable — min(L/|cos a|, H/|sin a|) est
+   maximal quand tan a = H/L. La règle 3 marche dans les deux sens.
+
+**Et l'aveu, qui est le vrai apport de la journée** : *le vaisseau ne se déplace
+jamais.* Le recul est un diagramme ; le salon reste à seize rayons de
+Sagittarius A*. À l'arrivée, la baie peignait donc encore le trou noir qu'on
+venait de quitter, pendant que le panneau écrivait qu'il était « à vingt-sept
+mille années-lumière derrière vous ». L'image contredisait le texte, depuis le
+jour où cette destination a été ouverte. On voile ce ciel pour montrer la Terre,
+et **on le déclare** — douzième compromis, sous `arrivee-soleil`.
+
+### Le contrat
+
+- **Fiche « La Terre et la Lune, de loin »**, trois niveaux dans les deux langues.
+- **Quatre sources montent** du registre parallèle de `lune.js` au contrat :
+  `jplPlanetes`, `jplSatellites`, `jplElements`, `codata2018`. `SOURCES-SOLAIRE.md`
+  avait écrit le 10 août qu'elles monteraient « avec la fiche qui les emploiera —
+  `lune.js` branché ». Les trois pages du JPL ont été **rouvertes** et les quatre
+  nombres relus à leur ligne plutôt que recopiés du module.
+- Planchers relevés : 51 sources avec lien (de 47), 254 textes sourcés (de 246),
+  12 compromis déclarés (de 11).
+- `UA_KM` porte enfin sa clé de source dans `lune.js`.
+- La ligne `lune.js` de `POURQUOI_PAS_BRANCHE` **disparaît**. Elle y était depuis
+  cinq jours.
+
+### Ce qui reste ouvert, et qui lui appartient
+
+La question est dans `?juge` : **le moment où l'on voit les deux est-il trop
+maigre ?** On peut décaler le cadrage pour doubler la Terre à cet instant, au
+prix d'un cadrage choisi et non subi. C'est une hésitation entre le fidèle et le
+lisible, et sa règle du 7 août dit de ne pas la trancher seul.
+
+**76 contrôles dans `outil-verif-terrelune.js`**, six sabotages. `node tout.js` :
+44 outils, aucun échec.
