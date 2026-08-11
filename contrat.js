@@ -71,8 +71,17 @@ const PLANCHERS = {
      JPL, la brochure du BIPM qui porte l'unité astronomique et l'attribue à la
      résolution de 2012, Prša et al. pour les valeurs nominales, DE440 pour les
      masses, Dones et al. pour le nuage de Oort. Les deux manquantes n'ont pas
-     bougé, et ne bougeront pas. */
-  sourcesAvecLien: 47,
+     bougé, et ne bougeront pas.
+
+     51 sur 53 le 11 août 2026 : les quatre sources de la Terre et de la Lune
+     montent enfin. Elles vivaient dans le registre parallèle de `lune.js`
+     depuis le 5 août, et `SOURCES-SOLAIRE.md` avait écrit pourquoi elles
+     n'étaient pas montées le 10 — le contrat refuse une source que personne ne
+     cite, et il a raison. Il fallait une fiche qui les emploie ; l'arrivée du
+     voyage la donne. Les trois pages du JPL ont été rouvertes ce jour-là et les
+     quatre nombres relus à leur ligne, plutôt que recopiés du module. Les deux
+     manquantes sont toujours les mêmes revues d'astronautique non indexées. */
+  sourcesAvecLien: 51,
   sourcesAvecPlus: 0,    // rien encore : le champ vient de naître
 
   /* 228 unités de texte sur 248 citent une source. Les vingt qui n'en citent
@@ -91,8 +100,16 @@ const PLANCHERS = {
      — quatre textes de plus (deux modes, deux langues), tous sourcés.
 
      246 sur 286 le 10 août 2026 : la fiche « Le système solaire vu du dehors »
-     apporte six textes (trois niveaux, deux langues), tous sourcés. */
-  textesSources: 246,
+     apporte six textes (trois niveaux, deux langues), tous sourcés.
+
+     252 sur 292 le 11 août 2026 : la fiche « La Terre et la Lune, de loin »
+     apporte six textes de plus, tous sourcés. C'est ce que l'arrivée du voyage
+     AFFIRME, séparé de ce qu'elle dessine — la scène, elle, ne porte pas une
+     phrase.
+
+     254 sur 294 le même jour : le voile du ciel de l'arrivée entre comme
+     compromis déclaré, dans les deux langues, avec sa source. */
+  textesSources: 254,
 
   /* LES COMPROMIS DÉCLARÉS.
 
@@ -116,8 +133,15 @@ const PLANCHERS = {
      2026, à la valeur mesurée.
 
      Le plancher garantit qu'aucun ne disparaît en silence — et disparaître en
-     silence est exactement ce qu'un compromis gênant aimerait faire. */
-  compromisDeclares: 11,
+     silence est exactement ce qu'un compromis gênant aimerait faire.
+
+     Douze le 11 août 2026, et le douzième a été TROUVÉ EN REGARDANT — aucun
+     calcul ne pouvait l'attraper, puisque aucun nombre n'était faux. Le
+     vaisseau ne se déplace jamais : à l'arrivée au système solaire, la baie
+     peignait encore le trou noir qu'on venait de quitter, pendant que le
+     panneau écrivait qu'il était à vingt-sept mille années-lumière derrière.
+     On voile ce ciel pour montrer la Terre, et l'on dit qu'on le voile. */
+  compromisDeclares: 12,
 };
 
 // Les endroits du site où l'on peut rencontrer un compromis. Fermé exprès : un

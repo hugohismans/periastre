@@ -78,6 +78,17 @@ Object.assign(window.UI, {
     "light years behind you, and nothing can pick it out any more: the orbits " +
     "you watched turning now fall far below a single pixel, just as the black " +
     "hole itself did earlier. What you have just been shown is the distance.",
+  /* ---- the Earth-Moon arrival, read by terrelune.js ---- */
+  "tl.titre":              "The Earth and the Moon",
+  "tl.terre":              "Earth",
+  "tl.lune":               "the Moon",
+  "tl.ecart":              "further off in the sky",
+  "tl.dehors":             "the Moon has left the frame — it is",
+  "tl.pasEncore":          "the Moon is still under a pixel: nothing is drawn",
+  "tl.declare":
+    "sizes and separation computed · relief evoked · the hour of the scene is a "
+    + "choice, the same light for both",
+
   "tele.retour.etiq":      "return",
   "tele.retour.titre":     "Back towards the black hole",
   "tele.retour.quoi":      "The same trip the other way, at the same price in time.",

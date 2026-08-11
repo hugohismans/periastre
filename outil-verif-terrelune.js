@@ -240,27 +240,152 @@ titre("4. On ne peut pas avoir les deux gros — et c'est le sujet");
 
 {
   const H = 1304, Wp = 1078, k = TL.echelle(FOCALE, H);
-  const dC = TL.distanceCouple(k, Wp);
+  const dS = TL.distanceSortieLune(k, Wp);
   const d1 = TL.distanceTerreCadree(FOCALE);
 
-  point("le moment où le couple tient dans la baie est PLUS LOIN que le but",
-        dC > d1, "dCouple > d1",
-        Math.round(dC) + " km > " + Math.round(d1) + " km",
-        "la chute le traverse : on voit le couple, puis la Lune sort et la "
-        + "Terre grandit. S'arrêter là aurait donné une Terre minuscule");
+  /* Le point de sortie doit être MESURÉ, pas cru : on demande où tombe le bord
+     de la Lune à cette distance, et on exige le bord de la fenêtre. */
+  point("à la distance de sortie, la Lune touche exactement le bord du cadre",
+        proche(TL.ecartLunePx(dS, k), Wp/2, 1e-9), Wp/2,
+        TL.ecartLunePx(dS, k).toPrecision(10));
 
-  const rTc = TL.pixels(TL.scene(dC).terre.alpha, k);
-  point("et à ce moment-là la Terre est petite — c'est le gouffre qu'on montre",
-        2*rTc < 0.06*H, "< 6 % de la hauteur",
-        (2*rTc).toFixed(1) + " px sur " + H,
-        "trente diamètres terrestres d'écart : aucune image ne peut montrer "
-        + "les deux astres gros à la fois, et c'est ça qu'on est venu voir");
+  point("ce moment est PLUS LOIN que le but de la chute",
+        dS > d1, "dSortie > d1",
+        Math.round(dS) + " km > " + Math.round(d1) + " km",
+        "la chute le traverse : on voit les deux, puis la Lune sort et la "
+        + "Terre grandit. S'arrêter là aurait donné une Terre de dix-huit pixels");
+
+  const rTs = TL.pixels(TL.scene(dS).terre.alpha, k);
+  point("et à ce moment-là la Terre est encore une bille — c'est le gouffre",
+        2*rTs < 0.04*H, "< 4 % de la hauteur",
+        (2*rTs).toFixed(1) + " px sur " + H,
+        "trente diamètres terrestres d'écart pour cinquante-six degrés de "
+        + "baie : aucune image ne peut montrer les deux astres gros à la fois, "
+        + "et c'est ça qu'on est venu voir");
+
+  /* Mais la Lune doit être DESSINÉE à ce moment-là, sinon « on voit les deux »
+     est faux et la scène ne tient pas sa promesse. */
+  const sS = TL.scene(dS);
+  point("et la Lune y est bien dessinée, pas sous le demi-pixel",
+        TL.visible(TL.pixels(sS.lune.alpha, k)) === true,
+        "dessinée", (2*TL.pixels(sS.lune.alpha, k)).toFixed(1) + " px",
+        "sans ça, « on voit les deux » serait une phrase et pas une image");
 
   const s1 = TL.scene(d1);
   point("au bout, la Lune est hors du champ de la baie",
         Math.tan(s1.ecart)*k > Wp/2, "au-delà de la demi-largeur",
         Math.round(Math.tan(s1.ecart)*k) + " px > " + Wp/2,
         "la légende doit alors dire où elle est allée, et elle le fait");
+
+  /* La fenêtre où l'on voit les deux ne doit pas être un clin d'œil. On la
+     mesure EN TEMPS, sur la loi de chute réelle : combien de secondes des neuf
+     se passent avec les deux astres à l'écran et dessinés. */
+  const d0 = TL.distanceDemiPixel(k);
+  const uDe = Math.log(d0/dS) / Math.log(d0/d1);     // instant de la sortie
+  // et l'instant où la Lune atteint le demi-pixel : sa première apparition
+  let bas = 1, haut = 1e14;
+  for(let i = 0; i < 200; i++){
+    const m = Math.sqrt(bas*haut);
+    if(TL.visible(TL.pixels(TL.scene(m).lune.alpha, k))) bas = m; else haut = m;
+  }
+  const dLuneParait = Math.sqrt(bas*haut);
+  const uA = Math.log(d0/Math.min(dLuneParait, d0)) / Math.log(d0/d1);
+  const secondes = (uDe - uA) * TL.REGLAGES.DUREE;
+  point("on voit les deux astres ensemble assez longtemps pour le voir",
+        secondes > 1.5, "> 1,5 s sur " + TL.REGLAGES.DUREE,
+        secondes.toFixed(1) + " s",
+        "c'est la seule promesse que la scène fait à Hugo, et un contrôle qui "
+        + "ne la mesure pas la laisserait tomber en silence au prochain réglage");
+}
+
+/* -------------------------------------------------------------------------
+   4 bis. LES TROIS DÉFAUTS TROUVÉS À L'ŒIL, LE 11 AOÛT
+
+   Aucun des trois n'était un nombre faux. Ils se sont vus en jouant la scène
+   dans un navigateur, et la règle 1 est sans exception : tout défaut trouvé à
+   l'œil devient un contrôle. Les voici. */
+titre("4 bis. Les trois défauts vus à l'écran, désormais gardés");
+
+{
+  /* PREMIER. La scène était posée à l'OPPOSÉ du trou noir — l'avant du voyage —
+     et `projette` rendait `null` : elle était dans le dos du joueur, qui
+     n'aurait rien vu du tout. La baie ne regarde que dans un sens. On relit
+     donc `index.html` : la direction qu'il tend doit être l'OPPOSÉE de
+     `salon.p`, celle où la baie pointe, et c'est aussi l'ancre de la carte des
+     étoiles S — une seule loi pour les deux arrivées. */
+  const srcPage = fs.readFileSync(path.join(ici, "index.html"), "utf8");
+  const m = srcPage.match(/TERRELUNE\.ouvre\(([\s\S]{0,80})/);
+  point("la page pose la scène du côté où la baie regarde",
+        !!m && /\[\s*-q\[0\],\s*-q\[1\],\s*-q\[2\]\s*\]/.test(m[1]),
+        "l'opposé de salon.p", m ? m[1].split("\n")[0].trim() : "APPEL INTROUVABLE",
+        "posée de l'autre côté, `projette` rend null et le joueur ne voit "
+        + "rien — vu à l'écran le 11 août, pas dans un chiffre");
+
+  /* DEUXIÈME. La Lune sortait par le HAUT de la baie, qui est large et basse,
+     au lieu d'employer la largeur. On exige que son azimut couche l'écart sur
+     la dimension qui existe, et on CHIFFRE le gain plutôt que de le décréter. */
+  const az = TL.REGLAGES.AZIMUT;
+  /* La baie est large et basse. La portée d'un azimut y vaut
+     min(L/|cos a|, H/|sin a|), maximale quand tan a = H/L. On ne décrète pas
+     que l'azimut est bon : on le MET EN CONCURRENCE avec les autres, sur le
+     vrai rectangle, et l'on exige qu'aucun ne fasse mieux.
+
+     Ce contrôle a corrigé celui qui l'écrivait. J'avais couché l'azimut à plat
+     après avoir cru voir la Lune sortir par le haut ; il a chiffré les deux et
+     montré que la diagonale gardait la Lune plus près. */
+  const demiL = 350, demiH = 135;                 // la baie, en gros
+  const sortie = (a) => {
+    const k = TL.echelle(FOCALE, 900);
+    let bas = 1e4, haut = 1e9;
+    for(let i = 0; i < 160; i++){
+      const mm = Math.sqrt(bas*haut);
+      const e = TL.pixels(TL.scene(mm).ecart, k);
+      const dedans = Math.abs(e*Math.cos(a)) < demiL && Math.abs(e*Math.sin(a)) < demiH;
+      if(!dedans) bas = mm; else haut = mm;
+    }
+    return Math.sqrt(bas*haut);
+  };
+  {
+    const nous = sortie(az);
+    let meilleur = Infinity, ou = 0;
+    for(let i = 0; i <= 90; i++){
+      const a = -i/90 * Math.PI/2;
+      const d = sortie(a);
+      if(d < meilleur){ meilleur = d; ou = a; }
+    }
+    point("aucun autre azimut ne garderait la Lune plus longtemps",
+          nous <= meilleur * 1.02, "à 2 % du meilleur",
+          Math.round(nous) + " km ; le meilleur est " + Math.round(meilleur)
+          + " km à " + ou.toFixed(2) + " rad",
+          "la portée vaut min(L/|cos a|, H/|sin a|), maximale à tan a = H/L — "
+          + "c'est le coin, et j'avais d'abord cru le contraire");
+    point("et à plat, elle sortirait plus tôt — le contrôle sait départager",
+          sortie(0) > nous, "l'azimut plat est moins bon",
+          Math.round(sortie(0)) + " km contre " + Math.round(nous) + " km",
+          "sans ce point, le contrôle passerait au vert sur n'importe quel "
+          + "azimut et ne prouverait rien");
+  }
+
+  /* TROISIÈME. Le voile du ciel tombait d'un coup : après trente-quatre
+     secondes de nébuleuse, l'arrivée se lisait comme un écran qui s'éteint. */
+  TL.ferme();
+  point("le voile du ciel part de rien", TL.opaciteVoile() === 0, 0, TL.opaciteVoile());
+  {
+    const k = TL.echelle(FOCALE, 900);
+    TL.ouvre([-1,0,0], k, 1078, FOCALE);
+    const suite = [];
+    for(let i = 0; i < 30; i++){ TL.avance(0.1); suite.push(TL.opaciteVoile()); }
+    const monte = suite.every((v, i) => i === 0 || v >= suite[i-1]);
+    point("il monte, il ne tombe pas d'un coup",
+          monte && suite[0] < 0.2 && suite[suite.length-1] === 1,
+          "de 0 à 1 sans saut", suite[0].toFixed(2) + " … " + suite[suite.length-1],
+          "en coupure sèche, l'arrivée se lit comme un écran qui s'éteint");
+    point("et il finit par couvrir entièrement",
+          TL.opaciteVoile() === 1, 1, TL.opaciteVoile(),
+          "un voile à moitié monté laisserait le trou noir transparaître "
+          + "derrière la Terre, ce qui est le défaut qu'il répare");
+    TL.ferme();
+  }
 }
 
 /* -------------------------------------------------------------------------

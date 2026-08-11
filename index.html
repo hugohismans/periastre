@@ -2505,6 +2505,10 @@ void main(){
 <script src="voyage1g.js?v=d72d637"></script>
 <script src="recul.js?v=d72d637"></script>
 <script src="etoiles.js?v=d72d637"></script>
+<!-- L'arrivée. L'ordre compte : `terrelune.js` prend tous ses chiffres d'astres
+     dans `lune.js`, qui entre dans la page le 11 août 2026 sur décision d'Hugo. -->
+<script src="lune.js?v=d72d637"></script>
+<script src="terrelune.js?v=d72d637"></script>
 <script src="format.js?v=d72d637"></script>
 <script src="spectre.js?v=d72d637"></script>
 <script src="banc.js?v=d72d637"></script>
@@ -3907,8 +3911,12 @@ const DESTINATIONS = [
     d_m: 10000*VOYAGE.UA, atteignable:true, carte:true },
   /* ON Y VA. Elle était REFUSÉE — « le vaisseau reste ici ». La leçon n'était
      pas dans le refus mais dans le chiffre, et le chiffre reste sur la carte. */
+  /* `terreLune` est de la même famille que `carte` : une DONNÉE portée par la
+     destination, et non un test sur son identité au fond du rendu. C'est ce qui
+     permet à `outil-verif-arrivee.js` de l'exiger sans lire une ligne de dessin,
+     et à une destination neuve de ne pas pouvoir l'oublier. */
   { id:"soleil",  nom:"dest.soleil.nom",  quoi:"dest.soleil.quoi",
-    d_m: 8277*PARSEC_M,  atteignable:true, prix:true, carte:false },
+    d_m: 8277*PARSEC_M,  atteignable:true, prix:true, carte:false, terreLune:true },
 ];
 
 function choisitDestination(d, v){
@@ -3922,6 +3930,12 @@ $("in-fermer").onclick = fermeTelescope;
 // module ne résout pas de clé : il ne connaît pas `T`, donc on les lui tend.
 RECUL.poseMots({ case: T("recul.case"), distance: T("recul.distance"), rs: T("recul.rs"),
   ua: T("recul.ua"), al: T("recul.al"), locale: enAnglais() ? "en-US" : "fr-FR" });
+
+// Même remède pour la scène de l'arrivée : elle ne connaît pas `T`, donc on lui
+// tend ses mots. Sans eux, sa légende se tait — elle n'affiche pas de clé nue.
+TERRELUNE.poseMots({ titre: T("tl.titre"), terre: T("tl.terre"), lune: T("tl.lune"),
+  ecart: T("tl.ecart"), dehors: T("tl.dehors"), pasEncore: T("tl.pasEncore"),
+  declare: T("tl.declare") });
 
 /* ---- le registre temporel ---- */
 // Il vit dans `registre.js`, avec sa mémoire reçue en argument : le 7 août, un
@@ -4084,11 +4098,27 @@ function arriveVoyage(){
   if(TELESCOPE.retour){
     // On rentre : la carte s'efface, l'orbite se rétablit.
     TELESCOPE.trajet = null;
+    TERRELUNE.ferme();
     $("chrono").classList.remove("vu");
     poseSalon();
     return;
   }
   poseArrivee(tr.dest);
+  /* La scène ne s'ouvre qu'à l'arrivée qui la DÉCLARE — un test sur l'identité
+     de la destination au fond du rendu est la faute réparée le 10 août.
+
+     ON LA POSE DEVANT LA BAIE, ET ÇA S'EST TROUVÉ EN REGARDANT. Elle était
+     d'abord à l'opposé du trou noir — l'avant du voyage — et `projette` rendait
+     `null` : la scène était dans le dos du joueur, qui n'aurait rien vu du tout.
+     La baie ne regarde que dans un sens, et c'est ce sens-là qui commande.
+     `-salon.p` est la direction où elle pointe : le trou noir est à l'origine,
+     le vaisseau en `salon.p`. C'est exactement l'ancre de la carte des étoiles,
+     et donc une seule loi pour les deux arrivées. */
+  if(tr.dest && tr.dest.terreLune === true){
+    const H = vueH || cv.clientHeight, q = salon.p;
+    TERRELUNE.ouvre([-q[0], -q[1], -q[2]], TERRELUNE.echelle(cam.focale, H),
+                    vueW || cv.clientWidth, cam.focale);
+  }
 }
 
 /* À l'arrivée, l'instrument reprend la main — puisque c'est lui qui montre.
@@ -4133,6 +4163,10 @@ function poseArrivee(dest){
 function repartVoyage(){
   const retour = TELESCOPE.trajet.depart;
   TELESCOPE.retour = true;
+  // On repart : la Terre et la Lune s'effacent tout de suite. Les laisser
+  // pendant le trajet de retour les ferait suivre le vaisseau sur vingt-sept
+  // mille années-lumière, ce qui est le contraire d'un objet du monde.
+  TERRELUNE.ferme();
   // `carte: true` — on revient vers l'astre que ces orbites entourent, et elles
   // grandissent en s'approchant pour de vraies raisons.
   TELESCOPE.trajet = { dest:{ nom:"chrono.retour" }, arrive:false, depart:RECUL.etat.distance,
@@ -4171,6 +4205,15 @@ function decoupeBaie(){
    par-dessus. */
 function dessineVoyage(dt){
   const E = TELESCOPE;      // pas `T` : ce nom est celui des chaînes d'interface
+
+  /* L'ARRIVÉE PASSE AVANT LE REPLI : ce qui suit s'arrête net quand carte,
+     quadrillage et recul sont tous éteints — c'est-à-dire exactement à
+     l'arrivée au système solaire, où la carte ne se montre pas. */
+  if(TERRELUNE.etat.actif){
+    TERRELUNE.avance(dt);
+    TERRELUNE.peint(ctx, vueW || cv.clientWidth, vueH || cv.clientHeight,
+                    { projette, decoupe: decoupeBaie, focale: cam.focale });
+  }
 
   /* Le retrait vit ICI, et non dans `majVoyage`.
 

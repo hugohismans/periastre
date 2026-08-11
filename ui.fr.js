@@ -95,6 +95,20 @@ window.UI = {
     "l'y distinguer : les orbites que vous avez vues tourner tiennent désormais " +
     "très loin sous le pixel, comme le trou noir lui-même tout à l'heure. " +
     "C'est la distance elle-même qui vient de vous être montrée.",
+  /* ---- l'arrivée Terre–Lune, lue par terrelune.js ----
+     Le module ne porte aucun texte : il refuse d'écrire un mot qu'on ne lui a
+     pas donné, comme `recul.js` pour son quadrillage. Ce sont des étiquettes
+     de machine — les affirmations, elles, sont dans la fiche de `contenu.js`. */
+  "tl.titre":              "La Terre et la Lune",
+  "tl.terre":              "la Terre",
+  "tl.lune":               "la Lune",
+  "tl.ecart":              "plus loin dans le ciel",
+  "tl.dehors":             "la Lune est sortie du cadre — elle est à",
+  "tl.pasEncore":          "la Lune est encore sous le pixel : rien n'est dessiné",
+  "tl.declare":
+    "tailles et écart calculés · reliefs évoqués · l'heure de la scène est un "
+    + "choix, la même lumière pour les deux",
+
   "tele.retour.etiq":      "retour",
   "tele.retour.titre":     "Revenir près du trou noir",
   "tele.retour.quoi":      "Le même trajet dans l'autre sens, et le même prix en temps.",

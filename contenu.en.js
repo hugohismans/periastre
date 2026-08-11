@@ -278,6 +278,32 @@ sources: {
     url: "https://www.aspbooks.org/publications/323/371.pdf",
     sert: "The Oort cloud: semi-major axes of order 10,000 to 100,000 au, inner cloud 2,000-20,000 au, outer cloud 20,000-200,000 au. And the authors' own admission: “we still have little direct knowledge of the cloud” — the inner bounds are a model result, the Jupiter barrier keeping comets from testifying",
   },
+
+  /* ---------------------------------------------------------- Earth and Moon
+     These four lived in the parallel registry of `lune.js` since 5 August.
+     They come up now because a fiche finally cites them — the contract refuses
+     a declared source nobody quotes, and it is right to. The three JPL pages
+     were reopened on 11 August 2026 and the four numbers read at their line. */
+  jplPlanetes: {
+    ref: "NASA/JPL Solar System Dynamics, “Planetary Physical Parameters”; mean radii after B. A. Archinal et al., “Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015”, Celestial Mechanics and Dynamical Astronomy 130, 22 (2018)",
+    doi: "10.1007/s10569-017-9805-5",
+    sert: "Earth's mean volumetric radius, 6,371.0084 km, and its mass, 5.97217 × 10²⁴ kg. The MEAN radius, not the equatorial one: a flattened body has no single apparent diameter, and the mean is the only choice that compares from one row to the next",
+  },
+  jplSatellites: {
+    ref: "NASA/JPL Solar System Dynamics, “Planetary Satellite Physical Parameters”; lunar GM from the DE440 ephemeris",
+    url: "https://ssd.jpl.nasa.gov/sats/phys_par/",
+    sert: "The Moon's mean radius, 1,737.4 ± 0.1 km, and its mass parameter GM = 4,902.800 ± 0.001 km³/s². GM is what is measured, not the mass: ephemerides know it to eleven digits where G gives six",
+  },
+  jplElements: {
+    ref: "NASA/JPL Solar System Dynamics, “Planetary Satellite Mean Orbital Parameters”, DE405/LE405 ephemeris, ecliptic frame, epoch 2000-01-01.5",
+    url: "https://ssd.jpl.nasa.gov/sats/elem/",
+    sert: "Semi-major axis of the lunar orbit, 384,400 km — with the caveat carried by the same row: the eccentricity is 0.0554, so the real distance departs from that mean by ± 5.5 % over the month",
+  },
+  codata2018: {
+    ref: "CODATA 2018, as reproduced by NASA/JPL, “Astrodynamic Constants”",
+    url: "https://ssd.jpl.nasa.gov/astro_par.html",
+    sert: "The gravitational constant, G = 6.67430 (± 0.00015) × 10⁻¹¹ m³ kg⁻¹ s⁻². It, and not the ephemeris, sets the last digit of a mass deduced from a GM — hence the Earth/Moon ratio known to only five digits",
+  },
 },
 
 // -------------------------------------------------------------------- levels
@@ -1361,6 +1387,80 @@ fiches: [
   ]
 },
 {
+  /* Written 11 August 2026, the day the arrival stopped being a panel. */
+  id: "f-terrelune",
+  titre: "The Earth and the Moon, from afar",
+  sources: [
+    ["jplPlanetes", "jplSatellites", "jplElements"],
+    ["jplElements", "jplPlanetes", "jplSatellites", "codata2018", "iau2012b2"],
+    ["jplSatellites", "jplElements", "jplPlanetes", "codata2018", "iau2015b3"],
+  ],
+  t: [
+   `We think we know this pair. We have seen it drawn a thousand times: a big
+    blue marble, a small grey one right beside it.
+    <br><br>Right beside it, no. Between the two there are <b>thirty Earth
+    diameters</b>. If the Earth fitted in your hand, the Moon would be six
+    metres away.
+    <br><br>That is why the bay cannot show you both close up at once. While
+    the Moon is still in frame, the Earth is a marble; by the time the Earth
+    fills the window, the Moon has <b>left through the side</b> long ago. This
+    is not a failing of the screen, it is the shape of the system.
+    <br><br>And still it is nearby: light crosses the gap in <b>1.3 seconds</b>.
+    It is the only other ground human beings have ever stood on.`,
+
+   `The figures fit in three lines, and they come from a JPL table. Earth's mean
+    radius <b>6,371 km</b>, the Moon's <b>1,737 km</b>: the Earth is
+    <b>3.67 times</b> wider. Semi-major axis of the lunar orbit
+    <b>384,400 km</b>, which is <b>30.2 Earth diameters</b>.
+    <br><br>Everything the bay displays follows from that. Seen from a distance
+    <i>d</i> from the Earth's centre, a body of radius <i>R</i> subtends an
+    angle whose half-angle satisfies <b>sin α = R/d</b> — an arcsine, because
+    the outline of a ball is held by the tangents from the eye. The Moon, seen
+    from the side, is further away than the Earth by a factor √(d² + a²), and
+    its separation in the sky is arctan(a/d).
+    <br><br><b>So the framing is not a choice, it is a consequence.</b> The
+    ship's bay shows fifty-six degrees across. At the last instant the Moon
+    still fits in it, the Earth measures <b>one degree</b> — eighteen pixels. At
+    the end of the descent the Earth takes up thirty-six degrees and the Moon
+    sits <b>87 degrees</b> away, far behind the frame.
+    <br><br>The masses change no part of the picture but change the idea one
+    has of it: the Earth weighs <b>81 times</b> the Moon. The pair is as
+    lopsided as the view lets you guess.`,
+
+   `<b>What is published.</b> Earth's mean volumetric radius 6,371.0084 km and
+    mass 5.97217 × 10²⁴ kg (JPL planetary physical parameters, radii after the
+    IAU 2015 working group); the Moon's mean radius 1,737.4 ± 0.1 km and mass
+    parameter GM = 4,902.800 ± 0.001 km³/s² (satellite physical parameters);
+    lunar semi-major axis 384,400 km (satellite mean orbital elements). The
+    radius used throughout is the <b>mean volumetric</b> one, not the
+    equatorial: a flattened body has no single apparent diameter.
+    <br><br><b>Three caveats the tables carry themselves.</b> First, 384,400 km
+    is a <i>semi-major axis</i>, not today's distance: the same row gives an
+    eccentricity of <b>0.0554</b>, so the real distance departs by ± 5.5 % over
+    the month. Second, the Moon's two numbers do not come from the same
+    ephemeris — the GM is from DE440, the mean elements from
+    <b>DE405/LE405</b>, ecliptic frame, epoch 2000-01-01.5. Third, it is GM
+    that is measured, not the mass: ephemerides know it to eleven digits, and
+    going back to a mass costs the six digits of G.
+    <br><br><b>What is derived here.</b> The Moon's mass GM/G =
+    7.346 × 10²² kg, hence an Earth/Moon ratio of <b>81.30</b> — five digits,
+    not eleven, and it is G that sets the limit. Separation in light-seconds
+    a/c = <b>1.282 s</b>. Radius ratio 3.667. And the angles of the scene: at
+    20,752 km from the Earth's centre — 14,381 km altitude — its disc measures
+    <b>35.76°</b>. The tangent formula would give 34.13° there, <b>4.5 % too
+    much</b>; below one degree the two coincide, which is why the error shows
+    only at the end of the descent.
+    <br><br><b>What the scene declares as staging</b>, rather than passing over
+    it: the hour — the Sun's direction is chosen. But it is <i>one</i>
+    direction for both bodies, and that much is physical: 384,400 km apart and
+    one astronomical unit from the Sun — 149,597,870,700 m exactly, by
+    convention since 2012 — their two lighting directions differ by only
+    <b>0.147°</b>. The terminator itself is computed: the day/night boundary of
+    a sphere lit at ψ from the line of sight projects to an ellipse of
+    semi-axis r·|cos ψ|, and the lit fraction is (1 + cos ψ)/2.`,
+  ]
+},
+{
   id: "f-etoiles",
   titre: "Stars going round nothing",
   sources: [
@@ -1684,6 +1784,10 @@ notes: {
         { id:"quadrillage-recul", ou:"recul",
           aveu:"Nothing grids space. This reference exists only while moving.",
           t:"<b>The grid during the retreat.</b> Nothing grids space. It exists only while moving, because in true emptiness nothing proves you are travelling — and without it, four decades look like a frozen screen." },
+        { id:"ciel-arrivee", ou:"arrivee-soleil",
+          aveu:"This black sky is painted. The ship itself never moved.",
+          sources:["gravity2021"],
+          t:"<b>The sky at arrival.</b> The ship never travels: it stays in orbit sixteen radii from Sagittarius A*, and the journey is a diagram, not a displacement. So the image is still computing the black hole out in the bay — the one we have just left, eight thousand two hundred and seventy-seven parsecs away. We cover that view with a flat black in order to show the Earth and the Moon, and that black is computed by nothing. It is the only place on the site where we hide a correct image because it tells the wrong place. The day the ship really moves, the veil falls by itself." },
         { id:"carte-etoiles", ou:"arrivee-etoiles",
           aveu:"A reconstruction, not a view: nobody has watched these orbits turn.",
           t:"<b>The chart of the S stars.</b> It is a reconstruction, not a view. These orbits last from sixteen to three hundred and thirty-one years: nobody has ever watched them go round. They were measured over thirty years, and that is precisely the point." },

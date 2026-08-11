@@ -397,7 +397,43 @@ const fs = require("fs"), path = require("path");
    ressemblent, et ce serait la bonne économie le jour où une troisième arrive.
    Pour deux, généraliser aurait touché un réglage qui marche pour en poser un
    qui n'existait pas — le mauvais ordre. C'est noté, pas fait. */
-const PLAFOND = 3902;   // ... l'arrivée qui sait où elle est, le rythme qui a son bouton
+/* 3 935 le 11 août — trente-trois lignes, et cette fois le plafond monte pour
+   AJOUTER. Il faut donc que ce soit dit franchement plutôt qu'habillé.
+
+   Ce qu'on ajoute : l'arrivée au système solaire montre enfin quelque chose.
+   Elle s'arrêtait sur un panneau qui disait « nous y sommes » devant une baie
+   vide, et Hugo l'a relevé le 11 août — « tu m'en parles, tu m'en parles, mais
+   toujours pas vu ». On tombe maintenant vers la Terre et la Lune.
+
+   CE QUE ÇA COÛTE ICI, ET RIEN DE PLUS : deux balises de script, un drapeau
+   `terreLune:` sur la destination, six lignes qui tendent ses mots au module,
+   trois qui l'ouvrent à l'arrivée, une qui la ferme au retour, et quatre qui la
+   peignent dans la boucle. Tout le reste — la géométrie, la chute, le
+   terminateur, la légende, et même la COMPOSITION (projeter, découper à la
+   baie, peindre, légender) — est dans `terrelune.js`, éprouvé par 70 contrôles
+   sans navigateur.
+
+   CE QUI A ÉTÉ RESSERRÉ AVANT DE MONTER : la première version tenait 79 lignes.
+   Deux fonctions vivaient ici — celle qui plaçait la scène dans le monde et
+   celle qui l'enchaînait à l'écran. Elles sont parties dans le module, qui
+   reçoit la position du vaisseau et les outils de la page en arguments. Ce
+   n'est pas un déplacement pour faire baisser un compte : les trois gestes que
+   cet enchaînement porte réparent chacun un défaut déjà payé, et ici ils
+   étaient hors de portée de tout contrôle sans navigateur. Là-bas, ils sont
+   gardés.
+
+   CE QUI N'A PAS ÉTÉ TENTÉ : sortir la pose des mots. Six lignes qui appellent
+   `T()` sept fois, exactement comme `RECUL.poseMots` juste au-dessus. Les
+   fondre demanderait un registre de modules-à-traduire, soit une indirection
+   pour deux clients. Le jour où il y en a quatre, ça vaudra le coup. */
+/* 3 941 le même jour, six lignes de plus, et elles paient un défaut VU À
+   L'ÉCRAN : la scène était posée à l'opposé du trou noir — l'avant du voyage —
+   et `projette` rendait `null`. La baie ne regarde que dans un sens, et Hugo
+   n'aurait rien vu du tout. Les six lignes sont le commentaire qui dit
+   pourquoi, à l'endroit exact où la prochaine main voudra « corriger » le signe
+   pour le remettre à l'endroit logique. `outil-verif-terrelune.js` relit cette
+   ligne et exige le moins. */
+const PLAFOND = 3941;   // ... et l'arrivée montre enfin la Terre et la Lune
 
 // Le nombre de modules déjà sortis. Il ne descend jamais non plus : un module
 // qu'on ferait rentrer dans le bloc serait le contraire exact du chantier.

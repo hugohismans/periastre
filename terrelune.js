@@ -82,17 +82,20 @@
    est juste : une taille apparente se compare à un champ, pas à un compte de
    pixels.
 
-   ET ON NE S'ARRÊTE PAS AU COUPLE, ON LE TRAVERSE. C'est le fait que la scène
-   est venue dire, et il a failli m'échapper : à la distance où la Terre et la
-   Lune tiennent ENSEMBLE dans la baie, la Terre ne fait que vingt pixels. Le
-   système Terre–Lune est presque entièrement du vide — trente diamètres
-   terrestres d'écart — et aucune image ne peut montrer les deux astres gros à
-   la fois. La chute passe donc par ce moment-là, où l'on voit le couple et son
-   gouffre, puis continue : la Lune sort du cadre par le côté et la Terre
-   grandit jusqu'à remplir la baie. La légende dit où la Lune est partie.
+   ET ON NE S'ARRÊTE PAS QUAND LA LUNE EST ENCORE LÀ, ON CONTINUE. C'est le
+   fait que la scène est venue dire, et il a failli m'échapper deux fois : au
+   dernier instant où la Lune tient dans la baie, la Terre ne fait que dix-huit
+   pixels. Le système Terre–Lune est presque entièrement du vide — trente
+   diamètres terrestres d'écart, quand la baie n'en montre que cinquante-six
+   degrés — et AUCUNE image ne peut montrer les deux astres gros à la fois.
 
-   `distanceCouple` calcule ce moment de passage — il n'est écrit nulle part,
-   il se relit à chaque ouverture avec la vraie fenêtre.
+   La chute traverse donc ce moment, où l'on voit les deux et le gouffre entre
+   eux, puis continue : la Lune sort du cadre par le côté et la Terre grandit
+   jusqu'à remplir la baie. La légende ne se tait pas quand la Lune s'en va —
+   elle dit à quel angle elle est passée.
+
+   `distanceSortieLune` calcule ce moment de passage à partir du champ réel de
+   la fenêtre. Il n'est écrit nulle part, il se relit à chaque ouverture.
 
    Entre les deux bouts, d décroît à TAUX RELATIF CONSTANT — d(u) = d₀·(d₁/d₀)^u.
    C'est la loi de `recul.js` et celle du champ de `lune.js` : l'œil lit des
@@ -137,10 +140,24 @@ const L = global.LUNE;
    est déclaré à l'écran ou dans le commentaire qui le porte. */
 
 const PART_TERRE  = 0.50;  // part de la HAUTEUR de la baie que la Terre occupe au bout
-const PART_COUPLE = 0.86;  // part de la LARGEUR où le couple entier tient — un passage
 const DUREE       = 9.0;   // secondes de chute — le rythme se juge à l'œil
 const PSI        = 50 * Math.PI/180;  // angle Soleil / ligne de visée : gibbeuse à 82 %
-const AZIMUT     = -0.32;  // radians : le côté où l'on pose la Lune à l'écran
+/* Le côté où l'on pose la Lune à l'écran, en radians. Sa distance angulaire à
+   la Terre est calculée ; ce côté-là ne l'est pas, et il est déclaré.
+
+   IL POINTE VERS LE COIN, et ce n'est pas un goût : c'est le point le plus
+   éloigné du centre dans une baie large et basse, donc celui qui garde la Lune
+   à l'écran le plus longtemps. Pour une demi-largeur L et une demi-hauteur H,
+   la portée vaut min(L/|cos a|, H/|sin a|) et elle est maximale quand les deux
+   bornes se rejoignent — tan a = H/L, et la portée vaut alors √(L² + H²).
+
+   J'ai cru le contraire une heure durant. En regardant la scène, la Lune
+   semblait sortir par le haut, et j'ai couché l'azimut à plat « pour employer
+   la largeur ». C'était faux, et c'est le contrôle qui l'a dit en chiffrant les
+   deux : à plat elle sort à 766 000 km, en diagonale à 727 000. La règle 3 dans
+   les deux sens — un contrôle qui tire sa vérité d'ailleurs corrige aussi celui
+   qui l'écrit. */
+const AZIMUT     = -0.35;
 const NUIT       = 0.05;   // ce qu'il reste du modelé sur la face non éclairée
 const DEMI_PIXEL = 0.5;    // le seuil de `lune.js` : sous ça, on ne dessine rien
 
@@ -198,12 +215,20 @@ function distanceDemiPixel(k){
   return L.rayonDe(T) / Math.sin(alpha);
 }
 
-/** L'étendue du couple à l'écran, en pixels : du limbe extérieur de la Terre au
- *  limbe extérieur de la Lune. C'est ce qu'on cadre. */
-function etendue(d_km, k){
+/** À quelle distance du CENTRE DE L'ÉCRAN, en pixels, tombe le bord extérieur
+ *  de la Lune.
+ *
+ *  Comptée depuis le centre de la Terre, parce que c'est là que la scène est
+ *  ancrée. La première version comptait d'un limbe à l'autre — l'étendue du
+ *  couple — ce qui suppose le couple centré dans la fenêtre. Il ne l'est pas :
+ *  la Terre est au point de visée. Le contrôle croyait donc la Lune dans le
+ *  cadre alors qu'elle en était sortie depuis longtemps, et le « moment du
+ *  couple » tombait deux fois trop près. Trouvé en chiffrant la scène plutôt
+ *  qu'en la regardant tourner. */
+function ecartLunePx(d_km, k){
   const s = scene(d_km);
   if(!isFinite(s.terre.alpha)) return Infinity;   // on est dans la Terre
-  return pixels(s.terre.alpha, k) + pixels(s.ecart + s.lune.alpha, k);
+  return pixels(s.ecart + s.lune.alpha, k);
 }
 
 /** La distance où le disque de la Terre occupe `part` de la hauteur de la baie.
@@ -218,20 +243,23 @@ function distanceTerreCadree(focale, part){
   return L.rayonDe(corps("terre")) / Math.sin(alpha);
 }
 
-/** La distance où le couple entier tient dans `part` de la largeur `W`.
+/** La distance à laquelle la Lune quitte le cadre — son bord atteint le bord
+ *  de la fenêtre, à `W/2` du point de visée.
  *
- *  Ce n'est pas là qu'on s'arrête : c'est le moment qu'on TRAVERSE, celui où
- *  l'écart Terre–Lune est encore dans le cadre. La chute continue au-delà.
+ *  Ce n'est PAS là qu'on s'arrête : c'est le dernier moment où l'on voit les
+ *  deux, et la chute le traverse. C'est aussi le moment le plus parlant de la
+ *  scène, celui où la Terre est encore une bille et la Lune un point à l'autre
+ *  bout de la baie.
  *
- *  Par bissection, parce que l'étendue n'est pas inversible à la main et
- *  qu'une formule approchée serait un chiffre de plus à croire. L'étendue
+ *  Par bissection, parce que l'écart n'est pas inversible à la main et qu'une
+ *  formule approchée serait un chiffre de plus à croire. L'écart en pixels
  *  décroît strictement avec d : la bissection converge. */
-function distanceCouple(k, W, part){
-  const cible = (part === undefined ? PART_COUPLE : part) * W;
+function distanceSortieLune(k, W){
+  const cible = W/2;
   let bas = L.rayonDe(corps("terre")) * 1.0001, haut = 1e14;
   for(let i = 0; i < 200; i++){
     const m = Math.sqrt(bas*haut);          // bissection en logarithme
-    if(etendue(m, k) > cible) bas = m; else haut = m;
+    if(ecartLunePx(m, k) > cible) bas = m; else haut = m;
   }
   return Math.sqrt(bas*haut);
 }
@@ -277,28 +305,39 @@ const etat = {
   actif: false,
   t: 0,               // secondes depuis l'ouverture
   d0: 0, d1: 0,       // les deux bouts, calculés à l'ouverture
-  dCouple: 0,         // le moment de passage, où le couple tient dans la baie
+  dSortie: 0,         // le moment de passage : le dernier où l'on voit les deux
   dir: null,          // direction du monde, GELÉE à l'arrivée
   duree: DUREE,
 };
 
-/** Ouvre la scène. `dir` est la direction du monde où le couple se tient — on
- *  la gèle, pour que l'orbite du vaisseau ne fasse pas dériver l'arrivée.
+/** Ouvre la scène.
+ *
+ *  `dir` est une direction du monde — la page lui tend la position du vaisseau,
+ *  puisque le trou noir est à l'origine et que l'avant du voyage en est le dos.
+ *  On la NORMALISE et on la pousse très loin ici plutôt que chez l'appelant :
+ *  c'est le geste qui fait que seule la rotation de la tête déplace la scène,
+ *  et il n'a pas à être refait par qui l'appelle. Puis on la gèle, pour que
+ *  l'orbite du vaisseau ne fasse pas dériver l'arrivée pendant la chute.
+ *
  *  `k` est l'échelle en pixels par radian, `W` la largeur de la vue, `focale`
  *  celle de la caméra du site.
  *
  *  Rend false et ne s'ouvre pas si `lune.js` manque : une scène qui invente ses
  *  propres rayons serait pire qu'une baie vide. */
+const LOIN = 1e6;
 function ouvre(dir, k, W, focale){
   if(!L || !L.ASTRES || !L.ECLAIRAGE) return false;
   if(!(k > 0) || !(W > 0) || !(focale > 0)) return false;
+  if(!dir || dir.length !== 3) return false;
+  const n = Math.hypot(dir[0], dir[1], dir[2]);
+  if(!(n > 0)) return false;
   etat.d1 = distanceTerreCadree(focale);
   etat.d0 = distanceDemiPixel(k);
-  etat.dCouple = distanceCouple(k, W);
+  etat.dSortie = distanceSortieLune(k, W);
   // Une fenêtre minuscule pourrait mettre le demi-pixel plus près que le but :
   // il n'y aurait alors pas de chute à jouer, on se pose au but.
   if(!(etat.d0 > etat.d1)) etat.d0 = etat.d1;
-  etat.dir = [dir[0], dir[1], dir[2]];
+  etat.dir = [dir[0]/n*LOIN, dir[1]/n*LOIN, dir[2]/n*LOIN];
   etat.t = 0;
   etat.actif = true;
   return true;
@@ -446,20 +485,92 @@ function legende(ctx, W, H, vu, o){
   return true;
 }
 
+/** La passe complète : place, découpe, peint, légende.
+ *
+ *  Elle vit ICI et non dans la page, et c'est plus qu'une question de lignes.
+ *  L'enchaînement porte trois gestes qui réparent chacun un défaut déjà payé,
+ *  et les laisser dans `index.html` les mettrait hors de portée de tout
+ *  contrôle sans navigateur :
+ *
+ *    — `projette` rend `null` quand le point est derrière le plan de coupure.
+ *      On ne dessine alors RIEN, au lieu de rabattre la scène au centre. Ce
+ *      rabattement ÉTAIT le défaut de la carte des étoiles, le 9 août.
+ *    — la découpe à la baie passe avant le dessin : sinon la scène déborde sur
+ *      la coque et se lit comme un calque posé sur l'écran, ce qu'Hugo a déjà
+ *      signalé pour les orbites et pour le quadrillage.
+ *    — la légende, elle, est HORS découpe : c'est une aide de lecture, elle le
+ *      déclare, et la tailler à la forme de la vitre la rendrait illisible.
+ *
+ *  La page ne tend que ses propres outils — la projection, la découpe, la
+ *  focale — et n'a plus de composition à tenir. */
+function peint(ctx, W, H, o){
+  if(!etat.actif || !o || !o.projette) return null;
+  const ou = o.projette(etat.dir);
+  if(!ou) return null;
+  ctx.save();
+  if(o.decoupe) o.decoupe();
+  voileLeCiel(ctx, W, H);
+  const vu = dessine(ctx, W, H, { x: ou[0], y: ou[1], k: echelle(o.focale, H) });
+  ctx.restore();
+  if(vu) legende(ctx, W, H, vu);
+  return vu;
+}
+
+/** LE VOILE, ET C'EST UN COMPROMIS QU'IL FAUT AVOUER PLUTÔT QUE CACHER.
+ *
+ *  Trouvé en regardant la scène tourner, pas en la calculant : le vaisseau ne
+ *  bouge JAMAIS. Le recul est un diagramme — `RECUL.etat.distance` est un
+ *  nombre, la position du salon reste à seize rayons de Sagittarius A*. Le
+ *  nuanceur continue donc de peindre le trou noir, son disque et sa nébuleuse
+ *  dans la baie, pendant que le panneau d'arrivée écrit qu'il est « à
+ *  vingt-sept mille années-lumière derrière vous, et plus rien ne permet de
+ *  l'y distinguer ».
+ *
+ *  Sans voile, la Terre arriverait à côté d'un trou noir large de la moitié de
+ *  la vitre — celui qu'on vient de fuir. L'image contredirait le texte, et ce
+ *  serait la pire des deux erreurs possibles.
+ *
+ *  On peint donc la nuit. C'est un aveu, déclaré à l'arrivée sous
+ *  `arrivee-soleil` : ce noir n'est pas calculé, il remplace un calcul qui dit
+ *  autre chose. Le jour où le vaisseau se déplacera vraiment, il tombera de
+ *  lui-même.
+ *
+ *  La carte des étoiles S fait déjà ce geste, à sa façon — un voile à 0,62 —
+ *  mais la sienne n'est qu'un assombrissement, parce qu'à SON arrivée le trou
+ *  noir est encore là où on le montre. Ici il n'y est plus. */
+const VOILE_MONTEE = 1.2;   // secondes — le temps que la nuit prenne la baie
+
+/** L'opacité du voile à cet instant. Sortie à part pour qu'un contrôle puisse
+ *  exiger qu'il MONTE au lieu de tomber d'un coup — le défaut se voit à l'œil
+ *  en une image et ne laisse aucune trace dans un chiffre. */
+function opaciteVoile(){ return Math.min(1, Math.max(0, etat.t) / VOILE_MONTEE); }
+
+function voileLeCiel(ctx, W, H){
+  /* Il MONTE, il ne tombe pas d'un coup. En coupure sèche, l'arrivée se lisait
+     comme un écran qui s'éteint : on venait de traverser trente-quatre secondes
+     de nébuleuse et elle disparaissait sur une image. En une seconde, on voit
+     le ciel qu'on quitte s'éteindre, ce qui est le sujet. */
+  ctx.save();
+  ctx.globalAlpha = opaciteVoile();
+  ctx.fillStyle = "#04040a";
+  ctx.fillRect(0, 0, W, H);
+  ctx.restore();
+}
+
 /* ================================================================== 5. SORTIE */
 
 global.TERRELUNE = {
   // calcul
-  scene, demiAngle, echelle, pixels, etendue,
-  distanceDemiPixel, distanceTerreCadree, distanceCouple, distanceA,
+  scene, demiAngle, echelle, pixels, ecartLunePx,
+  distanceDemiPixel, distanceTerreCadree, distanceSortieLune, distanceA,
   fractionEclairee, contourEclaire, directionSoleilEcran,
   // déroulé
   etat, ouvre, ferme, avance, avancement, distance,
   // mots et dessin
-  poseMots, dessine, legende, visible,
+  poseMots, dessine, legende, peint, visible, opaciteVoile,
   // les réglages déclarés, exposés pour que le contrôle les lise plutôt que de
   // les recopier — une constante recopiée dans un test est un test qui ment
-  REGLAGES: { PART_TERRE, PART_COUPLE, DUREE, PSI, AZIMUT, NUIT, DEMI_PIXEL },
+  REGLAGES: { PART_TERRE, DUREE, PSI, AZIMUT, NUIT, DEMI_PIXEL, VOILE_MONTEE },
 };
 
 })(window);

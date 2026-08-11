@@ -275,6 +275,41 @@ sources: {
     url: "https://www.aspbooks.org/publications/323/371.pdf",
     sert: "Le nuage de Oort : demi-grands axes de l'ordre de 10 000 à 100 000 ua, nuage interne 2 000-20 000 ua, nuage externe 20 000-200 000 ua. Et l'aveu des auteurs : « we still have little direct knowledge of the cloud » — les bornes internes sont un résultat de modèle, la barrière de Jupiter interdisant aux comètes d'en témoigner",
   },
+
+  /* ------------------------------------------------------- la Terre et la Lune
+     Ces quatre-là vivaient dans le registre parallèle de `lune.js` depuis le
+     5 août, et `SOURCES-SOLAIRE.md` avait écrit noir sur blanc pourquoi elles
+     n'étaient pas montées le 10 : « le contrat refuse une source déclarée que
+     personne ne cite, et il a raison. Elles monteront avec la fiche qui les
+     emploiera — `lune.js` branché ». C'est ce jour-ci.
+
+     Les trois pages du JPL ont été rouvertes le 11 août 2026 et les quatre
+     nombres relus à leur ligne, plutôt que recopiés du module : rayon moyen de
+     la Terre 6 371,0084 km et masse 5,972 17 × 10²⁴ kg sur la table des
+     paramètres physiques des planètes ; rayon moyen de la Lune 1 737,4 km et
+     GM 4 902,800 km³/s² sur celle des satellites ; demi-grand axe lunaire
+     384 400 km sur la table des éléments orbitaux moyens, avec sa colonne
+     d'excentricité 0,0554 et son éphéméride nommée. */
+  jplPlanetes: {
+    ref: "NASA/JPL Solar System Dynamics, « Planetary Physical Parameters » ; rayons moyens d'après B. A. Archinal et al., « Report of the IAU Working Group on Cartographic Coordinates and Rotational Elements: 2015 », Celestial Mechanics and Dynamical Astronomy 130, 22 (2018)",
+    doi: "10.1007/s10569-017-9805-5",
+    sert: "Rayon moyen volumétrique de la Terre, 6 371,0084 km, et sa masse, 5,972 17 × 10²⁴ kg. Le rayon MOYEN et non l'équatorial : un objet aplati n'a pas un seul diamètre apparent, et c'est le seul choix qui se compare d'une ligne à l'autre",
+  },
+  jplSatellites: {
+    ref: "NASA/JPL Solar System Dynamics, « Planetary Satellite Physical Parameters » ; GM lunaire tiré de l'éphéméride DE440",
+    url: "https://ssd.jpl.nasa.gov/sats/phys_par/",
+    sert: "Rayon moyen de la Lune, 1 737,4 ± 0,1 km, et son paramètre de masse GM = 4 902,800 ± 0,001 km³/s². C'est GM qui est mesuré, pas la masse : les éphémérides le connaissent à onze chiffres là où G en donne six",
+  },
+  jplElements: {
+    ref: "NASA/JPL Solar System Dynamics, « Planetary Satellite Mean Orbital Parameters », éphéméride DE405/LE405, plan écliptique, époque 2000-01-01,5",
+    url: "https://ssd.jpl.nasa.gov/sats/elem/",
+    sert: "Demi-grand axe de l'orbite lunaire, 384 400 km — avec la réserve que la même ligne porte : l'excentricité vaut 0,0554, donc la distance réelle s'écarte de ± 5,5 % de cette moyenne au cours du mois",
+  },
+  codata2018: {
+    ref: "CODATA 2018, reprises par NASA/JPL, « Astrodynamic Constants »",
+    url: "https://ssd.jpl.nasa.gov/astro_par.html",
+    sert: "La constante de gravitation, G = 6,674 30 (± 0,000 15) × 10⁻¹¹ m³ kg⁻¹ s⁻². C'est elle, et non l'éphéméride, qui limite le dernier chiffre d'une masse déduite d'un GM — d'où le rapport Terre/Lune connu à cinq chiffres seulement",
+  },
 },
 
 // ------------------------------------------------------------------- niveaux
@@ -1368,6 +1403,92 @@ fiches: [
   ]
 },
 {
+  /* Écrite le 11 août 2026, le jour où l'arrivée a cessé d'être un panneau.
+
+     Hugo : « j'aimerais bien qu'on voie enfin cette Terre et cette Lune, parce
+     que tu m'en parles, tu m'en parles, mais toujours pas vu. » La scène est
+     dans `terrelune.js` ; cette fiche est ce qu'elle affirme.
+
+     Le troisième niveau sépare, comme `f-ciel` et `f-solaire`, ce qui est
+     publié de ce qui est dérivé ici — et il porte les réserves que les tables
+     du JPL écrivent elles-mêmes : un demi-grand axe n'est pas une distance du
+     jour, et les deux nombres de la Lune ne viennent pas de la même éphéméride. */
+  id: "f-terrelune",
+  titre: "La Terre et la Lune, de loin",
+  sources: [
+    ["jplPlanetes", "jplSatellites", "jplElements"],
+    ["jplElements", "jplPlanetes", "jplSatellites", "codata2018", "iau2012b2"],
+    ["jplSatellites", "jplElements", "jplPlanetes", "codata2018", "iau2015b3"],
+  ],
+  t: [
+   `On croit connaître ce couple-là. On l'a vu mille fois dessiné : une grosse
+    bille bleue, une petite bille grise juste à côté.
+    <br><br>Juste à côté, non. Entre les deux il y a
+    <b>trente fois le diamètre de la Terre</b>. Si la Terre tenait dans votre
+    main, la Lune serait à six mètres.
+    <br><br>C'est pour ça que la baie ne peut pas vous montrer les deux en gros
+    en même temps. Quand la Lune est encore dans le cadre, la Terre est une
+    bille de rien du tout ; quand la Terre remplit la vitre, la Lune est
+    <b>sortie par le côté</b> depuis longtemps. Ce n'est pas un défaut de
+    l'écran, c'est la forme du système.
+    <br><br>Et pourtant c'est tout près : la lumière met <b>1,3 seconde</b> à
+    faire le trajet. C'est la seule autre terre où des humains soient allés.`,
+
+   `Les chiffres tiennent en trois lignes, et ils viennent d'un tableau du JPL.
+    Rayon moyen de la Terre <b>6 371 km</b>, de la Lune <b>1 737 km</b> : la
+    Terre est <b>3,67 fois</b> plus large. Demi-grand axe de l'orbite lunaire
+    <b>384 400 km</b>, soit <b>30,2 diamètres terrestres</b>.
+    <br><br>De là sort tout ce que la baie affiche. Vu d'une distance
+    <i>d</i> du centre de la Terre, un astre de rayon <i>R</i> occupe un angle
+    dont le demi-angle vérifie <b>sin α = R/d</b> — un arc sinus, parce que la
+    silhouette d'une boule est tenue par les tangentes de l'œil. La Lune, elle,
+    est plus loin que la Terre quand on la regarde de côté : d'un facteur
+    √(d² + a²), et son écart à la Terre dans le ciel vaut arctan(a/d).
+    <br><br><b>Le cadrage n'est donc pas un choix, c'est une conséquence.</b>
+    La baie du vaisseau montre cinquante-six degrés de large. Au dernier instant
+    où la Lune y tient encore, la Terre mesure <b>un degré</b> — dix-huit pixels.
+    À la fin de la descente, la Terre en occupe trente-six et la Lune est à
+    <b>87 degrés</b>, très loin derrière l'encadrement.
+    <br><br>Les masses, elles, ne changent pas le dessin mais changent l'idée
+    qu'on s'en fait : la Terre pèse <b>81 fois</b> la Lune. Le couple est
+    déséquilibré comme la vue le laisse deviner.`,
+
+   `<b>Ce qui est publié.</b> Rayon moyen volumétrique de la Terre
+    6 371,0084 km et masse 5,972 17 × 10²⁴ kg (paramètres physiques des
+    planètes du JPL, rayons d'après le groupe de travail de l'UAI 2015) ; rayon
+    moyen de la Lune 1 737,4 ± 0,1 km et paramètre de masse
+    GM = 4 902,800 ± 0,001 km³/s² (paramètres physiques des satellites) ;
+    demi-grand axe lunaire 384 400 km (éléments orbitaux moyens des satellites).
+    Le rayon employé est partout le <b>moyen volumétrique</b> et non
+    l'équatorial : un corps aplati n'a pas un seul diamètre apparent.
+    <br><br><b>Trois réserves que les tables portent elles-mêmes.</b> D'abord,
+    384 400 km est un <i>demi-grand axe</i>, pas une distance du jour : la même
+    ligne donne une excentricité de <b>0,0554</b>, donc la distance réelle
+    s'écarte de ± 5,5 % au fil du mois. Ensuite, les deux nombres de la Lune ne
+    sortent pas de la même éphéméride — le GM vient de DE440, les éléments
+    moyens de <b>DE405/LE405</b>, plan écliptique, époque 2000-01-01,5. Enfin
+    c'est GM qui est mesuré, pas la masse : les éphémérides le connaissent à
+    onze chiffres, et repasser à une masse coûte les six chiffres de G.
+    <br><br><b>Ce qui est dérivé ici.</b> Masse de la Lune GM/G =
+    7,346 × 10²² kg, d'où un rapport Terre/Lune de <b>81,30</b> — cinq chiffres,
+    pas onze, et c'est G qui pose la limite. Écart en secondes-lumière
+    a/c = <b>1,282 s</b>. Rapport des rayons 3,667. Et les angles de la scène :
+    à 20 752 km du centre de la Terre — 14 381 km d'altitude — son disque mesure
+    <b>35,76°</b>. La formule en tangente y donnerait 34,13°, soit
+    <b>4,5 % de trop</b> ; sous un degré les deux se confondent, c'est pourquoi
+    l'erreur ne se voit qu'en fin de descente.
+    <br><br><b>Ce que la scène déclare comme mise en scène</b>, plutôt que de le
+    taire : l'heure — la direction du Soleil est choisie. Mais elle est
+    <i>unique</i> pour les deux astres, et ça, c'est physique : à 384 400 km
+    l'un de l'autre et à une unité astronomique du Soleil — 149 597 870 700 m
+    exactement, par convention depuis 2012 — leurs deux directions
+    d'éclairement ne diffèrent que de <b>0,147°</b>. Le terminateur, lui, est
+    calculé : la frontière jour/nuit d'une sphère éclairée à ψ de la ligne de
+    visée se projette en une ellipse de demi-axe r·|cos ψ|, et la fraction
+    éclairée vaut (1 + cos ψ)/2.`,
+  ]
+},
+{
   id: "f-etoiles",
   titre: "Des étoiles autour de rien",
   sources: [
@@ -1698,6 +1819,13 @@ notes: {
         { id:"quadrillage-recul", ou:"recul",
           aveu:"Rien ne quadrille l'espace. Ce repère n'existe que pendant le mouvement.",
           t:"<b>Le quadrillage pendant le recul.</b> Rien ne quadrille l'espace. Il n'existe que pendant le mouvement, parce que dans le vide absolu rien ne prouve qu'on avance — et sans lui, quatre décades ressemblent à un écran figé." },
+        /* Trouvé le 11 août 2026, en regardant la scène de l'arrivée tourner
+           pour de vrai. Le calcul ne pouvait pas l'attraper : il n'y a pas de
+           nombre qui soit faux. C'est l'IMAGE qui contredisait le texte. */
+        { id:"ciel-arrivee", ou:"arrivee-soleil",
+          aveu:"Ce ciel noir est peint. Le vaisseau, lui, n'a jamais bougé.",
+          sources:["gravity2021"],
+          t:"<b>Le ciel de l'arrivée.</b> Le vaisseau ne se déplace jamais : il reste en orbite à seize rayons de Sagittarius A*, et le voyage est un diagramme, pas un déplacement. Le calcul de l'image continue donc de peindre le trou noir dans la baie — celui qu'on vient de quitter, à huit mille deux cent soixante-dix-sept parsecs de là. On couvre cette vue d'un noir uni pour montrer la Terre et la Lune, et ce noir-là n'est calculé par rien. C'est le seul endroit du site où l'on cache une image juste parce qu'elle raconte le mauvais endroit. Le jour où le vaisseau se déplacera vraiment, le voile tombera tout seul." },
         { id:"carte-etoiles", ou:"arrivee-etoiles",
           aveu:"C'est une reconstruction, pas une vue : personne n'a vu ces orbites tourner.",
           t:"<b>La carte des étoiles S.</b> C'est une reconstruction, pas une vue. Ces orbites durent de seize à trois cent trente et un ans : personne ne les a jamais vues tourner. On les a mesurées pendant trente ans, et c'est justement le sujet." },
