@@ -230,7 +230,7 @@ const TOUTES = [
      `outil-verif-juge.js` refuse désormais une question à options qui ne dit pas
      laquelle des deux formes elle prend. Déclarée, jamais devinée — la même
      manœuvre que `carte:` sur les destinations, ce matin. */
-  { id: "main-gagne",
+  { id: "main-gagne", ignore: true,   // ✅ ça va, 10 août au soir — angle gardé : « en partant, je tourne », fenêtre 1078 × 1304.
     titre: "Regarder ailleurs pendant le vol",
     libre: true,
     inspection: true,

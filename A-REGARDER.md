@@ -15,7 +15,45 @@ Tout ce qui ne peut pas se vérifier par la mesure, et qui attend donc qu'un
 humain regarde. **Rien ici ne bloque quoi que ce soit** — c'est une file, pas
 une dette. Elle existe pour que ça ne se perde pas dans une conversation.
 
-Mise à jour le 9 août 2026 au soir, après la séance sur le rendu.
+Mise à jour le 10 août 2026 au soir, après la séance sur le regard en vol.
+
+---
+
+## ✅ REGARDER AILLEURS PENDANT LE VOL — jugé le 10 août au soir
+
+**« Regarder ailleurs pendant le vol »** → ✅ **ça va**, regardé « en partant, je
+tourne », sur une fenêtre de 1 078 × 1 304 — étroite et haute, un format que rien
+n'avait encore jugé, et c'est celui où le seuil de champ est le plus tendu.
+
+Ta demande du 9 août est close : *« qu'on puisse regarder devant, comme dans un
+cockpit, ou derrière ; peut-être des vitres sur les quatre coins. »* Il n'a pas
+fallu de vitres. Le coupable était le recentrage, qui te reprenait la visée à
+chaque image pendant tout le vol — tu regardais devant, on te retournait. Il se
+tait maintenant dès que ta main touche à la visée, et pour le reste du trajet.
+
+**Les vitres aux quatre coins restent possibles et ne sont plus urgentes.** C'est
+une décision de vaisseau, elle appartient au chantier des ponts.
+
+---
+
+## ⚠ ET MA QUESTION ÉTAIT MAL FORMÉE — la première fois qu'on te l'a posée
+
+Le 10 août, tu as répondu « je garde en partant, je tourne, enlève les autres ».
+Tu as répondu ce que l'écran te demandait ; c'est la question qui était fausse.
+
+Ses trois options sont des **angles de vue** sur un seul vol, et j'avais oublié
+le mot qui le dit — les huit autres questions le portaient. La séance les a donc
+présentées comme trois propositions concurrentes, et sa consigne, appliquée à la
+lettre, supprimait deux façons de regarder un vol qui marche.
+
+**C'était la deuxième fois.** Le garde-fou avait été créé après la première, où
+la séance avait proposé d'effacer trois rotations du site parce que tu venais de
+dire qu'elles marchaient.
+
+Le vrai coût n'était pas la consigne absurde : une question à comparaison **ne
+rend aucun verdict**, donc ta séance ne m'avait pas dit ce que j'étais allé
+chercher. `outil-verif-juge.js` refuse désormais une question qui ne déclare pas
+sa forme.
 
 ---
 
