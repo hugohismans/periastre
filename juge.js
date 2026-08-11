@@ -208,9 +208,32 @@ const TOUTES = [
      ailleurs, est-ce qu'on a envie de le faire, et est-ce qu'on retrouve son
      chemin après ? Un recentrage qui se tait rend aussi possible de finir le
      voyage le nez dans un mur, et ça, aucun calcul ne me le dira. */
+  /* ET J'AI REFAIT LA FAUTE QUE CE FICHIER RACONTE PLUS BAS — 10 août au soir.
+
+     J'ai écrit cette question SANS `inspection: true`. Les huit autres l'ont.
+     Ses trois options sont des angles de vue — d'où l'on regarde le vol — et la
+     séance les a présentées comme trois propositions concurrentes. Hugo a donc
+     répondu ce que l'écran lui demandait : « je garde en partant, je tourne,
+     enlève les autres. »
+
+     Appliqué à la lettre, cela supprimerait deux façons de regarder un vol qui
+     marche. C'est mot pour mot le cas décrit au rendu des boutons, et le remède
+     y était déjà écrit. Je ne l'ai pas employé.
+
+     LE COÛT VRAI N'EST PAS LÀ. Un « je garde celle-ci » n'est pas un verdict :
+     une question non-inspection ne produit ni « ça va » ni « ça coince ». Sa
+     séance ne m'a donc pas dit ce que je lui demandais — est-ce qu'on retrouve
+     son chemin quand plus rien ne recadre. Il a regardé, il n'a rien signalé,
+     et c'est tout ce que je sais. La question reste donc ouverte, corrigée, et
+     ne lui coûtera que le temps d'un départ.
+
+     `outil-verif-juge.js` refuse désormais une question à options qui ne dit pas
+     laquelle des deux formes elle prend. Déclarée, jamais devinée — la même
+     manœuvre que `carte:` sur les destinations, ce matin. */
   { id: "main-gagne",
     titre: "Regarder ailleurs pendant le vol",
     libre: true,
+    inspection: true,
     quoi: "Tu me l'avais demandé le 9 août. Pendant le voyage, le vaisseau te "
         + "ramenait la tête vers le trou noir à chaque image : tu regardais "
         + "devant, on te retournait. C'est fini — dès que tu touches à la visée, "
