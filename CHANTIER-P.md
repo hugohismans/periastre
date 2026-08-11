@@ -1,3 +1,30 @@
+## ARRÊT — 3.13 est en cours d'écriture dans une AUTRE session, 11 août 9 h 40
+
+Le hook vient de me pousser sur 3.13, et il a raison de le faire : la case est
+vide. Mais `solaire.js` est déjà écrit et publié, et `etiquettes.js` est en train
+d'être écrit à cette minute par la session « Le Soleil et les étiquettes »
+(`claude/periastre-scene-solaire`), lancée exprès pour ça.
+
+**L'écrire ici en ferait une deuxième version du même module.** C'est mot pour
+mot la maladie que ce dépôt traque — deux vérités pour une chose, dont une
+invisible — et on la paierait au moment de la fusion, sur le seul fichier que
+personne ne peut arbitrer à ma place.
+
+Et la seconde raison est honnête : **la mémoire de cette conversation est
+épuisée**. Elle a porté la remise à plat du cap, le plan, quatre étapes, deux
+séances et le branchement de ce hook. Écrire un module neuf maintenant produirait
+du code que je ne pourrais plus relire.
+
+**Comment lever cet arrêt** — supprimer ces lignes quand la branche
+`claude/periastre-scene-solaire` est fusionnée sur `main` et la case 3.13 cochée.
+Un réveil est armé pour 11 h 40 et fait exactement ça.
+
+*Ceci n'est pas un contournement du hook : c'est la porte de sortie qu'il décrit
+lui-même, employée pour la raison qu'elle prévoit — quelque chose qui ne se
+tranche pas en enchaînant.*
+
+---
+
 # La descente au périastre — la liste que le hook lit
 
 Ce fichier n'est pas de la décoration : **le hook `Stop` le lit à chaque fin de
