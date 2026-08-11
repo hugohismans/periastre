@@ -565,3 +565,51 @@ lisible, et sa règle du 7 août dit de ne pas la trancher seul.
 
 **76 contrôles dans `outil-verif-terrelune.js`**, six sabotages. `node tout.js` :
 44 outils, aucun échec.
+
+---
+
+## 11 août 2026 — les planètes deviennent des photographies
+
+**Ce qui change pour Hugo :** Jupiter, Mars, la Terre, la Lune, Saturne et
+Neptune ne sont plus dessinés. Ce sont des photographies, prises par des engins
+qui sont allés les voir. La « merde orange » a disparu.
+
+La session précédente avait câblé tout le chemin — projection, chargement
+paresseux, repli sur le dessin, la serrure des sources — et n'avait pas pu
+poser un seul fichier : elle n'avait aucun accès au dehors. Il ne restait donc
+qu'à aller les chercher. Six cartes en 2048×1024, sous 400 Ko chacune, 1,3 Mo
+en tout.
+
+### Ce qui a été payé, et qu'il ne faut pas repayer
+
+- **Quatre sur six seulement sont des observations pleines.** Jupiter est une
+  mosaïque Cassini, Mars une mosaïque Viking, la Terre un composite MODIS, la
+  Lune une mosaïque LRO. Mais **aucune agence ne publie de carte globale de
+  Saturne ni de Neptune** — ni Voyager ni Cassini n'en ont couvert la surface
+  entière. Les seules cartes libres pour ces deux-là sont des textures dérivées
+  d'imagerie NASA, aux couleurs retouchées. C'est écrit dans leur `source`.
+- **Les cartes de Björn Jónsson ont été refusées**, alors qu'elles sont les
+  meilleures qui existent pour ces deux planètes. Sa page de conditions — lue,
+  pas devinée — autorise leur usage mais demande expressément qu'on n'en héberge
+  pas de copie. Un site statique ne peut pas faire autrement. C'est exactement
+  le genre de chose qu'on ne découvre qu'en allant lire.
+- **Le crédit devait aller jusqu'à l'écran.** Deux de ces licences sont des
+  Creative Commons Attribution : le droit de servir l'image est *conditionnel*,
+  et la condition est de citer l'auteur. Une citation enfouie dans un fichier de
+  code n'en est pas une. La scène porte donc la provenance de la carte affichée,
+  en haut à droite — et elle avoue « astre dessiné » quand il n'y en a pas.
+  Défaut juridique, invisible sur tout écran, attrapable par un seul contrôle.
+
+### Ce que l'outil sait faire de plus (règle 1)
+
+Il **ouvre les fichiers** maintenant. Il lit l'en-tête JPEG et mesure : les deux
+côtés sont-ils des puissances de deux — une mire de 360×180 avait rendu un
+disque *entièrement noir*, sans message ni erreur —, le rapport est-il de deux
+pour un, le poids tient-il. Sa vérité ne vient plus du registre mais des octets,
+et il se prouve faillible sur un en-tête fabriqué de la taille exacte qui avait
+noirci le disque. De 57 à 127 affirmations.
+
+### Ce qui reste ouvert
+
+Inchangé : le rivage n'est toujours pas un lieu de `lieux.js`, et le cadran
+reste un menu posé par-dessus la scène plutôt qu'un objet du monde.
