@@ -20,11 +20,27 @@ en vol et le relevé aux sources du système solaire.
 
 ---
 
-## ❓ D'OÙ ON REGARDE LE SYSTÈME SOLAIRE — et ça change tout le décor
+## ✅ D'OÙ ON REGARDE LE SYSTÈME SOLAIRE — tranché le 10 août au soir
 
-**C'est une décision d'image, elle t'appartient.** Je l'ai chiffrée parce que la
-réponse n'est pas celle que je croyais, et elle décide s'il y a des étiquettes à
-poser ou non.
+> **Verdict d'Hugo : (c), les deux, dans cet ordre.** On arrive dans le nuage de
+> Oort — un point, et le vide autour — puis on continue à tomber vers 1 000 ua,
+> où les orbites s'écartent et où les étiquettes tiennent debout.
+>
+> **Ce que ça engage, et il faut le savoir avant de commencer.** La scène n'est
+> plus une vue mais un MOUVEMENT : deux régimes visuels, dont un où les
+> étiquettes n'ont pas le droit d'exister et un autre où elles doivent
+> apparaître. Le passage de l'un à l'autre est le sujet, pas un fondu de
+> transition — c'est là que « rien à voir » se transforme en « ah, il y a
+> quelque chose ». Le mécanisme d'étiquettes devra donc savoir se taire, et pas
+> seulement se placer.
+>
+> Et ça rejoint le rythme du grand trajet, qui attend exactement ça : quelque
+> chose vers quoi s'approcher pour que la seconde moitié du voyage se compte.
+
+*Le chiffrage qui a servi à trancher est gardé ci-dessous.*
+
+**C'était une décision d'image.** Je l'ai chiffrée parce que la réponse n'est pas
+celle que je croyais, et elle décidait s'il y a des étiquettes à poser ou non.
 
 Tu voulais « une vision depuis le nuage dehors, avec des tags : ça c'est Jupiter,
 ça c'est truc ». Je pensais pouvoir te dire « impossible, tout est dans le même
