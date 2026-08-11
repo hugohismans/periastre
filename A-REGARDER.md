@@ -20,7 +20,17 @@ en vol et le relevé aux sources du système solaire.
 
 ---
 
-## ❗ LE RYTHME DU VOYAGE A ENFIN SON BOUTON — et son défaut t'appartient
+## ✅ LE RYTHME DU VOYAGE A SON BOUTON — et son défaut est tranché
+
+> **Jugé le 11 août sur iPhone : « ça va », angle « fidèle, au départ ».**
+> **`fidele` reste ce que le site joue**, et c'est le premier choix qui engage
+> vraiment, puisque le bouton existe enfin. La question ci-dessous est gardée
+> pour mémoire — elle porte la mesure, et la mesure reste vraie.
+>
+> *Cette section te reposait une question déjà tranchée pendant une heure, faute
+> d'avoir été nettoyée après ton verdict. C'est exactement ce que ce dépôt s'est
+> écrit le 8 août : un document qui réclame une décision déjà prise se fait
+> ignorer, et c'est comme ça qu'on cesse de le lire.*
 
 **Il faut que je te dise d'abord ce qui n'allait pas.** Le 7 août tu avais
 demandé les deux rythmes, « paramétrable dans les options ». Les deux ont été
