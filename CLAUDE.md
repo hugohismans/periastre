@@ -161,6 +161,19 @@ sans navigateur.
   mesure de position y lit l'état de départ.
 - **Deux écrivains pour une valeur** : la maladie qui a donné le disque à 622×.
   Se soigne comme la soupe de drapeaux — un seul état, en lecture seule dehors.
+- **`VERIF.sain()` en entier ne passe pas dans les machines du nuage.** Elles
+  n'ont pas de carte graphique : Chromium rend en logiciel, et la passe complète
+  dépasse tous les délais — essayée à 2 min puis à 9, tuée les deux fois.
+  `carteDehors` avance 1 100 images à lui seul. **Jouer les contrôles un par un**
+  (`VERIF.resultats.length = 0; VERIF[nom]()`), en ne prenant que ceux que la
+  modification peut atteindre ; `vivant` d'abord, il dit en secondes si un bloc
+  est mort. Chromium : `executablePath: '/opt/pw-browsers/chromium'`, args
+  `--use-gl=swiftshader --enable-unsafe-swiftshader`, et passer l'accueil par
+  `p.evaluate` — un clic sur le sélecteur de langue recharge la page et détruit
+  le contexte. Coûté une heure à deux sessions le 11 août, dont une qui a tourné
+  en rond assez longtemps pour qu'Hugo le voie depuis son téléphone.
+  **`node tout.js` est le filet principal, et il n'a pas besoin de navigateur** :
+  les contrôles en page sont un complément, jamais une condition de publication.
 
 ---
 
