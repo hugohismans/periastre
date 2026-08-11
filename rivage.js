@@ -303,6 +303,52 @@ function crans(L){
    diverger — et ce serait la maladie des deux écrivains, celle qui a donné le
    disque à 622× (règle 4).                                                  */
 /* --------------------------------------------------------------------------
+   LE PANNEAU — le cadran devient un objet du monde
+
+   Hugo, le 11 août 2026, en décrivant ce qu'il voulait : « il peut cliquer en
+   mode, voilà, je mets la Lune. Il voit comment c'est la Lune. EN TANT QUE
+   JOUEUR SUR TERRE, pas juste une page HTML. »
+
+   Le premier jet lui a donné un menu flottant en haut de la scène. C'est
+   exactement ce qu'il refusait : on cliquait DEVANT le monde, pas DEDANS. Le
+   panneau est un vrai objet, planté dans le sable, qu'on regarde et qu'on
+   touche — et qui porte une ombre, et qu'on peut manquer si on vise mal.
+
+   SA GÉOMÉTRIE VIT ICI, comme celle du piquet, pour la même raison : le
+   découpage en cases doit être JUGEABLE. Une case trop petite pour un pouce,
+   une case qui déborde du panneau, un cran sans case — aucun de ces défauts ne
+   se voit dans un chiffre de physique, et tous se voient à l'usage.
+
+   Il est planté À GAUCHE, en miroir du piquet qui est à droite : les deux
+   objets du lieu encadrent le regard au lieu de se disputer le même coin.   */
+const PANNEAU = {
+  /* SA DISTANCE, réglée en regardant. À 4,20 m il mangeait tout le cadre :
+     1,30 m de large à cette distance couvrent 15° sur les 19° que montre un
+     écran ordinaire, et l'on ne voyait plus le lieu, seulement le meuble. À
+     6,50 m il en occupe la moitié — assez pour lire les noms sans effort,
+     assez peu pour que le rivage existe autour. */
+  x: -2.00, z: -6.50,       // à gauche, le piquet est à droite
+  largeur: 1.30, hauteur: 0.92,
+  centreY: 1.05,            // hauteur du centre au-dessus du zéro des cartes
+  colonnes: 2, lignes: 4,   // huit cases pour huit astres
+};
+
+/* Quelle case occupe le point (u,v) du panneau, en coordonnées normalisées
+   depuis son centre : u et v vont de −0,5 à +0,5. Rend l'indice du cran, ou
+   −1 si l'on est hors du panneau.
+
+   Le sens de lecture est celui d'une page — de gauche à droite, de haut en
+   bas — parce que c'est celui de la table des astres, et qu'un panneau qui
+   les rangerait autrement obligerait à traduire deux fois. */
+function cranSous(u, v, nombreDeCrans){
+  if(u < -0.5 || u > 0.5 || v < -0.5 || v > 0.5) return -1;
+  const col = Math.min(PANNEAU.colonnes - 1, Math.floor((u + 0.5) * PANNEAU.colonnes));
+  const lig = Math.min(PANNEAU.lignes  - 1, Math.floor((0.5 - v) * PANNEAU.lignes));
+  const i = lig * PANNEAU.colonnes + col;
+  return (i < nombreDeCrans) ? i : -1;
+}
+
+/* --------------------------------------------------------------------------
    LE PIQUET DE MARÉE
 
    Le défaut que j'avais annoncé à Hugo avant même qu'il ouvre la page : la
@@ -409,7 +455,7 @@ global.RIVAGE = {
   SOURCES, JOUR_SIDERAL_S, ROCHE_FLUIDE, OEIL_M,
   P2, hauteurMaree, marnage, periodeOrbite_s, periodeMaree_s,
   limiteRoche_km, densite, verdict, horizonM, scene, crans, etalonLune, CARTES, carteDe, carteValide,
-  PIQUET, lisibilite,
+  PIQUET, lisibilite, PANNEAU, cranSous,
 };
 
 })(typeof window !== "undefined" ? window : globalThis);

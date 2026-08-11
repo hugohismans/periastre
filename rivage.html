@@ -102,8 +102,8 @@
 
 <nav id="cadran"><b>dans le ciel</b></nav>
 
-<script src="lune.js?v=405250f"></script>
-<script src="rivage.js?v=405250f"></script>
+<script src="lune.js?v=43859c0"></script>
+<script src="rivage.js?v=43859c0"></script>
 <script>
 "use strict";
 /* ==========================================================================
@@ -177,6 +177,21 @@ function champ(){
   return Math.max(2, Math.min(70, deg));
 }
 
+/* LES AXES DU REGARD — une seule fois, pour tout le monde.
+
+   Ils étaient calculés dans la boucle de dessin. Le clic devait en refaire
+   autant de son côté pour savoir ce qu'on vise, et deux copies d'une même
+   formule finissent toujours par diverger : on toucherait alors une plaque en
+   en visant une autre, défaut invisible tant qu'on ne vise pas un bord.
+
+   Un seul écrivain, comme partout ailleurs dans ce projet. */
+function base(){
+  const ca=Math.cos(alt), sa=Math.sin(alt), cz=Math.cos(az), sz=Math.sin(az);
+  return [[ sz*ca, sa, -cz*ca ],        // devant
+          [ cz,    0,   sz    ],        // à droite
+          [-sz*sa, ca,  cz*sa ]];       // au-dessus
+}
+
 /* --- WebGL --------------------------------------------------------------- */
 const cv = document.getElementById("c");
 /* `?mesure` garde le tampon lisible après le dessin, pour qu'un contrôle
@@ -218,6 +233,10 @@ uniform float uAvecCarte;    // 1 quand elle est chargee et utilisable
 uniform vec3  uPiquet;       // x, z, rayon du piquet de maree
 uniform vec2  uPiquetY;      // bas et haut du piquet
 uniform float uGrad;         // pas des graduations, en metres
+uniform sampler2D uPlaques;  // les huit noms graves, en une image
+uniform vec4  uPanneau;      // x, z, largeur, hauteur
+uniform float uPanneauY;     // hauteur du centre
+uniform float uCranActif;    // quel cran est en cours, pour l'eclairer
 
 /* Un brassage 2D sans sinus. sin(dot(...))*43758 se répète à grande échelle
    sur les cartes mobiles, qui n'ont pas la précision qu'il réclame — c'est une
@@ -500,6 +519,53 @@ void main(){
   }
 
   /* ------------------------------------------------------------------------
+     LE PANNEAU — le cadran, devenu un objet planté dans le sable
+
+     Hugo voulait qu'on clique DANS le monde, pas DEVANT : « en tant que joueur
+     sur terre, pas juste une page HTML ». Le menu flottant faisait exactement
+     ce qu'il refusait.
+
+     C'est un plan vertical, à z constant, tourné vers le rivage. On le vise du
+     regard et on touche la plaque. On peut le manquer : viser fait partie du
+     fait d'être là.
+
+     Les noms sont GRAVÉS dans une image fabriquée par la page — huit cases,
+     dans l'ordre de la table des astres. Aucun texte n'est écrit ici. */
+  if(d.z < -1e-4){
+    float tp = uPanneau.y / d.z;                 // plan z = uPanneau.y
+    vec3  pp = vec3(d.x*tp, uEye + d.y*tp, d.z*tp);
+    float pu = (pp.x - uPanneau.x) / uPanneau.z;
+    float pv = (pp.y - uPanneauY)  / uPanneau.w;
+    float dh2 = uEye - uSea;
+    float tMer2 = (d.y < 0.0) ? dh2/(-d.y) : 1e9;
+    if(tp > 0.0 && abs(pu) < 0.5 && abs(pv) < 0.5 && tp < tMer2){
+      vec3 bois = vec3(0.19,0.16,0.13);
+
+      // le quadrillage des huit cases, creusé dans le bois
+      vec2 cel = vec2(fract((pu+0.5)*2.0), fract((0.5-pv)*4.0));
+      float rain = smoothstep(0.035,0.0, min(min(cel.x,1.0-cel.x),
+                                             min(cel.y,1.0-cel.y)));
+      bois = mix(bois, vec3(0.09,0.07,0.05), rain*0.9);
+
+      // la case en cours, éclairée comme du laiton chauffé
+      float idx = floor((0.5-pv)*4.0)*2.0 + floor((pu+0.5)*2.0);
+      if(abs(idx - uCranActif) < 0.5)
+        bois = mix(bois, vec3(0.44,0.33,0.13), 0.75);
+
+      // les noms gravés
+      float g = texture2D(uPlaques, vec2(pu+0.5, 0.5-pv)).r;
+      bois = mix(bois, vec3(0.92,0.87,0.72), g*0.92);
+
+      // un cadre, et le grain du bois
+      float bord = smoothstep(0.5,0.47, max(abs(pu),abs(pv)));
+      bois = mix(vec3(0.13,0.10,0.08), bois, bord);
+      bois *= 0.90 + 0.10*sin(pp.y*140.0);
+
+      col = bois;
+    }
+  }
+
+  /* ------------------------------------------------------------------------
      LE PIQUET DE MARÉE — l'instrument qui rend la mer lisible
 
      Sans lui, les 54 cm de la Lune ne se voient pas : une mer sans repère qui
@@ -603,7 +669,7 @@ gl.vertexAttribPointer(ap,2,gl.FLOAT,false,0,0);
 
 const U = {};
 for(const n of ["uRes","uFwd","uRight","uUp","uBodyDir","uAngR","uTint","uKind",
-                "uVisible","uSea","uEye","uHorizon","uT","uRing","uTanChamp","uAngRLune","uEstLune","uCarte","uAvecCarte","uPiquet","uPiquetY","uGrad"])
+                "uVisible","uSea","uEye","uHorizon","uT","uRing","uTanChamp","uAngRLune","uEstLune","uCarte","uAvecCarte","uPiquet","uPiquetY","uGrad","uPlaques","uPanneau","uPanneauY","uCranActif"])
   U[n] = gl.getUniformLocation(prog,n);
 
 /* --- LES CARTES PHOTOGRAPHIQUES ------------------------------------------
@@ -684,6 +750,69 @@ function poseCarte(k){
   img.src = c.fichier;
 }
 
+/* --- LES NOMS GRAVÉS SUR LE PANNEAU --------------------------------------
+   Une image fabriquée par la page, en 512×512 — puissance de deux, comme les
+   cartes, et pour la même raison. Les huit cases suivent l'ordre de
+   `RIVAGE.crans`, donc l'ordre de la table des astres : le panneau ne peut pas
+   se désynchroniser de ce qu'il commande.
+
+   Rien n'est écrit en dur ici. Ajouter un astre chez la Lune grave une plaque
+   de plus, sans toucher à ce fichier. */
+const plaques = gl.createTexture();
+(function graveLesPlaques(){
+  const T = 512;
+  const cvp = document.createElement("canvas");
+  cvp.width = cvp.height = T;
+  const g = cvp.getContext("2d");
+  g.fillStyle = "#000"; g.fillRect(0,0,T,T);
+
+  const liste = R.crans(L);
+  const cw = T / R.PANNEAU.colonnes, ch = T / R.PANNEAU.lignes;
+  g.fillStyle = "#fff";
+  g.textAlign = "center"; g.textBaseline = "middle";
+  g.font = "600 42px ui-sans-serif, system-ui, sans-serif";
+  liste.forEach((cran, i) => {
+    const col = i % R.PANNEAU.colonnes, lig = (i / R.PANNEAU.colonnes) | 0;
+    g.fillText(cran.court, (col + 0.5)*cw, (lig + 0.5)*ch, cw*0.86);
+  });
+
+  gl.bindTexture(gl.TEXTURE_2D, plaques);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, cvp);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+})();
+
+/* --- VISER LE PANNEAU ----------------------------------------------------
+   Le rayon du clic est construit EXACTEMENT comme celui du nuanceur : même
+   base, même échelle, même formule. S'ils divergeaient, on toucherait une
+   plaque en en visant une autre — et ce serait la maladie des deux écrivains,
+   invisible tant qu'on ne vise pas le bord d'une case. */
+function rayonDuClic(px, py){
+  const w = cv.clientWidth, h = cv.clientHeight;
+  const uvx =  (px - w/2) / h;
+  const uvy = -(py - h/2) / h;
+  const tc = Math.tan(champ()*Math.PI/360);
+  const [f, r, u] = base();
+  const d = [ f[0] + (r[0]*uvx + u[0]*uvy)*2*tc,
+              f[1] + (r[1]*uvx + u[1]*uvy)*2*tc,
+              f[2] + (r[2]*uvx + u[2]*uvy)*2*tc ];
+  const n = Math.hypot(d[0], d[1], d[2]);
+  return [d[0]/n, d[1]/n, d[2]/n];
+}
+
+/* Quel cran a-t-on touché — ou −1 si l'on a visé le ciel, le sable, la mer. */
+function cranVise(px, py){
+  const d = rayonDuClic(px, py);
+  if(d[2] >= -1e-4) return -1;                    // le panneau est devant, en −z
+  const P = R.PANNEAU;
+  const t = P.z / d[2];
+  if(t <= 0) return -1;
+  const x = d[0]*t, y = scn.oeil_m + d[1]*t;
+  return R.cranSous((x - P.x)/P.largeur, (y - P.centreY)/P.hauteur, R.crans(L).length);
+}
+
 /* --- le cadran, construit depuis RIVAGE.crans ---------------------------- */
 const nav = document.getElementById("cadran");
 for(const cran of R.crans(L)){
@@ -739,20 +868,42 @@ function majJauge(){
 /* --- regarder autour ------------------------------------------------------ */
 let prise = false, lx = 0, ly = 0;
 const aide = document.getElementById("aide");
-function debut(x,y){ prise = true; lx=x; ly=y; cv.classList.add("prise"); aide.classList.add("parti"); }
+/* TOUCHER OU TOURNER LA TÊTE — le même doigt fait les deux.
+
+   On mémorise le point de départ et l'on mesure le chemin parcouru. En dessous
+   de quelques pixels, c'est un TOUCHER : on regarde ce qu'on visait. Au-delà,
+   c'était un regard, et l'on ne change rien.
+
+   Le seuil est en pixels CSS et pas en pixels physiques : c'est un geste de la
+   main, pas une distance à l'écran. Un doigt bouge toujours un peu. */
+const SEUIL_TOUCHER = 7;
+let dx0 = 0, dy0 = 0, chemin = 0;
+
+function debut(x,y){
+  prise = true; lx=x; ly=y; dx0=x; dy0=y; chemin=0;
+  cv.classList.add("prise"); aide.classList.add("parti");
+}
 function bouge(x,y){
   if(!prise) return;
+  chemin += Math.abs(x-lx) + Math.abs(y-ly);
   az  -= (x-lx)*0.0032;
   alt = Math.max(-0.35, Math.min(1.35, alt + (y-ly)*0.0032));
   lx=x; ly=y;
 }
-function fin(){ prise=false; cv.classList.remove("prise"); }
+function fin(){
+  const etaitPris = prise;
+  prise=false; cv.classList.remove("prise");
+  if(!etaitPris || chemin > SEUIL_TOUCHER) return;
+  const i = cranVise(dx0, dy0);
+  if(i >= 0) choisis(R.crans(L)[i].cle);
+}
 cv.addEventListener("mousedown", e=>debut(e.clientX,e.clientY));
 addEventListener("mousemove", e=>bouge(e.clientX,e.clientY));
 addEventListener("mouseup", fin);
 cv.addEventListener("touchstart", e=>{const t=e.touches[0];debut(t.clientX,t.clientY);}, {passive:true});
 cv.addEventListener("touchmove", e=>{const t=e.touches[0];bouge(t.clientX,t.clientY);}, {passive:true});
 cv.addEventListener("touchend", fin);
+cv.addEventListener("touchcancel", () => { prise = false; });
 
 /* LA LOUPE — molette au bureau, deux doigts sur le téléphone. */
 function grossis(f){
@@ -807,10 +958,7 @@ function image(now){
   }
   gl.viewport(0,0,cv.width,cv.height);
 
-  const ca=Math.cos(alt), sa=Math.sin(alt), cz=Math.cos(az), sz=Math.sin(az);
-  const fwd   = [ sz*ca, sa, -cz*ca ];
-  const right = [ cz, 0, sz ];
-  const up    = [ -sz*sa, ca, cz*sa ];
+  const [fwd, right, up] = base();
 
   gl.uniform2f(U.uRes, cv.width, cv.height);
   gl.uniform3fv(U.uFwd, fwd); gl.uniform3fv(U.uRight, right); gl.uniform3fv(U.uUp, up);
@@ -841,6 +989,12 @@ function image(now){
   gl.uniform3f(U.uPiquet, R.PIQUET.x, R.PIQUET.z, R.PIQUET.rayon);
   gl.uniform2f(U.uPiquetY, R.PIQUET.bas, R.PIQUET.haut);
   gl.uniform1f(U.uGrad, R.PIQUET.graduation_m);
+  gl.activeTexture(gl.TEXTURE1);
+  gl.bindTexture(gl.TEXTURE_2D, plaques);
+  gl.uniform1i(U.uPlaques, 1);
+  gl.uniform4f(U.uPanneau, R.PANNEAU.x, R.PANNEAU.z, R.PANNEAU.largeur, R.PANNEAU.hauteur);
+  gl.uniform1f(U.uPanneauY, R.PANNEAU.centreY);
+  gl.uniform1f(U.uCranActif, R.crans(L).findIndex(c => c.cle === cle));
 
   gl.drawArrays(gl.TRIANGLES,0,3);
   requestAnimationFrame(image);

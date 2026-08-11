@@ -542,6 +542,58 @@ const ouverture = (Math.atan(sousOeil/Math.abs(R.PIQUET.z))
 affirmeVrai("il tient dans une douzaine de degrés de ciel",
   ouverture < 12, fr(ouverture, 1) + "° de haut à " + Math.abs(R.PIQUET.z) + " m");
 
+/* ============================================================================
+   13. LE PANNEAU — huit cases, huit astres, et rien qui déborde
+
+   Le cadran était un menu flottant au-dessus de la scène : on cliquait DEVANT
+   le monde, pas dedans, ce qu'Hugo refusait explicitement. Il est devenu un
+   objet planté dans le sable, qu'on vise et qu'on touche.
+
+   Ce qui se vérifie ici n'est pas son apparence — aucun outil ne voit une
+   image — mais la CORRESPONDANCE entre ses cases et les astres. Une case en
+   trop, une case manquante, un cran inatteignable : autant de défauts qui ne
+   se voient qu'en visant précisément le bon pixel, donc jamais par hasard.   */
+titre("13. Le panneau planté dans le sable");
+
+const nCrans = R.crans(L).length;
+affirmeVrai("autant de cases que d'astres",
+  R.PANNEAU.colonnes * R.PANNEAU.lignes === nCrans,
+  R.PANNEAU.colonnes + "×" + R.PANNEAU.lignes + " pour " + nCrans + " astres");
+
+/* Tout cran doit être atteignable, et aucun point du panneau ne doit rendre
+   un cran qui n'existe pas. On balaie la surface. */
+const atteints = new Set();
+let deborde = false;
+for(let i = 0; i < 240; i++) for(let j = 0; j < 240; j++){
+  const c = R.cranSous(-0.5 + i/239, -0.5 + j/239, nCrans);
+  if(c >= 0){ atteints.add(c); if(c >= nCrans) deborde = true; }
+}
+affirmeVrai("chaque astre a sa case, et une seule zone",
+  atteints.size === nCrans && !deborde,
+  [...atteints].sort((a,b)=>a-b).join(" · "));
+
+affirmeVrai("viser à côté ne change rien",
+  R.cranSous(0.7, 0, nCrans) === -1 && R.cranSous(0, -0.9, nCrans) === -1
+  && R.cranSous(-0.51, 0, nCrans) === -1);
+
+/* Une case doit rester touchable au doigt. Le pouce couvre environ 1 cm sur
+   l'écran ; à la distance du panneau, une case doit donc dépasser deux degrés,
+   sans quoi on toucherait sa voisine. */
+const dPanneau = Math.hypot(R.PANNEAU.x, R.PANNEAU.z);
+const caseLarge = (R.PANNEAU.largeur/R.PANNEAU.colonnes);
+const caseHaute = (R.PANNEAU.hauteur/R.PANNEAU.lignes);
+const angleCase = Math.atan(caseHaute/dPanneau) * 180/Math.PI;
+affirmeVrai("une case reste touchable au doigt", angleCase > 1.6,
+  fr(caseLarge*100,0) + "×" + fr(caseHaute*100,0) + " cm à " + fr(dPanneau,1) +
+  " m, soit " + fr(angleCase,1) + "° de haut");
+
+/* Et il doit tenir dans le champ : un panneau plus large que l'écran cesse
+   d'être un objet du lieu pour devenir un mur. Premier jet, à 4,20 m, il
+   couvrait 15° des 19° montrés. */
+const angleLarge = 2*Math.atan(R.PANNEAU.largeur/2/dPanneau) * 180/Math.PI;
+affirmeVrai("le panneau laisse voir le rivage autour", angleLarge < 13,
+  fr(angleLarge,1) + "° de large à " + fr(dPanneau,1) + " m");
+
 /* ============================================================================ */
 console.log("\n" + "=".repeat(72));
 console.log(echecs === 0
