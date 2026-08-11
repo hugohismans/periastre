@@ -303,6 +303,61 @@ function crans(L){
    diverger — et ce serait la maladie des deux écrivains, celle qui a donné le
    disque à 622× (règle 4).                                                  */
 /* --------------------------------------------------------------------------
+   LE PIQUET DE MARÉE
+
+   Le défaut que j'avais annoncé à Hugo avant même qu'il ouvre la page : la
+   marée est calculée juste, elle bouge vraiment, et **on ne la voit pas**.
+   54 cm sur une mer sans repère ne se lisent pas à l'œil. La démonstration du
+   trou noir — même masse, même mer, ciel vide — ne tenait donc que dans les
+   chiffres, jamais dans l'image.
+
+   Un piquet gradué planté dans l'eau. Il est DESSINÉ : il n'existe pas dans la
+   nature, et c'est un instrument, pas une observation. Mais sans lui la scène
+   ne montre rien, et un instrument déclaré vaut mieux qu'une marée invisible.
+
+   SA GÉOMÉTRIE VIT ICI, ET PAS DANS LA PAGE, pour une raison précise : elle
+   doit pouvoir être JUGÉE. Un piquet gradué tous les mètres serait inutile
+   pour la Lune ; un piquet trop court serait noyé avant d'avoir servi. Ce sont
+   des défauts d'image, invisibles dans un chiffre — sauf si l'on confronte la
+   graduation à la marée, ce que `lisibilite` permet et qu'un outil exige.    */
+const PIQUET = {
+  /* SA DISTANCE EST LE CHOIX QUI COMPTE, et le premier jet l'avait raté.
+
+     Planté à 7,50 m, le piquet plongeait hors du cadre : il couvrait 28° de
+     hauteur alors que l'échelle du ciel n'en montre qu'une douzaine. On ne
+     pouvait pas voir la mer monter ET l'astre en même temps, ce qui est
+     pourtant toute la scène.
+
+     À 27 m, il tient dans le même regard que le ciel, et la marée de la Lune
+     y balaie encore plus d'un degré — cinquante pixels sur un téléphone. La
+     distance n'a donc pas été choisie pour la vraisemblance d'un rivage, mais
+     pour que la plus petite marée reste LISIBLE ; c'est un instrument, et un
+     instrument se règle sur ce qu'il doit mesurer. */
+  x: 1.50, z: -27.0,
+  rayon: 0.14,
+  bas:  -1.60,              // sous la plus basse mer de la Lune
+  haut:  2.30,              // au-dessus de la plus haute
+  graduation_m: 0.10,       // un trait tous les dix centimètres
+};
+
+/* Ce que le piquet donne à voir pour un astre donné. `graduations` est le
+   nombre de traits que la mer parcourt entre basse et pleine mer — c'est LA
+   mesure de lisibilité, et elle se confronte à la marée, pas au piquet. */
+function lisibilite(L, cle, distance_km){
+  const d = (distance_km === undefined) ? L.D_LUNE_KM : distance_km;
+  const a = L.ASTRES.find(x => x.cle === cle);
+  if(!a) throw new Error("rivage : astre inconnu — " + cle);
+  const haute = hauteurMaree(L, a, d, 0);
+  const basse = hauteurMaree(L, a, d, Math.PI/2);
+  return {
+    haute_m: haute, basse_m: basse,
+    graduations: (haute - basse) / PIQUET.graduation_m,
+    noye:        haute >= PIQUET.haut,   // la pleine mer passe par-dessus
+    aDecouvert:  basse <= PIQUET.bas,    // la basse mer le déchausse
+  };
+}
+
+/* --------------------------------------------------------------------------
    LES CARTES — la porte ouverte le 11 août 2026 par Hugo
 
    Il a regardé mon Jupiter dessiné à la main et tranché : « très très moche,
@@ -354,6 +409,7 @@ global.RIVAGE = {
   SOURCES, JOUR_SIDERAL_S, ROCHE_FLUIDE, OEIL_M,
   P2, hauteurMaree, marnage, periodeOrbite_s, periodeMaree_s,
   limiteRoche_km, densite, verdict, horizonM, scene, crans, etalonLune, CARTES, carteDe, carteValide,
+  PIQUET, lisibilite,
 };
 
 })(typeof window !== "undefined" ? window : globalThis);

@@ -102,8 +102,8 @@
 
 <nav id="cadran"><b>dans le ciel</b></nav>
 
-<script src="lune.js?v=a468728"></script>
-<script src="rivage.js?v=a468728"></script>
+<script src="lune.js?v=405250f"></script>
+<script src="rivage.js?v=405250f"></script>
 <script>
 "use strict";
 /* ==========================================================================
@@ -215,6 +215,9 @@ uniform float uAngRLune;     // rayon angulaire de la Lune — L'ÉTALON
 uniform float uEstLune;      // 1 quand l'astre choisi EST la Lune
 uniform sampler2D uCarte;    // la carte photographique, si elle existe
 uniform float uAvecCarte;    // 1 quand elle est chargee et utilisable
+uniform vec3  uPiquet;       // x, z, rayon du piquet de maree
+uniform vec2  uPiquetY;      // bas et haut du piquet
+uniform float uGrad;         // pas des graduations, en metres
 
 /* Un brassage 2D sans sinus. sin(dot(...))*43758 se répète à grande échelle
    sur les cartes mobiles, qui n'ont pas la précision qu'il réclame — c'est une
@@ -497,6 +500,54 @@ void main(){
   }
 
   /* ------------------------------------------------------------------------
+     LE PIQUET DE MARÉE — l'instrument qui rend la mer lisible
+
+     Sans lui, les 54 cm de la Lune ne se voient pas : une mer sans repère qui
+     monte d'un demi-mètre à l'horizon est une mer immobile. La démonstration
+     du trou noir — même masse, même mer, ciel vide — ne tenait que dans les
+     chiffres, et Hugo l'aurait cherchée en vain.
+
+     Il est DESSINÉ, et c'est un instrument, pas une observation : il n'existe
+     pas dans la nature. Mais sa GRADUATION est confrontée à la marée par
+     RIVAGE.lisibilite, et un outil exige qu'elle reste lisible pour la plus
+     petite marée que la scène doit montrer. Un piquet gradué tous les mètres
+     serait inutile pour la Lune — c'est un défaut d'image, invisible dans un
+     chiffre, sauf si on le mesure. */
+  {
+    vec2  pc = uPiquet.xy;
+    float pr = uPiquet.z;
+    float qa = d.x*d.x + d.z*d.z;
+    float qb = -2.0*(d.x*pc.x + d.z*pc.y);
+    float qc = dot(pc,pc) - pr*pr;
+    float disc = qb*qb - 4.0*qa*qc;
+    if(disc > 0.0 && qa > 1e-7){
+      float t = (-qb - sqrt(disc)) / (2.0*qa);
+      float y = uEye + d.y*t;
+      float dh = uEye - uSea;
+      float tMer = (d.y < 0.0) ? dh/(-d.y) : 1e9;
+      if(t > 0.0 && y > uPiquetY.x && y < uPiquetY.y && t < tMer){
+        vec3 bois = vec3(0.26,0.22,0.18);
+
+        // les traits, tous les uGrad mètres ; un sur cinq est plus marqué
+        float u  = (y - uPiquetY.x)/uGrad;
+        float g  = fract(u);
+        float fin = smoothstep(0.13,0.0, min(g, 1.0-g));
+        bois = mix(bois, vec3(0.80,0.78,0.72), fin*0.80);
+        if(mod(floor(u), 5.0) < 0.5)
+          bois = mix(bois, vec3(0.97,0.92,0.72), smoothstep(0.24,0.0,min(g,1.0-g))*0.85);
+
+        // ce qui est sous l'eau : plus sombre, verdi, et c'est CELA qu'on lit
+        if(y < uSea) bois = mix(bois, vec3(0.04,0.10,0.12), 0.74);
+
+        // ombrage cylindrique, même lumière que le reste de la scène
+        vec3 np = normalize(vec3(d.x*t - pc.x, 0.0, d.z*t - pc.y));
+        float lam = max(0.05, dot(np, normalize(vec3(-0.62,0.0,0.42))));
+        col = bois * (0.30 + 0.70*lam);
+      }
+    }
+  }
+
+  /* ------------------------------------------------------------------------
      L'ÉTALON — la Lune, posée à part, À LA MÊME ÉCHELLE
 
      Choix d'Hugo le 11 août 2026. La Lune fait cinq pixels, ce qui est exact,
@@ -552,7 +603,7 @@ gl.vertexAttribPointer(ap,2,gl.FLOAT,false,0,0);
 
 const U = {};
 for(const n of ["uRes","uFwd","uRight","uUp","uBodyDir","uAngR","uTint","uKind",
-                "uVisible","uSea","uEye","uHorizon","uT","uRing","uTanChamp","uAngRLune","uEstLune","uCarte","uAvecCarte"])
+                "uVisible","uSea","uEye","uHorizon","uT","uRing","uTanChamp","uAngRLune","uEstLune","uCarte","uAvecCarte","uPiquet","uPiquetY","uGrad"])
   U[n] = gl.getUniformLocation(prog,n);
 
 /* --- LES CARTES PHOTOGRAPHIQUES ------------------------------------------
@@ -787,6 +838,9 @@ function image(now){
   gl.bindTexture(gl.TEXTURE_2D, texture);
   gl.uniform1i(U.uCarte, 0);
   gl.uniform1f(U.uAvecCarte, avecCarte ? 1 : 0);
+  gl.uniform3f(U.uPiquet, R.PIQUET.x, R.PIQUET.z, R.PIQUET.rayon);
+  gl.uniform2f(U.uPiquetY, R.PIQUET.bas, R.PIQUET.haut);
+  gl.uniform1f(U.uGrad, R.PIQUET.graduation_m);
 
   gl.drawArrays(gl.TRIANGLES,0,3);
   requestAnimationFrame(image);
