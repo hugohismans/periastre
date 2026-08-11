@@ -302,6 +302,48 @@ function crans(L){
    diamètre de l'astre choisi. S'ils venaient de deux endroits, ils pourraient
    diverger — et ce serait la maladie des deux écrivains, celle qui a donné le
    disque à 622× (règle 4).                                                  */
+/* --------------------------------------------------------------------------
+   LES CARTES — la porte ouverte le 11 août 2026 par Hugo
+
+   Il a regardé mon Jupiter dessiné à la main et tranché : « très très moche,
+   on dirait une merde orange… tu ne t'acharnes pas trop avec cette promesse de
+   tout est calculé, si on importe des trucs, aussi bien. »
+
+   Il a raison, et le renversement mérite d'être écrit noir sur blanc : une
+   carte photographique est une OBSERVATION, du même genre que les rayons et les
+   masses du JPL que ce module dérive déjà. Mes bandes, elles, ne viennent de
+   nulle part. **L'objet importé est le plus sourcé des deux.**
+
+   Ce registre est donc VIDE, et c'est un état, pas un oubli. Aucune image n'a
+   pu être rapatriée : la session qui a ouvert cette porte n'avait aucun accès
+   au dehors. Ce qui est prêt, c'est la serrure.
+
+   POUR EN AJOUTER UNE, il faut trois choses, et `carteValide` les exige :
+
+     { cle:"jupiter", fichier:"cartes/jupiter.jpg", source:"…", licence:"…" }
+
+   Une carte sans source ne peut pas entrer — c'est la règle 6 appliquée aux
+   pixels comme aux phrases. Une carte sans licence non plus : une image qu'on
+   n'a pas le droit de servir est un défaut juridique, pas un défaut d'image, et
+   il ne se voit sur aucun écran.
+
+   Tant qu'un astre n'a pas de carte, la page le DESSINE, comme aujourd'hui, et
+   l'avoue. Les deux chemins cohabitent sans que l'un attende l'autre.        */
+const CARTES = [];
+
+function carteValide(c){
+  return !!c && typeof c.cle === "string" && typeof c.fichier === "string"
+      && typeof c.source === "string" && c.source.length > 12
+      && typeof c.licence === "string" && c.licence.length > 3;
+}
+
+/* Rend la carte d'un astre, ou null. Une entrée mal formée ne passe PAS en
+   silence : elle est refusée ici et signalée par l'outil. */
+function carteDe(cle){
+  const c = CARTES.find(x => x && x.cle === cle);
+  return carteValide(c) ? c : null;
+}
+
 function etalonLune(L, distance_km){
   const d = (distance_km === undefined) ? L.D_LUNE_KM : distance_km;
   const lune = L.ASTRES.find(a => a.cle === "lune");
@@ -311,7 +353,7 @@ function etalonLune(L, distance_km){
 global.RIVAGE = {
   SOURCES, JOUR_SIDERAL_S, ROCHE_FLUIDE, OEIL_M,
   P2, hauteurMaree, marnage, periodeOrbite_s, periodeMaree_s,
-  limiteRoche_km, densite, verdict, horizonM, scene, crans, etalonLune,
+  limiteRoche_km, densite, verdict, horizonM, scene, crans, etalonLune, CARTES, carteDe, carteValide,
 };
 
 })(typeof window !== "undefined" ? window : globalThis);
