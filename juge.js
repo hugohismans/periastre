@@ -249,17 +249,35 @@ const TOUTES = [
     rend: () => rangeVoyage(),
   },
 
-  { id: "rythme-grand-trajet", ignore: true,   // ✅ ça va, 9 août au soir — angle gardé : « régulier, au départ », avec la remarque sur les deux moitiés
-    titre: "Le voyage vers le système solaire : quel rythme ?",
+  /* ROUVERTE LE 11 AOÛT, et il faut dire pourquoi.
+
+     Elle avait été jugée « ça va » le 9 au soir sur « régulier, au départ ».
+     Sauf que `rangeGrandTrajet` remet « fidèle » en sortant de séance — exprès,
+     une séance ne change pas un réglage en douce — et que `poseRythme` n'était
+     appelé de nulle part ailleurs. **Son verdict portait donc sur un rythme que
+     personne ne voit en jouant.** Le site jouait l'autre, et continue de le
+     jouer par défaut.
+
+     Ce qui a changé aujourd'hui : le bouton existe enfin, dans les réglages. La
+     question cesse d'être « lequel préfères-tu en séance » pour devenir « lequel
+     le site doit-il jouer », ce qui n'est pas la même chose et n'a jamais été
+     posé. */
+  { id: "rythme-grand-trajet",
+    titre: "Le voyage vers le système solaire : quel rythme, POUR DE BON ?",
     libre: true,
     inspection: true,
-    quoi: "On part vraiment, maintenant — vingt-sept mille années-lumière, "
-        + "vingt ans à bord. Deux façons de le montrer en trente-quatre "
-        + "secondes. « Fidèle » suit l'horloge du bord : la moitié du voyage "
-        + "défile dans la première seconde, puis l'écran ne bouge presque plus "
-        + "pendant qu'on freine — c'est ce qu'on verrait vraiment. « Régulier » "
-        + "étale les décades : le quadrillage se renumérote à cadence égale. "
-        + "Regarde les deux et dis-moi lequel raconte le voyage.",
+    quoi: "Il faut que je te dise quelque chose avant que tu regardes. Tu as "
+        + "jugé ce rythme « ça va » le 9 août — mais sur « régulier », et la "
+        + "séance remettait « fidèle » en sortant. Le bouton n'existait pas "
+        + "encore, alors le site a continué de jouer « fidèle » : ton verdict "
+        + "portait sur un rythme que personne ne voit en jouant. "
+        + "Mesuré sur le vrai trajet : « fidèle » franchit 3,93 décades sur 9,10 "
+        + "dans la PREMIÈRE seconde, puis l'écran ne bouge plus pendant onze "
+        + "secondes pendant qu'on freine — c'est pourtant ce qu'on verrait "
+        + "vraiment par le hublot. « Régulier » étale les décades à cadence "
+        + "égale, et c'est une retouche assumée. "
+        + "Le bouton existe maintenant, dans les réglages. Regarde les quatre "
+        + "angles, et dis-moi lequel le site doit jouer par défaut.",
     pose: () => rejoueGrandTrajet("fidele", 0),
     options: [
       { nom: "fidèle, au départ",    fait: () => rejoueGrandTrajet("fidele", 0) },
