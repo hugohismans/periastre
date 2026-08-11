@@ -387,10 +387,12 @@ const PLAFOND = 3865;   // ... le quadrillage, la page fraîche, l'arrivée qui 
 // ce relèvement depuis le 8 août, à chaque exécution, et personne ne l'a fait —
 // y compris moi, quatre fois aujourd'hui, en lisant sa ligne sans la voir.
 //
-// Ce n'était pas cosmétique. Vingt-trois modules sortis n'étaient gardés par
-// RIEN : on pouvait en refaire rentrer vingt-deux dans le bloc et l'outil serait
-// resté vert, puisqu'il n'exigeait que vingt-six. Cinquante aujourd'hui,  compris. Un cliquet qu'on ne remonte
-// pas cesse d'être un cliquet — il devient un plancher sous le sol.
+// Ce n'était pas cosmétique. Vingt-quatre modules sortis n'étaient gardés par
+// RIEN : on pouvait en refaire rentrer vingt-trois dans le bloc et l'outil
+// serait resté vert, puisqu'il n'exigeait que vingt-six. Un cliquet qu'on ne
+// remonte pas cesse d'être un cliquet — il devient un plancher sous le sol.
+//
+// Cinquante aujourd'hui, `solaire.js` compris.
 const MODULES_SORTIS = 50;
 
 let n = 0, echecs = 0;
