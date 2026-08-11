@@ -64,8 +64,15 @@ const PLANCHERS = {
      sont entrées avec leur lien, vérifié un par un sur arXiv AVANT d'écrire la
      ligne de bibliographie — et ce n'était pas une formalité. Deux titres et une
      initiale d'auteur étaient faux dans ce que j'allais recopier. Les deux
-     manquantes restent les mêmes revues d'astronautique non indexées. */
-  sourcesAvecLien: 42,
+     manquantes restent les mêmes revues d'astronautique non indexées.
+
+     47 sur 49 le 10 août 2026 : les cinq sources du système solaire entrent
+     avec leur lien, chacune ouverte et lue avant d'être écrite — le tableau du
+     JPL, la brochure du BIPM qui porte l'unité astronomique et l'attribue à la
+     résolution de 2012, Prša et al. pour les valeurs nominales, DE440 pour les
+     masses, Dones et al. pour le nuage de Oort. Les deux manquantes n'ont pas
+     bougé, et ne bougeront pas. */
+  sourcesAvecLien: 47,
   sourcesAvecPlus: 0,    // rien encore : le champ vient de naître
 
   /* 228 unités de texte sur 248 citent une source. Les vingt qui n'en citent
@@ -81,8 +88,11 @@ const PLANCHERS = {
      jamais dire d'où ça sortait.
 
      240 sur 280 le même jour : l'aveu du fond de ciel se dédouble selon le rendu
-     — quatre textes de plus (deux modes, deux langues), tous sourcés. */
-  textesSources: 240,
+     — quatre textes de plus (deux modes, deux langues), tous sourcés.
+
+     246 sur 286 le 10 août 2026 : la fiche « Le système solaire vu du dehors »
+     apporte six textes (trois niveaux, deux langues), tous sourcés. */
+  textesSources: 246,
 
   /* LES COMPROMIS DÉCLARÉS.
 

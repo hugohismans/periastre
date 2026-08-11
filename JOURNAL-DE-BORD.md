@@ -18,6 +18,56 @@ Hugo peut aussi le déclencher à tout moment : « on refait le cap ».
 
 ---
 
+## 10 août 2026, le soir — le système solaire est enfin sourcé
+
+Session lancée **exprès sur un réseau ouvert** : la précédente n'atteignait ni le
+JPL, ni arXiv, ni ADS, ni A&A, et elle a eu raison de ne rien écrire plutôt que
+d'écrire de mémoire. Une seule mission : aller relever.
+
+**Cinq sources relevées, chaque page ouverte.** `SOURCES-SOLAIRE.md` garde
+l'adresse et la ligne de chaque chiffre — de quoi recommencer sans refaire la
+recherche. Les demi-grands axes (table 1 du JPL) ; l'unité astronomique, dont
+j'ai lu la résolution UAI 2012 B2 dans le document primaire ; les valeurs
+nominales et le point zéro bolométrique de Prša et al. 2016 ; les masses de
+DE440 ; et le nuage de Oort par la revue exacte que le chantier réclamait, Dones,
+Weissman, Levison & Duncan, trouvée libre chez ASP après le refus du LPI et de
+Springer.
+
+**Trois choses trouvées en relevant, qu'on ne cherchait pas :**
+
+1. **Le JPL se trompe de résolution.** Sa page *Astrodynamic Parameters* attribue
+   l'unité astronomique à « IAU 2012 Resolution B1 ». C'est B2 — le document
+   primaire et la brochure du BIPM s'accordent contre lui.
+2. **L'UA a quatre écrivains, pas cinq.** `CHANTIER-P.md` nommait
+   `index.html:3877` : cette ligne déclare le parsec.
+3. **La table du JPL pose ses propres réserves**, et personne ne les répétait :
+   ce ne sont pas des moyennes mais un ajustement valable 1800-2050, et la ligne
+   « Terre » est le barycentre Terre-Lune. La fiche les porte maintenant.
+
+**La fiche `f-solaire`**, trois niveaux dans les deux langues, sépare ce qui est
+publié de ce qui est dérivé ici — comme `f-ciel`. Planchers relevés : 47 sources
+avec lien, 246 textes sourcés.
+
+**`outil-verif-solaire.js`, 49 contrôles, et sa vérité vient d'ailleurs.** Il ne
+porte pas les demi-grands axes : il les **reconstruit** par Kepler depuis la
+colonne voisine des taux de longitude moyenne et les masses de DE440. Il retombe
+à 20 ppm de Mercure à Saturne, 400 ppm sur Neptune — et il **avoue par un
+contrôle** ce qu'il ne peut pas voir, le huitième chiffre. Il ferme aussi une
+boucle que personne ne fermait : ce que la fiche affirme et ce que le code
+calcule sont désormais le même nombre. Quatre sabotages joués sur les vrais
+fichiers : tous rougissent.
+
+**Et une découverte qui change le décor à venir, écrite dans `A-REGARDER.md`.**
+Je croyais pouvoir dire à Hugo « depuis le nuage de Oort les planètes sont dans
+le même pixel, donc pas d'étiquettes ». C'est vrai — mais la bascule est
+brutale : à 20 000 ua, Jupiter est à 0,3 pixel du Soleil ; à 1 000 ua, Neptune
+est à 36 pixels et il y a une vraie scène. La question « d'où plante-t-on la
+caméra » lui revient, avec trois options et ma recommandation.
+
+**41 outils, aucun échec.**
+
+---
+
 ## 10 août 2026 — le plan du système solaire, et sa première marche
 
 Hugo : « fais-moi un plan à partir de ce cap », avec un élément à lui —
