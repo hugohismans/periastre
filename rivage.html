@@ -102,8 +102,8 @@
 
 <nav id="cadran"><b>dans le ciel</b></nav>
 
-<script src="lune.js?v=bb86ef1"></script>
-<script src="rivage.js?v=bb86ef1"></script>
+<script src="lune.js?v=8aa0093"></script>
+<script src="rivage.js?v=8aa0093"></script>
 <script>
 "use strict";
 /* ==========================================================================
@@ -233,6 +233,15 @@ float bruit(vec2 p){
              mix(h21(i+vec2(0.,1.)), h21(i+vec2(1.,1.)), f.x), f.y);
 }
 
+/* Cinq octaves de ce bruit. C'est ce qui donne aux bandes de Jupiter leurs
+   frontières ondulantes : sans lui elles sont des traits droits, et un trait
+   droit sur une planète gazeuse ne trompe personne. */
+float fbm(vec2 p){
+  float s = 0.0, a = 0.5;
+  for(int i=0; i<5; i++){ s += a*bruit(p); p *= 2.03; a *= 0.5; }
+  return s;
+}
+
 /* ---------------------------------------------------------------------------
    LE CHAMP D'ÉTOILES — refait le 11 août 2026
 
@@ -352,6 +361,21 @@ vec3 corps(vec3 d, out float couvre){
     vec3 sol = normalize(vec3(-0.62,0.34,0.70));
     float lam = max(0.0, dot(n,sol));
 
+    /* LES COORDONNÉES SUR LA SPHÈRE — et une vraie faute réparée.
+
+       Les motifs étaient dessinés dans les coordonnées de l'ÉCRAN, pas sur la
+       boule. Les bandes ne s'enroulaient donc pas autour du globe : elles
+       restaient des rayures plates, et l'illusion de sphère mourait au bord.
+       Elles vivent maintenant en latitude et longitude, comme sur la planète.
+
+       Le domaine est ensuite DÉFORMÉ par du bruit avant d'être bandé : c'est
+       ce qui donne aux frontières leur ondulation. */
+    float sinLat = n.y;
+    float lon    = atan(n.x, n.z);
+    vec2  q      = vec2(lon*1.6, sinLat*2.6);
+    float w1     = fbm(q*2.2);
+    float latOnd = sinLat + 0.045*(w1-0.5) + 0.022*(fbm(q*5.5 + w1*1.4)-0.5);
+
     vec3 base = uTint;
     // les motifs : DESSINÉS, ils ne portent aucun chiffre
     if(uKind < 0.5){                              // Lune : mers sombres
@@ -366,15 +390,37 @@ vec3 corps(vec3 d, out float couvre){
       base = mix(vec3(0.13,0.25,0.52), vec3(0.22,0.42,0.20), terre);
       float nu = smoothstep(0.62,0.85, h21(floor(vec2(u*7.,v*7.)+3.)));
       base = mix(base, vec3(0.95), nu*0.6);
-    } else if(uKind < 3.5){                       // Neptune : lisse, une tache
-      base *= 0.95+0.05*sin(v*11.0);
-      base = mix(base, vec3(0.10,0.16,0.42), smoothstep(0.35,0.05,length(vec2(u-0.3,v+0.2))));
-    } else if(uKind < 4.5){                       // Saturne : bandes douces
-      base *= 0.92 + 0.08*sin(v*13.0);
-    } else if(uKind < 5.5){                       // Jupiter : bandes + tache
-      base *= 0.86 + 0.14*sin(v*17.0 + 0.7*sin(v*5.0));
-      float gr = smoothstep(0.20,0.0,length(vec2((u-0.28)*1.7, v+0.18)));
-      base = mix(base, vec3(0.78,0.36,0.26), gr*0.85);
+    } else if(uKind < 3.5){                       // Neptune
+      float bande = sin(latOnd*15.0) + 0.4*sin(latOnd*31.0);
+      base = mix(uTint*0.80, uTint*1.12, smoothstep(-0.7,0.7,bande));
+      base *= 0.93 + 0.14*fbm(q*7.0);
+      // la Grande Tache sombre
+      vec2 ts = vec2(lon + 1.1, sinLat - 0.30);
+      base = mix(base, uTint*0.42,
+                 smoothstep(0.30,0.0,length(vec2(ts.x*0.70, ts.y*1.9)))*0.85);
+    } else if(uKind < 4.5){                       // Saturne
+      float bande = sin(latOnd*17.0) + 0.45*sin(latOnd*36.0 + 1.1);
+      base = mix(uTint*0.84, uTint*1.10, smoothstep(-0.8,0.8,bande));
+      base *= 0.94 + 0.12*fbm(q*8.0);
+      base = mix(base, uTint*vec3(0.72,0.74,0.82),
+                 smoothstep(0.60,0.98,abs(sinLat))*0.55);
+    } else if(uKind < 5.5){                       // Jupiter
+      /* LES ZONES ET LES CEINTURES. Elles ne modulent plus une seule teinte —
+         c'était la cause du « très très moche, on dirait une merde orange » :
+         une planète dont tout le disque a la même couleur à l'éclat près. Les
+         claires et les sombres sont maintenant deux couleurs, DÉRIVÉES de la
+         teinte sourcée pour qu'il n'y ait toujours qu'une seule loi. */
+      float bande = sin(latOnd*23.0) + 0.55*sin(latOnd*47.0 + 1.7);
+      vec3 zone  = uTint*vec3(1.16,1.12,1.02);
+      vec3 ceint = uTint*vec3(0.70,0.54,0.44);
+      base = mix(ceint, zone, smoothstep(-0.55,0.55,bande));
+      base *= 0.86 + 0.26*fbm(q*9.0 + w1);         // festons et turbulence
+      base = mix(base, uTint*vec3(0.60,0.60,0.64), // capuchons polaires
+                 smoothstep(0.60,0.99,abs(sinLat))*0.72);
+      // la Grande Tache rouge, et son sillage
+      vec2 gr = vec2(lon + 0.90, sinLat + 0.26);
+      float tache = smoothstep(0.32,0.0, length(vec2(gr.x*0.60, gr.y*2.0)));
+      base = mix(base, vec3(0.76,0.35,0.25), tache*0.92);
     } else {                                      // Soleil
       base = vec3(1.0,0.93,0.76);
     }
