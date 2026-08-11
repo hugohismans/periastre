@@ -175,6 +175,16 @@ if(orphelins.length === 0){
    a pas fait ÉCHOUER `node tout.js` : on ne peut plus en oublier un en silence,
    et on ne peut plus faire semblant qu'une dette est un choix. */
 const POURQUOI_PAS_BRANCHE = {
+  "solaire.js":
+    "ÉCRIT ET ÉPROUVÉ (14 contrôles), LA SCÈNE VIENT APRÈS — il répond à « où "
+    + "sont les planètes vues de loin » et surtout à « a-t-on le DROIT de les "
+    + "nommer ». Hugo a tranché le cadrage le 10 août au soir : on arrive dans le "
+    + "nuage de Oort, où rien n'est nommable — huit planètes dans deux pixels, "
+    + "deux étiquettes y pointeraient le même endroit — puis on tombe jusqu'à ce "
+    + "que les orbites s'écartent. Mesuré avec l'optique réelle du site : quatre "
+    + "noms à 300 ua, un seul à 1 000, aucun au-delà de 2 361. Ce qui manque n'est "
+    + "pas du calcul, c'est le dessin : la chute elle-même, le Soleil en point, et "
+    + "le mécanisme qui pose les étiquettes à l'écran.",
   "aberration.js":
     "ÉCRIT ET ÉPROUVÉ (19 contrôles), LE NUANCEUR VIENT APRÈS — demandé par Hugo "
     + "le 9 août 2026 : « qu'on voie le ciel qui se resserre devant nous ». La "
