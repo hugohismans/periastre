@@ -1,0 +1,408 @@
+/* ============================================================================
+   LE DÉCOR.
+
+   Palette prise au Borinage : le noir du charbon, la brique rouge des corons,
+   l'or de la lampe de mineur, le rouge de la Charte. Rien de fluo, rien de
+   « moderne » : la région a une couleur, on s'y tient.
+
+   Le fond est dessiné, pas photographié. Le jour où de vraies photos arrivent
+   dans `images/`, `quiz.js` les détecte et pose la classe `avec-photo` sur le
+   corps de la page — les dessins passent alors derrière la photo au lieu de
+   disparaître.
+   ============================================================================ */
+
+:root {
+  --charbon:  #12100e;
+  --nuit:     #1c1815;
+  --suie:     #2a2521;
+  --brique:   #8c3b28;
+  --rouge:    #d1332e;
+  --or:       #e8b04b;
+  --lampe:    #f5d68a;
+  --creme:    #f2ece2;
+  --gris:     #a2988c;
+  --vert:     #5fa8a0;
+
+  --ombre: 0 2px 0 rgba(0,0,0,.5), 0 10px 30px rgba(0,0,0,.45);
+  --serif: Georgia, "Iowan Old Style", "Palatino Linotype", serif;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0; padding: 0;
+  min-height: 100%;
+}
+
+body {
+  background: var(--charbon);
+  color: var(--creme);
+  font-family: var(--sans);
+  font-size: 17px;
+  line-height: 1.55;
+  -webkit-text-size-adjust: 100%;
+  overflow-x: hidden;
+}
+
+/* ----------------------------------------------------------------- le fond */
+
+/* Le ciel est en CSS et couvre toujours tout l'écran ; le paysage est une
+   BANDE ancrée en bas, à sa largeur naturelle.
+
+   Il a d'abord été dessiné en plein écran, recadré au centre. Sur un téléphone,
+   ce recadrage ne laissait voir qu'un bout de chevalement : les terrils et les
+   corons étaient hors champ, et le site paraissait vide. Ancré en bas, le
+   paysage entier tient sur n'importe quelle largeur. */
+#decor {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  background:
+    radial-gradient(60% 42% at 50% 92%, rgba(232,176,75,.22), transparent 70%),
+    linear-gradient(to bottom, #2b2118 0%, #4a3320 42%, #7d4a24 76%, #3a2413 100%);
+}
+
+#decor svg {
+  position: absolute;
+  bottom: 0; left: 0;
+  width: 100%; height: auto;
+  display: block;
+}
+
+/* Quand une vraie photo est déposée dans images/fond.jpg */
+body.avec-photo #decor::before {
+  content: "";
+  position: absolute; inset: 0;
+  background: var(--photo-fond) center/cover no-repeat;
+  filter: grayscale(.35) brightness(.42) contrast(1.05);
+}
+body.avec-photo #decor svg { opacity: .35; }
+
+/* Le décor doit se sentir, pas se lire. Sans ce voile, le chevalement passait
+   entre les boutons de réponse et on ne savait plus ce qui était cliquable. */
+#voile {
+  position: fixed; inset: 0; z-index: 1; pointer-events: none;
+  background:
+    radial-gradient(120% 80% at 50% 0%, rgba(232,176,75,.10), transparent 60%),
+    linear-gradient(to bottom, rgba(18,16,14,.28) 0%, rgba(18,16,14,.58) 40%,
+                                rgba(18,16,14,.64) 72%, rgba(18,16,14,.46) 100%);
+}
+
+/* --------------------------------------------------------------- structure */
+
+main {
+  position: relative;
+  z-index: 2;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 24px 18px 64px;
+  min-height: 100vh;
+}
+
+.ecran { display: none; animation: monte .4s ease both; }
+.ecran.actif { display: block; }
+
+@keyframes monte {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ecran, .carte, .reponse { animation: none !important; transition: none !important; }
+}
+
+/* ------------------------------------------------------------------ le Q */
+
+.enseigne { text-align: center; padding: 18px 0 6px; }
+
+.q-logo {
+  width: 132px; height: 132px;
+  display: block; margin: 0 auto 6px;
+  filter: drop-shadow(0 6px 18px rgba(0,0,0,.6));
+}
+.q-logo .anneau { fill: none; stroke: var(--rouge); stroke-width: 13; }
+.q-logo .queue  { fill: none; stroke: var(--or); stroke-width: 13;
+                  stroke-linecap: round; }
+.q-logo .noyau  { fill: var(--lampe); opacity: .13; }
+
+h1 {
+  font-family: var(--serif);
+  font-size: clamp(34px, 10vw, 54px);
+  line-height: 1.04;
+  letter-spacing: .02em;
+  margin: 6px 0 6px;
+  color: var(--creme);
+  text-shadow: 0 2px 0 rgba(0,0,0,.6);
+}
+
+.sous-titre {
+  color: var(--or);
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 17px;
+  margin: 0 0 4px;
+}
+
+.devise {
+  color: var(--gris);
+  font-size: 14px;
+  margin: 0 0 22px;
+}
+
+/* ------------------------------------------------------------------ cartes */
+
+.carte {
+  background: linear-gradient(180deg, rgba(42,37,33,.94), rgba(28,24,21,.94));
+  border: 1px solid rgba(232,176,75,.18);
+  border-radius: 14px;
+  padding: 18px;
+  margin: 0 0 16px;
+  box-shadow: var(--ombre);
+}
+
+.carte h2 {
+  font-family: var(--serif);
+  font-size: 20px;
+  margin: 0 0 4px;
+  color: var(--lampe);
+}
+.carte p.aide { color: var(--gris); font-size: 14px; margin: 0 0 14px; }
+
+/* ----------------------------------------------------------------- boutons */
+
+button {
+  font-family: inherit;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 11px;
+  border: 1px solid transparent;
+  transition: transform .12s ease, filter .12s ease, background .2s ease;
+}
+button:active { transform: scale(.98); }
+button:disabled { opacity: .45; cursor: not-allowed; }
+button:focus-visible { outline: 3px solid var(--or); outline-offset: 2px; }
+
+.gros {
+  display: block; width: 100%;
+  padding: 16px 18px;
+  margin: 0 0 10px;
+  background: linear-gradient(180deg, var(--rouge), #a82722);
+  color: #fff;
+  font-weight: 600;
+  font-size: 18px;
+  border-color: rgba(0,0,0,.4);
+  box-shadow: 0 3px 0 #7d1c18, 0 8px 20px rgba(0,0,0,.4);
+}
+.gros:hover:not(:disabled) { filter: brightness(1.08); }
+
+.gros.secondaire {
+  background: linear-gradient(180deg, #3a332d, #2a2521);
+  color: var(--lampe);
+  box-shadow: 0 3px 0 #1a1613, 0 8px 20px rgba(0,0,0,.35);
+  border-color: rgba(232,176,75,.25);
+}
+
+.petit {
+  padding: 9px 14px;
+  background: #322c26;
+  color: var(--creme);
+  border-color: rgba(232,176,75,.2);
+}
+.petit:hover:not(:disabled) { background: #3d362e; }
+
+/* ------------------------------------------------------- choix en pastilles */
+
+.choix { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 14px; }
+
+.pastille {
+  padding: 9px 14px;
+  border-radius: 999px;
+  background: #2c2621;
+  color: var(--gris);
+  border: 1px solid rgba(255,255,255,.08);
+  font-size: 15px;
+}
+.pastille[aria-pressed="true"] {
+  background: var(--or); color: var(--charbon);
+  border-color: var(--lampe); font-weight: 600;
+}
+
+.niveau-choix { display: grid; gap: 8px; margin: 0 0 14px; }
+.niveau-choix .pastille {
+  border-radius: 11px; text-align: left; padding: 12px 14px;
+}
+.niveau-choix .pastille b { display: block; font-size: 16px; color: var(--creme); }
+.niveau-choix .pastille[aria-pressed="true"] b { color: var(--charbon); }
+.niveau-choix .pastille span { font-size: 13px; opacity: .8; }
+
+/* -------------------------------------------------------------- le jeu */
+
+.barre-haut {
+  display: flex; justify-content: space-between; align-items: center;
+  font-size: 14px; color: var(--gris); margin: 0 0 10px;
+}
+.barre-haut b { color: var(--lampe); }
+
+.jauge {
+  height: 6px; border-radius: 3px; background: #2a2521;
+  overflow: hidden; margin: 0 0 18px;
+}
+.jauge i {
+  display: block; height: 100%; width: 100%;
+  background: linear-gradient(90deg, var(--or), var(--rouge));
+  transform-origin: left;
+  transition: transform .25s linear;
+}
+.jauge.urgent i { background: var(--rouge); }
+
+.etiquette-theme {
+  display: inline-block; font-size: 12px; letter-spacing: .09em;
+  text-transform: uppercase; padding: 3px 10px; border-radius: 999px;
+  background: rgba(255,255,255,.08); margin: 0 0 10px;
+}
+
+.enonce {
+  font-family: var(--serif);
+  font-size: clamp(21px, 5.4vw, 27px);
+  line-height: 1.32;
+  margin: 0 0 20px;
+}
+
+.reponses { display: grid; gap: 10px; }
+
+.reponse {
+  text-align: left;
+  padding: 15px 16px;
+  background: linear-gradient(180deg, #332c26, #272220);
+  color: var(--creme);
+  border: 1px solid rgba(255,255,255,.09);
+  display: flex; gap: 12px; align-items: flex-start;
+  line-height: 1.4;
+}
+.reponse:hover:not(:disabled) { border-color: var(--or); }
+.reponse .lettre {
+  flex: 0 0 26px; height: 26px; border-radius: 7px;
+  background: rgba(232,176,75,.16); color: var(--or);
+  display: grid; place-items: center; font-weight: 700; font-size: 14px;
+}
+.reponse.juste {
+  background: linear-gradient(180deg, #1f4a37, #17362a);
+  border-color: #4cbf8a;
+}
+.reponse.juste .lettre { background: #4cbf8a; color: #08150f; }
+.reponse.fausse {
+  background: linear-gradient(180deg, #4a1f1d, #351615);
+  border-color: #d1332e;
+}
+.reponse.fausse .lettre { background: #d1332e; color: #fff; }
+/* Une mauvaise réponse s'efface, mais reste lisible : on veut pouvoir relire
+   les quatre propositions au moment où la bonne se révèle. */
+.reponse.terne { opacity: .62; }
+
+.verdict {
+  margin: 18px 0 0; padding: 15px 16px;
+  border-radius: 12px; background: rgba(255,255,255,.05);
+  border-left: 3px solid var(--or);
+  animation: monte .3s ease both;
+}
+.verdict h3 { margin: 0 0 6px; font-size: 17px; font-family: var(--serif); }
+.verdict h3.oui { color: #6fe0a8; }
+.verdict h3.non { color: #ff8b86; }
+.verdict p { margin: 0 0 8px; font-size: 15px; }
+.verdict a { color: var(--or); font-size: 13px; }
+
+/* -------------------------------------------------------------- multijoueur */
+
+.code-salon {
+  font-family: var(--serif);
+  font-size: clamp(44px, 15vw, 76px);
+  letter-spacing: .18em;
+  text-align: center;
+  color: var(--lampe);
+  margin: 6px 0 2px;
+  text-shadow: 0 3px 0 rgba(0,0,0,.5);
+}
+.code-aide { text-align: center; color: var(--gris); font-size: 14px; margin: 0 0 18px; }
+
+input[type="text"] {
+  width: 100%; padding: 14px 16px; font-size: 18px;
+  font-family: inherit;
+  border-radius: 11px; border: 1px solid rgba(232,176,75,.28);
+  background: #221e1b; color: var(--creme); margin: 0 0 10px;
+}
+input[type="text"]:focus { outline: 2px solid var(--or); outline-offset: 1px; }
+input.code { text-transform: uppercase; letter-spacing: .3em; text-align: center;
+             font-size: 26px; font-family: var(--serif); }
+
+.joueurs { list-style: none; margin: 0 0 14px; padding: 0; display: grid; gap: 7px; }
+.joueurs li {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 11px 14px; border-radius: 10px;
+  background: rgba(255,255,255,.05);
+  border: 1px solid rgba(255,255,255,.06);
+}
+.joueurs li.moi { border-color: var(--or); background: rgba(232,176,75,.12); }
+.joueurs li .pts { color: var(--or); font-weight: 700; font-variant-numeric: tabular-nums; }
+.joueurs li .att { color: var(--gris); font-size: 13px; }
+.joueurs li .ok  { color: #6fe0a8; font-size: 13px; }
+
+.podium { list-style: none; padding: 0; margin: 0 0 18px; display: grid; gap: 9px; }
+.podium li {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 16px; border-radius: 12px;
+  background: rgba(255,255,255,.05);
+}
+.podium li .rang {
+  flex: 0 0 34px; height: 34px; border-radius: 9px;
+  display: grid; place-items: center; font-weight: 700;
+  background: rgba(255,255,255,.09);
+}
+.podium li:nth-child(1) { background: linear-gradient(90deg, rgba(232,176,75,.28), rgba(255,255,255,.05)); }
+.podium li:nth-child(1) .rang { background: var(--or); color: var(--charbon); }
+.podium li .nom { flex: 1; font-weight: 600; }
+.podium li .pts { color: var(--or); font-weight: 700; font-variant-numeric: tabular-nums; }
+
+/* ------------------------------------------------------------------- divers */
+
+.note {
+  font-size: 14px; color: var(--gris);
+  border-left: 3px solid var(--brique);
+  padding: 2px 0 2px 13px; margin: 14px 0;
+}
+.note code {
+  background: rgba(0,0,0,.4); padding: 1px 5px; border-radius: 4px;
+  font-size: 13px; color: var(--lampe);
+}
+
+.score-final {
+  text-align: center; font-family: var(--serif);
+  font-size: clamp(42px, 13vw, 66px); color: var(--lampe);
+  margin: 6px 0 0; line-height: 1;
+}
+.score-sur { text-align: center; color: var(--gris); margin: 2px 0 14px; }
+.mention {
+  text-align: center; font-family: var(--serif); font-style: italic;
+  font-size: 19px; color: var(--or); margin: 0 0 18px;
+}
+
+.etat {
+  font-size: 14px; padding: 10px 13px; border-radius: 9px;
+  margin: 0 0 12px; display: none;
+}
+.etat.visible { display: block; }
+.etat.souci { background: rgba(209,51,46,.16); border: 1px solid rgba(209,51,46,.45);
+              color: #ffb3b0; }
+.etat.info  { background: rgba(232,176,75,.12); border: 1px solid rgba(232,176,75,.35);
+              color: var(--lampe); }
+
+footer {
+  text-align: center; color: #6d6459; font-size: 13px;
+  padding: 26px 0 10px; position: relative; z-index: 2;
+}
+footer a { color: #8d8275; }
+
+.rappel-sources { margin: 10px 0 0; font-size: 13px; color: var(--gris); }
+.rappel-sources a { color: var(--or); }
