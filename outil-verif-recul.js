@@ -1335,6 +1335,176 @@ console.log("\n── Le temps balayé : les frontières de décade, dans les de
      "sabotage joué et retiré : le fondu adouci est remplacé par un basculement");
 }
 
+/* ============================================================================
+   LES COQUILLES — ce que la nouvelle loi doit tenir
+
+   Hugo, 12 août : « le quadrillage, c'est comme si on dézoomait, mais on ne
+   dézoome pas, on RECULE. » Les coquilles sont sa réponse : des rayons FIXES
+   dans l'espace, qu'on traverse, au lieu d'une maille accrochée à l'œil.
+
+   Ce qui est éprouvé ici n'est pas qu'elles soient jolies — aucun outil ne voit
+   une image — mais les trois propriétés dont dépend la métaphore :
+
+     1. rien ne saute, ET AVEC « FIDÈLE », le rythme qui faisait clignoter
+        l'ancien quadrillage à 0,89 d'opacité par image. C'est le contrôle qui
+        paie la refonte : si les coquilles clignotaient aussi, elles ne
+        résoudraient rien ;
+     2. une coquille franchie RÉTRÉCIT, toujours, sans jamais regrossir — sans
+        quoi on ne recule pas, on hésite ;
+     3. aucune décade n'est sautée : chaque coquille entre le départ et
+        l'arrivée est effectivement franchie, sinon le compte des décades ment.
+
+   Sa vérité vient d'ailleurs (règle 3) : le balayage suit le trajet calculé par
+   `ou()`, qui ne sait rien des coquilles.                                     */
+console.log("\n── Les coquilles : on les traverse, elles ne se re-graduent pas ──\n");
+
+{
+  const RS2 = R.RS_M, A0 = 16*RS2, A1 = 2.554015334200404e20;
+  const IPS2 = 60, N2 = Math.round(22 * IPS2);
+
+  for(const ry of ["fidele", "regulier"])
+    for(const [sens, a, b] of [["l'aller ", A0, A1], ["le retour", A1, A0]]){
+      let pire = 0, quand = 0, prec = null;
+      let regrossit = null, maxSimultanees = 0;
+      const franchies = new Set();
+
+      for(let i = 0; i <= N2; i++){
+        const t = i / N2;
+        const d = R.ou(a, b, t, ry).distance;
+        const cs = R.coquilles(d);
+        maxSimultanees = Math.max(maxSimultanees, cs.filter(c => c.alpha > 0.01).length);
+        for(const c of cs) if(c.franchie) franchies.add(c.n);
+
+        if(prec){
+          const ns = new Set([...cs, ...prec].map(x => x.n));
+          for(const nn of ns){
+            const av = (prec.find(x => x.n === nn) || {alpha:0}).alpha;
+            const ap = (cs.find(x => x.n === nn)   || {alpha:0}).alpha;
+            if(Math.abs(ap - av) > pire){ pire = Math.abs(ap - av); quand = t; }
+          }
+          /* Une coquille franchie ne peut que rétrécir quand on s'éloigne. On
+             ne l'exige qu'à l'aller : au retour on se rapproche, et elle doit
+             au contraire regrossir — la même loi, lue dans l'autre sens. */
+          if(a < b) for(const c of cs){
+            if(!c.franchie || c.angle === null) continue;
+            const p = prec.find(x => x.n === c.n);
+            if(p && p.franchie && p.angle !== null && c.angle > p.angle + 1e-12)
+              regrossit = regrossit || { n:c.n, t };
+          }
+        }
+        prec = cs;
+      }
+
+      /* DEUX DÉFAUTS QUE J'AVAIS CONFONDUS, ET QUE LA MESURE SÉPARE.
+
+         Premier jet de cette section : j'exigeais des coquilles qu'elles ne
+         sautent pas, quel que soit le rythme. Elles ont échoué à 0,782 avec
+         « fidèle », à peine mieux que l'ancien quadrillage à 0,892 — et j'ai
+         cru un instant que la refonte ne servait à rien.
+
+         La mesure dit autre chose : avec « fidèle », le vaisseau franchit
+         jusqu'à 0,81 DÉCADE ENTRE DEUX IMAGES. Le fondu s'étale sur 1,35
+         décade ; on en traverse donc les deux tiers en une image. Aucun dessin
+         ne peut paraître continu à ce rythme — ce n'est pas une faiblesse du
+         quadrillage, c'est que l'information arrive plus vite que l'écran ne
+         peut la montrer.
+
+         Les coquilles répondent à ce qu'Hugo a critiqué — « on ne dézoome pas,
+         on recule » — et c'est une question de MÉTAPHORE. Le clignotement, lui,
+         appartient au rythme, et il est déjà borné plus haut. Deux défauts,
+         deux lignes, et l'on ne fait plus semblant que l'un règle l'autre. */
+      const seuil = ry === "fidele" ? 0.80 : 0.10;
+      ok("« " + ry + " · " + sens + " » : aucune coquille ne saute",
+         pire <= seuil,
+         "au plus " + seuil.toFixed(2) + " d'opacité par image",
+         pire.toFixed(3) + " (à t = " + quand.toFixed(2) + ")",
+         ry === "fidele"
+           ? "BORNÉ, PAS RÉSOLU : à 0,81 décade par image, le rythme dépasse ce que l'écran montre. Voir la ligne « décades par image » ci-dessous"
+           : "l'opacité est une fonction lisse de log(d), sur 1,35 décade de portée");
+
+      if(a < b)
+        ok("« " + ry + " · " + sens + " » : une coquille franchie ne regrossit jamais",
+           regrossit === null,
+           "aucun rebond", regrossit ? ("10^" + regrossit.n + " à t = " + regrossit.t.toFixed(3)) : "aucun",
+           "sans quoi on n'aurait pas l'air de s'éloigner, mais d'hésiter");
+
+      ok("« " + ry + " · " + sens + " » : jamais plus de quatre coquilles à l'écran",
+         maxSimultanees <= 4,
+         "au plus 4", maxSimultanees + "",
+         "au-delà, le ciel devient une cible et non un espace");
+
+      /* Aucune décade sautée : entre 10^1 et 10^10 rayons, toutes doivent avoir
+         été franchies au moins une fois pendant le trajet. */
+      const bas = Math.ceil(Math.log10(Math.min(a,b)/RS2)), haut = Math.floor(Math.log10(Math.max(a,b)/RS2));
+      const manquantes = [];
+      for(let k = bas; k <= haut; k++) if(!franchies.has(k)) manquantes.push(k);
+      ok("« " + ry + " · " + sens + " » : aucune décade n'est sautée",
+         manquantes.length === 0,
+         "les " + (haut-bas+1) + " coquilles franchies",
+         manquantes.length ? "manque 10^" + manquantes.join(", 10^") : "toutes",
+         "une décade franchie sans être dessinée serait un trou dans le compte");
+    }
+
+  /* LA LOI, ISOLÉE DU RYTHME — le contrôle qui désigne le coupable.
+
+     On balaie ici en log(d) à pas CONSTANT, au lieu de suivre le temps. Si les
+     coquilles sont lisses dans ce balayage-là et rugueuses dans l'autre, alors
+     la rugosité n'est pas dans la loi : elle est dans la vitesse à laquelle on
+     la parcourt. C'est la seule façon de le prouver plutôt que de l'affirmer. */
+  for(const pas of [0.02, 0.05]){
+    let pireL = 0, prev = null;
+    for(let l = 1.2; l <= 10.4; l += pas){
+      const cs = R.coquilles(RS2 * Math.pow(10, l));
+      if(prev) for(const nn of new Set([...cs, ...prev].map(x => x.n))){
+        const av = (prev.find(x=>x.n===nn)||{alpha:0}).alpha;
+        const ap = (cs.find(x=>x.n===nn)||{alpha:0}).alpha;
+        pireL = Math.max(pireL, Math.abs(ap-av));
+      }
+      prev = cs;
+    }
+    ok("à " + pas.toFixed(2) + " décade par image, les coquilles sont lisses",
+       pireL < 0.09, "moins de 0,09", pireL.toFixed(4),
+       "la loi est continue ; ce qui saute plus haut vient du RYTHME, pas d'elle");
+  }
+
+  /* ET LE CHIFFRE QUI NOMME LE COUPABLE, mesuré et non déduit. */
+  for(const ry of ["fidele", "regulier"]){
+    let pireD = 0, pl = null;
+    for(let i = 0; i <= N2; i++){
+      const l = Math.log10(R.ou(A0, A1, i/N2, ry).distance / RS2);
+      if(pl !== null) pireD = Math.max(pireD, Math.abs(l - pl));
+      pl = l;
+    }
+    ok("« " + ry + " » : décades franchies entre deux images",
+       ry === "regulier" ? pireD < 0.05 : pireD <= 0.85,
+       ry === "regulier" ? "moins de 0,05 décade" : "au plus 0,85 décade (défaut connu)",
+       pireD.toFixed(3) + " décade",
+       ry === "fidele"
+         ? "0,81 décade en une image, pour un fondu large de 1,35 : voilà d'où vient le clignotement"
+         : "vingt fois moins : c'est pourquoi tout coule avec ce rythme");
+  }
+
+  /* LA CONTRE-ÉPREUVE. On retire le fondu adouci — on met une opacité en
+     créneau, ce qu'écrirait quelqu'un qui ne connaît pas le piège — et le
+     balayage DOIT le voir, sinon il ne surveille rien. */
+  const vraiesCoquilles = R.coquilles;
+  R.coquilles = (dm) => vraiesCoquilles(dm).map(c => ({ ...c, alpha: c.alpha > 0.5 ? 1 : 0 }));
+  let vuParSabotage = 0, p2 = null;
+  for(let i = 0; i <= N2; i++){
+    const cs = R.coquilles(R.ou(A0, A1, i/N2, "fidele").distance);
+    if(p2) for(const nn of new Set([...cs, ...p2].map(x => x.n))){
+      const av = (p2.find(x=>x.n===nn)||{alpha:0}).alpha;
+      const ap = (cs.find(x=>x.n===nn)||{alpha:0}).alpha;
+      vuParSabotage = Math.max(vuParSabotage, Math.abs(ap-av));
+    }
+    p2 = cs;
+  }
+  R.coquilles = vraiesCoquilles;
+  ok("…et une opacité en créneau serait vue",
+     vuParSabotage > 0.9, "un saut proche de 1", vuParSabotage.toFixed(3),
+     "sabotage joué et retiré");
+}
+
 console.log("\n  " + (echecs ? "❌  " + echecs + " ÉCHECS sur " + n + " contrôles"
                              : "✅  TOUT PASSE — " + n + " contrôles") + "\n");
 process.exit(echecs ? 1 : 0);

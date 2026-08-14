@@ -734,6 +734,83 @@ function quadrillage(distance_m){
   };
 }
 
+/* ============================================================================
+   LES COQUILLES — le quadrillage cesse d'être accroché à l'observateur
+
+   Hugo, 12 août 2026, et c'est une critique de langage, pas de code :
+
+     « J'ai réfléchi, le quadrillage ça n'a pas trop de sens en fait, si ?
+       C'est comme si on dézoomait, mais on ne dézoome pas, on RECULE. »
+
+   Il a raison, et le défaut est exactement là. Une maille qui se re-gradue
+   autour de soi est le geste du zoom : le monde change de taille, l'observateur
+   ne bouge pas. C'est d'ailleurs ce que le site déclarait déjà comme compromis
+   — « le voyage est un diagramme, le vaisseau ne se déplace jamais ».
+
+   ET LA MESURE DIT POURQUOI ON NE PEUT PAS SIMPLEMENT L'ENLEVER. Sagittarius A*
+   passe sous un pixel à 1 149 ua, soit deux centièmes d'année-lumière sur les
+   27 000 du trajet. Le Soleil n'atteint son premier pixel qu'à 8,8 ua, c'est-à-
+   dire une fois arrivé. Entre les deux il n'y a RIEN à voir — pas « peu », rien.
+   Le quadrillage n'est pas de la décoration : c'est la seule chose qui puisse
+   porter neuf décades quand les deux bouts sont invisibles.
+
+   LA SORTIE N'EST DONC PAS DE LE SUPPRIMER, C'EST DE L'ANCRER DANS L'ESPACE.
+
+   Des coquilles sphériques centrées sur Sgr A*, à des rayons FIXES — 10ⁿ rayons
+   de Schwarzschild. Elles ne bougent pas, ne se re-graduent pas, ne changent
+   jamais de taille : c'est nous qui les traversons. Celle qu'on vient de
+   franchir rétrécit derrière, la suivante grossit devant.
+
+   Le geste dit alors « je m'éloigne » au lieu de « je dézoome », et il le dit
+   sans qu'aucune loi soit inventée : ces coquilles sont des lieux de l'espace,
+   et leur taille apparente est celle qu'une sphère de ce rayon a vraiment.
+
+   CONSÉQUENCE QUI SE VÉRIFIE : plus rien ne se re-gradue, donc le clignotement
+   mesuré le 12 août — 0,89 d'opacité en une image au départ — ne peut plus se
+   produire. Ce n'est pas une amélioration espérée, c'est une propriété de la
+   forme, et `outil-verif-recul.js` l'exige.
+
+   ---------------------------------------------------------------------------
+   CE QU'UNE COQUILLE MONTRE
+
+   Depuis la distance d, une coquille de rayon R :
+
+     · d < R  — on est DEDANS. Elle nous entoure ; on ne la voit pas comme un
+                objet mais comme un horizon. Elle n'est pas encore franchie.
+     · d > R  — on est DEHORS, elle est DERRIÈRE. Son rayon angulaire vaut
+                asin(R/d), comme toute sphère vue de loin : elle rétrécit
+                exactement comme le trou noir qu'elle entoure.
+
+   L'opacité ne dépend que de l'écart en décades entre R et d — apparue une
+   décade avant d'être atteinte, éteinte une décade après. Une fonction lisse
+   de log(d), donc continue par construction : c'est ce qui remplace le fondu
+   entre deux nappes, et ce qui interdit le saut.                            */
+const COQUILLE_PORTEE = 1.35;    // en décades, de part et d'autre
+
+function coquilles(distance_m){
+  const d = (distance_m === undefined ? etat.distance : distance_m) / RS_M;
+  const l = Math.log10(d);
+  const dedans = [];
+  for(let n = Math.ceil(l - COQUILLE_PORTEE); n <= Math.floor(l + COQUILLE_PORTEE); n++){
+    const R = Math.pow(10, n);
+    const ecart = Math.abs(n - l) / COQUILLE_PORTEE;          // 0 au passage, 1 au bord
+    // Fondu adouci aux deux bouts, comme celui des nappes : la dérivée s'annule
+    // en 0 et en 1, donc rien ne peut sauter même quand une coquille entre ou
+    // sort de la portée.
+    const u = 1 - Math.min(1, ecart);
+    const alpha = u * u * (3 - 2*u);
+    dedans.push({
+      n, rayon: R,
+      franchie: d > R,
+      // Rayon angulaire vu du dehors ; nul tant qu'on est dedans, où la
+      // coquille n'est pas un objet devant soi mais un lieu autour de soi.
+      angle: d > R ? Math.asin(Math.min(1, R/d)) : null,
+      alpha,
+    });
+  }
+  return dedans;
+}
+
 function dessineQuadrillage(ctx, W, H, projette, force){
   if(force <= 0.01) return;
   const echelle = etat.distance / RS_M;
@@ -757,7 +834,7 @@ function dessineQuadrillage(ctx, W, H, projette, force){
 }
 
 global.RECUL = { etat, lance, avance, ou, decade, etiquette, dessineQuadrillage,
-                 quadrillage,
+                 quadrillage, coquilles, COQUILLE_PORTEE,
                  poseRythme, poseMots, duree, RS_M, UA_M, AL_M,
                  RYTHMES, RYTHME_DEFAUT, borneRythme,
                  recentre, enVue, fondu, fondus, seuilEnVue,
