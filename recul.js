@@ -695,26 +695,57 @@ function montants(ctx, projette, maille, force, W, H){
 
    @param projette  fonction monde → écran, celle du salon
    @param force     0 à 1, pour l'apparition et l'effacement */
+/* CE QUE LE QUADRILLAGE MONTRE, SÉPARÉ DE SA PEINTURE.
+
+   Cette loi vivait dans le corps de `dessineQuadrillage`, donc derrière un
+   `ctx` et une projection : aucun outil ne pouvait l'atteindre sans monter un
+   canevas. Le chantier P3 le disait en une ligne — « aucun des 80 contrôles ne
+   balaie le temps : rien ne vérifie qu'une frontière de décade se traverse
+   sans saut ». On ne peut pas éprouver ce qu'on ne peut pas appeler.
+
+   Elle est donc pure, et elle ne lit rien d'autre que la distance qu'on lui
+   tend. `dessineQuadrillage` la lit et se contente de peindre. Un seul
+   écrivain de la loi, comme partout ailleurs.
+
+   LE POINT DÉLICAT, celui qui vaut ce déplacement : à la traversée d'une
+   décade, `entiere` monte d'un cran et `fine` est multipliée par dix, tandis
+   que le fondu `f` retombe de 1 à 0. La maille 10ⁿ passe donc du rôle de nappe
+   GROSSIÈRE à celui de nappe FINE en gardant la même opacité — c'est ce qui
+   fait que la grille coule au lieu de sauter. Rien ne le garantissait.
+
+   @param distance_m  en mètres ; par défaut celle du trajet en cours
+   @return { nappes: [{maille, alpha}], dominante, f }  mailles en rayons de
+           Schwarzschild, alpha entre 0 et 1, avant le fondu d'apparition */
+function quadrillage(distance_m){
+  const l = Math.log10((distance_m === undefined ? etat.distance : distance_m) / RS_M);
+  const entiere = Math.floor(l), fraction = l - entiere;
+  // Un fondu adouci aux deux bouts : au milieu de la décade les deux nappes
+  // coexistent franchement, ce qui est exactement le moment où l'œil a besoin
+  // des deux pour ne pas perdre le fil.
+  const f = fraction * fraction * (3 - 2*fraction);
+  const fine = Math.pow(10, entiere - 1);
+  return {
+    nappes: [ { maille: fine,      alpha: 1 - f },
+              { maille: fine * 10, alpha: f     } ],
+    // L'étiquette suit la maille DOMINANTE, et c'est elle qui fait sentir les
+    // décades — un chiffre qui saute une fois, quand la grille, elle, coule.
+    dominante: f < 0.5 ? fine : fine * 10,
+    f,
+  };
+}
+
 function dessineQuadrillage(ctx, W, H, projette, force){
   if(force <= 0.01) return;
-  const d = decade();
   const echelle = etat.distance / RS_M;
+  const q = quadrillage();
 
   ctx.save();
   ctx.strokeStyle = "#8fb6ff";
   ctx.lineWidth = 1;
 
-  // Un fondu adouci aux deux bouts : au milieu de la décade les deux nappes
-  // coexistent franchement, ce qui est exactement le moment où l'œil a besoin
-  // des deux pour ne pas perdre le fil.
-  const f = d.fraction * d.fraction * (3 - 2*d.fraction);
-  const fine = Math.pow(10, d.entiere - 1);
-  nappe(ctx, projette, fine,      force * (1 - f), W, H);
-  nappe(ctx, projette, fine * 10, force * f,       W, H);
+  for(const n of q.nappes) nappe(ctx, projette, n.maille, force * n.alpha, W, H);
 
-  // L'étiquette suit la maille DOMINANTE, et c'est elle qui fait sentir les
-  // décades — un chiffre qui saute une fois, quand la grille, elle, coule.
-  const maille = f < 0.5 ? fine : fine * 10;
+  const maille = q.dominante;
   ctx.globalAlpha = 0.85 * force;
   ctx.fillStyle = "#a9c6ff";
   ctx.font = "11px ui-monospace, monospace";
@@ -726,6 +757,7 @@ function dessineQuadrillage(ctx, W, H, projette, force){
 }
 
 global.RECUL = { etat, lance, avance, ou, decade, etiquette, dessineQuadrillage,
+                 quadrillage,
                  poseRythme, poseMots, duree, RS_M, UA_M, AL_M,
                  RYTHMES, RYTHME_DEFAUT, borneRythme,
                  recentre, enVue, fondu, fondus, seuilEnVue,

@@ -1195,6 +1195,146 @@ groupe("Ces contrôles savent tomber");
      "c'est ce qui prouve qu'on corrige un défaut de format, pas un choix d'œil");
 }
 
+/* ============================================================================
+   LE TEMPS, BALAYÉ — le contrôle que le chantier P3 réclamait par son nom
+
+   « Et aucun des 80 contrôles ne balaie le temps : rien ne vérifie qu'une
+   frontière de décade se traverse sans saut. » (CHANTIER-P.md, 3.2b)
+
+   Tous les contrôles du quadrillage jusqu'ici l'interrogeaient à un instant
+   choisi. Or le défaut qu'Hugo verrait n'est pas dans un instant : il est dans
+   le PASSAGE. Une grille qui saute d'un facteur dix entre deux images est
+   invisible sur n'importe quelle capture isolée, et sautera aux yeux dès la
+   première seconde de vol.
+
+   D'où vient sa vérité (règle 3) : elle ne vient pas du quadrillage. Le
+   balayage suit le trajet RÉEL, calculé par `ou()` — la loi de mouvement, qui
+   ne sait rien des mailles — et l'on regarde ce que la grille en fait. Les deux
+   chemins n'ont en commun que la distance.
+
+   ET DANS LES DEUX SENS. C'est la demande d'Hugo du 12 août : « faudrait que le
+   voyage Sagittarius vers le système solaire et inversement soit finalisé ».
+   Le retour n'est pas l'aller joué à l'envers du point de vue du quadrillage —
+   il traverse les mêmes frontières dans l'autre sens, et rien ne l'avait
+   jamais parcouru.                                                           */
+console.log("\n── Le temps balayé : les frontières de décade, dans les deux sens ──\n");
+
+{
+  const RS = R.RS_M;
+  const D0 = 16 * RS;                    // le salon, à seize rayons
+  const D1 = 2.554015334200404e20;       // le Soleil, à 27 000 années-lumière
+
+  /* Le pas est fin devant la durée d'une image : 2 000 échantillons pour un
+     trajet de 22 s, c'est un point toutes les 11 ms — trois fois plus serré
+     que ce que l'écran montre. Un saut que ce balayage ne voit pas ne peut pas
+     se produire entre deux images. */
+  /* ON ÉCHANTILLONNE À L'IMAGE, pas plus fin. Un saut que l'écran ne peut pas
+     montrer n'est pas un défaut : le pas est donc celui d'une image à 60 par
+     seconde sur un trajet de 22 s, exactement ce que l'œil reçoit. */
+  const IPS = 60, PAS = Math.round(22 * IPS);
+
+  function balaie(a, b, ry){
+    let pire = 0, quand = 0, sautMaille = null, prec = null;
+    for(let i = 0; i <= PAS; i++){
+      const t = i / PAS;
+      const q = R.quadrillage(R.ou(a, b, t, ry).distance);
+      if(prec){
+        for(const m of new Set([...q.nappes, ...prec.nappes].map(x => x.maille))){
+          const av = (prec.nappes.find(x => x.maille === m) || {alpha:0}).alpha;
+          const ap = (q.nappes.find(x => x.maille === m) || {alpha:0}).alpha;
+          if(Math.abs(ap - av) > pire){ pire = Math.abs(ap - av); quand = t; }
+        }
+        const r = Math.log10(q.dominante / prec.dominante);
+        if(Math.abs(r) > 1.01) sautMaille = { t, de: prec.dominante, vers: q.dominante };
+      }
+      prec = q;
+    }
+    return { pire, quand, sautMaille };
+  }
+
+  /* « RÉGULIER » DOIT COULER, et c'est un vrai invariant : ce rythme répartit
+     les décades uniformément, donc la grille a tout le temps de fondre. */
+  for(const [sens, a, b] of [["l'aller ", D0, D1], ["le retour", D1, D0]]){
+    const v = balaie(a, b, "regulier");
+    ok("« régulier · " + sens + " » : la grille coule d'une image à l'autre",
+       v.pire < 0.05,
+       "moins de 0,05 d'opacité par image", v.pire.toFixed(3) + " (à t = " + v.quand.toFixed(2) + ")",
+       "le fondu adouci fait passer 10ⁿ de nappe grossière à nappe fine sans changer d'opacité");
+  }
+
+  /* « FIDÈLE » NE COULE PAS, ET C'EST MESURÉ ICI PLUTÔT QUE TU.
+
+     Le vol à 1 g est exact, et c'est le rythme qu'Hugo a choisi au bouton le
+     11 août. Mais il franchit quatre décades dans la première seconde : entre
+     DEUX IMAGES le quadrillage bascule d'une nappe à l'autre presque
+     entièrement — 0,89 d'opacité d'un coup, ce qui se voit comme un
+     clignotement. Au retour c'est la même chose, à la fin.
+
+     On ne le corrige pas ici : choisir entre le fidèle et le lisible est une
+     décision d'œil, et la règle 4 dit de la lui poser. On le BORNE, comme la
+     3.2a borne déjà son défaut de fin de trajet : le jour où quelqu'un touche
+     au rythme sans le vouloir, cette ligne rougit.
+
+     Elle est écrite pour être CHANGÉE le jour où il tranche — pas contournée. */
+  const DEFAUT_CONNU = 0.90;
+  for(const [sens, a, b] of [["l'aller ", D0, D1], ["le retour", D1, D0]]){
+    const v = balaie(a, b, "fidele");
+    ok("« fidèle · " + sens + " » : le défaut connu n'empire pas",
+       v.pire <= DEFAUT_CONNU,
+       "au plus " + DEFAUT_CONNU.toFixed(2) + " — le défaut mesuré le 12 août",
+       v.pire.toFixed(3) + " (à t = " + v.quand.toFixed(2) + ")",
+       "DÉFAUT ASSUMÉ, EN ATTENTE DE L'ŒIL D'HUGO : le quadrillage clignote au "
+       + "départ. « régulier » ne l'a pas (0,03). Voir CHANTIER-P 3.2b");
+  }
+
+  /* L'étiquette, elle, a le DROIT de sauter — c'est même son rôle, un chiffre
+     qui change d'un coup quand la grille coule. Mais jamais de deux décades :
+     ce serait une frontière franchie sans avoir été dessinée. */
+  for(const ry of ["fidele", "regulier"])
+    for(const [sens, a, b] of [["l'aller ", D0, D1], ["le retour", D1, D0]]){
+      const v = balaie(a, b, ry);
+      ok("« " + ry + " · " + sens + " » : l'étiquette ne saute pas deux décades",
+         v.sautMaille === null,
+         "aucun saut de plus d'une décade",
+         v.sautMaille ? (v.sautMaille.de.toExponential(0) + " → " + v.sautMaille.vers.toExponential(0)) : "aucun");
+    }
+
+  /* LA CONTRE-ÉPREUVE, sans laquelle les quatre lignes ci-dessus ne valent
+     rien : on remplace le fondu adouci par un basculement franc — ce qu'aurait
+     écrit quelqu'un qui ne connaît pas le piège — et le balayage DOIT le voir.
+     C'est la règle 2, jouée ici même plutôt que promise. */
+  const vraiQuadrillage = R.quadrillage;
+  R.quadrillage = (d) => {
+    const l = Math.log10((d === undefined ? R.etat.distance : d) / RS);
+    const e = Math.floor(l), fr = l - e;
+    const f = fr < 0.5 ? 0 : 1;                    // ← le basculement franc
+    const fine = Math.pow(10, e - 1);
+    return { nappes: [ {maille:fine, alpha:1-f}, {maille:fine*10, alpha:f} ],
+             dominante: f < 0.5 ? fine : fine*10, f };
+  };
+  let vuParLeSabotage = 0, prec = null;
+  for(let i = 0; i <= PAS; i++){
+    const d = R.ou(D0, D1, i/PAS, "regulier").distance;
+    const q = R.quadrillage(d);
+    if(prec){
+      const mailles = new Set([...q.nappes, ...prec.nappes].map(x => x.maille));
+      for(const m of mailles){
+        const av = (prec.nappes.find(x=>x.maille===m)||{alpha:0}).alpha;
+        const ap = (q.nappes.find(x=>x.maille===m)||{alpha:0}).alpha;
+        vuParLeSabotage = Math.max(vuParLeSabotage, Math.abs(ap-av));
+      }
+    }
+    prec = q;
+  }
+  R.quadrillage = vraiQuadrillage;
+
+  ok("…et un fondu franc serait vu, sinon ce balayage ne surveille rien",
+     vuParLeSabotage > 0.9,
+     "un saut d'opacité proche de 1",
+     vuParLeSabotage.toFixed(3),
+     "sabotage joué et retiré : le fondu adouci est remplacé par un basculement");
+}
+
 console.log("\n  " + (echecs ? "❌  " + echecs + " ÉCHECS sur " + n + " contrôles"
                              : "✅  TOUT PASSE — " + n + " contrôles") + "\n");
 process.exit(echecs ? 1 : 0);
