@@ -1425,6 +1425,14 @@ body.au-salon:not(.mode-boutons) #dock { opacity:0; pointer-events:none; }
     <div class="grille" id="rythme-choix"></div>
     <div id="rythme-note"></div>
   </div>
+  <!-- LE REPÈRE DU VOYAGE — Hugo, 12 août : « on ne dézoome pas, on RECULE ».
+       Les coquilles sont la réponse et le défaut ; le quadrillage reste sous
+       la main parce que c'est son œil qui tranche. Le pourquoi : `recul.js`. -->
+  <div class="bloc">
+    <div class="etiq" id="repere-etiq"></div>
+    <div class="grille" id="repere-choix"></div>
+    <div id="repere-note"></div>
+  </div>
   <div class="bloc">
     <div class="etiq">Voix de Lumen</div>
     <div class="grille" id="voix-choix"></div>
@@ -3461,6 +3469,13 @@ try { modeRendu = RENDU.borne(localStorage.getItem(CLE_RENDU)); } catch(e){}
 const CLE_RYTHME = "periastre.rythme";
 try { RECUL.poseRythme(localStorage.getItem(CLE_RYTHME)); } catch(e){}
 
+/* LE REPÈRE DU VOYAGE — coquilles ou quadrillage ; le pourquoi est dans
+   `recul.js`, avec la loi. L'état est déclaré ICI et sa fabrique de boutons
+   bien plus bas : `dessineVoyage` le lit, et un bloc qui tomberait entre les
+   deux laisserait le dessin sans repère du tout. */
+const CLE_REPERE = "periastre.repere";
+try { RECUL.poseRepere(localStorage.getItem(CLE_REPERE)); } catch(e){}
+
 poseAveux($("dossier"), "salon");
 
 $("in-titre").textContent  = T("tele.titre");
@@ -4408,7 +4423,14 @@ function dessineVoyage(dt){
   if(E.grille > 0.005 && trame > 0.005){
     ctx.save();
     decoupeBaie();
-    RECUL.dessineQuadrillage(ctx, W, H, projette, E.grille * trame);
+    /* L'axe tendu aux coquilles est la direction Sgr A* → vaisseau, c'est-à-dire
+       `salon.p` lui-même, le trou noir étant à l'origine du monde. Le module ne
+       va pas le chercher — il ne connaît pas le salon, et c'est ce qui le rend
+       éprouvable sans navigateur, comme `projette` et le seuil de champ. */
+    if(RECUL.repere === "coquilles")
+      RECUL.dessineCoquilles(ctx, W, H, projette, E.grille * trame, salon.p);
+    else
+      RECUL.dessineQuadrillage(ctx, W, H, projette, E.grille * trame);
     ctx.restore();
   }
 }
@@ -5226,6 +5248,35 @@ function poseChoixRythme(hote, idEtiq, idNote){
   peint();
 }
 poseChoixRythme($("rythme-choix"), "rythme-etiq", "rythme-note");
+
+/* LE REPÈRE DU VOYAGE — un bouton et non une décision : les deux repères
+   portent les neuf décades, donc aucun calcul ne les départage ; ce qui les
+   sépare est le GESTE, et le geste se juge à l'œil. Sa règle du 7 août.
+   Fabrique et liste de repeints comme le rendu et le rythme. */
+const CHOIX_REPERE = [];
+function poseChoixRepere(hote, idEtiq, idNote){
+  if(!hote) return;
+  if($(idEtiq)) $(idEtiq).textContent = T("repere.etiq");
+  const boutons = RECUL.REPERES.map(r => {
+    const b = document.createElement("button");
+    b.textContent = T("repere." + r);
+    b.title = T("repere." + r + ".note");
+    b.onclick = () => {
+      RECUL.poseRepere(r);
+      try { localStorage.setItem(CLE_REPERE, RECUL.repere); } catch(e){}
+      CHOIX_REPERE.forEach(p => p());
+    };
+    hote.appendChild(b);
+    return b;
+  });
+  const peint = () => {
+    boutons.forEach((b, i) => b.classList.toggle("actif", RECUL.REPERES[i] === RECUL.repere));
+    if($(idNote)) $(idNote).textContent = T("repere." + RECUL.repere + ".note");
+  };
+  CHOIX_REPERE.push(peint);
+  peint();
+}
+poseChoixRepere($("repere-choix"), "repere-etiq", "repere-note");
 
 const boitierVol = $("volume");
 [["panneau.volume.discret", 0.28], ["panneau.volume.normal", 0.5],

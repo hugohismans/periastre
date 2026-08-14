@@ -329,6 +329,19 @@ Object.assign(window.UI, {
                        + "on the spot: the stars are scattered at random, and "
                        + "this blackness does not exist — out there it is never night.",
 
+/* The frame of reference of the journey, 14 August. Hugo: "we are not zooming
+   out, we are BACKING AWAY". Both frames carry the nine decades; only one makes
+   the right gesture, and his eye is what settles it. */
+"repere.etiq":             "Journey frame",
+"repere.coquilles":        "Shells",
+"repere.quadrillage":      "Grid",
+"repere.coquilles.note":   "Spheres set in space, at radii that never change: you "
+                         + "fly through them. The one you have just crossed "
+                         + "shrinks behind you, the next one opens up ahead.",
+"repere.quadrillage.note": "A mesh that renumbers itself at every decade. It "
+                         + "carries the distance, but it re-scales around you: "
+                         + "the gesture is the one of zooming.",
+
 /* The pace of the journey, 11 August. Both tell the truth about speed and about
    the clocks; they do not spread the screen time the same way. */
 "rythme.etiq":             "Journey pace",

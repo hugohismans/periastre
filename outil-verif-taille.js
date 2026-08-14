@@ -490,7 +490,35 @@ const fs = require("fs"), path = require("path");
    comme les vitres. Les six lignes sont le commentaire qui dit pourquoi, à
    l'endroit exact où la prochaine main voudra « simplifier » en repassant au
    repère du monde. `outil-verif-terrelune.js` relit cet appel et l'exige. */
-const PLAFOND = 4049;   // ... la chute vers le Soleil, puis la Terre et la Lune
+/* 4 091 le 14 août — quarante-deux lignes, et elles paient UN BOUTON dont tout
+   l'objet est de ne pas décider à la place d'Hugo.
+
+   Les coquilles remplacent le quadrillage. C'est un remplacement, pas un ajout,
+   et il répond à une critique nette du 12 août : « on ne dézoome pas, on
+   RECULE. » Mais les deux repères portent les neuf décades — c'est mesuré des
+   deux côtés — et c'est exactement pour ça qu'aucun calcul ne les départage. Ce
+   qui les sépare est le GESTE, un geste se juge à l'œil, et l'œil est la seule
+   ressource rare du projet.
+
+   D'où le bouton, et d'où ces lignes : le sélecteur (huit de balisage,
+   vingt-six de fabrique, trois de câblage) et la branche de dessin (cinq).
+   L'ÉTAT, lui, n'est pas ici — il est descendu dans `recul.js` à côté du
+   rythme, même raison et même forme : un seul écrivain, et une mémoire abîmée
+   qui retombe sur le défaut.
+
+   CE QUI A ÉTÉ TENTÉ D'ABORD, ET ÉCARTÉ : unifier les trois fabriques de
+   sélecteurs — rendu, rythme, repère — désormais structurellement identiques.
+   C'est la bonne réponse, elle rendrait une trentaine de lignes, et c'est la
+   dette que cette hausse laisse derrière elle. Elle n'a pas été faite ici parce
+   qu'elle traverse trois outils qui épinglent ces fabriques par leur TEXTE
+   SOURCE (`outil-verif-rendu.js` 153-169, `outil-verif-recul.js` 480-495) : la
+   faire en passant, au milieu d'un chantier de dessin, c'est réécrire six
+   contrôles qu'on n'est pas venu relire. Truquer ou affaiblir un contrôle coûte
+   plus cher que trente lignes — c'est écrit plus haut, le 7 août, et ça vaut
+   encore aujourd'hui.
+
+   Le plafond redescend le jour où cette unification se fait d'un bloc. */
+const PLAFOND = 4091;   // ... le repère du voyage : coquilles ou quadrillage
 
 // Le nombre de modules déjà sortis. Il ne descend jamais non plus : un module
 // qu'on ferait rentrer dans le bloc serait le contraire exact du chantier.

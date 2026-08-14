@@ -785,6 +785,24 @@ function quadrillage(distance_m){
    décade avant d'être atteinte, éteinte une décade après. Une fonction lisse
    de log(d), donc continue par construction : c'est ce qui remplace le fondu
    entre deux nappes, et ce qui interdit le saut.                            */
+/* LE CHOIX DU REPÈRE, ET POURQUOI C'EST UN BOUTON ET NON UNE DÉCISION.
+
+   Les coquilles sont la réponse d'Hugo au quadrillage, et elles sont le DÉFAUT.
+   Le quadrillage reste pourtant sous la main, et pas par prudence : les deux
+   repères portent les neuf décades — c'est mesuré des deux côtés — et c'est
+   justement pour ça qu'aucun calcul ne peut les départager. Ce qui les sépare
+   est le GESTE, et un geste se juge à l'œil. Sa règle du 7 août 2026 : « ce
+   genre de questions, tu peux me les poser. N'hésite pas. »
+
+   L'état vit ICI et pas dans la page, pour la raison qui a fait remonter le
+   rythme : un seul écrivain, et une mémoire abîmée qui retombe sur le défaut
+   au lieu de peindre un repère qui n'existe pas. */
+const REPERES = ["coquilles", "quadrillage"];
+const REPERE_DEFAUT = "coquilles";
+function borneRepere(r){ return REPERES.indexOf(r) >= 0 ? r : REPERE_DEFAUT; }
+let repere = REPERE_DEFAUT;
+function poseRepere(r){ repere = borneRepere(r); }
+
 const COQUILLE_PORTEE = 1.35;    // en décades, de part et d'autre
 
 function coquilles(distance_m){
@@ -1023,6 +1041,8 @@ global.RECUL = { etat, lance, avance, ou, decade, etiquette, dessineQuadrillage,
                  COQ_PARALLELES, COQ_MERIDIENS, COQ_PAS,
                  poseRythme, poseMots, duree, RS_M, UA_M, AL_M,
                  RYTHMES, RYTHME_DEFAUT, borneRythme,
+                 REPERES, REPERE_DEFAUT, borneRepere, poseRepere,
+                 get repere(){ return repere; },
                  recentre, enVue, fondu, fondus, seuilEnVue,
                  get rythme(){ return rythme; },
                  get actif(){ return etat.actif; } };

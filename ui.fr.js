@@ -342,6 +342,20 @@ window.UI = {
                        + "place : les étoiles sont posées au hasard, et ce noir "
                        + "n'existe pas — là-bas, il n'y fait jamais nuit.",
 
+/* Le repère du voyage, 14 août. Hugo : « on ne dézoome pas, on RECULE ». Les
+   deux repères portent les neuf décades ; un seul dit le bon geste, et c'est
+   son œil qui le tranche. */
+"repere.etiq":             "Repère du voyage",
+"repere.coquilles":        "Coquilles",
+"repere.quadrillage":      "Quadrillage",
+"repere.coquilles.note":   "Des sphères posées dans l'espace, à des rayons qui ne "
+                         + "changent jamais : on les traverse. Celle qu'on vient "
+                         + "de franchir rétrécit derrière, la suivante s'ouvre "
+                         + "devant.",
+"repere.quadrillage.note": "Une maille qui se renumérote à chaque décade. Elle "
+                         + "porte la distance, mais elle se re-gradue autour de "
+                         + "toi : le geste est celui du zoom.",
+
 /* Le rythme du voyage, 11 août. Les deux disent la vérité sur la vitesse et sur
    les horloges ; ils ne répartissent pas le temps d'écran de la même façon. */
 "rythme.etiq":             "Rythme du voyage",
