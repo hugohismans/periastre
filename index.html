@@ -4109,7 +4109,7 @@ function majVoyage(dt){
   const vise = RECUL.recentre(retourner ? null : va, salon.lacet, salon.tangage, dt, tr.mainPrise);
   salon.lacet = vise.lacet;
   salon.tangage = vise.tangage;
-  RECUL.fondus(TELESCOPE, dt, RECUL.enVue(regardSalon().av, va),
+  RECUL.fondus(TELESCOPE, dt, RECUL.enVueAxe(regardSalon().av, va),
                RECUL.seuilEnVue(cam.focale, im.W, im.H));
 
   majChrono(tr.calcul.d_m, Math.abs(RECUL.etat.distance - tr.depart));
@@ -4280,16 +4280,16 @@ function repartVoyage(){
   MUSIQUE.frappe(0.75);
 }
 
-/* Découpe le calque à l'ouverture de la baie, pour que ce qu'on y peint soit
-   DEHORS et non devant la vitre. La géométrie des vitres vit dans `vaisseau.js`.
-   Si un coin passe derrière le plan de coupure on ne découpe pas : c'est
-   l'ancien comportement, jamais pire qu'avant. */
+/* Découpe le calque aux DEUX ouvertures (`toutesVitres` depuis le 14 août : un
+   repère découpé à la seule baie disparaîtrait dès qu'on se retourne), pour que
+   ce qu'on y peint soit DEHORS. La géométrie vit dans `vaisseau.js`. Un coin
+   derrière le plan de coupure ne découpe pas : jamais pire qu'avant. */
 function decoupeBaie(){
   if(lieu !== "salon") return;
   const M = mvpSalon();
   ctx.beginPath();
   let pose = false;
-  for(const v of VAISSEAU.vitres()){
+  for(const v of VAISSEAU.toutesVitres()){
     const q = [[v.x0,v.y0,v.z], [v.x1,v.y0,v.z], [v.x1,v.y1,v.z], [v.x0,v.y1,v.z]]
       .map(p => projetteSalon(p, M));
     if(q.some(p => !p)) continue;

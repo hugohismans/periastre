@@ -261,6 +261,75 @@ groupe("Ce que le contrôle constate sans le corriger");
   console.log("      du code : c'est un choix de décor à trancher à l'œil.\n");
 }
 
+/* ============================================================================
+   LES DEUX OUVERTURES — la baie, et la vitre AVANT
+
+   Hugo, 12 août 2026 : « avec un vaisseau adapté, où on peut voir devant,
+   derrière, pour voir un côté grandir et l'autre rapetisser », puis, à l'outil
+   à boutons : « oui, les vitres, c'est le cœur ».
+
+   CE QUI EST GARDÉ ICI EST LE PIÈGE QUI A FAILLI SE REFERMER. La réponse
+   évidente était de faire entrer la vitre avant dans `vitres()`, la liste que
+   tout le monde lit. Mais `terrelune.js` pose l'ancre de l'arrivée Terre–Lune à
+   la MOYENNE de cette liste — z moyen, y moyen. Une vitre en +P/2 ajoutée à une
+   baie en −P/2 ramène cette moyenne au milieu de la pièce, et la scène qui a
+   déjà coûté trois ancres et trois défauts invisibles autrement qu'à l'écran
+   serait repartie à zéro, sans que rien ne le dise.
+
+   D'où deux listes et une seule loi de découpe, `bandes`. Ces contrôles
+   exigent la SÉPARATION, et pas seulement l'existence.                       */
+groupe("Les deux ouvertures, et la liste que chacune ne doit pas polluer");
+{
+  const baie = V.vitres(), avant = V.vitresAvant(), tout = V.toutesVitres();
+
+  ok("la baie garde exactement ses vitres", baie.length === V.BAIE.montants + 1,
+     V.BAIE.montants + 1, baie.length);
+  ok("la vitre avant a les siennes", avant.length === V.BAIE_AV.montants + 1,
+     V.BAIE_AV.montants + 1, avant.length);
+  ok("`vitres()` ne contient que la baie, toutes en −z",
+     baie.every(v => v.z < 0), "toutes en −z",
+     baie.map(v => v.z.toFixed(2)).join(" "),
+     "si la vitre avant entrait ici, l'ancre de l'arrivée Terre–Lune partirait "
+     + "au milieu de la pièce — et rien à l'écran ne le dirait");
+  ok("la vitre avant est bien dans l'autre cloison",
+     avant.every(v => v.z > 0) && avant.every(a => baie.every(b => b.z !== a.z)),
+     "toutes en +z, et sur aucun z de la baie",
+     avant.map(v => v.z.toFixed(2)).join(" "));
+  ok("`toutesVitres()` les réunit, et rien de plus",
+     tout.length === baie.length + avant.length, baie.length + avant.length, tout.length);
+
+  const zMoyen = baie.reduce((t, v) => t + v.z, 0) / baie.length;
+  ok("l'ancre Terre–Lune reste plaquée sur la baie",
+     Math.abs(zMoyen - (-V.P/2)) < 1e-12, (-V.P/2).toFixed(2), zMoyen.toFixed(6));
+
+  for(const [nom, b] of [["la baie", V.BAIE], ["la vitre avant", V.BAIE_AV]])
+    ok(nom + " tient dans sa cloison",
+       b.x <= V.L && b.bas >= V.FOSSE && b.haut <= V.H,
+       "largeur ≤ " + V.L + ", entre " + V.FOSSE + " et " + V.H,
+       "x=" + b.x + " bas=" + b.bas + " haut=" + b.haut);
+}
+
+groupe("Ces contrôles des ouvertures savent tomber");
+{
+  /* Règle 2, sur une copie de `vaisseau.js` : on fait entrer la vitre avant
+     dans `vitres()` — très exactement la faute que ces contrôles existent pour
+     attraper — et l'on vérifie qu'ils rougissent. L'ancre disparue fait tomber
+     le sabotage au lieu de le rendre muet. */
+  const src = fs.readFileSync(path.join(__dirname, "vaisseau.js"), "utf8");
+  const ancre = "function vitres(){ return bandes(BAIE, -P/2); }";
+  let vu = "ancre disparue";
+  if(src.includes(ancre)){
+    const g = {};
+    new Function("window", src.split(ancre).join(
+      "function vitres(){ return bandes(BAIE, -P/2).concat(bandes(BAIE_AV, P/2)); }"))(g);
+    const b = g.VAISSEAU.vitres();
+    const zM = b.reduce((t, v) => t + v.z, 0) / b.length;
+    vu = b.every(v => v.z < 0) ? "PAS VU" : "vu (z moyen " + zM.toFixed(2) + ")";
+  }
+  ok("une vitre avant glissée dans `vitres()` est vue", vu.startsWith("vu"),
+     "vu", vu, "sabotage joué sur une copie du fichier, puis jeté");
+}
+
 console.log("  ══════════════════════════════════════════");
 if(echecs === 0) console.log("  " + n + " contrôles tenus.\n");
 else             console.log("  " + echecs + " ÉCHEC(S) sur " + n + " contrôles.\n");

@@ -451,6 +451,45 @@ point("une scène qui nommerait tout depuis le nuage est vue",
       "c'est le mensonge exact que toute cette scène existe pour ne pas faire : "
       + "huit étiquettes pointant le même point");
 
+/* ============================================================================
+   UNE SCÈNE FERMÉE NE SE PEINT PAS
+
+   DÉFAUT TROUVÉ À L'ŒIL le 14 août, par la vitre AVANT du vaisseau, le jour où
+   elle a existé. La page appelle `dessine` dès que la destination est le système
+   solaire — donc pendant TOUT le trajet — et le garde d'entrée ne gardait rien,
+   `S()` rendant le module `SOLAIRE`, qui est toujours chargé. Le nuage de Oort
+   était peint pendant les vingt-sept mille années-lumière du voyage : son voile,
+   ses anneaux, et le mot « Soleil » à côté d'une coquille de 1,3 al.
+
+   Il n'était pas VISIBLE, et c'est ce qui l'a fait vivre : le calque ne se
+   découpait qu'à la baie, qui regarde en arrière, tandis que la scène se pose
+   devant. Peinte et jetée à chaque image, pendant des jours.
+
+   Deux contrôles, et le second n'est pas de la décoration : sans lui, un
+   `return 0` posé en tête du dessin ferait passer le premier au vert en ne
+   dessinant plus jamais rien.                                                */
+{
+  const cFerme = fauxCtx();
+  A.range();
+  const traces = A.dessine(cFerme, VUE.W/2, VUE.H/2, FOCALE, VUE, 1, MOTS);
+  const rien = traces === 0 && cFerme.journal.textes.length === 0
+               && cFerme.journal.rects === 0 && cFerme.journal.arcs.length === 0;
+  point("scène fermée : elle ne peint rien du tout", rien,
+        "0 trace, 0 mot, 0 voile, 0 anneau",
+        traces + " traces, " + cFerme.journal.textes.length + " mots, "
+        + cFerme.journal.rects + " voiles, " + cFerme.journal.arcs.length + " anneaux",
+        "sinon le nuage de Oort se peint pendant tout le grand trajet, et la "
+        + "première vitre avant le montre — c'est ce qui est arrivé");
+
+  A.pose(A.DEPART_UA);
+  const cOuvert = fauxCtx();
+  const t2 = A.dessine(cOuvert, VUE.W/2, VUE.H/2, FOCALE, VUE, 1, MOTS);
+  point("…et scène ouverte, elle peint bien", t2 > 0 && cOuvert.journal.rects > 0,
+        "des traces et son voile", t2 + " traces, " + cOuvert.journal.rects + " voiles",
+        "la moitié qui empêche de faire passer le contrôle précédent en ne "
+        + "dessinant plus jamais rien");
+}
+
 console.log("");
 if(echecs){ console.log(`  ❌  ${echecs} ÉCHEC(S) sur ${total} contrôles\n`); process.exit(1); }
 console.log(`  ✅  TOUT PASSE — ${total} contrôles\n`);

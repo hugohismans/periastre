@@ -54,17 +54,46 @@ const DEMI_MONTANT = 0.048;   // la demi-épaisseur d'un montant de baie
    change sans l'autre, le découpage cessera de tomber sur le métal. C'est le
    genre de duplication qu'on ne veut pas, d'où cette fonction plutôt qu'un
    calcul recopié ailleurs. */
-function vitres(){
-  const g = -BAIE.x/2, z = -P/2, r = [];
+function bandes(b, z){
+  const g = -b.x/2, r = [];
   let x = g;
-  for(let i = 1; i <= BAIE.montants; i++){
-    const c = g + BAIE.x*i/(BAIE.montants + 1);
-    r.push({ x0:x, x1:c - DEMI_MONTANT, y0:BAIE.bas, y1:BAIE.haut, z });
+  for(let i = 1; i <= b.montants; i++){
+    const c = g + b.x*i/(b.montants + 1);
+    r.push({ x0:x, x1:c - DEMI_MONTANT, y0:b.bas, y1:b.haut, z });
     x = c + DEMI_MONTANT;
   }
-  r.push({ x0:x, x1:g + BAIE.x, y0:BAIE.bas, y1:BAIE.haut, z });
+  r.push({ x0:x, x1:g + b.x, y0:b.bas, y1:b.haut, z });
   return r;
 }
+
+function vitres(){ return bandes(BAIE, -P/2); }
+
+/* LA VITRE AVANT, ET POURQUOI ELLE N'ENTRE PAS DANS `vitres()`.
+
+   Hugo, 12 août 2026 : « avec un vaisseau adapté, où on peut voir devant,
+   derrière, pour voir un côté grandir et l'autre rapetisser ». Et le même jour,
+   à l'outil à boutons : « oui, les vitres, c'est le cœur ». C'est la demande du
+   6 août — « agrandir le vaisseau » — qui revient par le seul chemin qui la
+   rende nécessaire : maintenant qu'il y a quelque chose devant.
+
+   La baie regarde l'astre pendant tout le vol, donc elle regarde EN ARRIÈRE :
+   on s'éloigne de Sgr A* le long du rayon qu'on suit. La vitre avant est donc
+   dans la cloison opposée, en +z, et c'est par elle qu'on voit arriver les
+   coquilles qu'on n'a pas encore traversées.
+
+   ELLE A SON PROPRE ACCESSEUR, et ce n'est pas de la coquetterie : `terrelune.js`
+   pose son ancre à la MOYENNE des vitres que `vitres()` rend (z moyen, y moyen).
+   Les faire entrer dans la même liste déplacerait cette ancre au milieu de la
+   pièce et casserait l'arrivée Terre–Lune — une scène qui a déjà coûté trois
+   ancres et trois défauts invisibles autrement qu'à l'écran. Deux ouvertures,
+   deux listes ; une seule LOI pour les découper, c'est `bandes`. */
+const BAIE_AV = { x:4.6, bas:0.92, haut:2.42, montants:1 };
+
+function vitresAvant(){ return bandes(BAIE_AV, P/2); }
+
+// Les deux ouvertures ensemble — ce que le découpage du calque doit couvrir
+// pour qu'un repère se voie par l'une ET par l'autre, et nulle part ailleurs.
+function toutesVitres(){ return vitres().concat(vitresAvant()); }
 
 // La fosse d'observation : on descend vers la vitre.
 const FOSSE = -0.58;
@@ -220,12 +249,47 @@ function construitGeometrie(){
   // ---- parois : fond sombre, puis plaques rapportées par-dessus ----
   quad(T, [x0,FOSSE,z1], [x0,FOSSE,z0], [x0,H,z0], [x0,H,z1], NOIR);
   quad(T, [x1,FOSSE,z0], [x1,FOSSE,z1], [x1,H,z1], [x1,H,z0], NOIR);
-  quad(T, [x1,0,z1], [x0,0,z1], [x0,H,z1], [x1,H,z1], NOIR);
+  /* LA CLOISON ARRIÈRE S'OUVRE — c'est la vitre AVANT du vaisseau.
+
+     Elle était un mur plein ; elle devient quatre bandes autour d'un trou, très
+     exactement comme la façade de la baie vingt lignes plus bas. Même découpe,
+     même sens de rotation des sommets que le mur qu'elle remplace : ici la
+     normale doit pointer vers −z, donc les arêtes basses vont de x1 vers x0. Le
+     mettre dans l'autre sens éclairerait la cloison par le dehors et la
+     rendrait noire — c'est la faute que le sol de la fosse avait déjà payée. */
+  const ga = -BAIE_AV.x/2, da = BAIE_AV.x/2;
+  quad(T, [x1,0,z1], [x0,0,z1], [x0,BAIE_AV.bas,z1], [x1,BAIE_AV.bas,z1], NOIR);
+  quad(T, [x1,BAIE_AV.haut,z1], [x0,BAIE_AV.haut,z1], [x0,H,z1], [x1,H,z1], NOIR);
+  quad(T, [ga,BAIE_AV.bas,z1], [x0,BAIE_AV.bas,z1], [x0,BAIE_AV.haut,z1], [ga,BAIE_AV.haut,z1], NOIR);
+  quad(T, [x1,BAIE_AV.bas,z1], [da,BAIE_AV.bas,z1], [da,BAIE_AV.haut,z1], [x1,BAIE_AV.haut,z1], NOIR);
 
   const lerp = (a,b,t) => a + (b-a)*t;
   panneaux(T, (u,v) => [x0, lerp(FOSSE,H,v), lerp(z0,z1,u)], 8, 5, [0.035,0,0], COQUE, 3);
   panneaux(T, (u,v) => [x1, lerp(FOSSE,H,v), lerp(z1,z0,u)], 8, 5, [-0.035,0,0], COQUE, 17);
-  panneaux(T, (u,v) => [lerp(x1,x0,u), lerp(0,H,v), z1], 9, 4, [0,0,-0.035], COQUE, 41);
+  // Les plaques de la cloison arrière suivent maintenant l'ouverture : quatre
+  // bandes au lieu d'une nappe, sans quoi elles repeindraient la vitre.
+  panneaux(T, (u,v) => [lerp(x1,x0,u), lerp(0,BAIE_AV.bas,v), z1], 9, 2, [0,0,-0.035], COQUE, 41);
+  panneaux(T, (u,v) => [lerp(x1,x0,u), lerp(BAIE_AV.haut,H,v), z1], 9, 2, [0,0,-0.035], COQUE, 47);
+  panneaux(T, (u,v) => [lerp(ga,x0,u), lerp(BAIE_AV.bas,BAIE_AV.haut,v), z1], 2, 4, [0,0,-0.035], COQUE, 53);
+  panneaux(T, (u,v) => [lerp(x1,da,u), lerp(BAIE_AV.bas,BAIE_AV.haut,v), z1], 2, 4, [0,0,-0.035], COQUE, 59);
+
+  /* La vitre avant a de l'épaisseur, comme la baie — une ouverture sans tableau
+     se lit comme un trou découpé dans du carton. Le tableau rentre vers −z,
+     c'est-à-dire vers l'intérieur de la pièce. */
+  const epa = 0.34;
+  quad(T, [da,BAIE_AV.bas,z1], [ga,BAIE_AV.bas,z1], [ga,BAIE_AV.bas,z1-epa], [da,BAIE_AV.bas,z1-epa], CADRE);
+  quad(T, [ga,BAIE_AV.haut,z1], [da,BAIE_AV.haut,z1], [da,BAIE_AV.haut,z1-epa], [ga,BAIE_AV.haut,z1-epa], CADRE);
+  quad(T, [ga,BAIE_AV.bas,z1-epa], [ga,BAIE_AV.bas,z1], [ga,BAIE_AV.haut,z1], [ga,BAIE_AV.haut,z1-epa], CADRE);
+  quad(T, [da,BAIE_AV.bas,z1], [da,BAIE_AV.bas,z1-epa], [da,BAIE_AV.haut,z1-epa], [da,BAIE_AV.haut,z1], CADRE);
+
+  // Son montant, et son liseré ambre au seuil : la même signature que la baie,
+  // pour qu'on lise DEUX ouvertures du même vaisseau et non deux trous.
+  for(let i = 1; i <= BAIE_AV.montants; i++){
+    const x = ga + BAIE_AV.x*i/(BAIE_AV.montants+1);
+    boite(T, [x, (BAIE_AV.bas+BAIE_AV.haut)/2, z1 - epa*0.5],
+             [0.048, (BAIE_AV.haut-BAIE_AV.bas)/2, epa*0.5], CADRE);
+  }
+  boite(T, [0, BAIE_AV.bas + 0.021*1.6, z1-epa], [BAIE_AV.x/2, 0.021, 0.021], AMBRE, 1);
 
   // Façade de la baie : quatre bandes autour du trou, elles aussi panneautées.
   const g = -BAIE.x/2, d = BAIE.x/2;
@@ -535,8 +599,9 @@ function dessine(gl){
   gl.bindVertexArray(null);
 }
 
-global.VAISSEAU = { L, H, P, OEIL, FOSSE, ZF, RAMPE, BAIE, POSTES, TELESCOPE, TIR, AMBRE, CYAN,
-                    construit, poseTir, dessine, dessineCube, vitres,
+global.VAISSEAU = { L, H, P, OEIL, FOSSE, ZF, RAMPE, BAIE, BAIE_AV, POSTES, TELESCOPE, TIR, AMBRE, CYAN,
+                    construit, poseTir, dessine, dessineCube,
+                    vitres, vitresAvant, toutesVitres,
                     get sommets(){ return nSommets; } };
 
 })(window);

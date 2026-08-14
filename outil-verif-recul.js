@@ -1850,6 +1850,88 @@ groupe("Ces contrôles du dessin savent tomber");
   }
 }
 
+/* ============================================================================
+   LE REPÈRE SE LÈVE AUSSI QUAND ON REGARDE DEVANT
+
+   DÉFAUT TROUVÉ À L'ŒIL le 14 août, en photographiant la vitre avant qu'on
+   venait de percer : on se retourne, et le repère s'éteint. Mesuré à l'écran,
+   sur le vrai trajet — 1,00 en regardant la baie, 0,39 puis 0,10 après le
+   demi-tour. La vitre avant, dont Hugo a dit qu'elle était le cœur, donnait sur
+   le vide.
+
+   La cause n'était pas dans le dessin : `enVue` mesure si l'on regarde vers
+   l'ASTRE, et c'est cette mesure qui levait le repère. Elle était juste tant
+   qu'il n'y avait qu'une ouverture, et elle est devenue fausse par omission le
+   jour où il y en a eu deux.
+
+   Le trajet est RADIAL : la baie regarde l'astre, la vitre avant regarde
+   exactement à l'opposé, et les deux cadrent le même AXE. Ce qui doit lever le
+   repère est donc l'alignement à cet axe, sans son sens.
+
+   `enVue` n'a pas été tordue — le recentrage a besoin de savoir de quel CÔTÉ
+   est l'astre. On a ajouté `enVueAxe` à côté.                                */
+console.log("\n── Le repère se lève devant comme derrière ──\n");
+
+groupe("L'axe du voyage, et non le seul astre");
+{
+  const va = (() => { const v = [0.3, -0.5, 0.81], m = Math.hypot(...v);
+                      return [v[0]/m, v[1]/m, v[2]/m]; })();
+  const oppose = [-va[0], -va[1], -va[2]];
+  // Une direction perpendiculaire à l'axe : on ne doit rien lever en la visant.
+  const cote = (() => { const c = [va[1], -va[0], 0], m = Math.hypot(...c);
+                        return [c[0]/m, c[1]/m, c[2]/m]; })();
+
+  ok("plein sur l'astre : le repère est demandé",
+     Math.abs(R.enVueAxe(va, va) - 1) < 1e-12, "1", R.enVueAxe(va, va).toFixed(6));
+  ok("plein sur l'avant : il l'est AUTANT — c'est le défaut réparé",
+     Math.abs(R.enVueAxe(oppose, va) - 1) < 1e-12, "1", R.enVueAxe(oppose, va).toFixed(6),
+     "`enVue` seul rendait 0 ici : on se retournait, et le repère mourait");
+  ok("de côté : il ne l'est pas",
+     R.enVueAxe(cote, va) < 1e-12, "0", R.enVueAxe(cote, va).toFixed(6),
+     "sans quoi le repère se lèverait en regardant la coque, ce qui est le "
+     + "défaut d'apparition brutale déjà payé le 8 août");
+
+  /* LA SYMÉTRIE, ET C'EST LA PROPRIÉTÉ MÊME. On la mesure sur tout un tour
+     plutôt que sur trois points choisis : une mesure d'axe ne distingue pas
+     une direction de son opposée, nulle part. */
+  let pireEcart = 0, pireMonotone = 0, prec = null;
+  for(let i = 0; i <= 720; i++){
+    const a = Math.PI*i/720;
+    // Une visée qui tourne dans le plan (va, cote) : elle balaie l'axe entier.
+    const av = [Math.cos(a)*va[0] + Math.sin(a)*cote[0],
+                Math.cos(a)*va[1] + Math.sin(a)*cote[1],
+                Math.cos(a)*va[2] + Math.sin(a)*cote[2]];
+    const op = [-av[0], -av[1], -av[2]];
+    pireEcart = Math.max(pireEcart, Math.abs(R.enVueAxe(av, va) - R.enVueAxe(op, va)));
+    const v = R.enVueAxe(av, va);
+    if(prec !== null) pireMonotone = Math.max(pireMonotone, Math.abs(v - prec));
+    prec = v;
+  }
+  ok("viser une direction ou son opposée donne le même repère, partout",
+     pireEcart < 1e-12, "0 sur un demi-tour complet", pireEcart.toExponential(1));
+  ok("…et la mesure ne saute nulle part, y compris au passage du travers",
+     pireMonotone < 0.01, "moins de 0,01 par quart de degré", pireMonotone.toFixed(5),
+     "un saut ici rallumerait le repère d'un coup — l'apparition brutale d'Hugo");
+}
+
+groupe("Et la page emploie bien cette mesure-là");
+{
+  /* Règle 3 : la vérité vient d'un autre fichier. Le module peut être parfait
+     et la page continuer d'appeler l'ancienne mesure — c'est exactement ce qui
+     s'était passé pour `poseRythme`, appelé par les outils et par personne
+     d'autre pendant quatre jours. */
+  const PAGE = fs.readFileSync(path.join(__dirname, "index.html"), "utf8");
+  ok("`fondus` reçoit l'alignement à l'AXE, pas seulement à l'astre",
+     /RECUL\.fondus\([^)]*RECUL\.enVueAxe\(/.test(PAGE),
+     "RECUL.enVueAxe", /RECUL\.enVueAxe\(/.test(PAGE) ? "posée" : "LA PAGE APPELLE ENCORE enVue",
+     "sinon la vitre avant donne sur le vide, et rien dans les outils ne le dit");
+  ok("le découpage du calque couvre les DEUX ouvertures",
+     /decoupeBaie[\s\S]{0,400}?VAISSEAU\.toutesVitres\(\)/.test(PAGE),
+     "VAISSEAU.toutesVitres()",
+     /VAISSEAU\.toutesVitres\(\)/.test(PAGE) ? "posé" : "LE CALQUE NE SORT QUE PAR LA BAIE",
+     "un repère découpé à la seule baie disparaît dès qu'on se retourne");
+}
+
 console.log("\n  " + (echecs ? "❌  " + echecs + " ÉCHECS sur " + n + " contrôles"
                              : "✅  TOUT PASSE — " + n + " contrôles") + "\n");
 process.exit(echecs ? 1 : 0);

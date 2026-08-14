@@ -321,8 +321,26 @@ function points(cx, cy, focale, vue){
    quelque part, et l'effacer ferait de la scène un fond noir de plus. */
 const VOILE = 0.45;
 
+/* LA SCÈNE REFUSE DE SE PEINDRE QUAND ELLE N'EST PAS OUVERTE — 14 août 2026.
+
+   DÉFAUT TROUVÉ À L'ŒIL, et il n'a pu être vu que le jour où le vaisseau a eu
+   une vitre AVANT. La page appelle ce dessin dès que la destination est le
+   système solaire, c'est-à-dire pendant TOUT le trajet ; et `S()` rend le
+   module `SOLAIRE`, qui est toujours chargé, donc le garde d'entrée ne gardait
+   rien. On peignait le nuage de Oort — son voile, ses anneaux, le Soleil et son
+   nom — pendant les vingt-sept mille années-lumière du voyage.
+
+   Personne ne l'avait vu, et pour une raison précise : le calque était découpé
+   à la seule baie, qui regarde l'ASTRE, donc en arrière ; la scène, elle, se
+   pose DEVANT. Elle était peinte et jetée à chaque image. La première vitre
+   avant l'a montrée d'un coup — « Soleil » lu par la fenêtre, à côté d'une
+   coquille de 1,3 al, alors que le Soleil est à vingt-sept mille.
+
+   Le garde est ICI et pas seulement chez l'appelant : un module qui accepte de
+   peindre une scène fermée rendra la même faute au prochain qui l'appellera. */
 function dessine(ctx, cx, cy, focale, vue, alpha, mots){
   if(!ctx || !vue || !(alpha > 0.005)) return 0;
+  if(!etat.actif) return 0;
   const s = S(), ET = global.ETIQUETTES;
   if(!s) return 0;
   let traces = 0;

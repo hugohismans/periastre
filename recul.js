@@ -491,6 +491,31 @@ function recentre(va, lacet, tangage, dt, mainPrise){
 // cosinus négatif, qui comparé à un seuil positif dirait la même chose — mais
 // une échelle qui descend sous zéro se retrouve tôt ou tard multipliée par
 // quelque chose, et alors elle ment.
+/* L'AXE, ET NON PLUS SEULEMENT L'ASTRE — 14 août 2026.
+
+   `enVue` mesure si l'on regarde vers l'astre, et c'est ce qui levait le repère.
+   Le jour où la vitre AVANT existe, cette mesure devient fausse par omission :
+   on se retourne pour voir ce qui arrive, et le repère s'éteint — mesuré à
+   l'écran, 1,00 en regardant la baie, 0,39 puis 0,10 après le demi-tour. La
+   vitre avant montrait le vide.
+
+   Le trajet est RADIAL : la baie regarde l'astre, la vitre avant regarde
+   exactement à l'opposé, et les deux cadrent le même axe. Ce qui doit lever le
+   repère est donc l'alignement à cet AXE, sans son sens — c'est-à-dire la
+   valeur absolue du cosinus.
+
+   `enVue` garde son sens et son plancher : d'autres décisions s'appuient
+   dessus, et le recentrage a besoin de savoir de quel CÔTÉ est l'astre. On
+   ajoute une seconde mesure au lieu d'en tordre une. */
+function enVueAxe(av, va){
+  if(!va) return 1;
+  return Math.max(enVue(av, va), enVue(av, [-va[0], -va[1], -va[2]]));
+}
+
+// Le plancher à zéro, et non la valeur brute : un astre dans le dos donne un
+// cosinus négatif, qui comparé à un seuil positif dirait la même chose — mais
+// une échelle qui descend sous zéro se retrouve tôt ou tard multipliée par
+// quelque chose, et alors elle ment.
 function enVue(av, va){
   if(!va) return 1;
   const c = av[0]*va[0] + av[1]*va[1] + av[2]*va[2];
@@ -1043,7 +1068,7 @@ global.RECUL = { etat, lance, avance, ou, decade, etiquette, dessineQuadrillage,
                  RYTHMES, RYTHME_DEFAUT, borneRythme,
                  REPERES, REPERE_DEFAUT, borneRepere, poseRepere,
                  get repere(){ return repere; },
-                 recentre, enVue, fondu, fondus, seuilEnVue,
+                 recentre, enVue, enVueAxe, fondu, fondus, seuilEnVue,
                  get rythme(){ return rythme; },
                  get actif(){ return etat.actif; } };
 
