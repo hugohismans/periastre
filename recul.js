@@ -811,6 +811,190 @@ function coquilles(distance_m){
   return dedans;
 }
 
+/* ============================================================================
+   LE DESSIN DES COQUILLES — une seule loi, et les deux régimes en tombent
+
+   `coquilles` dit QUOI montrer ; ce qui suit dit OÙ, et rien de plus. Le point
+   délicat était de ne pas inventer une seconde forme pour le second régime.
+
+   Une coquille est une SPHÈRE de rayon R centrée sur Sgr A*. Un point de cette
+   sphère s'écrit avec deux angles, et c'est tout ce dont ce dessin a besoin :
+
+       p(θ, φ) = R · ( cos θ · ŵ + sin θ · (cos φ · û + sin φ · v̂) )
+
+   ŵ est la direction Sgr A* → vaisseau, c'est-à-dire l'axe du voyage. Ce n'est
+   pas un choix de cadrage : c'est le seul axe que le problème distingue, le
+   trajet étant radial. θ = 0 est donc DROIT DEVANT, θ = π droit derrière.
+
+   Les parallèles sont θ constant, les méridiens φ constant. Et — c'est là que
+   la seconde forme disparaît — LA SILHOUETTE EST UNE PARALLÈLE, celle de
+
+       θₛ = acos(R/d)
+
+   qui n'existe que si R < d, c'est-à-dire exactement quand la coquille est
+   franchie. Le cercle qui rétrécit derrière et les anneaux qu'on traverse
+   devant sont le même trait, à deux valeurs de θ. Rien n'est ajouté pour le
+   régime du dehors ; il apparaît tout seul, et il disparaît tout seul quand on
+   rentre dedans. Le rayon angulaire qu'il sous-tend vaut alors asin(R/d), qui
+   est ce que `coquilles` a déjà calculé de son côté — et `outil-verif-recul.js`
+   exige que les deux tombent d'accord au lieu de le croire sur parole.
+
+   POURQUOI ON NE MET AUCUNE ÉCHELLE. Le vaisseau se déplace VRAIMENT dans le
+   repère du monde pendant le voyage (`index.html`, `majVoyage` : `salon.p` est
+   posé à la distance courante), et l'unité du monde est le rayon de
+   Schwarzschild. Une coquille de 10ⁿ rₛ se dessine donc à 10ⁿ, littéralement,
+   et c'est la projection de la page qui fait le reste. C'est ce qui sépare ce
+   dessin du quadrillage : la maille du quadrillage était une longueur choisie
+   en fonction de la distance — elle se re-graduait — tandis qu'un rayon de
+   coquille ne dépend de rien. On le traverse, il ne bouge pas.
+
+   ---------------------------------------------------------------------------
+   POURQUOI ON DÉCOUPE, ET POURQUOI ON JETTE LES TRONÇONS TROP LONGS
+
+   Même piège que les montants du quadrillage, et il est pire ici : quand on est
+   DEDANS, la coquille nous entoure, donc une bonne moitié de ses traits passe
+   derrière la caméra, où `projette` rend `null`. Un trait tracé d'un bloc
+   disparaîtrait en entier ; un trait dont une extrémité rase le plan de coupure
+   projette à l'infini et balaie l'écran. On juge donc segment par segment, et
+   l'on écarte ce qui n'a plus de sens à l'écran.                             */
+
+const COQ_PARALLELES = 6;      // parallèles par coquille, hors silhouette
+const COQ_MERIDIENS  = 6;
+const COQ_PAS        = 72;     // segments par tour — la silhouette doit être ronde
+
+/* Un repère orthonormé dont ŵ est l'axe du voyage. `û` se fabrique en écartant
+   l'axe du monde le moins colinéaire à ŵ : n'importe quel autre choix ferait
+   tourner le maillage autour de l'axe sans rien changer à ce qu'on voit, mais
+   celui-ci ne dégénère jamais. */
+function baseCoquille(axe){
+  const n = Math.hypot(axe[0], axe[1], axe[2]) || 1;
+  const w = [axe[0]/n, axe[1]/n, axe[2]/n];
+  const a = Math.abs(w[0]) < 0.9 ? [1,0,0] : [0,1,0];
+  let u = [ a[1]*w[2] - a[2]*w[1], a[2]*w[0] - a[0]*w[2], a[0]*w[1] - a[1]*w[0] ];
+  const m = Math.hypot(u[0], u[1], u[2]) || 1;
+  u = [u[0]/m, u[1]/m, u[2]/m];
+  const v = [ w[1]*u[2] - w[2]*u[1], w[2]*u[0] - w[0]*u[2], w[0]*u[1] - w[1]*u[0] ];
+  return { w, u, v };
+}
+
+/* Le point de la coquille. C'est LA loi du dessin : tout ce qui est tracé
+   ci-dessous sort d'ici, et rien n'en sort qui ne soit à `R` du centre. */
+function pointCoquille(R, base, theta, phi){
+  const st = Math.sin(theta), ct = Math.cos(theta);
+  const cp = Math.cos(phi), sp = Math.sin(phi);
+  return [ R*(ct*base.w[0] + st*(cp*base.u[0] + sp*base.v[0])),
+           R*(ct*base.w[1] + st*(cp*base.u[1] + sp*base.v[1])),
+           R*(ct*base.w[2] + st*(cp*base.u[2] + sp*base.v[2])) ];
+}
+
+/* L'angle polaire de la silhouette, ou `null` quand on est dedans — auquel cas
+   la coquille n'a pas de silhouette, puisqu'elle n'a pas de bord. */
+function thetaSilhouette(R, d){
+  return d > R ? Math.acos(Math.min(1, R/d)) : null;
+}
+
+/* Une polyligne du monde, jugée tronçon par tronçon. */
+function traitCoquille(ctx, projette, pts, limite){
+  let prec = null, trace = false;
+  for(const p of pts){
+    const q = projette(p);
+    if(prec && q && Math.hypot(q[0]-prec[0], q[1]-prec[1]) < limite){
+      ctx.moveTo(prec[0], prec[1]); ctx.lineTo(q[0], q[1]); trace = true;
+    }
+    prec = q;
+  }
+  return trace;
+}
+
+function parallele(R, base, theta, tours){
+  const pts = [];
+  const n = tours === undefined ? COQ_PAS : tours;
+  for(let i = 0; i <= n; i++) pts.push(pointCoquille(R, base, theta, 2*Math.PI*i/n));
+  return pts;
+}
+
+function meridien(R, base, phi){
+  const pts = [];
+  for(let i = 0; i <= COQ_PAS; i++) pts.push(pointCoquille(R, base, Math.PI*i/COQ_PAS, phi));
+  return pts;
+}
+
+/* Le point qu'on étiquette, et il n'est pas le même dans les deux régimes.
+
+   Franchie, la coquille est un objet DERRIÈRE : son nom se pose sur son bord,
+   au point le plus haut de la silhouette à l'écran — celui qu'on trouve en la
+   parcourant, sans supposer où la page a mis le trou noir.
+
+   Pas encore atteinte, elle nous ENTOURE : elle n'a pas de bord, et son seul
+   point remarquable est le pôle avant, droit devant, celui qu'on va percer.
+   C'est exactement l'endroit où l'on veut lire son nom en arrivant dessus. */
+function ancreCoquille(R, base, thetaS, projette){
+  if(thetaS === null){
+    return projette(pointCoquille(R, base, 0, 0));
+  }
+  let haut = null;
+  for(let i = 0; i < COQ_PAS; i++){
+    const q = projette(pointCoquille(R, base, thetaS, 2*Math.PI*i/COQ_PAS));
+    if(q && (!haut || q[1] < haut[1])) haut = q;
+  }
+  return haut;
+}
+
+/* @param axe        direction Sgr A* → vaisseau, dans le repère du monde
+   @param distance_m facultatif : par défaut celle du trajet en cours */
+function dessineCoquilles(ctx, W, H, projette, force, axe, distance_m){
+  if(force <= 0.01) return;
+  const d = (distance_m === undefined ? etat.distance : distance_m) / RS_M;
+  const base = baseCoquille(axe);
+  const limite = 2 * Math.hypot(W, H);
+
+  ctx.save();
+  ctx.strokeStyle = "#8fb6ff";
+  ctx.lineWidth = 1;
+
+  for(const c of coquilles(distance_m)){
+    const a = force * c.alpha;
+    if(a <= 0.004) continue;
+    const R = c.rayon;
+    const thetaS = thetaSilhouette(R, d);
+
+    // Le maillage : ce qu'on traverse. Volontairement discret — il porte le
+    // mouvement, pas la lecture.
+    ctx.globalAlpha = 0.20 * a;
+    if(ctx.globalAlpha >= 0.004){
+      ctx.beginPath();
+      let trace = false;
+      for(let k = 1; k <= COQ_PARALLELES; k++)
+        trace = traitCoquille(ctx, projette, parallele(R, base, Math.PI*k/(COQ_PARALLELES+1)), limite) || trace;
+      for(let j = 0; j < COQ_MERIDIENS; j++)
+        trace = traitCoquille(ctx, projette, meridien(R, base, Math.PI*j/COQ_MERIDIENS), limite) || trace;
+      if(trace) ctx.stroke();
+    }
+
+    // La silhouette : le cercle qui rétrécit derrière. Elle n'existe que
+    // franchie, et c'est la même loi qui la fait naître et qui l'éteint.
+    if(thetaS !== null){
+      ctx.globalAlpha = 0.85 * a;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      if(traitCoquille(ctx, projette, parallele(R, base, thetaS), limite)) ctx.stroke();
+      ctx.lineWidth = 1;
+    }
+
+    // Son nom, dans l'unité qui parle à cette échelle — c'est lui qui fait
+    // sentir « on vient de franchir les mille rayons ».
+    const ancre = ancreCoquille(R, base, thetaS, projette);
+    if(ancre && ancre[0] > -W && ancre[0] < 2*W && ancre[1] > -H && ancre[1] < 2*H){
+      ctx.globalAlpha = 0.85 * a;
+      ctx.fillStyle = "#a9c6ff";
+      ctx.font = "11px ui-monospace, monospace";
+      ctx.textAlign = "center";
+      ctx.fillText(etiquette(R), ancre[0], ancre[1] - 6);
+    }
+  }
+  ctx.restore();
+}
+
 function dessineQuadrillage(ctx, W, H, projette, force){
   if(force <= 0.01) return;
   const echelle = etat.distance / RS_M;
@@ -834,7 +1018,9 @@ function dessineQuadrillage(ctx, W, H, projette, force){
 }
 
 global.RECUL = { etat, lance, avance, ou, decade, etiquette, dessineQuadrillage,
-                 quadrillage, coquilles, COQUILLE_PORTEE,
+                 quadrillage, coquilles, COQUILLE_PORTEE, dessineCoquilles,
+                 baseCoquille, pointCoquille, thetaSilhouette,
+                 COQ_PARALLELES, COQ_MERIDIENS, COQ_PAS,
                  poseRythme, poseMots, duree, RS_M, UA_M, AL_M,
                  RYTHMES, RYTHME_DEFAUT, borneRythme,
                  recentre, enVue, fondu, fondus, seuilEnVue,

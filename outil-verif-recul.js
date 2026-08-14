@@ -1505,6 +1505,351 @@ console.log("\n── Les coquilles : on les traverse, elles ne se re-graduent p
      "sabotage joué et retiré");
 }
 
+/* ============================================================================
+   LE DESSIN DES COQUILLES — ce que la peinture doit tenir
+
+   Le groupe précédent éprouve la LOI (`coquilles`) ; celui-ci éprouve ce qu'on
+   en TRACE. Ce sont deux choses distinctes, et le 12 août l'une était faite
+   sans l'autre : la loi était gardée par 133 contrôles et personne ne dessinait
+   rien.
+
+   MÊME MÉTHODE QUE POUR LE QUADRILLAGE : une projection qui ne projette pas —
+   elle numérote les points du monde qu'on lui tend — et un contexte qui note
+   les segments au lieu de les peindre. Ce qui ressort est de la géométrie, pas
+   des pixels, et c'est là-dessus qu'on interroge.
+
+   L'AXE DU BALAYAGE N'EST ALIGNÉ SUR AUCUN AXE DU MONDE. Un axe posé sur x
+   laisserait passer une base orthonormée fausse : les erreurs de repère se
+   cachent exactement dans les cas alignés.                                    */
+console.log("\n── Le dessin des coquilles : sur la sphère, et rien qu'elle ──\n");
+
+const AXE = (() => { const a = [0.3, -0.5, 0.81], m = Math.hypot(...a);
+                     return [a[0]/m, a[1]/m, a[2]/m]; })();
+
+/* Relève un appel à `dessineCoquilles` : les points du monde, les segments, et
+   la marque d'épaisseur par laquelle le dessin distingue la silhouette du
+   maillage. La VÉRITÉ mesurée plus bas n'est jamais cette marque — elle sert à
+   désigner les segments, l'angle qu'ils sous-tendent les juge. */
+function releveCoquilles(distance_m, force, M){
+  const points = [], segments = [];
+  const projette = p => { points.push(p.slice()); return [points.length - 1, 0]; };
+  let debut = null, alpha = 1, epaisseur = 1;
+  const ctx = {
+    strokeStyle:"", fillStyle:"", font:"", textAlign:"",
+    get globalAlpha(){ return alpha; }, set globalAlpha(v){ alpha = v; },
+    get lineWidth(){ return epaisseur; }, set lineWidth(v){ epaisseur = v; },
+    save(){}, restore(){}, beginPath(){}, stroke(){}, fillText(){},
+    moveTo(i){ debut = i; },
+    lineTo(i){
+      if(debut !== null) segments.push({ a: points[debut], b: points[i], alpha, epaisseur });
+      debut = null;
+    },
+  };
+  (M || R).dessineCoquilles(ctx, 1600, 900, projette, force === undefined ? 1 : force,
+                            AXE, distance_m);
+  return { points, segments };
+}
+
+const RS3 = R.RS_M;
+const rayon = p => Math.hypot(p[0], p[1], p[2]);
+// L'angle que le point `p` sous-tend depuis l'observateur, autour de la
+// direction du trou noir. C'est de la trigonométrie pure : elle ne demande rien
+// au module qu'elle juge.
+function angleVu(p, d){
+  const o = [d*AXE[0], d*AXE[1], d*AXE[2]];
+  const q = [p[0]-o[0], p[1]-o[1], p[2]-o[2]];
+  const l = Math.hypot(q[0], q[1], q[2]) || 1;
+  // −AXE est la direction observateur → trou noir.
+  const c = -(q[0]*AXE[0] + q[1]*AXE[1] + q[2]*AXE[2]) / l;
+  return Math.acos(Math.max(-1, Math.min(1, c)));
+}
+
+/* Le cosinus de l'angle entre le rayon de visée et le rayon de la sphère.
+
+   IL VAUT ZÉRO SI ET SEULEMENT SI LA VISÉE EST TANGENTE, c'est-à-dire si le
+   point est sur la silhouette. C'est le test qui manquait : l'angle sous-tendu
+   est MAXIMAL au point de tangence, donc une erreur d'angle polaire ne s'y voit
+   qu'au second ordre — un sabotage de 2 % n'y déplaçait l'angle que de 8 × 10⁻⁵
+   rad, et mon premier seuil ne le voyait pas. La tangence, elle, réagit au
+   premier ordre. */
+function cosTangence(p, d){
+  const o = [d*AXE[0], d*AXE[1], d*AXE[2]];
+  const q = [p[0]-o[0], p[1]-o[1], p[2]-o[2]];
+  const lq = Math.hypot(q[0], q[1], q[2]) || 1, lp = Math.hypot(p[0], p[1], p[2]) || 1;
+  return (q[0]*p[0] + q[1]*p[1] + q[2]*p[2]) / (lq*lp);
+}
+
+// ═══════════════════════════════ 1. rien n'est tracé qui ne soit sur la sphère
+groupe("Tout ce qui est tracé est SUR une coquille");
+{
+  /* C'est le contrôle du « aucune loi inventée ». Le dessin a le droit de
+     choisir où poser ses traits ; il n'a pas le droit de les poser ailleurs que
+     sur la sphère qu'il prétend montrer. */
+  let pire = 0, hors = 0, total = 0;
+  for(const dm of [40*RS3, 3.7e3*RS3, 1.1e7*RS3, 2.0e10*RS3]){
+    const { points } = releveCoquilles(dm);
+    const rayons = R.coquilles(dm).map(c => c.rayon);
+    for(const p of points){
+      total++;
+      const r = rayon(p);
+      const proche = Math.min(...rayons.map(R0 => Math.abs(r - R0)/R0));
+      pire = Math.max(pire, proche);
+      if(proche > 1e-12) hors++;
+    }
+  }
+  ok("chaque point tracé est à un rayon de coquille, à 10⁻¹² près",
+     hors === 0 && total > 500, "0 point hors sphère, sur plus de 500",
+     hors + " hors, " + total + " points, écart pire " + pire.toExponential(1),
+     "les rayons viennent de `coquilles`, l'écart est de la géométrie pure");
+}
+
+// ══════════════════════════ 2. la silhouette sous-tend exactement asin(R/d)
+groupe("La silhouette est le bord vrai de la sphère");
+{
+  /* LE CONTRÔLE QUI PAIE TOUT LE RESTE, et celui qui attraperait une échelle
+     fausse. Le dessin place la silhouette à la parallèle θ = acos(R/d) ;
+     `coquilles` calcule de son côté un rayon angulaire asin(R/d). Ce sont deux
+     chemins trigonométriques différents, écrits à deux endroits différents, et
+     ils doivent tomber sur le même nombre. Si le dessin mettait les coquilles à
+     une échelle quelconque — l'erreur qu'on ferait en croyant que le vaisseau
+     ne bouge pas — cet accord se romprait aussitôt. */
+  let pire = 0, pireTan = 0, vus = 0;
+  for(const dm of [40*RS3, 3.7e3*RS3, 1.1e7*RS3, 2.0e10*RS3]){
+    const d = dm / RS3;
+    const { segments } = releveCoquilles(dm);
+    const attendus = R.coquilles(dm).filter(c => c.franchie);
+    for(const s of segments.filter(s => s.epaisseur === 1.5)){
+      const r = rayon(s.a);
+      const c = attendus.find(x => Math.abs(x.rayon - r)/x.rayon < 1e-9);
+      if(!c) { pire = Infinity; continue; }
+      pire = Math.max(pire, Math.abs(angleVu(s.a, d) - c.angle));
+      pireTan = Math.max(pireTan, Math.abs(cosTangence(s.a, d)));
+      vus++;
+    }
+  }
+  ok("la visée est tangente à la sphère tout le long de la silhouette",
+     pireTan < 1e-9 && vus > 200, "tangence à 10⁻⁹, sur plus de 200 segments",
+     vus + " segments, écart pire " + pireTan.toExponential(1),
+     "de la géométrie pure : ce test ne demande rien au module qu'il juge");
+  ok("…et elle sous-tend l'angle que `coquilles` annonce",
+     pire < 1e-9, "accord à 10⁻⁹ rad", "écart pire " + pire.toExponential(1),
+     "acos(R/d) tracé contre asin(R/d) calculé : deux routes, un seul nombre — c'est CE test qui attrape une échelle fausse");
+}
+
+// ══════════════════════════════ 3. dedans, pas de bord ; dehors, un bord
+groupe("Le bord n'existe que si la coquille est franchie");
+{
+  /* La bascule entre les deux régimes ne se décide nulle part : elle tombe de
+     `acos(R/d)`, qui n'existe pas pour R > d. C'est ce qu'on vérifie ici —
+     qu'aucun bord n'est peint autour d'une coquille qui nous entoure encore. */
+  let fautes = 0, cas = 0;
+  for(let e = 1.2; e <= 10.2; e += 0.13){
+    const dm = Math.pow(10, e) * RS3;
+    const { segments } = releveCoquilles(dm);
+    const silhouettes = new Set(segments.filter(s => s.epaisseur === 1.5)
+                                        .map(s => Math.round(Math.log10(rayon(s.a)))));
+    for(const c of R.coquilles(dm)){
+      if(c.alpha <= 0.004) continue;
+      cas++;
+      if(silhouettes.has(c.n) !== c.franchie) fautes++;
+    }
+  }
+  ok("bord tracé si et seulement si franchie",
+     fautes === 0 && cas > 150, "0 faute, sur plus de 150 cas",
+     fautes + " fautes, " + cas + " cas",
+     "`franchie` vient de `coquilles`, le bord vient du dessin");
+}
+
+// ════════════════════════ 4. la traversée ne fait pas sauter le TRAIT
+groupe("Le bord naît au pôle et s'ouvre : le trait ne saute pas dans l'espace");
+{
+  /* CE CONTRÔLE M'A REPRIS, et la correction vaut d'être écrite.
+
+     Premier jet : j'exigeais que le RAYON ANGULAIRE du bord ne saute pas à la
+     traversée. Il a mesuré 1,549 rad, et j'ai cru une minute que le dessin
+     sautait. Il ne saute pas : c'est ma question qui était fausse. J'avais
+     confondu deux angles.
+
+       · l'angle POLAIRE du trait, acos(R/d) : où le trait est posé sur la
+         sphère. Il tend vers 0 quand on franchit — le bord naît au ras du pôle
+         qu'on vient de percer, et s'ouvre ensuite ;
+       · l'angle qu'il SOUS-TEND depuis l'œil, asin(R/d) : combien de ciel il
+         couvre. Il tend vers π/2, parce que la surface qu'on traverse passe à
+         cet instant exactement à côté de nous.
+
+     Le second ne peut pas être continu, et il ne DOIT pas l'être : dedans, la
+     coquille couvre tout le ciel ; dehors, la moitié. Passer au travers d'une
+     surface, c'est précisément cela. Ce qui doit être continu est le TRAIT
+     TRACÉ, dans l'espace — et il l'est.
+
+     On garde donc les deux mesures : la continuité là où elle a un sens, et la
+     borne π/2 là où l'autre l'aurait cherchée. */
+  const n0 = 6, R0 = Math.pow(10, n0);
+  let pireSaut = 0, precT = null, pireAngle = 0;
+  for(let k = -400; k <= 400; k++){
+    const d = R0 * Math.pow(10, k * 1e-4);
+    const t = R.thetaSilhouette(R0, d);
+    if(t !== null){
+      if(precT !== null) pireSaut = Math.max(pireSaut, Math.abs(t - precT));
+      precT = t;
+    }
+    const c = R.coquilles(d * RS3).find(x => x.n === n0);
+    if(c && c.franchie) pireAngle = Math.max(pireAngle, c.angle);
+  }
+  ok("l'angle polaire du trait ne saute pas à la traversée",
+     pireSaut < 0.02 && precT !== null, "moins de 0,02 rad par pas de 10⁻⁴ décade",
+     pireSaut.toFixed(5) + " rad",
+     "acos(R/d) → 0 quand d → R⁺ : le bord naît au pôle percé, il n'arrive pas déjà large");
+  ok("…et le ciel qu'il couvre ne dépasse jamais la moitié",
+     pireAngle <= Math.PI/2 + 1e-12 && pireAngle > 1.5,
+     "au plus π/2 = 1,5708, et atteint au passage", pireAngle.toFixed(5) + " rad",
+     "dedans la coquille couvre tout, dehors la moitié : c'est ce QU'EST une traversée");
+}
+
+// ═══════════════════ 5. LE CONTRÔLE DE LA CRITIQUE : un rayon ne se re-gradue pas
+groupe("Une coquille ne se re-gradue jamais — c'est toute la critique d'Hugo");
+{
+  /* « C'est comme si on dézoomait, mais on ne dézoome pas, on RECULE. »
+
+     La différence entre les deux gestes se mesure, et elle tient en une ligne :
+     un repère qui DÉZOOME change de taille dans le monde quand on avance ; un
+     repère qu'on RECULE devant garde la sienne. On suit donc le vrai trajet et
+     l'on regarde, pour chaque coquille, le rayon auquel elle est tracée.
+
+     Le quadrillage sert de témoin — pas comme une cible, mais comme l'étalon du
+     défaut : sa maille, elle, est multipliée par dix milliards sur le trajet.
+     Sans ce témoin, « le rayon ne bouge pas » ne prouverait rien, puisqu'on ne
+     saurait pas si quoi que ce soit avait bougé. */
+  const A = 16*RS3, B = 2.55e20;          // de seize rayons au système solaire
+  // On ne garde que les bornes par décade : le trajet en produit des millions
+  // de points, et les empiler ferait déborder la pile sans rien mesurer de plus.
+  const rayons = new Map(); let mailleMin = Infinity, mailleMax = 0;
+  for(let i = 0; i <= 600; i++){
+    const dm = R.ou(A, B, i/600, "fidele").distance;
+    for(const p of releveCoquilles(dm).points){
+      const r = rayon(p), nn = Math.round(Math.log10(r));
+      const b = rayons.get(nn);
+      if(!b) rayons.set(nn, { min: r, max: r });
+      else { if(r < b.min) b.min = r; if(r > b.max) b.max = r; }
+    }
+    const m = R.quadrillage(dm).dominante;
+    mailleMin = Math.min(mailleMin, m); mailleMax = Math.max(mailleMax, m);
+  }
+  let pireDerive = 0;
+  for(const [nn, b] of rayons)
+    pireDerive = Math.max(pireDerive, (b.max - b.min) / Math.pow(10, nn));
+
+  ok("sur tout le trajet, le rayon d'une coquille ne bouge pas d'un iota",
+     pireDerive < 1e-12 && rayons.size >= 9, "0 dérive, et au moins 9 décades vues",
+     rayons.size + " décades, dérive pire " + pireDerive.toExponential(1));
+  ok("…tandis que la maille du quadrillage, elle, se re-gradue",
+     mailleMax / mailleMin > 1e8, "un facteur bien supérieur à 10⁸",
+     "facteur " + (mailleMax/mailleMin).toExponential(1),
+     "le témoin : c'est CE geste qu'Hugo a nommé « dézoomer »");
+}
+
+// ═════════════════ 6. devant grandit, derrière rapetisse — sa demande, mesurée
+groupe("Un côté grandit, l'autre rapetisse");
+{
+  /* « pour voir un côté grandir et l'autre rapetisser ». C'est vérifiable, et
+     ça n'a rien à voir avec le goût : la coquille qu'on n'a pas atteinte a son
+     pôle DEVANT nous, et il se rapproche ; celle qu'on a franchie est DERRIÈRE,
+     et son bord se referme. On mesure les deux sur le vrai trajet. */
+  const A = 16*RS3, B = 2.55e20;
+  let devantRecule = 0, derriereRegrossit = 0, mesures = 0;
+  let precAvant = new Map(), precBord = new Map();
+  for(let i = 0; i <= 800; i++){
+    const dm = R.ou(A, B, i/800, "fidele").distance, d = dm/RS3;
+    for(const c of R.coquilles(dm)){
+      if(c.franchie){
+        const p = precBord.get(c.n);
+        if(p !== undefined && c.angle > p + 1e-15) derriereRegrossit++;
+        precBord.set(c.n, c.angle);
+      } else {
+        // distance au pôle avant, droit devant : R − d, elle doit décroître
+        const reste = c.rayon - d;
+        const p = precAvant.get(c.n);
+        if(p !== undefined && reste > p + 1e-9) devantRecule++;
+        precAvant.set(c.n, reste);
+      }
+      mesures++;
+    }
+  }
+  ok("ce qui est devant se rapproche, toujours",
+     devantRecule === 0 && mesures > 2000, "0 recul, sur plus de 2 000 mesures",
+     devantRecule + " reculs, " + mesures + " mesures");
+  ok("ce qui est derrière rétrécit, toujours",
+     derriereRegrossit === 0, "0 regrossissement", derriereRegrossit + " regrossissements");
+}
+
+// ══════════════════════════════════════ 7. et ces contrôles savent tomber
+groupe("Ces contrôles du dessin savent tomber");
+{
+  /* Règle 2, ET UN PIÈGE QUI M'A REPRIS ICI MÊME.
+
+     Premier jet : je remplaçais `R.pointCoquille` et `R.thetaSilhouette` sur
+     l'objet exporté. Les trois sabotages sont restés VERTS — c'est-à-dire que
+     les contrôles n'ont rien vu — parce que `dessineCoquilles` appelle ces
+     fonctions par leur nom de module, pas à travers l'export. Je ne sabotais
+     rien du tout, et j'aurais publié trois auto-tests décoratifs.
+
+     On casse donc le FICHIER, avec `casse`, qui recharge une copie modifiée du
+     vrai source et rend `null` si l'ancre a disparu. Un renommage fait alors
+     tomber le sabotage au lieu de le rendre muet. */
+  const d = 1.1e7, dm = d * RS3;
+  const ANCRE_T = "return d > R ? Math.acos(Math.min(1, R/d)) : null;";
+
+  /* SABOTAGE 1 — une échelle glissée sous les coquilles. C'est exactement
+     l'erreur qu'on ferait en croyant que le vaisseau ne se déplace pas : on
+     ramènerait les rayons à la taille du salon. */
+  {
+    const M = casse(["const R = c.rayon;", "const R = c.rayon * 0.999;"]);
+    const rayonsVrais = R.coquilles(dm).map(c => c.rayon);
+    let hors = 0;
+    if(M) for(const p of releveCoquilles(dm, 1, M).points){
+      const r = rayon(p);
+      if(Math.min(...rayonsVrais.map(R0 => Math.abs(r - R0)/R0)) > 1e-12) hors++;
+    }
+    ok("une échelle glissée sous les coquilles est vue",
+       !!M && hors > 100, "plus de 100 points hors sphère",
+       M ? hors + " points" : "ancre disparue",
+       "sabotage joué sur une copie du fichier — c'est l'erreur du « vaisseau immobile »");
+  }
+
+  /* SABOTAGE 2 — la silhouette posée à un angle plausible mais faux. Elle
+     resterait un cercle, elle resterait sur la sphère, et seul l'accord avec
+     `coquilles` la démasque. */
+  {
+    const M = casse([ANCRE_T, "return d > R ? Math.acos(Math.min(1, R/d)) * 0.98 : null;"]);
+    let pireTan = 0;
+    if(M) for(const s of releveCoquilles(dm, 1, M).segments.filter(x => x.epaisseur === 1.5))
+      pireTan = Math.max(pireTan, Math.abs(cosTangence(s.a, d)));
+    ok("une silhouette au mauvais angle est vue",
+       !!M && pireTan > 1e-3, "une tangence franchement rompue",
+       M ? pireTan.toExponential(1) : "ancre disparue",
+       "sabotage joué sur une copie — le cercle reste rond, seule la tangence le trahit");
+  }
+
+  /* SABOTAGE 3 — un bord peint même quand on est dedans. C'est la faute qui
+     redonnerait un objet là où il n'y a qu'un horizon. */
+  {
+    const M = casse([ANCRE_T, "return d > R ? Math.acos(Math.min(1, R/d)) : 0.4;"]);
+    let fautes = 0;
+    if(M) for(let e = 1.2; e <= 10.2; e += 0.13){
+      const dd = Math.pow(10, e);
+      const sil = new Set(releveCoquilles(dd*RS3, 1, M).segments
+                            .filter(s => s.epaisseur === 1.5)
+                            .map(s => Math.round(Math.log10(rayon(s.a)))));
+      for(const c of R.coquilles(dd*RS3))
+        if(c.alpha > 0.004 && sil.has(c.n) !== c.franchie) fautes++;
+    }
+    ok("un bord peint autour d'une coquille non franchie est vu",
+       !!M && fautes > 20, "plus de 20 fautes",
+       M ? fautes + " fautes" : "ancre disparue",
+       "sabotage joué sur une copie du fichier");
+  }
+}
+
 console.log("\n  " + (echecs ? "❌  " + echecs + " ÉCHECS sur " + n + " contrôles"
                              : "✅  TOUT PASSE — " + n + " contrôles") + "\n");
 process.exit(echecs ? 1 : 0);
