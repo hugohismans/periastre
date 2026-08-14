@@ -18,6 +18,61 @@ Hugo peut aussi le déclencher à tout moment : « on refait le cap ».
 
 ---
 
+## 14 août 2026 — les coquilles se dessinent, et le vaisseau a une vitre avant
+
+Sa critique du 12 août commandait tout : *« le quadrillage, c'est comme si on
+dézoomait, mais on ne dézoome pas, on RECULE. »* La loi (`RECUL.coquilles`)
+était posée et gardée depuis ce jour-là ; **personne ne dessinait rien**.
+
+**Le dessin, et la seconde forme qui a disparu.** Une coquille est une sphère,
+et un point de sphère s'écrit avec deux angles. Je cherchais quoi tracer pour
+une coquille franchie — un cercle qui rétrécit derrière — sans inventer une
+forme à côté du maillage. Il n'y en a pas besoin : **la silhouette EST une
+parallèle**, celle de θ = acos(R/d), qui n'existe que si R < d, c'est-à-dire
+exactement quand la coquille est franchie. Le cercle derrière et les anneaux
+qu'on traverse devant sont le **même trait**, à deux valeurs de θ.
+
+**Aucune échelle.** Le vaisseau se déplace vraiment dans le repère du monde
+pendant le voyage, et l'unité du monde est le rayon de Schwarzschild : une
+coquille de 10ⁿ rₛ se dessine à 10ⁿ, littéralement.
+
+**Le contrôle qui porte sa critique** : sur tout le trajet, le rayon d'une
+coquille ne dérive pas de plus de 8 × 10⁻¹⁶ sur douze décades, tandis que la
+maille du quadrillage est multipliée par 1,0 × 10⁹. C'est CE geste qu'il a
+nommé « dézoomer », et il est maintenant mesuré à côté du sien.
+
+**Le quadrillage reste sous la main**, dans les réglages. Les deux repères
+portent les neuf décades — mesuré des deux côtés — donc aucun calcul ne les
+départage : ce qui les sépare est le geste, et un geste se juge à l'œil. Le
+plafond de taille monte de 42 lignes, argumenté sur place.
+
+**La vitre avant** — « oui, les vitres, c'est le cœur ». La cloison arrière
+s'ouvre, même découpe et même signature que la baie. Le piège évité : la faire
+entrer dans `vitres()` aurait déplacé l'ancre de l'arrivée Terre–Lune, qui est
+la moyenne de cette liste, au milieu de la pièce.
+
+**Deux défauts trouvés à l'œil, chacun devenu un contrôle.**
+
+1. On se retourne, et le repère s'éteint — 1,00 en regardant la baie, 0,39 puis
+   0,10 après le demi-tour. `enVue` mesurait l'alignement à l'ASTRE, ce qui
+   était juste tant qu'il n'y avait qu'une ouverture. Le trajet est radial et
+   les deux vitres cadrent le même AXE : `enVueAxe`.
+2. **Et celui-là était en ligne depuis des jours.** Par la vitre avant on lisait
+   « Soleil » à côté d'une coquille de 1,3 al, alors qu'il est à vingt-sept
+   mille. `APPROCHE.dessine` était appelé pendant tout le trajet et son garde ne
+   gardait rien — il testait `S()`, qui rend un module toujours chargé. Le nuage
+   de Oort était peint pendant les neuf décades du voyage, et invisible pour une
+   seule raison : le calque ne se découpait qu'à la baie, qui regarde en
+   arrière, tandis que la scène se pose devant. Peinte et jetée à chaque image.
+   **Une ouverture neuve a été le premier outil capable de le voir.**
+
+**Ce qui attend son œil** : coquilles ou quadrillage. Le voile de l'arrivée
+(douzième compromis) n'a PAS été retiré — il porte sur ce que la baie peint à
+l'arrivée, et rien ici ne l'a levé. À reprendre au prochain cap : `CLAUDE.md`
+écrit que « le vaisseau ne se déplace jamais », alors que `majVoyage` pose
+`salon.p` à la distance courante — c'est même ce qui rend les coquilles justes
+sans aucune échelle.
+
 ## 11 août 2026 — la scène solaire : on arrive dans le vide, et on tombe
 
 Le cadrage était d'Hugo, tranché la veille au soir : *« les deux, dans cet

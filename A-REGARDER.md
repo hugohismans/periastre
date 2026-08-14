@@ -15,8 +15,56 @@ Tout ce qui ne peut pas se vérifier par la mesure, et qui attend donc qu'un
 humain regarde. **Rien ici ne bloque quoi que ce soit** — c'est une file, pas
 une dette. Elle existe pour que ça ne se perde pas dans une conversation.
 
-Mise à jour le 11 août 2026, après la construction de la scène solaire
-et sa dernière marche, la Terre et la Lune. Deux questions t'attendent.
+Mise à jour le 14 août 2026, après les coquilles et la vitre avant.
+
+---
+
+## 🔎 COQUILLES OU QUADRILLAGE — le repère du voyage (14 août)
+
+**Réglages → « Repère du voyage ». Deux boutons, et ça change tout de suite.**
+
+Tu as dit le 12 août : *« le quadrillage, ça n'a pas trop de sens en fait, si ?
+C'est comme si on dézoomait, mais on ne dézoome pas, on RECULE. »* Tu avais
+raison, et les **coquilles** sont la réponse : des sphères posées dans l'espace,
+à des rayons qui ne changent jamais, qu'on **traverse**. Celle qu'on vient de
+franchir se referme derrière, la suivante s'ouvre devant.
+
+Elles sont maintenant le réglage par défaut. **Le quadrillage reste sous le
+bouton d'à côté**, et c'est exprès : les deux portent bien les neuf décades — je
+l'ai mesuré des deux côtés — donc aucun calcul ne peut les départager. Ce qui
+les sépare est le **geste**, et un geste, seul ton œil le juge.
+
+Ce qui est déjà mesuré, pour que tu n'aies pas à le vérifier :
+
+- sur tout le trajet, le rayon d'une coquille **ne bouge pas** (8 × 10⁻¹⁶ sur
+  douze décades), tandis que la maille du quadrillage est **multipliée par un
+  milliard**. C'est exactement le geste que tu as nommé « dézoomer » ;
+- ce qui est devant se rapproche toujours, ce qui est derrière rétrécit
+  toujours : jamais un recul, jamais un regrossissement, sur 2 284 mesures ;
+- les étiquettes tombent juste — « 8 483 UA » pour 10⁵ rayons, « 134 al » pour
+  10⁸.
+
+**La question est donc la seule qui reste : lequel des deux dit « je recule » ?**
+Et s'ils te paraissent tous les deux ratés, dis-le — c'est une réponse.
+
+---
+
+## 🔎 LA VITRE AVANT — est-ce qu'elle sert (14 août)
+
+*« Avec un vaisseau adapté, où on peut voir devant, derrière, pour voir un côté
+grandir et l'autre rapetisser »*, et au bouton : *« oui, les vitres, c'est le
+cœur »*. La cloison arrière du salon s'ouvre maintenant. **Retourne-toi pendant
+le voyage** : derrière, les coquilles franchies se referment ; devant, la
+suivante s'ouvre comme un entonnoir qu'on va percer.
+
+Deux choses à me dire, si ton œil s'y arrête : **la vitre est-elle assez
+grande**, et **est-ce qu'on comprend qu'on se retourne** ? Elle est plus petite
+que la baie et plus haute — c'est un choix, pas une contrainte.
+
+*(Elle a déjà servi à autre chose : elle a montré un mensonge qui était en ligne
+depuis des jours. On peignait le nuage de Oort et le mot « Soleil » pendant tout
+le trajet, à vingt-sept mille années-lumière de lui — invisible parce que la
+seule vitre du vaisseau regardait dans l'autre sens. C'est réparé.)*
 
 ---
 
