@@ -64,6 +64,11 @@ const path = require("path");
 // --- chargement sans navigateur --------------------------------------------
 const faux = {};
 new Function("window", fs.readFileSync(path.join(__dirname, "lune.js"), "utf8"))(faux);
+// `atlas.js` AVANT `rivage.js` : depuis le 16 août, le registre des cartes vit
+// là-bas et `rivage.js` le relaie. Charger dans l'autre ordre le laisserait
+// relayer un `undefined`, et les quatre contrôles de cartes tomberaient sur une
+// panne au lieu de mesurer quoi que ce soit.
+new Function("window", fs.readFileSync(path.join(__dirname, "atlas.js"), "utf8"))(faux);
 new Function("window", fs.readFileSync(path.join(__dirname, "rivage.js"), "utf8"))(faux);
 const L = faux.LUNE, R = faux.RIVAGE;
 

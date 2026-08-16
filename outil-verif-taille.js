@@ -518,7 +518,48 @@ const fs = require("fs"), path = require("path");
    encore aujourd'hui.
 
    Le plafond redescend le jour où cette unification se fait d'un bloc. */
-const PLAFOND = 4091;   // ... le repère du voyage : coquilles ou quadrillage
+
+/* 4 126 le 16 août — **LE PLAFOND MONTE**, de 35 lignes, pour les
+   photographies de la Terre et de la Lune.
+
+   Hugo, en jugeant l'arrivée : « la terre et la lune utilise des vrai photo,
+   ont les a dans le projet ». Il avait raison, et c'était le pire genre d'avoir
+   raison : les cartes de la NASA étaient dans le dépôt depuis cinq jours,
+   sourcées, gardées par un outil — et la scène de l'arrivée dessinait toujours
+   des taches à la main.
+
+   CE QUI EST DESCENDU, ET C'EST L'ESSENTIEL : rien du calcul n'est ici. La
+   projection d'une carte cylindrique sur une sphère, le point sous
+   l'observateur, le registre des six cartes et la doctrine du repli sont dans
+   `atlas.js` — un module de plus, éprouvé sans navigateur par 25 contrôles, et
+   confronté au nuanceur du rivage plutôt que cru sur parole.
+
+   CE QUI RESTE ICI EST CE QU'UN MODULE S'INTERDIT : construire une `Image`,
+   fabriquer deux canevas, lire des pixels, en rendre. Trente-cinq lignes, et
+   pas une seule qui décide de quoi que ce soit. C'est la règle du dépôt prise à
+   la lettre — « les modules ne touchent ni au DOM ni à WebGL, c'est ce qui les
+   rend vérifiables sans navigateur » —, donc cette plomberie n'a pas d'autre
+   endroit où vivre tant que la page est la seule à tenir un document.
+
+   CE QUI A ÉTÉ ÉCARTÉ : charger `rivage.js` en entier pour six entrées, ce qui
+   aurait fait entrer les marées, la limite de Roche et un panneau de plage dans
+   le vaisseau ; et recopier la liste des cartes, ce qui aurait donné deux
+   registres pour six images, dont l'un aurait divergé en silence.
+
+   PUIS 4 132, LE MÊME JOUR ET POUR LE MÊME CHANTIER — six lignes de plus, et
+   elles réparent un mensonge trouvé en REGARDANT la première capture : la scène
+   affichait déjà la photographie de la NASA pendant que la ligne du bas
+   annonçait « reliefs évoqués ». L'aveu doit dire ce qu'on montre.
+
+   Ces six lignes composent le crédit depuis `atlas.js` au lieu de l'écrire à la
+   main. Deux des six licences sont des Creative Commons Attribution : le crédit
+   est une obligation légale, et une obligation recopiée finit par ne plus
+   correspondre à ce qu'elle crédite. Les composer coûte six lignes ; les
+   recopier aurait coûté zéro ligne et un défaut qui ne se voit sur aucun écran.
+
+   Le plafond redescend le jour où la page cesse d'être le seul endroit qui sait
+   fabriquer un canevas — la même dette que `fabriqueToile` dans `ecrans.js`. */
+const PLAFOND = 4132;   // ... les photographies, et l'aveu qui dit ce qu'on montre
 
 // Le nombre de modules déjà sortis. Il ne descend jamais non plus : un module
 // qu'on ferait rentrer dans le bloc serait le contraire exact du chantier.
@@ -536,7 +577,7 @@ const PLAFOND = 4091;   // ... le repère du voyage : coquilles ou quadrillage
 //
 // Cinquante aujourd'hui, `solaire.js` compris. Puis CINQUANTE-DEUX le soir même,
 // avec `etiquettes.js` et `approche.js` : la scène solaire est sortie entière.
-const MODULES_SORTIS = 52;
+const MODULES_SORTIS = 55;   // 55 le 16 août : `atlas.js` sort le registre des cartes
 
 let n = 0, echecs = 0;
 const groupe = t => console.log("\n  " + t + "\n  " + "─".repeat(t.length));

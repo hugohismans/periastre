@@ -2520,6 +2520,10 @@ void main(){
      compte — `terrelune.js` prend tous ses chiffres d'astres dans `lune.js`,
      qui entre dans la page le 11 août 2026 sur décision d'Hugo. -->
 <script src="lune.js?v=d696079"></script>
+<!-- Le registre des cartes photographiques. Il vivait dans `rivage.js`, que
+     cette page ne charge pas ; sorti le 16 août pour que la scène de l'arrivée
+     s'en serve sans qu'on recopie la liste. -->
+<script src="atlas.js?v=d696079"></script>
 <script src="terrelune.js?v=d696079"></script>
 <script src="format.js?v=d696079"></script>
 <script src="spectre.js?v=d696079"></script>
@@ -3960,7 +3964,48 @@ const MOTS_SOLAIRE = {};
 // tend ses mots. Sans eux, sa légende se tait — elle n'affiche pas de clé nue.
 TERRELUNE.poseMots({ titre: T("tl.titre"), terre: T("tl.terre"), lune: T("tl.lune"),
   ecart: T("tl.ecart"), dehors: T("tl.dehors"), pasEncore: T("tl.pasEncore"),
-  declare: T("tl.declare") });
+  declare: T("tl.declare"),
+  // L'aveu des photographies porte ses crédits, et ils viennent d'`atlas.js` —
+  // jamais recopiés : deux des six licences les EXIGENT, et une obligation
+  // écrite deux fois finit par ne plus correspondre.
+  declarePhoto: T("tl.declare.photo.avant")
+    + [ATLAS.creditDe("terre"), ATLAS.creditDe("lune")].filter(Boolean).join(" · ")
+    + T("tl.declare.photo.apres") });
+
+/* ---- LES PHOTOGRAPHIES DE LA TERRE ET DE LA LUNE — demandées le 16 août.
+   Tout le calcul est dans `atlas.js`, qui dit aussi pourquoi le repli n'est pas
+   un cas d'erreur. Ici : seulement la plomberie qu'un module s'interdit —
+   charger une image, tenir un canevas, lire et rendre des pixels. */
+const disquesAstres = {};          // cle -> canvas | "echec" | "encours" | undefined
+function fabriqueDisque(cle){
+  const c = ATLAS.carteDe(cle);
+  if(!c) return;                             // pas de carte déclarée : on dessine
+  disquesAstres[cle] = "encours";
+  const img = new Image();
+  img.onerror = () => { disquesAstres[cle] = "echec"; };
+  img.onload = () => {
+    try {
+      const T = ATLAS.TOILE, g = toileNeuve(T, T).getContext("2d");
+      const s = toileNeuve(img.width, img.height).getContext("2d");
+      s.drawImage(img, 0, 0);
+      const d = g.createImageData(T, T);
+      if(!ATLAS.projette(s.getImageData(0, 0, img.width, img.height), d, ATLAS.SOUS_OBS)){
+        disquesAstres[cle] = "echec"; return;
+      }
+      g.putImageData(d, 0, 0);
+      disquesAstres[cle] = g.canvas;
+    } catch(e){ disquesAstres[cle] = "echec"; }   // canevas sali : on dessine
+  };
+  img.src = c.fichier;
+}
+function toileNeuve(w, h){
+  const t = document.createElement("canvas"); t.width = w; t.height = h; return t;
+}
+TERRELUNE.poseCartes(cle => {
+  const d = disquesAstres[cle];
+  if(d === undefined){ fabriqueDisque(cle); return null; }
+  return (d && d !== "echec" && d !== "encours") ? d : null;
+});
 
 /* ---- le registre temporel ---- */
 // Il vit dans `registre.js`, avec sa mémoire reçue en argument : le 7 août, un

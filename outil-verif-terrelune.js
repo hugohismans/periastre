@@ -610,6 +610,88 @@ titre("8. Les mots viennent de la page, et rien ne s'invente");
 }
 
 /* -------------------------------------------------------------------------
+   8 bis. L'AVEU DIT-IL CE QU'ON MONTRE ?
+
+   TROUVÉ EN REGARDANT, le 16 août 2026, sur la première capture de la scène
+   refaite. La Terre était déjà la photographie de la NASA — continents, mer,
+   terminateur — et la ligne du bas annonçait toujours « reliefs évoqués ».
+
+   Le calcul ne pouvait pas l'attraper : les deux moitiés étaient justes
+   séparément. Le dessin montrait bien une photographie, l'aveu disait bien la
+   vérité d'AVANT. Il n'y avait de faute que dans leur rapport, et ce rapport
+   n'était écrit nulle part.
+
+   Aucun visiteur ne s'en plaindrait, et c'est ce qui rend la faute grave : un
+   site dont l'aveu parle d'un autre dessin que celui qu'on regarde a perdu la
+   seule chose qui rende ses aveux utiles.
+
+   D'OÙ VIENT SA VÉRITÉ : d'un faux contexte de dessin qui relève ce qui a été
+   ÉCRIT à l'écran, pas de ce que le module dit avoir l'intention d'écrire. */
+titre("8 bis. L'aveu dit ce que la scène montre");
+
+{
+  function ecrits(avecCartes){
+    const dits = [];
+    const ctx = new Proxy({}, {
+      get(_, p){
+        if(p === "fillText") return t => dits.push(String(t));
+        if(p === "measureText") return () => ({ width: 10 });
+        if(p === "canvas") return { width: 800, height: 600 };
+        return () => {};
+      },
+      set(){ return true; },
+    });
+    TL.poseCartes(avecCartes ? () => ({}) : null);
+    TL.poseMots({ titre: "T", terre: "la Terre", lune: "la Lune", ecart: "e",
+                  dehors: "d", pasEncore: "p",
+                  declare: "AVEU-DESSIN", declarePhoto: "AVEU-PHOTO" });
+    TL.legende(ctx, 800, 600, { terreVue:true, luneVue:false, scene: TL.scene(1e6),
+                                xLune: -50, yLune: -50 });
+    return dits;
+  }
+
+  const sansPhoto = ecrits(false);
+  const avecPhoto = ecrits(true);
+  TL.poseCartes(null);                       // on rend le module comme on l'a pris
+
+  point("sans photographie, l'aveu parle du dessin",
+        sansPhoto.includes("AVEU-DESSIN") && !sansPhoto.includes("AVEU-PHOTO"),
+        "AVEU-DESSIN seul",
+        sansPhoto.filter(t => t.indexOf("AVEU") === 0).join(", ") || "AUCUN AVEU");
+
+  point("avec photographies, l'aveu parle des photographies",
+        avecPhoto.includes("AVEU-PHOTO") && !avecPhoto.includes("AVEU-DESSIN"),
+        "AVEU-PHOTO seul",
+        avecPhoto.filter(t => t.indexOf("AVEU") === 0).join(", ") || "AUCUN AVEU",
+        "c'est la faute du 16 août : la scène montrait la photographie et l'aveu "
+        + "annonçait « reliefs évoqués »");
+
+  /* LE SENS PRUDENT, et il est délibéré. Une seule carte chargée garde l'aveu
+     du dessin : il sous-estime ce qu'on montre au lieu de le surestimer. */
+  TL.poseCartes(cle => cle === "terre" ? {} : null);
+  const dits = [];
+  const ctx = new Proxy({}, { get(_, p){
+    if(p === "fillText") return t => dits.push(String(t));
+    return () => {};
+  }, set(){ return true; } });
+  TL.legende(ctx, 800, 600, { terreVue:true, luneVue:false, scene: TL.scene(1e6),
+                              xLune: -50, yLune: -50 });
+  TL.poseCartes(null);
+  point("une seule carte chargée ne suffit pas à s'en vanter",
+        dits.includes("AVEU-DESSIN"), "AVEU-DESSIN",
+        dits.filter(t => t.indexOf("AVEU") === 0).join(", ") || "AUCUN AVEU",
+        "on préfère annoncer moins que ce qu'on montre — l'état mêlé est de "
+        + "toute façon fugace, les deux cartes partent du même dossier");
+
+  /* ET LE REPLI DU DESSIN, mesuré ici plutôt que supposé : c'est lui qui rend
+     l'aveu du dessin vrai quand il s'affiche. */
+  point("sans carte posée, la scène retombe sur le dessin",
+        TL.carteDisponible("terre") === false, "false",
+        String(TL.carteDisponible("terre")),
+        "une photographie qui n'a pas chargé ne doit pas laisser un trou dans la baie");
+}
+
+/* -------------------------------------------------------------------------
    9. ET CET OUTIL SAIT ÉCHOUER — règle 2, en cassant pour de vrai. */
 titre("9. Cet outil sait échouer");
 
@@ -623,6 +705,31 @@ titre("9. Cet outil sait échouer");
     const t = remplace(fs.readFileSync(path.join(ici, "terrelune.js"), "utf8"));
     new Function("window", t)(w);
     return w.TERRELUNE;
+  }
+
+  /* LA FAUTE DU 16 AOÛT, REMISE : l'aveu ne regarde plus ce qu'on montre et
+     annonce le dessin quoi qu'il arrive. C'est exactement l'état dans lequel le
+     fichier se trouvait quand la première capture a été prise. */
+  const aveuAveugle = avecSource(s => s.replace(
+    'const aveu = (parPhoto && mot("declarePhoto")) || mot("declare");',
+    'const aveu = mot("declare");'));
+  {
+    const dits = [];
+    const ctx = new Proxy({}, { get(_, p){
+      if(p === "fillText") return t => dits.push(String(t));
+      return () => {};
+    }, set(){ return true; } });
+    aveuAveugle.poseCartes(() => ({}));
+    aveuAveugle.poseMots({ titre: "T", terre: "la Terre", declare: "AVEU-DESSIN",
+                           declarePhoto: "AVEU-PHOTO", pasEncore: "p" });
+    aveuAveugle.legende(ctx, 800, 600, { terreVue:true, luneVue:false,
+                                         scene: aveuAveugle.scene(1e6),
+                                         xLune: -50, yLune: -50 });
+    point("un aveu qui ne regarde plus ce qu'on montre est vu",
+          dits.includes("AVEU-DESSIN") && !dits.includes("AVEU-PHOTO"),
+          "il annonce le dessin devant une photographie",
+          dits.filter(t => t.indexOf("AVEU") === 0).join(", ") || "AUCUN AVEU",
+          "aucun visiteur ne s'en plaindrait, et c'est ce qui rend la faute grave");
   }
 
   const arctan = avecSource(s => s.replace(

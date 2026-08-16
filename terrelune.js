@@ -392,6 +392,27 @@ const mots = {};
 function poseMots(m){ Object.assign(mots, m || {}); }
 function mot(cle){ return mots[cle]; }
 
+/* ============================================== 3 bis. LES PHOTOGRAPHIES
+
+   Hugo, en jugeant l'arrivée le 16 août 2026 : « la terre et la lune utilise
+   des vrai photo, ont les a dans le projet ». Il avait raison — les cartes de
+   la NASA étaient dans le dépôt depuis le 11 août, sourcées et gardées, et
+   cette scène dessinait encore les taches à la main de `lune.js`.
+
+   CE FICHIER NE CHARGE RIEN ET NE FABRIQUE AUCUN CANEVAS. Il ne touche ni au
+   DOM ni à une image, et c'est ce qui permet de l'éprouver sans navigateur —
+   `outil-verif-terrelune.js` le charge dans un faux `window`. La page lui tend
+   une fonction qui rend, pour une clé d'astre, un disque déjà projeté ou rien.
+   C'est la manœuvre de `fabriqueToile` dans `ecrans.js`, et celle de `poseMots`
+   juste au-dessus.
+
+   NE RIEN POSER EST UN ÉTAT VALIDE, et c'est le repli : une photo qui n'a pas
+   fini de charger, ou qui a échoué, laisse la scène retomber sur le dessin
+   calculé. Elle ne laisse jamais un trou dans la baie. */
+let disqueDe = null;
+function poseCartes(f){ disqueDe = typeof f === "function" ? f : null; }
+function carteDisponible(cle){ return !!(disqueDe && disqueDe(cle)); }
+
 /* =============================================================== 4. LE DESSIN */
 
 /** Le disque d'un astre, avec sa nuit calculée.
@@ -402,9 +423,29 @@ function mot(cle){ return mots[cle]; }
  *  peinte à plat trahirait qu'on a posé un cache. */
 function disque(ctx, corpsScene, cx, cy, r, phi, psi){
   const a = corpsScene.astre;
+  /* Le globe, à l'éclairement voulu — par la photographie si la page en a posé
+     une, par le dessin de `lune.js` sinon. Les DEUX passes emploient le même
+     peintre : mélanger une photo de nuit et un dessin de jour ferait un astre
+     qui change de nature au terminateur. */
+  const toile = disqueDe && disqueDe(a.cle);
+  const globe = toile
+    ? (eclair) => {
+        ctx.drawImage(toile, cx - r, cy - r, 2*r, 2*r);
+        // La nuit : on assombrit la photographie au lieu d'en peindre une
+        // seconde. Le modelé reste, comme il reste du côté dessiné.
+        if(eclair < 1){
+          ctx.save();
+          ctx.globalCompositeOperation = "source-atop";
+          ctx.fillStyle = "rgba(0,0,0," + (1 - eclair) + ")";
+          ctx.fillRect(cx - r, cy - r, 2*r, 2*r);
+          ctx.restore();
+        }
+      }
+    : (eclair) => L.dessineAstre(ctx, a, cx, cy, r, eclair);
+
   ctx.save();
   ctx.beginPath(); ctx.arc(cx, cy, r, 0, 2*Math.PI); ctx.clip();
-  L.dessineAstre(ctx, a, cx, cy, r, NUIT);
+  globe(NUIT);
 
   ctx.save();
   ctx.translate(cx, cy); ctx.rotate(phi);
@@ -415,7 +456,7 @@ function disque(ctx, corpsScene, cx, cy, r, phi, psi){
   ctx.closePath();
   ctx.clip();
   ctx.rotate(-phi); ctx.translate(-cx, -cy);
-  L.dessineAstre(ctx, a, cx, cy, r, 1);
+  globe(1);
   ctx.restore();
 
   ctx.restore();
@@ -503,10 +544,26 @@ function legende(ctx, W, H, vu, o){
     ctx.fillStyle = fort ? "rgba(255,154,60,0.92)" : "rgba(200,196,190,0.82)";
     ctx.fillText(t, marge, y0 + i*h);
   });
-  if(mot("declare")){
+  /* L'AVEU DOIT DIRE CE QU'ON MONTRE, et il a menti pendant une heure le
+     16 août : la scène affichait déjà les photographies de la NASA pendant que
+     la ligne du bas annonçait « reliefs évoqués ». Vu en regardant la première
+     capture, et c'est exactement le genre de faute que ce dépôt refuse — un
+     aveu qui parle d'un autre dessin que celui qui est à l'écran.
+
+     Deux aveux, donc, et c'est la scène qui choisit. Le mot des photographies
+     porte les crédits, que deux des six licences EXIGENT : la page les compose
+     depuis `atlas.js`, ce fichier ne les connaît pas.
+
+     ON N'EXIGE LES DEUX PHOTOGRAPHIES QUE POUR LE DIRE. Si une seule a chargé,
+     on garde l'aveu du dessin : il sous-estime ce qu'on montre au lieu de le
+     surestimer, et c'est le bon sens de l'erreur. L'état mêlé est de toute
+     façon fugace — les deux cartes partent du même dossier au même instant. */
+  const parPhoto = carteDisponible("terre") && carteDisponible("lune");
+  const aveu = (parPhoto && mot("declarePhoto")) || mot("declare");
+  if(aveu){
     ctx.font = (9.5*u).toFixed(1) + "px ui-monospace, monospace";
     ctx.fillStyle = "rgba(154,149,142,0.6)";
-    ctx.fillText(mot("declare"), marge, y0 + lignes.length*h + 2*u);
+    ctx.fillText(aveu, marge, y0 + lignes.length*h + 2*u);
   }
   ctx.restore();
   return true;
@@ -595,8 +652,9 @@ global.TERRELUNE = {
   fractionEclairee, contourEclaire, directionSoleilEcran,
   // déroulé
   etat, ou, ouvre, ferme, avance, avancement, distance,
-  // mots et dessin
-  poseMots, dessine, legende, peint, visible, opaciteVoile,
+  // mots, photographies et dessin
+  poseMots, poseCartes, carteDisponible,
+  dessine, legende, peint, visible, opaciteVoile,
   // les réglages déclarés, exposés pour que le contrôle les lise plutôt que de
   // les recopier — une constante recopiée dans un test est un test qui ment
   REGLAGES: { PART_TERRE, DUREE, PSI, AZIMUT, NUIT, DEMI_PIXEL, VOILE_MONTEE },

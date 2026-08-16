@@ -336,7 +336,13 @@ const TOUTES = [
      La première option est le moment réel, panneau compris — le panneau EST ce
      qui dit que le vide est voulu. Les trois autres l'enlèvent et descendent :
      c'est le même endroit vu de plus en plus près. */
-  { id: "solaire-rien-a-voir",
+  { id: "solaire-rien-a-voir", ignore: true,   // ✅ ça va, 16 août — angle gardé : « l'arrivée, panneau compris ».
+    /* ET SA REMARQUE VAUT MIEUX QUE LE VERDICT : « pas mal mais les orbites sont
+       circulaire ? je pensais que c'etait plus eliptique que ca ». La réponse
+       n'est pas une explication — on trace les vraies ellipses, excentricités
+       relevées à leur source. Il verra probablement qu'elles SONT presque
+       rondes, sauf Mercure et Mars, et que ce sont les manuels qui aplatissent.
+       Mais il le verra. Voir `A-REGARDER.md`. */
     titre: "« Il n'y a rien à voir » : intention ou panne ?",
     libre: true,
     inspection: true,

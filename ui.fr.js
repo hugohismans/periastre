@@ -111,6 +111,14 @@ window.UI = {
   "tl.ecart":              "plus loin dans le ciel",
   "tl.dehors":             "la Lune est sortie du cadre — elle est à",
   "tl.pasEncore":          "la Lune est encore sous le pixel : rien n'est dessiné",
+  /* L'AVEU QUAND ON MONTRE DES PHOTOGRAPHIES. Il est coupé en deux parce que
+     les crédits qu'il porte ne s'écrivent pas ici : la page les compose depuis
+     `atlas.js`, où ils vivent à côté de leurs licences. Deux des six licences
+     sont des Creative Commons Attribution — le crédit est une obligation, et
+     une obligation recopiée à la main finit par ne plus correspondre. */
+  "tl.declare.photo.avant": "tailles et écart calculés · surfaces photographiées : ",
+  "tl.declare.photo.apres":
+    " · l'heure de la scène est un choix, la même lumière pour les deux",
   "tl.declare":
     "tailles et écart calculés · reliefs évoqués · l'heure de la scène est un "
     + "choix, la même lumière pour les deux",

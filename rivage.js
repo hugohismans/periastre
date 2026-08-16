@@ -404,147 +404,27 @@ function lisibilite(L, cle, distance_km){
 }
 
 /* --------------------------------------------------------------------------
-   LES CARTES — la porte ouverte le 11 août 2026 par Hugo
+   LES CARTES — SORTIES D'ICI LE 16 AOÛT 2026, vers `atlas.js`
 
-   Il a regardé mon Jupiter dessiné à la main et tranché : « très très moche,
-   on dirait une merde orange… tu ne t'acharnes pas trop avec cette promesse de
-   tout est calculé, si on importe des trucs, aussi bien. »
+   La porte avait été ouverte le 11 août par Hugo, devant mon Jupiter dessiné à
+   la main : « très très moche, on dirait une merde orange… tu ne t'acharnes pas
+   trop avec cette promesse de tout est calculé, si on importe des trucs, aussi
+   bien. » Le registre est né ici parce que cette page était la seule à s'en
+   servir.
 
-   Il a raison, et le renversement mérite d'être écrit noir sur blanc : une
-   carte photographique est une OBSERVATION, du même genre que les rayons et les
-   masses du JPL que ce module dérive déjà. Mes bandes, elles, ne viennent de
-   nulle part. **L'objet importé est le plus sourcé des deux.**
+   Elle ne l'est plus : la scène de l'arrivée en a besoin, et la page principale
+   ne charge pas ce module. Recopier la liste aurait donné deux tables pour six
+   images, dont l'une aurait fini par diverger sans que rien ne le dise. Le
+   registre, sa doctrine et ses trois accesseurs vivent donc dans `atlas.js`.
 
-   POUR EN AJOUTER UNE, il faut trois choses, et `carteValide` les exige :
-
-     { cle:"jupiter", fichier:"cartes/jupiter.jpg", source:"…", licence:"…" }
-
-   Une carte sans source ne peut pas entrer — c'est la règle 6 appliquée aux
-   pixels comme aux phrases. Une carte sans licence non plus : une image qu'on
-   n'a pas le droit de servir est un défaut juridique, pas un défaut d'image, et
-   il ne se voit sur aucun écran.
-
-   Tant qu'un astre n'a pas de carte, la page le DESSINE, comme aujourd'hui, et
-   l'avoue. Les deux chemins cohabitent sans que l'un attende l'autre.
-
-   ---------------------------------------------------------------------------
-   CE QUI A ÉTÉ RAPATRIÉ, ET CE QUI A ÉTÉ REFUSÉ
-
-   Les six cartes ci-dessous sont toutes en 2048×1024 — deux puissances de deux,
-   parce qu'en dessous de cette exigence WebGL 1 rend un disque entièrement noir
-   sans le dire — et toutes sous 400 Ko.
-
-   Quatre sont des OBSERVATIONS au sens plein : Jupiter est une mosaïque Cassini,
-   Mars une mosaïque Viking, la Terre un composite MODIS, la Lune une mosaïque
-   LROC. Deux ne le sont qu'à moitié : aucune agence ne publie de carte globale
-   de Saturne ni de Neptune — Voyager et Cassini n'en ont jamais couvert la
-   surface entière —, et les seules cartes libres de droits pour ces deux-là sont
-   des textures dérivées d'imagerie NASA, aux couleurs retouchées. C'est écrit
-   dans leur `source`, en toutes lettres, parce que c'est le genre de chose qu'on
-   ne voit pas sur un écran.
-
-   Les cartes de Björn Jónsson — les meilleures qui existent pour Saturne et
-   Neptune — ont été ÉCARTÉES après lecture de ses conditions : il autorise leur
-   usage mais demande expressément qu'on n'en héberge pas de copie. Un site
-   statique ne peut pas faire autrement que d'en héberger une.                */
-const CARTES = [
-  { cle:"jupiter", fichier:"cartes/jupiter.jpg",
-    credit:"NASA/JPL/Space Science Institute — Cassini",
-    source:"NASA/JPL/Space Science Institute — Cassini, caméra à champ étroit, " +
-           "36 images en deux longueurs d'onde prises en neuf heures fin décembre 2000 ; " +
-           "mosaïque cylindrique PIA07782, « Cassini's Best Maps of Jupiter (Cylindrical Map) », " +
-           "https://science.nasa.gov/photojournal/cassinis-best-maps-of-jupiter-cylindrical-map/ " +
-           "— original 3601×1801, réduit ici à 2048×1024",
-    licence:"Domaine public. Le contenu de la NASA n'est en général pas soumis au " +
-            "droit d'auteur aux États-Unis ; la seule obligation est de citer la source, " +
-            "ce que fait cette entrée. https://www.nasa.gov/nasa-brand-center/images-and-media/" },
-
-  { cle:"mars", fichier:"cartes/mars.jpg",
-    credit:"USGS Astrogeology / NASA — Viking",
-    source:"USGS Astrogeology Science Center / NASA Ames — « Mars Viking Colorized " +
-           "Global Mosaic 232m », colorisation posée sur le Mars Digital Image Model " +
-           "MDIM 2.1, lui-même bâti sur environ 4 600 images des orbiteurs Viking ; " +
-           "projection cylindrique simple, −90° à +90°, −180° à +180°, " +
-           "https://astrogeology.usgs.gov/search/map/mars_viking_colorized_global_mosaic_232m " +
-           "— version 21339×10670, réduite ici à 2048×1024",
-    licence:"Domaine public. La fiche USGS porte « Access Constraints: Public domain » " +
-            "et « Use Constraints: None »." },
-
-  { cle:"terre", fichier:"cartes/terre.jpg",
-    credit:"NASA Earth Observatory — MODIS/Terra",
-    source:"NASA Earth Observatory — « Blue Marble: Next Generation », composite " +
-           "mensuel d'août 2004 avec relief et bathymétrie, monté par Reto Stöckli " +
-           "à partir des observations de MODIS sur le satellite Terra ; " +
-           "https://visibleearth.nasa.gov/images/73776/ " +
-           "(fichier world.topo.bathy.200408.3x5400x2700.jpg, 5400×2700, réduit ici " +
-           "à 2048×1024)",
-    licence:"Domaine public. La page de production demande de créditer « NASA Earth " +
-            "Observatory », ce que fait cette entrée. " +
-            "https://science.nasa.gov/earth/earth-observatory/blue-marble-next-generation" },
-
-  { cle:"lune", fichier:"cartes/lune.jpg",
-    credit:"NASA Scientific Visualization Studio — LRO",
-    source:"NASA Scientific Visualization Studio — « CGI Moon Kit » (2019), carte " +
-           "couleur bâtie par les équipes de la caméra grand angle et de l'altimètre " +
-           "laser de Lunar Reconnaissance Orbiter ; les régions polaires, mal " +
-           "éclairées, sont complétées par le relief LOLA. " +
-           "https://svs.gsfc.nasa.gov/4720/ (fichier lroc_color_poles_4k.tif, " +
-           "4096×2048, réduit ici à 2048×1024)",
-    licence:"Domaine public. Le SVS demande de créditer « NASA's Scientific " +
-            "Visualization Studio », ce que fait cette entrée." },
-
-  { cle:"saturne", fichier:"cartes/saturne.jpg",
-    credit:"Solar System Scope — CC BY 4.0",
-    source:"Solar System Scope (INOVE), jeu « Solar Textures » — PAS une mosaïque " +
-           "brute : une texture dérivée d'imagerie NASA, dont l'auteur déclare que " +
-           "les couleurs sont un peu plus saturées que la réalité et que les zones " +
-           "jamais cartographiées sont comblées. Aucune agence ne publie de carte " +
-           "globale de Saturne. https://www.solarsystemscope.com/textures/ " +
-           "(fichier 8k_saturn.jpg, 4096×2048, réduit ici à 2048×1024)",
-    licence:"Creative Commons Attribution 4.0 International, telle qu'annoncée sur " +
-            "la page de téléchargement : usage, adaptation et partage libres, y " +
-            "compris commercial, contre citation de l'auteur. " +
-            "https://creativecommons.org/licenses/by/4.0/" },
-
-  { cle:"neptune", fichier:"cartes/neptune.jpg",
-    credit:"Solar System Scope — CC BY 4.0",
-    source:"Solar System Scope (INOVE), jeu « Solar Textures » — même réserve que " +
-           "Saturne : texture dérivée des images de Voyager 2, couleurs retouchées, " +
-           "et Voyager 2 n'a survolé Neptune qu'une fois, en 1989. " +
-           "https://www.solarsystemscope.com/textures/ (fichier 2k_neptune.jpg, " +
-           "2048×1024, servi tel quel)",
-    licence:"Creative Commons Attribution 4.0 International, telle qu'annoncée sur " +
-            "la page de téléchargement. https://creativecommons.org/licenses/by/4.0/" },
-];
-
-function carteValide(c){
-  return !!c && typeof c.cle === "string" && typeof c.fichier === "string"
-      && typeof c.source === "string" && c.source.length > 12
-      && typeof c.licence === "string" && c.licence.length > 3;
-}
-
-/* Rend la carte d'un astre, ou null. Une entrée mal formée ne passe PAS en
-   silence : elle est refusée ici et signalée par l'outil. */
-function carteDe(cle){
-  const c = CARTES.find(x => x && x.cle === cle);
-  return carteValide(c) ? c : null;
-}
-
-/* --------------------------------------------------------------------------
-   LE CRÉDIT À L'ÉCRAN — une obligation, pas une politesse
-
-   Deux des six licences sont des Creative Commons Attribution : elles donnent
-   le droit de servir l'image CONTRE citation de l'auteur, et une citation
-   enfouie dans un fichier de code n'est pas une citation. Les quatre autres
-   viennent d'agences publiques qui demandent, elles aussi, d'être créditées.
-
-   Le crédit se pose donc DANS LA SCÈNE, sous les yeux de qui regarde l'astre.
-   Et il rend au passage un service que rien d'autre ne rendait : la page
-   AVOUE, astre par astre, si l'on regarde une photographie ou un dessin.    */
-function creditDe(cle){
-  const c = carteDe(cle);
-  return (c && typeof c.credit === "string" && c.credit) ? c.credit : null;
-}
+   `RIVAGE` continue de les exposer sous les mêmes noms — `rivage.html` et
+   `outil-verif-rivage.js` les appellent ainsi — mais il les RELAIE. Il ne les
+   possède plus, et il n'y a toujours qu'un seul écrivain.                     */
+const A = global.ATLAS;
+const CARTES = A.LISTE;
+const carteValide = A.carteValide;
+const carteDe = A.carteDe;
+const creditDe = A.creditDe;
 
 function etalonLune(L, distance_km){
   const d = (distance_km === undefined) ? L.D_LUNE_KM : distance_km;

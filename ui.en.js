@@ -102,6 +102,9 @@ Object.assign(window.UI, {
   "tl.ecart":              "further off in the sky",
   "tl.dehors":             "the Moon has left the frame — it is",
   "tl.pasEncore":          "the Moon is still under a pixel: nothing is drawn",
+  "tl.declare.photo.avant": "sizes and separation computed · surfaces photographed: ",
+  "tl.declare.photo.apres":
+    " · the hour of the scene is a choice, the same light for both",
   "tl.declare":
     "sizes and separation computed · relief evoked · the hour of the scene is a "
     + "choice, the same light for both",

@@ -92,11 +92,27 @@ seule vitre du vaisseau regardait dans l'autre sens. C'est réparé.)*
 
 ---
 
-## 🔎 LA SCÈNE SOLAIRE EST FAITE — et une seule question t'attend
+## ✅ LA SCÈNE SOLAIRE — jugée « ça va » le 16 août
 
-<!-- juge: solaire-rien-a-voir -->
+<!-- juge: solaire-rien-a-voir — répondue, la question est rangée dans juge.js -->
 
-**`?juge` → « Il n'y a rien à voir : intention ou panne ? »**
+**Verdict rendu**, angle gardé : « l'arrivée, panneau compris ». L'écran presque
+vide se lit bien comme quelque chose qu'on a voulu montrer. La question est
+rangée.
+
+**Mais sa remarque déborde la question**, et elle vaut mieux que le verdict :
+
+> *« pas mal mais les orbites sont circulaire ? je pensais que c'etait plus
+> eliptique que ca »*
+
+Il a raison de la poser, et la réponse n'est pas une explication : **on trace les
+vraies ellipses**, avec les excentricités relevées à leur source publiée. Ce
+qu'il verra alors est probablement que les orbites *sont* réellement presque
+rondes — sauf Mercure et Mars — et que ce sont les schémas de manuels qui les
+aplatissent. Mais il le verra, au lieu de me croire. *(Chantier ouvert le
+16 août.)*
+
+<details><summary>ce que la question disait, pour mémoire</summary>
 
 On arrive dans le nuage de Oort, comme tu l'as demandé, et on tombe. Tout ce qui
 pouvait se mesurer l'a été : le droit de nommer, les deux bouts de la chute, sa
@@ -121,6 +137,8 @@ descendre.
   dernières. C'est exact — c'est ce qu'on verrait — et c'est peut-être justement
   ce qui fera lire le début comme une panne. En « régulier », les noms
   apparaissent étalés du début à la fin. Le bouton est dans les réglages.
+
+</details>
 
 ---
 
