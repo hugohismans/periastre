@@ -18,6 +18,73 @@ Hugo peut aussi le déclencher à tout moment : « on refait le cap ».
 
 ---
 
+## 16 août 2026 — la séance ne posait que la moitié des questions
+
+Hugo revient après deux jours et demande où en sont les plans : sept sessions
+Périastre restaient ouvertes, deux marquées « bloquées ». Il a tranché tout de
+suite qu'on ne les réveille pas — **leur travail était déjà fusionné, branche par
+branche**, et chacune avait écrit son compte rendu ici même. Il n'y avait rien à
+récupérer d'elles. Rangées.
+
+**Ce qui était ouvert n'était pas du code. Et il en manquait la moitié.**
+`A-REGARDER.md` portait quatre questions ; `juge.js` n'en posait que deux. Les
+deux du 14 août — le repère du voyage, la vitre avant — avaient été rédigées,
+complètes et bien tournées, et n'étaient jamais arrivées jusqu'à la séance. Or ce
+fichier s'ouvre sur « ne me lis pas, ouvre `?juge` » : **une question qui reste
+dans la source n'est posée nulle part.** Hugo pouvait y passer ses dix minutes et
+ressortir en croyant avoir tout jugé.
+
+Elles sont posées. Le contrôle qui les garde lit les deux fichiers et exige leur
+accord **dans les deux sens** — une section ouverte sans question posée, et une
+question posée dont la section est passée en ✅. Le second sens est celui qui a
+mordu le 11 août.
+
+**Et trois défauts sont tombés en chemin, dont deux que je n'allais pas chercher.**
+
+1. **L'outil se faisait avoir par son propre fichier.** Le corps d'une question
+   va jusqu'à la suivante, donc il emporte le commentaire qui présente celle-ci
+   — et ces commentaires écrivent « donc `inspection: true` ». La phrase suffisait
+   à faire croire que le champ était là. Une déclaration se lit dans le code,
+   jamais dans la prose qui l'explique : on ôte les commentaires avant de
+   chercher les champs. **Ce qui a démasqué le défaut n'est pas le contrôle, mais
+   son sabotage** — qui virait au rouge en silence depuis six jours.
+2. **Et sitôt réparé, il a trouvé une vraie question sans forme déclarée** :
+   `arrivee-hors-file`, dernière du tableau, verte uniquement grâce au texte qui
+   la suivait. Elle est rangée, et c'est justement pour ça qu'il fallait la
+   déclarer — `rythme-grand-trajet` a été rouverte le 11 août, et le jour où l'on
+   rouvre celle-ci, un champ manquant coûterait la séance sans prévenir.
+3. **La vitre avant se dérobait sous l'œil, et ça ne se voyait que dans la
+   page.** Tourner la visée de 180° ne suffit pas : `recentre` la ramène vers
+   l'astre à 0,8 par seconde. Mesuré : **21° en six dixièmes de seconde, et 7,8°
+   d'écart au bout d'une seconde** là où il en faut 180. Hugo aurait jugé une vue
+   qui fuit, et il l'aurait trouvée mauvaise pour une raison qui n'est pas celle
+   qu'on lui demande. Le remède est le drapeau que la page pose elle-même quand
+   la main prend la visée : la séance ne triche pas, elle refait son geste.
+
+**Le piège du 11 août était armé une seconde fois, à la même place.** Ce jour-là,
+`rangeGrandTrajet` reposait « fidele » en dur — juste tant que le rythme n'était
+pas réglable, destructeur le jour où le bouton est apparu. Le repère l'est depuis
+le 14. La séance mémorise donc ce qu'elle a trouvé et repose **celui-là**.
+`VERIF.questionsDuVoyage()` écrit un choix de joueur, joue la question, et exige
+de le retrouver ; sa seconde moitié tient la vitre avant, avec son témoin — sans
+lui, « la vue ne bouge pas » ne prouverait rien.
+
+**Une seule loi pour le grand trajet.** Trois questions en ont maintenant besoin
+— le rythme, le repère, la vitre. `poseGrandTrajet` est sortie du corps de
+`rejoueGrandTrajet` plutôt que recopiée trois fois. Et il fallait bien le GRAND
+trajet : `rejoueVoyage` part vers les étoiles S, à dix mille unités
+astronomiques, un saut qui ne porte pas une décade — les neuf ne sont que sur la
+route du système solaire.
+
+17 contrôles dans `outil-verif-juge.js` (de 6), 6 dans la page, cinq sabotages
+rejoués sur de vraies copies des deux fichiers et deux sur le vrai dépôt.
+47 outils, aucun échec.
+
+**Ce qui attend son œil** : les quatre questions, dans `?juge`, dix minutes. Et
+`cap.html` date du 10 août — ni les coquilles, ni la vitre, ni l'arrivée chez
+nous n'y sont. **On refait le cap une fois ses verdicts connus**, pour que la
+remise à plat les intègre au lieu de les précéder.
+
 ## 14 août 2026 — les coquilles se dessinent, et le vaisseau a une vitre avant
 
 Sa critique du 12 août commandait tout : *« le quadrillage, c'est comme si on

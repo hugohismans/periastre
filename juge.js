@@ -230,6 +230,95 @@ const TOUTES = [
      `outil-verif-juge.js` refuse désormais une question à options qui ne dit pas
      laquelle des deux formes elle prend. Déclarée, jamais devinée — la même
      manœuvre que `carte:` sur les destinations, ce matin. */
+  /* LE REPÈRE DU VOYAGE — posée le 14 août 2026, ARRIVÉE ICI LE 16.
+
+     Et c'est ce retard qui est le sujet. La question était rédigée dans
+     `A-REGARDER.md` le 14, complète et bien tournée — mais ce fichier s'ouvre
+     sur « Ne lis pas ce fichier, ouvre ?juge », et personne ne l'a portée
+     jusqu'ici. Hugo pouvait ouvrir la séance et n'y trouver que la moitié de ce
+     qui l'attendait, sans qu'aucun écran le lui dise. `outil-verif-juge.js`
+     garde désormais l'accord entre les deux fichiers.
+
+     LA QUESTION ELLE-MÊME. Sa critique du 12 août commandait le chantier :
+     « le quadrillage, c'est comme si on dézoomait, mais on ne dézoome pas, on
+     RECULE. » Les coquilles sont la réponse, et elles sont le défaut depuis le
+     14. Mais les deux repères portent bien les neuf décades — mesuré des deux
+     côtés — donc AUCUN CALCUL NE PEUT LES DÉPARTAGER. Ce qui les sépare est le
+     geste, et un geste ne se juge qu'à l'œil.
+
+     Les quatre options sont des angles de vue, deux repères × deux moments,
+     donc `inspection: true`. Le milieu du trajet n'est pas un angle de plus :
+     c'est là qu'on TRAVERSE une coquille, et la traversée est précisément ce
+     que le quadrillage ne sait pas faire. */
+  { id: "repere-du-voyage",
+    titre: "Coquilles ou quadrillage : lequel dit « je recule » ?",
+    libre: true,
+    inspection: true,
+    quoi: "Tu m'as dit le 12 août : « le quadrillage, ça n'a pas trop de sens "
+        + "en fait, si ? C'est comme si on dézoomait, mais on ne dézoome pas, "
+        + "on RECULE. » Tu avais raison. Les coquilles sont la réponse : des "
+        + "sphères posées dans l'espace, à des rayons qui ne changent jamais, "
+        + "qu'on traverse. Celle qu'on vient de franchir se referme derrière, "
+        + "la suivante s'ouvre devant. "
+        + "Ce qui est déjà mesuré, pour que tu n'aies pas à le vérifier : sur "
+        + "tout le trajet le rayon d'une coquille ne bouge pas, tandis que la "
+        + "maille du quadrillage est multipliée par un milliard — c'est "
+        + "exactement le geste que tu as nommé « dézoomer ». Et les deux "
+        + "portent bien les neuf décades : aucun calcul ne peut les départager. "
+        + "Il ne reste donc que ton œil. Compare les deux au départ, puis au "
+        + "milieu — c'est là qu'on traverse une coquille. Lequel des deux dit "
+        + "« je recule » ? Et s'ils te paraissent tous les deux ratés, dis-le : "
+        + "c'est une réponse.",
+    pose: () => rejoueRepere("coquilles", 0.35),
+    options: [
+      { nom: "coquilles, au milieu",   fait: () => rejoueRepere("coquilles",   0.35) },
+      { nom: "quadrillage, au milieu", fait: () => rejoueRepere("quadrillage", 0.35) },
+      { nom: "coquilles, au départ",   fait: () => rejoueRepere("coquilles",   0) },
+      { nom: "quadrillage, au départ", fait: () => rejoueRepere("quadrillage", 0) },
+    ],
+    rend: () => rangeRepere(),
+  },
+
+  /* LA VITRE AVANT — posée le 14 août 2026, ARRIVÉE ICI LE 16, même retard.
+
+     « Avec un vaisseau adapté, où on peut voir devant, derrière, pour voir un
+     côté grandir et l'autre rapetisser », et au bouton : « oui, les vitres,
+     c'est le cœur ». La cloison arrière du salon s'ouvre depuis le 14.
+
+     CE QUI NE SE MESURE PAS : si elle est assez grande, et si l'on comprend
+     qu'on se retourne. Elle est plus petite que la baie et plus haute — c'est
+     un choix, pas une contrainte, donc c'est un choix qui se rejuge.
+
+     Trois angles sur une seule ouverture, donc `inspection: true`. La baie est
+     dans la liste comme point de comparaison, pas comme concurrente : sans
+     elle, « assez grande » n'a pas d'étalon. */
+  { id: "vitre-avant",
+    titre: "La vitre avant : est-ce qu'elle sert ?",
+    libre: true,
+    inspection: true,
+    quoi: "Tu voulais un vaisseau « où on peut voir devant, derrière, pour voir "
+        + "un côté grandir et l'autre rapetisser », et tu as dit au bouton : "
+        + "« oui, les vitres, c'est le cœur ». La cloison arrière du salon "
+        + "s'ouvre maintenant. Retourne-toi pendant le voyage : derrière, les "
+        + "coquilles franchies se referment ; devant, la suivante s'ouvre comme "
+        + "un entonnoir qu'on va percer. "
+        + "Deux choses à me dire. La vitre est-elle assez grande — la baie est "
+        + "dans la liste pour que tu aies un étalon — et est-ce qu'on comprend "
+        + "qu'on s'est retourné ? "
+        + "Elle a déjà servi à autre chose, et ça vaut d'être dit : elle a "
+        + "montré un mensonge qui était en ligne depuis des jours. On peignait "
+        + "le nuage de Oort et le mot « Soleil » pendant tout le trajet, à "
+        + "vingt-sept mille années-lumière de lui — invisible parce que la "
+        + "seule vitre du vaisseau regardait dans l'autre sens. C'est réparé.",
+    pose: () => rejoueGrandTrajetTourne(180, 0.35),
+    options: [
+      { nom: "retourné, au milieu",      fait: () => rejoueGrandTrajetTourne(180, 0.35) },
+      { nom: "la baie, au même instant", fait: () => rejoueGrandTrajetTourne(0,   0.35) },
+      { nom: "retourné, au départ",      fait: () => rejoueGrandTrajetTourne(180, 0) },
+    ],
+    rend: () => rangeVoyage(),
+  },
+
   /* LA SCÈNE SOLAIRE — posée le 11 août 2026.
 
      Hugo a tranché le cadrage le 10 au soir : « les deux, dans cet ordre ». On
@@ -651,9 +740,29 @@ const TOUTES = [
     rend: () => rangeTerreLune(),
   },
 
+  /* SA FORME N'AVAIT JAMAIS ÉTÉ DÉCLARÉE — trouvé le 16 août 2026, et elle
+     avait échappé à l'outil pendant six jours.
+
+     Cette question est la dernière du tableau, donc son corps allait jusqu'au
+     bout du fichier et emportait tous les commentaires qui suivent. L'un d'eux
+     écrit `inspection: true` en prose : le contrôle la croyait déclarée. Il a
+     suffi d'ôter les commentaires avant de chercher les champs pour qu'elle
+     apparaisse.
+
+     ELLE EST RANGÉE, ET C'EST JUSTEMENT POUR ÇA QU'IL FAUT LA DÉCLARER :
+     `rythme-grand-trajet` a été rouverte le 11 août, et le jour où l'on rouvre
+     celle-ci, un champ manquant coûterait la séance sans prévenir. La règle
+     porte donc sur toutes les questions à options, rangées comprises.
+
+     ET LA RÉPONSE N'EST PAS ARBITRAIRE. Ses deux options ne sont pas deux
+     propositions concurrentes — personne ne supprimerait le panneau d'arrivée
+     parce qu'on l'a regardé sans lui ; le second angle ne fait que le taire le
+     temps de voir ce qu'il couvre. C'est une seule chose vue de deux côtés,
+     donc « regarder », donc `inspection`. */
   { id: "arrivee-hors-file", ignore: true,
     titre: "L'arrivée du voyage",
     libre: true,
+    inspection: true,
     quoi: "",
     pose: () => rejoueArrivee(false),
     options: [
@@ -733,18 +842,34 @@ function rameneAuDepart(){
    place à l'entrée, et on le repose. */
 let rythmeAvantSeance = null;
 
-function rejoueGrandTrajet(rythme, depuis){
-  if(rythmeAvantSeance === null) rythmeAvantSeance = RECUL.rythme;
+/* LE GRAND TRAJET, POSÉ À L'AVANCEMENT QU'ON VEUT — et rien d'autre.
+
+   Extrait de `rejoueGrandTrajet` le 16 août, parce que trois questions en ont
+   maintenant besoin : le rythme, le repère et la vitre avant. Recopier ces onze
+   lignes trois fois aurait donné trois versions du même trajet, qui auraient
+   divergé — c'est la règle 4, et le dépôt l'a déjà payée sur la loi de
+   mouvement, sortie du corps d'`avance` pour la même raison.
+
+   IL FAUT LE GRAND TRAJET, ET NON `rejoueVoyage` : celui-ci part vers les
+   étoiles S, à dix mille unités astronomiques, un saut qui ne porte pas une
+   décade. Les neuf décades — celles que le repère du voyage doit rendre
+   lisibles — ne sont que sur la route du système solaire. */
+function poseGrandTrajet(depuis){
   rendPoseArrivee();
   fermeTelescope();
   auSalon(0, 0.6, 0, -0.05);
   if(TELESCOPE.trajet){ TELESCOPE.trajet = null; TELESCOPE.retour = false; }
   rameneAuDepart();
   TELESCOPE.carte = 0;
-  RECUL.poseRythme(rythme);
   const d = DESTINATIONS.find(x => x.id === "soleil");
   lanceVoyage(d, VOYAGE.entre(distanceVaisseau(), d.d_m));
   RECUL.etat.t = depuis || 0;
+}
+
+function rejoueGrandTrajet(rythme, depuis){
+  if(rythmeAvantSeance === null) rythmeAvantSeance = RECUL.rythme;
+  RECUL.poseRythme(rythme);
+  poseGrandTrajet(depuis);
 }
 
 /* L'ARRIVÉE TERRE–LUNE, POSÉE À L'INSTANT QU'ON VEUT.
@@ -784,6 +909,60 @@ function rangeGrandTrajet(){
   RECUL.poseRythme(rythmeAvantSeance === null ? RECUL.RYTHME_DEFAUT : rythmeAvantSeance);
   rythmeAvantSeance = null;
   rangeVoyage();
+}
+
+/* LE REPÈRE DU VOYAGE, POSÉ SUR L'UN OU L'AUTRE — et la leçon du 11 août.
+
+   Ce jour-là, `rangeGrandTrajet` remettait « fidele » EN DUR en sortant de
+   séance. C'était juste tant que le rythme n'était pas réglable : la séance
+   rendait le monde comme elle l'avait pris, puisqu'il n'y avait qu'un état
+   possible. Le jour où le bouton est apparu, la même ligne s'est mise à
+   EFFACER LE CHOIX DU JOUEUR — on jugeait dix minutes, et on ressortait avec un
+   réglage qu'on n'avait pas demandé.
+
+   Le repère est réglable depuis le 14 août : le même piège est armé, à la même
+   place. On mémorise donc ce qu'on a trouvé, et on repose CELUI-LÀ. Le défaut
+   du module n'est le bon choix que si le joueur n'en avait jamais fait. */
+let repereAvantSeance = null;
+
+function rejoueRepere(repere, depuis){
+  if(repereAvantSeance === null) repereAvantSeance = RECUL.repere;
+  RECUL.poseRepere(repere);
+  poseGrandTrajet(depuis);
+}
+
+function rangeRepere(){
+  if(repereAvantSeance !== null){ RECUL.poseRepere(repereAvantSeance); repereAvantSeance = null; }
+  rangeVoyage();
+}
+
+/* LA VITRE AVANT — le grand trajet, la tête tournée de `ecart` degrés depuis la
+   direction de l'astre. 0 regarde par la baie, 180 par la vitre avant.
+
+   `rejoueVoyageTourne` ne convenait pas : il part vers les étoiles S, où l'on
+   ne franchit aucune coquille. Or ce que la vitre avant est censée montrer est
+   précisément la suivante qui s'ouvre pendant que la précédente se referme —
+   sur un saut sans traversée, la question n'aurait rien à juger.
+
+   ET IL FAUT POSER `mainPrise` — mesuré dans la page le 16 août, et sans lui la
+   question ne valait rien. Tourner la visée ne suffit pas : `recentre` la
+   ramène vers l'astre à 0,8 par seconde, soit 21° en six dixièmes de seconde.
+   Hugo aurait jugé une vue qui se dérobe sous ses yeux, et il aurait eu raison
+   de la trouver mauvaise — pour une raison qui n'est pas celle qu'on lui
+   demande. Le drapeau est CE QUE LA PAGE POSE quand la main prend la visée
+   (`index.html:4605`) : la séance ne triche pas, elle refait le geste du
+   joueur. On le pose aussi sur l'option « la baie », sans quoi les deux vues
+   ne seraient pas tenues de la même façon et l'écart mesurerait le recentrage
+   au lieu de la vitre. */
+function rejoueGrandTrajetTourne(ecart, depuis){
+  poseGrandTrajet(depuis);
+  const va = salon.versAstre;
+  if(va){
+    salon.lacet = Math.atan2(va[0], -va[2]) + ecart*Math.PI/180;
+    salon.tangage = 0;
+  }
+  if(TELESCOPE.trajet) TELESCOPE.trajet.mainPrise = true;
+  TELESCOPE.grille = 0;        // sinon il reste levé du trajet précédent
 }
 
 function rangeVoyage(){

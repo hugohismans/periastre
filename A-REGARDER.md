@@ -15,11 +15,33 @@ Tout ce qui ne peut pas se vérifier par la mesure, et qui attend donc qu'un
 humain regarde. **Rien ici ne bloque quoi que ce soit** — c'est une file, pas
 une dette. Elle existe pour que ça ne se perde pas dans une conversation.
 
-Mise à jour le 14 août 2026, après les coquilles et la vitre avant.
+Mise à jour le 16 août 2026.
+
+<!-- ------------------------------------------------------------------------
+     LA CONVENTION DES TITRES — déclarée, jamais devinée.
+
+     Un titre marqué 🔎 ou 👁 est une QUESTION DE SÉANCE : elle est posée dans
+     `?juge`, et elle porte l'identifiant de sa question juste en dessous, dans
+     un commentaire `<!-- juge: … -->`. Les titres ⚠, ❓, ❗ et ✅ sont des notes
+     libres ou des affaires réglées, et restent hors de cette règle.
+
+     `outil-verif-juge.js` exige l'accord entre ce fichier et `juge.js` dans les
+     DEUX SENS : une section ouverte doit avoir sa question posée, et une
+     question posée doit avoir sa section ouverte.
+
+     POURQUOI. Le 14 août, deux questions ont été écrites ici — le repère du
+     voyage, la vitre avant — et ne sont jamais arrivées jusqu'à la séance. Ce
+     fichier commence par « ne me lis pas, ouvre ?juge » : une question qui
+     reste dans la source n'est donc posée nulle part. Hugo pouvait y passer ses
+     dix minutes et ressortir en croyant avoir tout jugé. Réparé le 16 août, et
+     gardé depuis.
+     ------------------------------------------------------------------------ -->
 
 ---
 
 ## 🔎 COQUILLES OU QUADRILLAGE — le repère du voyage (14 août)
+
+<!-- juge: repere-du-voyage -->
 
 **Réglages → « Repère du voyage ». Deux boutons, et ça change tout de suite.**
 
@@ -51,6 +73,8 @@ Et s'ils te paraissent tous les deux ratés, dis-le — c'est une réponse.
 
 ## 🔎 LA VITRE AVANT — est-ce qu'elle sert (14 août)
 
+<!-- juge: vitre-avant -->
+
 *« Avec un vaisseau adapté, où on peut voir devant, derrière, pour voir un côté
 grandir et l'autre rapetisser »*, et au bouton : *« oui, les vitres, c'est le
 cœur »*. La cloison arrière du salon s'ouvre maintenant. **Retourne-toi pendant
@@ -69,6 +93,8 @@ seule vitre du vaisseau regardait dans l'autre sens. C'est réparé.)*
 ---
 
 ## 🔎 LA SCÈNE SOLAIRE EST FAITE — et une seule question t'attend
+
+<!-- juge: solaire-rien-a-voir -->
 
 **`?juge` → « Il n'y a rien à voir : intention ou panne ? »**
 
@@ -99,6 +125,8 @@ descendre.
 ---
 
 ## 👁 L'ARRIVÉE : LA TERRE ET LA LUNE — posée le 11 août, elle t'attend
+
+<!-- juge: arrivee-terre-lune -->
 
 **C'est la question du jour, et elle est dans `?juge`.** Tu l'attendais depuis
 deux jours : le voyage vers le système solaire arrive enfin quelque part. On

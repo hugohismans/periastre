@@ -1265,6 +1265,129 @@ function seanceSansTrace(){
   return enCours;
 }
 
+/* 5 quinquies. LES DEUX QUESTIONS DU VOYAGE TIENNENT CE QU'ELLES POSENT.
+
+   Écrit le 16 août 2026, et les deux moitiés viennent d'un défaut réel.
+
+   LA PREMIÈRE EST LE PIÈGE DU 11 AOÛT, DÉPLACÉ. Ce jour-là, `rangeGrandTrajet`
+   remettait « fidele » EN DUR en sortant de séance : juste tant que le rythme
+   n'était pas réglable, et destructeur le jour où le bouton est apparu — dix
+   minutes de jugement, et l'on ressortait avec un réglage qu'on n'avait pas
+   demandé. Le repère du voyage est réglable depuis le 14 août, et la question
+   qui le juge doit en poser les deux valeurs : le même piège est armé, à la
+   même place. On écrit donc un choix de joueur, on joue la question, et l'on
+   exige de le retrouver.
+
+   LA SECONDE A ÉTÉ MESURÉE ICI AVANT D'EXISTER AILLEURS. La question de la
+   vitre avant tourne la visée de 180° pour mettre Hugo devant l'ouverture —
+   mais `recentre` ramène la visée vers l'astre à 0,8 par seconde, soit 21° en
+   six dixièmes de seconde. La vue se dérobait pendant qu'il la regardait, et il
+   l'aurait jugée mauvaise pour une raison qui n'est pas celle qu'on lui
+   demande. Le remède est le drapeau que la page pose elle-même quand la main
+   prend la visée ; ce contrôle exige que l'écart TIENNE dans le temps.
+
+   POURQUOI IL VIT DANS LA PAGE et pas dans un outil : `recentre` est appelé par
+   la boucle de rendu, et c'est l'écoulement des images qui révèle la dérive. Un
+   outil qui lirait le texte de `juge.js` pour y chercher le drapeau serait vert
+   le jour où le drapeau est posé au mauvais endroit.
+
+   RÈGLE 5 — il maîtrise l'état d'où il mesure : il fige le salon, écrit le
+   repère qu'il veut, et rend tout dans le `finally`, y compris quand un point
+   échoue.                                                                     */
+function questionsDuVoyage(){
+  ouvre("Les deux questions du voyage tiennent ce qu'elles posent");
+  if(typeof JUGE === "undefined"){
+    point("la séance est chargée", false, "JUGE", "absent",
+          "ouvrir `?verif&juge` pour jouer ce contrôle");
+    return enCours;
+  }
+  const q = id => JUGE.DECISIONS.find(d => d.id === id);
+  const rep = q("repere-du-voyage"), vit = q("vitre-avant");
+  point("les deux questions sont bien posées", !!rep && !!vit,
+        "repere-du-voyage et vitre-avant",
+        `${rep ? "repere-du-voyage" : "MANQUE"}, ${vit ? "vitre-avant" : "MANQUE"}`,
+        "elles ont été écrites dans A-REGARDER.md le 14 août et n'étaient "
+        + "arrivées dans la séance que le 16 — c'est le défaut d'origine");
+  if(!rep || !vit) return enCours;
+
+  const av = { repere: RECUL.repere, lacet: salon.lacet, tangage: salon.tangage };
+  const degele = fige();
+  try {
+    // --- le choix du joueur, et ce qu'il en reste ---------------------------
+    RECUL.poseRepere("quadrillage");
+    rep.options[0].fait();                         // coquilles, au milieu
+    avanceImages(3);
+    const pose1 = RECUL.repere;
+    rep.options[1].fait();                         // quadrillage, au milieu
+    avanceImages(3);
+    const pose2 = RECUL.repere;
+    rep.rend();
+    avanceImages(2);
+
+    point("la question pose bien les deux repères", pose1 === "coquilles" && pose2 === "quadrillage",
+          "coquilles puis quadrillage", `${pose1} puis ${pose2}`,
+          "sans ça le point suivant serait vrai d'une question qui ne fait rien");
+    point("et le choix du joueur lui est rendu", RECUL.repere === "quadrillage",
+          "quadrillage", RECUL.repere,
+          "le piège du 11 août : une séance qui repose le DÉFAUT du module "
+          + "efface le réglage de celui qui vient de passer dix minutes à juger");
+
+    // --- la vitre avant ne se dérobe pas ------------------------------------
+    const ecart = () => {
+      const va = salon.versAstre;
+      if(!va) return null;
+      let d = salon.lacet - Math.atan2(va[0], -va[2]);
+      while(d >  Math.PI) d -= 2*Math.PI;
+      while(d < -Math.PI) d += 2*Math.PI;
+      return Math.abs(d) * 180/Math.PI;
+    };
+    vit.options[0].fait();                         // retourné, au milieu
+    const e0 = ecart();
+    avanceImages(60);                              // une seconde de vol
+    const e1 = ecart();
+
+    /* LE TÉMOIN, ET IL EST NÉCESSAIRE. « La vue ne bouge pas » ne prouve rien
+       tant qu'on n'a pas montré qu'elle POUVAIT bouger : on rejoue la même
+       seconde en effaçant le drapeau, c'est-à-dire dans l'état exact où la
+       question se trouvait avant le 16 août.
+
+       Et le seuil ne peut pas être serré à un degré, parce que la baie DÉRIVE
+       pour de bon pendant le vol — c'est la rotation qui fait qu'on arrive
+       tourné vers sa destination, et elle vaut un degré et des poussières par
+       seconde. Ce qu'on refuse n'est pas le mouvement, c'est la REPRISE : le
+       recentrage referme la moitié de l'écart en une seconde. Entre deux et
+       quatre-vingts degrés, aucun réglage de seuil ne peut confondre les deux. */
+    vit.options[0].fait();
+    if(TELESCOPE.trajet) TELESCOPE.trajet.mainPrise = false;
+    avanceImages(60);
+    const temoin = ecart();
+
+    vit.rend();
+    avanceImages(2);
+
+    point("la vitre avant regarde bien à l'opposé de la baie",
+          e0 !== null && Math.abs(e0 - 180) < 1, "180°",
+          e0 === null ? "aucune direction" : e0.toFixed(1) + "°");
+    point("et la vue TIENT pendant qu'on la regarde",
+          e1 !== null && Math.abs(e1 - 180) < 5, "180° ± 5 une seconde plus tard",
+          e1 === null ? "aucune direction" : e1.toFixed(1) + "°",
+          "l'écart résiduel est la dérive voulue de la baie, pas une reprise");
+    point("et le témoin montre ce qu'elle ferait sans le drapeau",
+          temoin !== null && Math.abs(temoin - 180) > 45, "à plus de 45° de 180",
+          temoin === null ? "aucune direction" : temoin.toFixed(1) + "°",
+          "le recentrage ramène la visée de 0,8 par seconde et referme la "
+          + "moitié de l'écart en une seconde. Hugo jugerait une vue qui se "
+          + "dérobe sous ses yeux, et il aurait raison de la trouver mauvaise — "
+          + "pour une raison qui n'est pas celle qu'on lui demande");
+  } finally {
+    degele();
+    RECUL.poseRepere(av.repere);
+    salon.lacet = av.lacet; salon.tangage = av.tangage;
+    avanceImages(2);
+  }
+  return enCours;
+}
+
 /* 5 sexies. LA ROTATION NE S'INVITE PAS TOUTE SEULE.
 
    Le 7 août 2026, Hugo : « c'est hyper lent, j'ai deux images par seconde ».
@@ -1914,7 +2037,11 @@ function tout(){
 
 global.VERIF = {
   vivant, coherence, lieux, aveux, tempsJuste, resolution, saisieLibre, nuanceurs, clesNues,
-  banc, pixels, couture, carteFixe, carteDehors, arriveeJuste, sceneSolaire, seanceSansTrace, rotationCalme, memeEspace, mesurePage, parcours, voyage, budget,
+  banc, pixels, couture, carteFixe, carteDehors, arriveeJuste, sceneSolaire, seanceSansTrace,
+  // Comme `seanceSansTrace` : hors de la passe, parce qu'il exige `?verif&juge`.
+  // L'y mettre le ferait échouer sur toute page où la séance n'est pas chargée.
+  questionsDuVoyage,
+  rotationCalme, memeEspace, mesurePage, parcours, voyage, budget,
   sain, tout, bilan, texte, resultats, FORMATS, OR,
   // outillage exposé : d'autres contrôles pourront s'y adosser
   pose, fige, avanceImages,
