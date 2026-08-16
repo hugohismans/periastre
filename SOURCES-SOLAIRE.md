@@ -227,3 +227,41 @@ elle est assumée pour la même raison que les neuf déclarations de l'unité
 astronomique : le remède est de les GARDER, pas de les fondre dans un module que
 `lune.html`, page autonome, devrait charger. Elle disparaîtra quand `lune.js`
 lira le contrat.
+
+---
+
+## 7. Les excentricités des planètes — **manquantes, et volontairement**
+
+**16 août 2026.** Hugo, en jugeant la scène solaire : *« pas mal mais les orbites
+sont circulaire ? je pensais que c'etait plus eliptique que ca »*. Il a raison de
+poser la question, et la bonne réponse n'est pas une explication : c'est de
+tracer les vraies ellipses et de le laisser regarder.
+
+**Ce dépôt ne porte l'excentricité d'aucune planète.** La seule qu'il connaisse
+est celle de la Lune — 0,0554, `jplElements`, relevée le 11 août. La table
+employée pour les demi-grands axes (`jplPlanetes`, *Astrodynamic Parameters*)
+donne l'axe et le taux de longitude moyenne, et rien d'autre : ni excentricité,
+ni longitude du périhélie, ni inclinaison vue d'ici.
+
+**Ce qu'il faudrait, et où.** La table des éléments approchés du JPL —
+`ssd.jpl.nasa.gov/planets/approx_pos.html`, d'après Standish — porte les six
+éléments képlériens des huit planètes à J2000, avec leurs taux séculaires. Il en
+faut deux : l'excentricité **e**, et la longitude du périhélie **ϖ** pour orienter
+l'ellipse. Le demi-petit axe ne se relève pas, il se **dérive** : b = a√(1−e²).
+
+**Pourquoi ce n'est pas fait.** Le réseau de la machine où cette session a
+travaillé est entièrement fermé — `ssd.jpl.nasa.gov`, `nssdc.gsfc.nasa.gov`,
+`arxiv.org`, tout renvoie un refus du mandataire. Aucune page n'a pu être
+ouverte, donc aucun chiffre n'a été relevé.
+
+**Et l'on n'écrit rien de mémoire.** C'est la règle 7, et elle a déjà été tenue
+exactement ici : le 10 août, une session n'a pas pu joindre le JPL et a eu raison
+de ne rien écrire plutôt que d'écrire de mémoire — le lendemain, une session
+ouverte sur le réseau a relevé les cinq sources à leur ligne. On reprend cette
+case **depuis une machine qui joint le JPL**, pas autrement.
+
+**Ce que la réponse à Hugo sera probablement**, et il vaut mieux l'écrire
+d'avance pour ne pas être tenté d'arranger le résultat : sauf Mercure et Mars,
+l'écart à un cercle se verra à peine. Ce sont les schémas de manuels qui
+aplatissent les orbites, pas la nature. Mais **c'est à l'image de le lui dire**,
+pas à moi.

@@ -18,6 +18,72 @@ Hugo peut aussi le déclencher à tout moment : « on refait le cap ».
 
 ---
 
+## 16 août 2026, le soir — l'arrivée refaite après son « super nul »
+
+Séance de jugement. La scène solaire passe (« ça va »), l'arrivée Terre-Lune ne
+passe pas : *« non c'est super nul. pas du tout ce que je veux. »* Trois demandes
+précises, et il avait raison sur les trois.
+
+**Les vraies photos, et c'était le pire genre d'avoir raison.** *« la terre et la
+lune utilise des vrai photo, ont les a dans le projet »* — elles y étaient depuis
+cinq jours, sourcées NASA, gardées par un outil, et **seule la page du rivage
+s'en servait**. La scène de l'arrivée dessinait encore des taches à la main. Le
+registre sort dans `atlas.js` : recopier la liste aurait donné deux tables pour
+six images, dont l'une aurait divergé en silence. La projection sur la sphère est
+écrite une seconde fois — en pixels, la scène dessinant sur un canevas 2D — et
+c'est assumé parce que les deux moteurs ne peuvent rien partager d'autre que le
+RÉSULTAT : l'arbitre refait le chemin du nuanceur (couper la sphère, lire la
+normale) quand `atlas.js` inverse la projection en forme close. Deux algèbres
+sans une ligne commune, d'accord à 10⁻¹² sur 1 748 points. **C'est ce qui attrape
+une inversion du nord**, et aucun œil ne rattrape ça sur la Lune.
+
+**Les étiquettes, et le rang qui compte.** *« tu peux ajouter des tag, pour qu'on
+remarque la lune »*. `etiquettes.js` était écrit, éprouvé, déjà chargé dans la
+page ; personne ne l'appelait. La Lune est au **rang zéro** : quand les deux
+étiquettes se marchent dessus, c'est elle qui parle. La Terre, on ne la rate pas.
+Le sabotage échange les deux rangs — le COMPTE d'étiquettes ne bouge pas, seule
+celle qui compte disparaît.
+
+**Le voyage d'un seul tenant.** *« un voyage depuis sagitarius a travers la
+galaxie, apres un moment on voit le systeme solaire, on zoom dessus, PUIS on zoom
+sur le systeme terre lune »*. C'étaient trois vols séparés par deux boutons, et un
+bouton est un arrêt. Le raccord se **dérive** — le demi-pixel de la Terre et son
+demi-grand axe, 1,08 ua du Soleil — et 119,7 ua cesse d'être une fin pour devenir
+un passage. Le disque du Soleil suit enfin `soleilVu.dessinable`, qui existait
+depuis le 11 août : on descend sous 8,8 ua, et garder un point d'un pixel là où
+il en fait onze aurait été un mensonge par omission.
+
+**Quatre défauts trouvés en chemin, dont trois que je ne cherchais pas.**
+
+1. **L'aveu disait « reliefs évoqués » devant une photographie.** Vu sur la
+   première capture. Les deux moitiés étaient justes séparément ; la faute
+   n'était que dans leur rapport, et ce rapport n'était écrit nulle part.
+2. **La dernière marche avançait dans le DESSIN.** Le temps de la scène dépendait
+   de son affichage : une image sautée la figeait, et la fin du voyage ne pouvait
+   se déclencher que si quelqu'un regardait. La maladie de `couture()`, en plus
+   discret parce que rien ne bougeait de travers.
+3. **Mes propres mesures m'ont repris deux fois** — `acos` ne sait pas résoudre
+   sous 10⁻⁸ près de zéro, et j'ai failli desserrer le seuil au lieu de mesurer
+   la corde ; puis `poseMots` fusionne, donc un contrôle qui lui passait `{}`
+   mesurait les mots posés trois lignes plus haut.
+4. Et **`outil-verif-ordre.js`** a refusé deux états déclarés sous les fonctions
+   qui les lisent.
+
+**Ce qui est resté sur le carreau, et pourquoi.** Sa remarque sur les orbites —
+*« je pensais que c'etait plus eliptique que ca »* — appelle les vraies ellipses.
+Le dépôt ne porte l'excentricité d'aucune planète, la table du JPL n'était
+joignable depuis **aucune adresse** de cette machine, et l'on n'écrit rien de
+mémoire. `SOURCES-SOLAIRE.md` §7 porte l'adresse, les deux colonnes qu'il faut et
+le rappel que b se dérive. C'est la même retenue que le 10 août, et elle avait
+payé le lendemain.
+
+Deux compromis déclarés (la face qu'on regarde, le rayon qu'on descend).
+`outil-verif-atlas.js` neuf (25 contrôles), la scène passe de 81 à 95,
+`VERIF.voyageDunSeulTenant()` en pose 10 avec quatre sabotages sur le vrai dépôt.
+Le plafond de taille monte de 106 lignes en quatre temps, chacun argumenté sur
+place — et il en rend 24 avec les deux cartes du panneau. **48 outils, aucun
+échec.**
+
 ## 16 août 2026 — la séance ne posait que la moitié des questions
 
 Hugo revient après deux jours et demande où en sont les plans : sept sessions

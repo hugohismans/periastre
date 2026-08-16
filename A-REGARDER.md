@@ -109,8 +109,15 @@ Il a raison de la poser, et la réponse n'est pas une explication : **on trace l
 vraies ellipses**, avec les excentricités relevées à leur source publiée. Ce
 qu'il verra alors est probablement que les orbites *sont* réellement presque
 rondes — sauf Mercure et Mars — et que ce sont les schémas de manuels qui les
-aplatissent. Mais il le verra, au lieu de me croire. *(Chantier ouvert le
-16 août.)*
+aplatissent. Mais il le verra, au lieu de me croire.
+
+**Et je dois te dire pourquoi ce n'est pas déjà fait.** Le dépôt ne connaît
+l'aplatissement d'aucune planète — il n'a jamais eu besoin de le savoir. Les
+chiffres existent, ils sont chez la NASA, et **la machine où j'ai travaillé
+aujourd'hui n'avait aucun accès au réseau** : rien n'a pu être ouvert. La règle
+de la maison est de ne jamais écrire un chiffre de mémoire, donc je n'ai rien
+écrit. Tout est préparé — l'adresse de la table, les deux colonnes qu'il faut —
+et ça se reprend en une session depuis une machine connectée.
 
 <details><summary>ce que la question disait, pour mémoire</summary>
 
