@@ -526,10 +526,37 @@ function enVue(av, va){
    ce module ne connaît pas et ne doit pas connaître — même raison que la `vue`
    de `camera.js`. Il est facultatif : sans lui, on retombe sur le réglage
    d'origine, ce qui garde un appelant ancien exact au lieu de le casser. */
+/* LA CARTE NE SE LÈVE QUE LÀ OÙ IL Y EN A UNE — corrigé le 16 août 2026.
+
+   Hugo : « les rotations de la caméra à la souris, ça ne marche plus. Genre je
+   peux me déplacer avec z q s d, mais pas avec la souris. »
+
+   Il venait d'arriver à la Terre. `TELESCOPE.carte` valait 0,83 — et `tourne()`
+   commence par `if(TELESCOPE.carte > 0.5){ ETOILES_S.tourne(...); return; }`.
+   Son geste tournait donc la carte des étoiles S, invisible, au lieu de sa tête.
+   Le clavier n'y passe pas : d'où « z q s d marche, la souris non ».
+
+   LA CAUSE : `veutCarte` ne regardait que « le recul est fini et l'on ne rentre
+   pas ». Toute arrivée levait donc la carte, y compris celle du système solaire,
+   où il n'y a pas la moindre étoile S à montrer. Le DESSIN, lui, savait déjà —
+   la case 3.11 du 10 août a fait de `carte:` une donnée portée par la
+   destination, précisément pour que la décision se vérifie sans lire une ligne
+   de rendu. Le fondu ne l'avait jamais apprise : le dessin se taisait, la valeur
+   montait quand même, et personne ne regardait cette valeur-là. Elle commandait
+   pourtant la souris.
+
+   C'est la maladie connue sous une forme neuve : DEUX VÉRITÉS pour « y a-t-il
+   une carte » — une donnée juste que le dessin consulte, un fondu qui décide
+   tout seul. On les ramène à la même.
+
+   Ça ne s'est vu que le 16, quand le voyage est devenu d'un seul tenant : il
+   finit désormais devant la Terre, c'est-à-dire au seul endroit du site où l'on
+   a vraiment envie de regarder autour de soi. */
 function fondus(tele, dt, vue, seuil){
   const s = Number.isFinite(seuil) ? seuil : 0.55;
   const veutGrille = (etat.actif && vue > s) ? 1 : 0;
-  const veutCarte  = (!etat.actif && !tele.retour) ? 1 : 0;
+  const veutCarte  = (!etat.actif && !tele.retour && !!(tele.trajet && tele.trajet.carte))
+                   ? 1 : 0;
   tele.grille = fondu(tele.grille, veutGrille, dt, LEVE_GRILLE);
   tele.carte  = fondu(tele.carte,  veutCarte,  dt, LEVE_CARTE);
 }

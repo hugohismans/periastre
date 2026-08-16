@@ -830,7 +830,10 @@ function epreuveBornes(M){
 function epreuveChamp(M){
   const joue = (actif, vue, depart, retour) => {
     M.etat.actif = actif;
-    const tele = { grille: depart, carte: 0, retour: !!retour };
+    // Le trajet DÉCLARE s'il a une carte — depuis le 16 août, `fondus` le lui
+    // demande au lieu d'en décider seul. Ces cas-là n'éprouvent que le
+    // quadrillage : on leur en donne une pour ne rien changer à leur sens.
+    const tele = { grille: depart, carte: 0, retour: !!retour, trajet: { carte: true } };
     for(let i = 0; i < 600; i++) M.fondus(tele, DT, vue);
     return tele;
   };
@@ -998,7 +1001,7 @@ groupe("Un vol entier : chaque chose à son moment");
      donc fixe, et le contrôle porte alors sur le pilotage seul. */
   const va = avant(0.9, -0.12);
   let lacet = 0.9 + Math.PI, tangage = 0.5;      // on commence en regardant ailleurs
-  const tele = { grille: 0, carte: 0, retour: false };
+  const tele = { grille: 0, carte: 0, retour: false, trajet: { carte: true } };
 
   let carteEnVol = 0, grilleMax = 0, grilleHorsChamp = 0, images = 0, leve = -1;
   while(R.etat.actif && images < 4000){
@@ -1036,14 +1039,58 @@ groupe("Un vol entier : chaque chose à son moment");
     R.avance(DT);
     R.fondus(tele, DT, R.enVue(avant(lacet, tangage), va));
   }
-  ok("à l'arrivée, la carte se lève", tele.carte > 0.99, "> 0,99", tele.carte.toFixed(4));
   ok("et le quadrillage s'efface", tele.grille < 0.01, "< 0,01", tele.grille.toFixed(4),
      "on ne bouge plus, donc il n'a plus rien à prouver");
+
+  /* ═══ LA CARTE NE SE LÈVE QUE LÀ OÙ IL Y EN A UNE — 16 août 2026.
+
+     Hugo : « les rotations de la caméra à la souris, ça ne marche plus. Genre
+     je peux me déplacer avec z q s d, mais pas avec la souris. »
+
+     Il venait d'arriver à la Terre. `TELESCOPE.carte` valait 0,83, et la page
+     commence sa rotation par « si la carte est levée, le geste tourne LA CARTE
+     et non la tête ». Son geste tournait donc une carte d'étoiles S invisible.
+     Le clavier n'y passe pas — d'où « z q s d marche, la souris non ».
+
+     LA FAUTE ÉTAIT ICI : `veutCarte` ne regardait que « le recul est fini et
+     l'on ne rentre pas ». Toute arrivée levait la carte, y compris celle du
+     système solaire où il n'y a pas une étoile S à montrer. Le DESSIN le savait
+     déjà — la case 3.11 a fait de `carte:` une donnée portée par la destination
+     — mais le fondu ne l'avait jamais apprise. Deux vérités pour une même
+     question, dont l'une muette : le dessin se taisait, la valeur montait quand
+     même, et c'est elle qui commandait la souris.
+
+     LES DEUX MOITIÉS DOIVENT ÊTRE VRAIES ENSEMBLE : une carte qui ne se lève
+     jamais passerait le second point, une carte qui se lève toujours passerait
+     le premier. */
+  ok("là où il y a une carte, elle se lève bien", tele.carte > 0.99, "> 0,99",
+     tele.carte.toFixed(4));
+  {
+    const sansCarte = { grille: 0, carte: 0, retour: false, trajet: { carte: false } };
+    for(let i = 0; i < 600; i++) R.fondus(sansCarte, DT, 0.97);
+    ok("là où il n'y en a pas, elle reste éteinte", sansCarte.carte < 1e-12,
+       "0", sansCarte.carte.toExponential(2),
+       "c'est le défaut d'Hugo du 16 août : arrivé à la Terre, son geste de "
+       + "souris tournait une carte d'étoiles S invisible au lieu de sa tête");
+
+    // Et le témoin du témoin : sans trajet du tout, rien non plus.
+    const sansTrajet = { grille: 0, carte: 0, retour: false };
+    for(let i = 0; i < 600; i++) R.fondus(sansTrajet, DT, 0.97);
+    ok("et sans trajet, elle ne se lève pas davantage", sansTrajet.carte < 1e-12,
+       "0", sansTrajet.carte.toExponential(2),
+       "on ne lève pas un instrument pour un voyage qui n'a pas lieu");
+  }
 
   /* Le retour est l'autre moitié de la règle : on rentre, la carte s'efface et
      ne doit PAS se relever à l'arrivée — sinon on finirait le voyage devant un
      télescope alors qu'on est revenu regarder par la baie. */
-  const rentre = { grille: 0, carte: 1, retour: true };
+  /* ON LUI DONNE UN TRAJET QUI DÉCLARE UNE CARTE, et c'est nécessaire depuis le
+     16 août : sans lui, ce contrôle passerait au vert pour DEUX raisons — parce
+     qu'on rentre, et parce qu'il n'y a pas de carte à lever. Il resterait donc
+     vert le jour où `retour` cesserait d'être lu, ce qui est exactement le genre
+     de contrôle qui ne contrôle plus rien. Ici, `retour` est la seule chose qui
+     puisse le faire tomber. */
+  const rentre = { grille: 0, carte: 1, retour: true, trajet: { carte: true } };
   R.etat.actif = false;
   for(let i = 0; i < 600; i++) R.fondus(rentre, DT, 0.97);
   ok("au retour, la carte s'efface et ne revient pas", rentre.carte < 0.01,

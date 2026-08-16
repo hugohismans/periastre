@@ -1812,6 +1812,103 @@ function voyage(){
   return enCours;
 }
 
+/* 8 quater. LA SÉANCE POSE SA SCÈNE SUR UNE TABLE RASE.
+
+   Hugo, le 16 août au soir, après avoir fait le voyage puis ouvert `?juge` :
+   « le premier question de juge ne me remet pas au trou noir, j'ai du mal de
+   juger je reste sur la terre. »
+
+   La scène Terre-Lune était restée OUVERTE, laissée par sa partie, et elle se
+   repeignait par-dessus à chaque image. Il jugeait le repère du voyage à travers
+   une planète. Les quatre poseurs de scène de `juge.js` rangeaient le télescope,
+   le trajet et la carte ; aucun ne rangeait les deux scènes.
+
+   ON NE LE VOYAIT PAS TANT QUE LA TERRE ÉTAIT LOIN : il fallait deux boutons
+   pour y arriver. Depuis que le voyage est d'un seul tenant, y arriver est
+   devenu la chose la plus facile du site.
+
+   ET LE PIÈGE SE REFERME SUR SOI, comme celui de `couture()` : en rejouant la
+   séance à la main sur une page fraîche, on ne revient jamais de la Terre, donc
+   tout paraît normal. Ce contrôle salit donc D'ABORD, exprès — il ouvre les deux
+   scènes — puis pose la question et exige qu'elles aient disparu.              */
+function seanceTableRase(){
+  ouvre("La séance pose sa scène sur une table rase");
+  if(typeof JUGE === "undefined"){
+    point("la séance est chargée", false, "JUGE", "absent",
+          "ouvrir `?verif&juge` pour jouer ce contrôle");
+    return enCours;
+  }
+  const av = { lacet: salon.lacet, tangage: salon.tangage, retourne: salon.retourne,
+               trajet: TELESCOPE.trajet, carte: TELESCOPE.carte };
+  const degele = fige();
+  try {
+    /* ON SALIT NOUS-MÊMES — même manœuvre que `seanceSansTrace`, et pour la même
+       raison : un contrôle accroché au contenu de la file ne protège que tant
+       que la file contient le cas. Ce qui est éprouvé est le MÉCANISME. */
+    const H = vueH || cv.clientHeight, W = vueW || cv.clientWidth;
+    TERRELUNE.ouvre(TERRELUNE.echelle(cam.focale, H), W, cam.focale);
+    APPROCHE.pose(APPROCHE.DEPART_UA);
+    salon.retourne = 1;
+    point("on a bien sali avant de mesurer",
+          TERRELUNE.etat.actif && APPROCHE.etat.actif,
+          "les deux scènes ouvertes",
+          `terre-lune ${TERRELUNE.etat.actif}, solaire ${APPROCHE.etat.actif}`,
+          "sans ça les trois points suivants passeraient au vert à vide — c'est "
+          + "exactement pourquoi le défaut a survécu : sur une page fraîche, "
+          + "on ne revient jamais de la Terre");
+
+    /* ON NE DEMANDE PAS « la Terre est-elle fermée » : la question de l'arrivée
+       DOIT l'ouvrir, et exiger le contraire d'elle serait absurde. On ne
+       nomme pas les questions non plus — un contrôle accroché au contenu de la
+       file ne protège que tant que la file contient le cas.
+
+       CE QU'ON MESURE EST L'HÉRITAGE. On marque la scène sale avec une valeur
+       qu'aucune ouverture ne produirait ; après chaque pose, elle doit être
+       fermée, ou rouverte pour de bon — jamais retrouvée telle qu'on l'a
+       laissée. La marque distingue « elle a repris la main » de « elle a
+       hérité », ce qu'aucun drapeau ne dirait. */
+    const MARQUE = 7.77;
+    const heritees = [];
+    let posees = 0;
+    for(const d of JUGE.DECISIONS){
+      if(typeof d.pose !== "function") continue;
+      TERRELUNE.ouvre(TERRELUNE.echelle(cam.focale, H), W, cam.focale);
+      TERRELUNE.etat.t = MARQUE;
+      APPROCHE.pose(APPROCHE.DEPART_UA);
+      salon.retourne = 1;
+
+      d.pose();
+      posees++;
+      if(TERRELUNE.etat.actif && TERRELUNE.etat.t === MARQUE) heritees.push(d.id + " (Terre)");
+      if(APPROCHE.etat.actif && !TERRELUNE.etat.actif
+         && APPROCHE.etat.dUa === APPROCHE.DEPART_UA && !APPROCHE.etat.chute
+         && d.id.indexOf("solaire") < 0) heritees.push(d.id + " (solaire)");
+      if(salon.retourne === 1) heritees.push(d.id + " (demi-tour)");
+    }
+
+    point("toutes les questions ont posé leur scène", posees > 0, "> 0", posees,
+          "zéro passerait le point suivant sans rien mesurer");
+    point("aucune n'hérite d'une scène laissée par la partie",
+          heritees.length === 0, "aucune",
+          heritees.length ? heritees.join(", ") : "aucune",
+          "c'est le défaut qu'Hugo a vu : il venait d'arriver à la Terre, il a "
+          + "ouvert la séance, et il jugeait le repère du voyage à travers une "
+          + "planète");
+  } finally {
+    degele();
+    TERRELUNE.ferme();
+    APPROCHE.range();
+    RECUL.etat.actif = false;
+    TELESCOPE.trajet = av.trajet;
+    TELESCOPE.carte = av.carte;
+    salon.lacet = av.lacet; salon.tangage = av.tangage; salon.retourne = av.retourne;
+    fermeTelescope();
+    poseSalon();
+    avanceImages(2);
+  }
+  return enCours;
+}
+
 /* 8 ter. LE VOYAGE D'UN SEUL TENANT — les deux coutures.
 
    Hugo, le 16 août 2026, en jugeant l'arrivée : « je veux que ce soit un voyage
@@ -2163,7 +2260,7 @@ global.VERIF = {
   banc, pixels, couture, carteFixe, carteDehors, arriveeJuste, sceneSolaire, seanceSansTrace,
   // Comme `seanceSansTrace` : hors de la passe, parce qu'il exige `?verif&juge`.
   // L'y mettre le ferait échouer sur toute page où la séance n'est pas chargée.
-  questionsDuVoyage, voyageDunSeulTenant,
+  questionsDuVoyage, voyageDunSeulTenant, seanceTableRase,
   rotationCalme, memeEspace, mesurePage, parcours, voyage, budget,
   sain, tout, bilan, texte, resultats, FORMATS, OR,
   // outillage exposé : d'autres contrôles pourront s'y adosser

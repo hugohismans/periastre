@@ -18,6 +18,64 @@ Hugo peut aussi le déclencher à tout moment : « on refait le cap ».
 
 ---
 
+## 16 août 2026, la nuit — ses deux remarques, et la seconde était grave
+
+**« le premier question de juge ne me remet pas au trou noir, j'ai du mal de
+juger je reste sur la terre. »** Il venait de faire le voyage, puis d'ouvrir la
+séance. La scène Terre-Lune était restée OUVERTE, laissée par sa partie, et elle
+se repeignait par-dessus : il jugeait le repère du voyage à travers une planète.
+Les quatre poseurs de scène rangeaient le télescope, le trajet et la carte ;
+aucun ne rangeait les deux scènes. Le préambule était recopié quatre fois — il
+est maintenant dans `tableRase`, une fois, et il range tout. **Ça ne se voyait
+pas tant qu'il fallait deux boutons pour arriver à la Terre.** Depuis ce matin,
+c'est la chose la plus facile du site. Et la question part désormais DU TROU
+NOIR, comme il l'a demandé.
+
+**« les rotations de la caméra à la souris, ça ne marche plus. Genre je peux me
+déplacer avec z q s d, mais pas avec la souris. »** Celle-là était plus grave, et
+elle m'a coûté trois mesures fausses avant la bonne.
+
+`TELESCOPE.carte` valait **0,83** à l'arrivée à la Terre. Or la rotation commence
+par « si la carte est levée, le geste tourne LA CARTE et non la tête ». Son geste
+tournait donc une carte d'étoiles S invisible. Le clavier n'y passe pas — d'où
+« z q s d marche, la souris non ».
+
+**La faute était dans `fondus` :** `veutCarte` ne regardait que « le recul est
+fini et l'on ne rentre pas ». Toute arrivée levait la carte, y compris celle du
+système solaire où il n'y a pas une étoile S à montrer. Le DESSIN le savait déjà
+— la case 3.11 du 10 août a fait de `carte:` une donnée portée par la destination
+— mais le fondu ne l'avait jamais apprise. **Deux vérités pour une même question,
+dont l'une muette** : le dessin se taisait, la valeur montait quand même, et
+personne ne regardait cette valeur-là. Elle commandait pourtant la souris.
+
+**Et mes trois fausses pistes valent d'être écrites**, parce qu'elles se
+ressemblent toutes : je mesurais depuis un état que je ne maîtrisais pas.
+
+1. Je forçais `salon.actif` au lieu de franchir l'accueil — l'écran d'accueil
+   restait par-dessus avec `pointer-events:auto` et avalait tous les clics. La
+   mesure disait « la souris est morte » partout, y compris sur la version
+   d'avant. J'ai failli « réparer » quelque chose qui n'avait rien.
+2. Je lisais `glisse` depuis l'extérieur en croyant qu'un `null` voulait dire
+   « le geste n'est pas arrivé ». Il voulait dire « je ne vois pas cette
+   variable ».
+3. J'ai comparé à la version publiée d'hier et conclu « ce n'est pas une
+   régression » — ce qui était vrai de mon test faux, et faux du site.
+
+C'est trois fois la règle 5, et c'est le seul contrôle qui m'ait vraiment appris
+quelque chose aujourd'hui : **la comparaison à l'ancienne version ne prouve rien
+quand la mesure est cassée des deux côtés.**
+
+Deux contrôles neufs et leurs sabotages. `VERIF.seanceTableRase()` salit
+lui-même les deux scènes, les marque d'une valeur qu'aucune ouverture ne
+produirait, et exige qu'aucune question n'HÉRITE — il ne nomme aucune question,
+donc il survivra au prochain remaniement de la file. Et deux points dans
+`outil-verif-recul.js` : là où il y a une carte elle se lève, là où il n'y en a
+pas elle reste éteinte. **Le contrôle du retour a été resserré au passage** : il
+serait devenu vert pour deux raisons, donc vert le jour où `retour` cesserait
+d'être lu.
+
+48 outils, aucun échec. 155 contrôles dans `recul`, de 153.
+
 ## 16 août 2026, le soir — l'arrivée refaite après son « super nul »
 
 Séance de jugement. La scène solaire passe (« ça va »), l'arrivée Terre-Lune ne

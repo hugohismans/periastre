@@ -269,12 +269,18 @@ const TOUTES = [
         + "milieu — c'est là qu'on traverse une coquille. Lequel des deux dit "
         + "« je recule » ? Et s'ils te paraissent tous les deux ratés, dis-le : "
         + "c'est une réponse.",
-    pose: () => rejoueRepere("coquilles", 0.35),
+    /* ON PART DU TROU NOIR, et c'est lui qui l'a demandé : « le premier question
+       de juge ne me remet pas au trou noir ». Le premier écran s'ouvrait au
+       milieu du trajet, à quatre cents millions de rayons, là où l'astre n'est
+       plus qu'un point — on ne sait plus d'où l'on vient. La traversée d'une
+       coquille reste à un bouton de là, et c'est elle qui départage les deux
+       repères ; mais pour la voir il faut d'abord savoir où l'on est. */
+    pose: () => rejoueRepere("coquilles", 0),
     options: [
-      { nom: "coquilles, au milieu",   fait: () => rejoueRepere("coquilles",   0.35) },
-      { nom: "quadrillage, au milieu", fait: () => rejoueRepere("quadrillage", 0.35) },
       { nom: "coquilles, au départ",   fait: () => rejoueRepere("coquilles",   0) },
       { nom: "quadrillage, au départ", fait: () => rejoueRepere("quadrillage", 0) },
+      { nom: "coquilles, au milieu",   fait: () => rejoueRepere("coquilles",   0.35) },
+      { nom: "quadrillage, au milieu", fait: () => rejoueRepere("quadrillage", 0.35) },
     ],
     rend: () => rangeRepere(),
   },
@@ -869,13 +875,47 @@ let rythmeAvantSeance = null;
    étoiles S, à dix mille unités astronomiques, un saut qui ne porte pas une
    décade. Les neuf décades — celles que le repère du voyage doit rendre
    lisibles — ne sont que sur la route du système solaire. */
-function poseGrandTrajet(depuis){
+/* LA TABLE RASE — trouvée par l'œil d'Hugo le 16 août 2026, au soir.
+
+   « le premier question de juge ne me remet pas au trou noir, j'ai du mal de
+   juger je reste sur la terre. »
+
+   Il venait de faire le voyage jusqu'à la Terre, puis d'ouvrir `?juge`. La
+   première question pose le grand trajet — mais la scène Terre-Lune était
+   toujours OUVERTE, laissée par sa partie, et elle se repeignait par-dessus à
+   chaque image. Il jugeait le repère du voyage à travers une planète.
+
+   LA FAUTE N'EST PAS DANS LA QUESTION, ELLE EST DANS LE PRÉAMBULE, et elle
+   était dans les QUATRE : chacun rangeait le télescope, le trajet et la carte,
+   aucun ne rangeait les deux scènes. On ne le voyait pas tant que le seul chemin
+   vers la Terre passait par deux boutons — depuis que le voyage est d'un seul
+   tenant, y arriver est devenu la chose la plus facile du site.
+
+   C'est la règle 5, et elle vaut pour une séance comme pour un contrôle : on
+   maîtrise l'état d'où l'on mesure, et l'on ne mesure pas depuis celui que
+   quelqu'un d'autre a laissé. Le préambule était recopié quatre fois ; il est
+   ici, une fois, et il range TOUT.
+
+   Le piège se referme sur soi, comme celui de `couture()` : en rejouant la
+   séance à la main sur une page fraîche, on ne revient jamais de la Terre, donc
+   tout paraît normal. Il fallait qu'il vienne de jouer pour le voir. */
+function tableRase(){
   rendPoseArrivee();
   fermeTelescope();
   auSalon(0, 0.6, 0, -0.05);
   if(TELESCOPE.trajet){ TELESCOPE.trajet = null; TELESCOPE.retour = false; }
   rameneAuDepart();
   TELESCOPE.carte = 0;
+  // Les deux scènes que la partie a pu laisser ouvertes, et le demi-tour du
+  // vaisseau qui va avec l'arrivée. Sans ça on juge à travers elles.
+  TERRELUNE.ferme();
+  APPROCHE.range();
+  salon.retourne = 0;
+  $$("chrono").classList.remove("vu");
+}
+
+function poseGrandTrajet(depuis){
+  tableRase();
   const d = DESTINATIONS.find(x => x.id === "soleil");
   lanceVoyage(d, VOYAGE.entre(distanceVaisseau(), d.d_m));
   RECUL.etat.t = depuis || 0;
@@ -900,14 +940,8 @@ function rejoueGrandTrajet(rythme, depuis){
    à partir de là : c'est une scène, pas une image fixe, et la juger figée ne
    dirait rien du rythme. */
 function rejoueTerreLune(depuis){
-  rendPoseArrivee();
-  fermeTelescope();
-  auSalon(0, 0.6, 0, -0.05);
-  if(TELESCOPE.trajet){ TELESCOPE.trajet = null; TELESCOPE.retour = false; }
-  rameneAuDepart();
+  tableRase();
   RECUL.etat.actif = false;
-  TELESCOPE.carte = 0;
-  $$("chrono").classList.remove("vu");
   // La même mesure que la page — `vueH` d'abord, le canevas sinon. Prendre une
   // autre hauteur donnerait à la séance une échelle que le jeu n'a pas.
   const H = vueH || cv.clientHeight, W = vueW || cv.clientWidth;
@@ -980,12 +1014,19 @@ function rejoueGrandTrajetTourne(ecart, depuis){
   TELESCOPE.grille = 0;        // sinon il reste levé du trajet précédent
 }
 
+/* ET LA SORTIE RANGE AUTANT QUE L'ENTRÉE. Une séance qui laisserait la Terre
+   ouverte derrière elle rendrait le site dans un état qu'il n'avait pas, et
+   fausserait ce qu'on regarde ensuite — c'est la raison écrite pour
+   `arrivee-hors-file` le 9 août, et elle vaut ici aussi. */
 function rangeVoyage(){
   rendPoseArrivee();
   fermeTelescope();
   if(TELESCOPE.trajet){ TELESCOPE.trajet = null; TELESCOPE.retour = false; }
   RECUL.etat.actif = false;
   TELESCOPE.carte = 0;
+  TERRELUNE.ferme();
+  APPROCHE.range();
+  salon.retourne = 0;
   $$("chrono").classList.remove("vu");
   poseSalon();
 }
@@ -1108,12 +1149,7 @@ function rangeAveux(){
    attendre quelqu'un dix-sept secondes pour lui montrer un instant. Ce qui est
    posé est donc l'ENDROIT d'où l'on regarde — le reste est le vrai code. */
 function rejoueSceneSolaire(dUa, panneau){
-  rendPoseArrivee();
-  fermeTelescope();
-  auSalon(0, 0.6, 0, -0.05);
-  if(TELESCOPE.trajet){ TELESCOPE.trajet = null; TELESCOPE.retour = false; }
-  rameneAuDepart();
-  TELESCOPE.carte = 0;
+  tableRase();
   const d = DESTINATIONS.find(x => x.scene === "solaire");
   if(!d) return;
   lanceVoyage(d, VOYAGE.entre(distanceVaisseau(), d.d_m));
@@ -1151,11 +1187,7 @@ function rejoueVoyage(depuis, sansPanneau){
     vraiePoseArrivee = global.poseArrivee;
     global.poseArrivee = function(){ /* muet, le temps de la comparaison */ };
   }
-  fermeTelescope();
-  auSalon(0, 0.6, 0, -0.05);
-  if(TELESCOPE.trajet){ TELESCOPE.trajet = null; TELESCOPE.retour = false; }
-  rameneAuDepart();
-  TELESCOPE.carte = 0;                      // on repart d'une carte éteinte
+  tableRase();
   const d = DESTINATIONS[0];
   lanceVoyage(d, VOYAGE.entre(distanceVaisseau(), d.d_m));
   RECUL.etat.t = depuis;
