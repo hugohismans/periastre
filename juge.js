@@ -911,6 +911,14 @@ function tableRase(){
   TERRELUNE.ferme();
   APPROCHE.range();
   salon.retourne = 0;
+  /* ET LE REPÈRE DU VOYAGE, qui reste levé d'une question à l'autre. Vu le
+     16 août en capturant l'arrivée : une coquille traînait dans la baie, un
+     disque sombre cerclé de clair, à deux dizaines de milliards de rayons de
+     tout ce qui pouvait la justifier. Je l'ai prise pour le trou noir pendant
+     trois mesures. `rejoueVoyageTourne` le savait déjà et le baissait dans son
+     coin — « sinon il reste levé du trajet précédent » ; c'est ici que ça
+     appartient, avec le reste de la table rase. */
+  TELESCOPE.grille = 0;
   $$("chrono").classList.remove("vu");
 }
 
@@ -941,7 +949,35 @@ function rejoueGrandTrajet(rythme, depuis){
    dirait rien du rythme. */
 function rejoueTerreLune(depuis){
   tableRase();
+  /* ON ARME LE TRAJET, ARRIVÉ — trouvé le 16 août en capturant la séance.
+
+     `tableRase` ramène le vaisseau en orbite à seize rayons : on jugeait donc
+     l'arrivée à la Terre avec Sagittarius A* PLEIN CADRE dans la baie, son
+     disque et son ombre derrière une Terre grosse comme un pois. Ça ne se voyait
+     pas tant que le voile couvrait la baie d'un noir opaque — le fond était noir,
+     donc faux mais muet. Le voile tombé, la faute saute aux yeux.
+
+     ET LE POSER LOIN NE SUFFIT PAS : sans trajet armé, la page repasse dans
+     l'intégrateur d'orbite, qui reprend `salon.p` avec une vitesse orbitale de
+     seize rayons et fait retomber le vaisseau. Mesuré : 4 367 rayons au lieu de
+     deux dizaines de milliards, quelques secondes plus tard.
+
+     On emploie donc le patron de `rejoueSceneSolaire` : un trajet armé et
+     ARRIVÉ. `majVoyage` tient alors la position, comme dans le vrai jeu, et
+     `arrive` posé à vrai empêche `arriveVoyage` de rouvrir le panneau à la
+     première image. */
+  const dest = DESTINATIONS.find(x => x.scene === "solaire");
+  if(dest){
+    lanceVoyage(dest, VOYAGE.entre(distanceVaisseau(), dest.d_m));
+    RECUL.etat.t = 1;
+    RECUL.avance(0);                       // la position suit l'avancement
+    TELESCOPE.trajet.arrive = true;
+    TELESCOPE.trajet.mainPrise = true;     // la visée reste où la séance l'a mise
+    salon.retourne = 1;                    // on est arrivé : le demi-tour est fait
+  }
   RECUL.etat.actif = false;
+  TELESCOPE.carte = 0;
+  $$("chrono").classList.remove("vu");
   // La même mesure que la page — `vueH` d'abord, le canevas sinon. Prendre une
   // autre hauteur donnerait à la séance une échelle que le jeu n'a pas.
   const H = vueH || cv.clientHeight, W = vueW || cv.clientWidth;

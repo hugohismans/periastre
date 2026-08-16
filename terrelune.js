@@ -663,7 +663,34 @@ function peint(ctx, W, H, o){
   if(!vu) return null;
   ctx.save();
   if(o.decoupe) o.decoupe();
-  voileLeCiel(ctx, W, H);
+  /* LE VOILE EST TOMBÉ — 16 août 2026, et c'est l'œil d'Hugo qui l'a fait
+     tomber, sans savoir que c'était lui :
+
+       « quand on survole la terre il y a un truc bizarre. Genre ça ne fait pas
+       naturel, on n'a pas l'impression que c'est une planète, parce que quand
+       on bouge de gauche à droite, c'est comme si la Skybox nous suivait. »
+
+     Il avait raison sur le symptôme et la cause était ailleurs. La Terre est
+     ancrée à 4 004 m dans le repère de la pièce : un pas de côté la déplace de
+     0,014°, quand un montant de baie, à 3,7 m, se déplace de 15°. Elle est donc
+     bien fixe — et c'était le TÉMOIN qui manquait. Ce voile remplissait toute la
+     baie d'un noir opaque, en coordonnées d'écran : derrière la Terre il n'y
+     avait pas un ciel, il y avait un carton noir collé à la fenêtre, qui suivait
+     la fenêtre. Une planète immobile glissant sur un fond qui bouge, sans une
+     étoile pour arbitrer : l'œil conclut que c'est le ciel qui nous suit.
+
+     IL AVAIT UNE RAISON, ET ELLE A EXPIRÉ. Posé le 11 août comme douzième
+     compromis (`ciel-arrivee`), il cachait le trou noir que la baie peignait
+     encore, faute d'un vaisseau qui se déplace. Son propre texte portait sa date
+     de péremption : « Le jour où le vaisseau bouge vraiment, le voile tombe
+     seul. » Le vaisseau bouge — `majVoyage` pose `salon.p` à la distance
+     courante, et l'on arrive à 2 × 10¹⁰ rayons de Schwarzschild, où l'ombre
+     mesure un cinquante-milliardième de radian. Il n'y a plus rien à cacher.
+
+     CE QUI RESTE FAUX EST DIT AUTREMENT : le champ d'étoiles est celui de
+     l'amas nucléaire, pas notre ciel. C'est un aveu, et un aveu vrai vaut mieux
+     qu'un cache — le compromis est réécrit dans `contenu.js` plutôt que
+     supprimé. */
   const r = dessine(ctx, W, H, { x: vu[0], y: vu[1], k: echelle(o.focale, H) });
   /* Les étiquettes sont DEDANS le découpage de la baie, la légende DEHORS. Ce
      n'est pas un détail de rangement : un nom posé sur un astre appartient au
@@ -699,24 +726,16 @@ function peint(ctx, W, H, o){
  *  La carte des étoiles S fait déjà ce geste, à sa façon — un voile à 0,62 —
  *  mais la sienne n'est qu'un assombrissement, parce qu'à SON arrivée le trou
  *  noir est encore là où on le montre. Ici il n'y est plus. */
-const VOILE_MONTEE = 1.2;   // secondes — le temps que la nuit prenne la baie
+/* CE QUI ÉTAIT ICI : `VOILE_MONTEE`, `opaciteVoile` et `voileLeCiel`, retirés
+   le 16 août 2026. Le voile remplissait toute la baie d'un noir opaque pour
+   cacher le trou noir que la page peignait encore ; le vaisseau se déplace
+   vraiment depuis que le voyage est d'un seul tenant, et l'on arrive à
+   2 × 10¹⁰ rayons de Schwarzschild — mesuré dans la page. Il n'y avait plus
+   rien à cacher, et ce noir COÛTAIT quelque chose : voir `peint`.
 
-/** L'opacité du voile à cet instant. Sortie à part pour qu'un contrôle puisse
- *  exiger qu'il MONTE au lieu de tomber d'un coup — le défaut se voit à l'œil
- *  en une image et ne laisse aucune trace dans un chiffre. */
-function opaciteVoile(){ return Math.min(1, Math.max(0, etat.t) / VOILE_MONTEE); }
-
-function voileLeCiel(ctx, W, H){
-  /* Il MONTE, il ne tombe pas d'un coup. En coupure sèche, l'arrivée se lisait
-     comme un écran qui s'éteint : on venait de traverser trente-quatre secondes
-     de nébuleuse et elle disparaissait sur une image. En une seconde, on voit
-     le ciel qu'on quitte s'éteindre, ce qui est le sujet. */
-  ctx.save();
-  ctx.globalAlpha = opaciteVoile();
-  ctx.fillStyle = "#04040a";
-  ctx.fillRect(0, 0, W, H);
-  ctx.restore();
-}
+   Le compromis `ciel-arrivee` ne disparaît pas pour autant, il change de sujet :
+   le champ d'étoiles qu'on découvre est celui de l'amas nucléaire, pas notre
+   ciel. Un aveu vrai à la place d'un cache.                                  */
 
 /* ================================================================== 5. SORTIE */
 
@@ -729,10 +748,10 @@ global.TERRELUNE = {
   etat, ou, ouvre, ferme, avance, avancement, distance,
   // mots, photographies et dessin
   poseMots, poseCartes, carteDisponible,
-  dessine, legende, etiquettes, pointsEtiquettes, peint, visible, opaciteVoile,
+  dessine, legende, etiquettes, pointsEtiquettes, peint, visible,
   // les réglages déclarés, exposés pour que le contrôle les lise plutôt que de
   // les recopier — une constante recopiée dans un test est un test qui ment
-  REGLAGES: { PART_TERRE, DUREE, PSI, AZIMUT, NUIT, DEMI_PIXEL, VOILE_MONTEE,
+  REGLAGES: { PART_TERRE, DUREE, PSI, AZIMUT, NUIT, DEMI_PIXEL,
               ECART_MIN, DECALAGE },
 };
 

@@ -418,25 +418,65 @@ titre("4 bis. Les trois défauts vus à l'écran, désormais gardés");
           + "azimut et ne prouverait rien");
   }
 
-  /* TROISIÈME. Le voile du ciel tombait d'un coup : après trente-quatre
-     secondes de nébuleuse, l'arrivée se lisait comme un écran qui s'éteint. */
-  TL.ferme();
-  point("le voile du ciel part de rien", TL.opaciteVoile() === 0, 0, TL.opaciteVoile());
+  /* TROISIÈME. LE VOILE EST TOMBÉ — 16 août 2026.
+
+     Il y avait ici trois contrôles : le voile part de rien, il monte sans saut,
+     il finit par couvrir. Ils étaient justes, et ils gardaient une chose qui
+     n'existe plus.
+
+     Hugo, en survolant la Terre : « ça ne fait pas naturel, on n'a pas
+     l'impression que c'est une planète, parce que quand on bouge de gauche à
+     droite, c'est comme si la Skybox nous suivait. » Le voile remplissait la
+     baie d'un noir opaque EN COORDONNÉES D'ÉCRAN : il suivait la fenêtre.
+     Derrière la Terre il n'y avait pas un ciel mais un carton collé à la vitre,
+     et sans une étoile pour arbitrer, l'œil concluait que le ciel nous suivait.
+
+     CE QU'ON GARDE EST LA RAISON DE SA MORT, et elle se mesure : le module ne
+     doit plus rien peindre en plein cadre. Un `fillRect` sur toute la vue est
+     précisément ce qui écrase un ciel, et c'est la faute qui reviendrait si
+     quelqu'un voulait « assombrir un peu » l'arrivée. */
+  point("le module n'expose plus de voile",
+        TL.opaciteVoile === undefined && TL.REGLAGES.VOILE_MONTEE === undefined,
+        "ni `opaciteVoile` ni `VOILE_MONTEE`",
+        (TL.opaciteVoile === undefined ? "" : "opaciteVoile ") +
+        (TL.REGLAGES.VOILE_MONTEE === undefined ? "" : "VOILE_MONTEE ") || "retirés");
   {
-    const k = TL.echelle(FOCALE, 900);
-    TL.ouvre(k, 1078, FOCALE);
-    const suite = [];
-    for(let i = 0; i < 30; i++){ TL.avance(0.1); suite.push(TL.opaciteVoile()); }
-    const monte = suite.every((v, i) => i === 0 || v >= suite[i-1]);
-    point("il monte, il ne tombe pas d'un coup",
-          monte && suite[0] < 0.2 && suite[suite.length-1] === 1,
-          "de 0 à 1 sans saut", suite[0].toFixed(2) + " … " + suite[suite.length-1],
-          "en coupure sèche, l'arrivée se lit comme un écran qui s'éteint");
-    point("et il finit par couvrir entièrement",
-          TL.opaciteVoile() === 1, 1, TL.opaciteVoile(),
-          "un voile à moitié monté laisserait le trou noir transparaître "
-          + "derrière la Terre, ce qui est le défaut qu'il répare");
-    TL.ferme();
+    /* Et il ne peint plus en plein cadre. On relève ce qui est PEINT, pas ce que
+       le fichier contient : un contrôle de texte serait contourné par un
+       `fillRect` écrit autrement. */
+    const plein = [];
+    const ctx = new Proxy({}, { get(_, k){
+      if(k === "fillRect") return (x, y, w, h) => plein.push([x, y, w, h]);
+      if(k === "createRadialGradient") return () => ({ addColorStop(){} });
+      if(k === "measureText") return () => ({ width: 10 });
+      if(k === "canvas") return { width: 1078, height: 900 };
+      return () => {};
+    }, set(){ return true; } });
+    /* SUR UN MODULE NEUF, et il a fallu se faire prendre pour l'écrire : poser
+       des mots ici les laissait posés pour le contrôle « sans mots posés, la
+       légende ne s'écrit pas », vingt lignes plus bas, qui passait alors dans
+       `legende` et mourait sur un faux contexte. `poseMots` FUSIONNE, on ne le
+       défait pas — un module vierge est le seul état propre. Règle 5, et c'est
+       la deuxième fois aujourd'hui qu'elle me reprend sur mes propres mesures. */
+    const w = {};
+    charge("lune.js", w); charge("etiquettes.js", w); charge("terrelune.js", w);
+    const T2 = w.TERRELUNE;
+    T2.ouvre(T2.echelle(FOCALE, 900), 1078, FOCALE);
+    T2.etat.t = T2.etat.duree * 0.3;
+    T2.poseMots({ titre: "T", terre: "la Terre", lune: "la Lune" });
+    T2.peint(ctx, 1078, 900, { projette: () => [539, 450], focale: FOCALE,
+                               vitres: [{ x0:-3, x1:3, y0:0.3, y1:2.7, z:-3.7 }] });
+    const couvrant = plein.filter(([x, y, w, h]) => w >= 1078 && h >= 900);
+    point("et il ne peint plus rien en plein cadre",
+          couvrant.length === 0, "aucun rectangle plein cadre",
+          couvrant.length ? JSON.stringify(couvrant[0]) : "aucun",
+          "c'était le voile : un noir opaque sur toute la baie, qui suivait la "
+          + "fenêtre et volait au ciel son rôle de témoin");
+    /* LE TÉMOIN : la légende, elle, a bien un fond — donc « aucun plein cadre »
+       ne veut pas dire « le module ne peint rien ». */
+    point("alors qu'il peint toujours quelque chose", plein.length > 0,
+          "> 0 rectangles", plein.length,
+          "sans ça le point ci-dessus serait vrai d'un module mort");
   }
 }
 
