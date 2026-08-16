@@ -140,8 +140,14 @@ const PLANCHERS = {
      vaisseau ne se déplace jamais : à l'arrivée au système solaire, la baie
      peignait encore le trou noir qu'on venait de quitter, pendant que le
      panneau écrivait qu'il était à vingt-sept mille années-lumière derrière.
-     On voile ce ciel pour montrer la Terre, et l'on dit qu'on le voile. */
-  compromisDeclares: 12,
+     On voile ce ciel pour montrer la Terre, et l'on dit qu'on le voile.
+
+     Quatorze le 16 août 2026, et les deux viennent du même geste : le voyage est
+     devenu d'un seul tenant, et les astres sont devenus des photographies. Ni
+     l'un ni l'autre n'est un raccourci de performance — ce sont deux choses
+     qu'on ne SAIT pas, quelle face de la Terre nous regarde et où elle en est
+     sur son orbite, et qu'il valait mieux déclarer que peindre en silence. */
+  compromisDeclares: 14,
 };
 
 // Les endroits du site où l'on peut rencontrer un compromis. Fermé exprès : un

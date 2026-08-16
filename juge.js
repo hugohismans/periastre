@@ -719,7 +719,16 @@ const TOUTES = [
     titre: "L'arrivée : voit-on enfin la Terre et la Lune ?",
     libre: true,
     inspection: true,
-    quoi: "Tu l'attendais. Le voyage vers le système solaire s'arrêtait sur un "
+    quoi: "REFAITE APRÈS TON VERDICT DU 16 AOÛT, sur tes trois points. Les "
+        + "surfaces sont de vraies photographies — un composite MODIS pour la "
+        + "Terre, une mosaïque du Lunar Reconnaissance Orbiter pour la Lune ; "
+        + "tu avais raison, elles étaient dans le projet et seule la page du "
+        + "rivage s'en servait. La Lune porte son nom, et quand les deux "
+        + "étiquettes se marchent dessus c'est ELLE qui parle. Et les deux "
+        + "boutons qui te coupaient le voyage sont partis : on part de "
+        + "Sagittarius A*, on traverse, on tombe à travers le système solaire, "
+        + "et l'on continue sans qu'on te demande rien jusqu'ici. "
+        + "Le voyage vers le système solaire s'arrêtait sur un "
         + "panneau devant une vitre vide ; maintenant on tombe vers la Terre. "
         + "Elle apparaît à l'instant exact où son disque atteint un demi-pixel, "
         + "elle grossit, la Lune passe, sort par le côté, et la Terre finit par "

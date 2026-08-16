@@ -142,15 +142,43 @@ descendre.
 
 ---
 
-## 👁 L'ARRIVÉE : LA TERRE ET LA LUNE — posée le 11 août, elle t'attend
+## 👁 L'ARRIVÉE : REFAITE APRÈS TON « SUPER NUL » — elle t'attend de nouveau
 
 <!-- juge: arrivee-terre-lune -->
 
-**C'est la question du jour, et elle est dans `?juge`.** Tu l'attendais depuis
-deux jours : le voyage vers le système solaire arrive enfin quelque part. On
-tombe vers la Terre, elle apparaît à l'instant exact où son disque atteint un
-demi-pixel, elle grossit, la Lune passe et sort par le côté, et la Terre finit
-par remplir la baie.
+**Tu as jugé « ça coince » le 16 août, et tu avais raison sur les trois points.**
+
+> *« non c'est super nul. pas du tout ce que je veux. deja la terre et la lune
+> utilise des vrai photo, ont les a dans le projet, tu peux ajouter des tag, pour
+> qu'on remarque la lune. Aussi je veux que ce soit un voyage depuis sagitarius a
+> travers la galaxie, apres un moment on voit le systeme solaire, on zoom dessus,
+> PUIS on zoom sur le systeme terre lune. La ça va pas du tout. »*
+
+Les trois sont faits.
+
+- **Les vraies photos.** Tu avais raison, elles étaient dans le projet depuis le
+  11 août — un composite MODIS pour la Terre, une mosaïque du Lunar
+  Reconnaissance Orbiter pour la Lune — et seule la page du rivage s'en servait.
+  La scène dessinait encore des taches à la main. C'est fini : tu vois l'Afrique,
+  l'Atlantique, la Méditerranée, et le terminateur passe dessus.
+- **Les étiquettes.** La Lune porte son nom, avec un trait de rappel. Et quand
+  les deux se marchent dessus, **c'est elle qui parle** — toi, la Terre, tu ne la
+  rates pas.
+- **Le voyage d'un seul tenant.** Les deux boutons qui te coupaient le trajet
+  sont partis. Tu pars de Sagittarius A*, tu traverses, tu arrives dans le nuage
+  de Oort, tu tombes à travers le système solaire, et tu continues **sans qu'on
+  te demande rien** jusqu'à ce que la Terre apparaisse. Un seul panneau, tout en
+  bas. Une seule ligne dans ton carnet.
+
+**Deux choses que je te dois, et qui sont écrites dans les aveux :** on ne sait
+pas quelle face de la Terre est tournée vers nous — il faudrait une date, le site
+n'en a pas —, donc on montre l'origine du repère plutôt que la plus jolie. Pour
+la Lune ce n'est pas un compromis : sa rotation est synchrone, elle nous montre
+vraiment toujours la même face. Et on suppose qu'on descend le long d'un rayon
+qui rencontre la Terre, faute de savoir où elle est sur son orbite.
+
+**Ce qui reste à trancher est ce que tu n'as pas encore vu** — la question du
+cadrage, ci-dessous. Elle n'a pas bougé.
 
 **Ce que je ne sais pas trancher, et qui est pour toi.** La Terre et la Lune sont
 séparées de trente diamètres terrestres. Au moment où l'on voit LES DEUX, la

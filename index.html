@@ -4161,6 +4161,23 @@ function majVoyage(dt){
 
   if(!RECUL.actif && !tr.arrive){ tr.arrive = true; arriveVoyage(); }
   if(APPROCHE.etat.chute) majChute(dt);
+  if(TERRELUNE.etat.actif) majTerreLune(dt);
+}
+
+/* LA DERNIÈRE MARCHE AVANCE ICI, et non dans le dessin où elle vivait.
+
+   `dessineVoyage` la faisait avancer : le TEMPS de la scène dépendait donc de
+   son affichage, et la fin du voyage ne pouvait se déclencher que si quelqu'un
+   la regardait. C'est la maladie de `couture()` sous une autre forme — un état
+   qui n'est d'accord avec lui-même que lorsqu'on l'observe.
+
+   LE SEUIL SE LIT SUR LE PASSAGE DE 1, pas sur l'égalité : la scène continue de
+   vivre après la fin de la chute, et l'on ne veut pas rouvrir le panneau à
+   chaque image. */
+function majTerreLune(dt){
+  const avant = TERRELUNE.avancement();
+  TERRELUNE.avance(dt);
+  if(avant < 1 && TERRELUNE.avancement() >= 1) finVoyage();
 }
 
 /* Le chronomètre dit la vérité, et il ne l'interpole pas.
@@ -4179,10 +4196,29 @@ function majChrono(d_m, parcouru){
   $("ch-loin").textContent = VOYAGE.joli.duree(e.t);
 }
 
+/* CE QUE LE VOYAGE A COÛTÉ, gardé le temps d'arriver — 16 août 2026.
+
+   Une seule ligne de carnet pour un seul voyage : trois lignes décriraient trois
+   trajets, et depuis que les deux arrêts sont tombés il n'y en a plus qu'un. Le
+   temps propre s'additionne le long d'une ligne d'univers, donc la somme est
+   exacte et non une commodité d'affichage.
+
+   DÉCLARÉS ICI, avant les trois fonctions qui les lisent. Ils étaient posés en
+   dessous au premier jet, et `outil-verif-ordre.js` l'a refusé — à raison : le
+   bloc vit en portée globale avec des `const` non hissés, et une inversion qui
+   marche aujourd'hui tue la moitié du site au premier déplacement, en silence. */
+let grandTrajetRendu = null;   // la traversée jusqu'au nuage de Oort
+let chuteRendue = null;        // et la chute jusqu'à la Terre
+
 function arriveVoyage(){
   MUSIQUE.frappe(0.5);
   const tr = TELESCOPE.trajet, v = tr.calcul;
-  inscritRegistre(TELESCOPE.retour ? T("chrono.retourRegistre") : T(tr.dest.nom), v);
+  /* LE CARNET ATTEND LA FIN quand le voyage continue. Depuis le 16 août, arriver
+     au bord du nuage n'est plus une arrivée : c'est le premier tiers d'un vol
+     qui ne s'arrête pas. Trois lignes décriraient trois trajets, et il n'y en a
+     plus qu'un — on garde donc ce coût et l'on inscrit la somme en bas. */
+  if(!TELESCOPE.retour && tr.dest.scene === "solaire") grandTrajetRendu = v;
+  else inscritRegistre(TELESCOPE.retour ? T("chrono.retourRegistre") : T(tr.dest.nom), v);
   if(TELESCOPE.retour){
     // On rentre : la carte s'efface, l'orbite se rétablit.
     TELESCOPE.trajet = null;
@@ -4191,12 +4227,34 @@ function arriveVoyage(){
     poseSalon();
     return;
   }
-  // ON ARRIVE DANS LE NUAGE, ET ON N'Y VOIT RIEN. C'est voulu — cadrage d'Hugo,
-  // 10 août au soir. La chute vient après, et c'est lui qui la déclenche.
-  // Et l'on rend la visée au recentrage, une fois : arriver est un événement, il
-  // a le droit de cadrer. Elle se reprend au premier geste, comme toujours.
-  if(tr.dest.scene === "solaire"){ APPROCHE.pose(APPROCHE.DEPART_UA); tr.mainPrise = false; }
+  /* ON ARRIVE DANS LE NUAGE, ET ON N'Y VOIT RIEN — cadrage d'Hugo, 10 août.
+     ET L'ON NE S'ARRÊTE PLUS : depuis le 16 août la chute s'enchaîne seule.
+     Elle demandait un bouton, et un bouton est un ARRÊT.
+     On rend la visée au recentrage une fois : arriver est un événement, il a le
+     droit de cadrer. Elle se reprend au premier geste, comme toujours. */
+  if(tr.dest.scene === "solaire"){
+    APPROCHE.pose(APPROCHE.DEPART_UA);
+    tr.mainPrise = false;
+    lanceChute();
+    return;
+  }
   poseArrivee(tr.dest);
+}
+
+/* OÙ LA CHUTE PASSE LA MAIN — dérivé, jamais choisi : le demi-pixel de la Terre
+   (`terrelune.js`), son demi-grand axe (`solaire.js`, relevé au JPL) et la
+   focale du site. La supposition qu'on descend le long d'un rayon qui rencontre
+   la Terre est le compromis `rayon-terre`, déclaré dans `contenu.js`.
+
+   Le calcul est ici et non dans un module parce qu'il MARIE deux modules qui
+   n'ont pas à se connaître : `approche.js` qui saurait où est la Terre cesserait
+   de pouvoir refuser de le prétendre. */
+function raccordUa(){
+  const H = vueH || cv.clientHeight;
+  const k = TERRELUNE.echelle(cam.focale, H);
+  const dKm = TERRELUNE.distanceDemiPixel(k);
+  if(!(dKm > 0)) return NaN;
+  return SOLAIRE.demiGrandAxe("Terre") + dKm * 1000 / SOLAIRE.UA;
 }
 
 /* À l'arrivée, l'instrument reprend la main — puisque c'est lui qui montre.
@@ -4222,35 +4280,11 @@ function poseArrivee(dest){
   b.querySelector("h2").textContent = T("tele.retour.titre");
   b.querySelector("p").textContent  = T("tele.retour.quoi");
   b.onclick = () => { fermeTelescope(); repartVoyage(); };
-  /* TOMBER, ET C'EST UN VRAI TRAJET : un an de vol à un g pour descendre du
-     nuage jusqu'aux géantes, donc une carte avec son prix comme les autres.
-     Elle ne paraît que tant qu'il reste à tomber. */
-  if(dest && dest.scene === "solaire" && APPROCHE.etat.dUa > APPROCHE.ARRIVEE_UA*1.01){
-    const c = document.createElement("button");
-    c.className = "carte";
-    c.innerHTML = '<span class="duree"></span><h2></h2><p></p>';
-    c.querySelector(".duree").textContent = VOYAGE.joli.duree(APPROCHE.prix().tau);
-    c.querySelector("h2").textContent = T("solaire.chute");
-    c.querySelector("p").textContent  = T("solaire.chute.quoi");
-    c.onclick = () => { fermeTelescope(); lanceChute(); };
-    liste.appendChild(c);
-  }
-  /* ET LA DERNIÈRE MARCHE, quand la chute est finie : la Terre et la Lune.
-
-     Elle ne paraît qu'APRÈS la chute, et c'est l'ordre de la scène : on arrive
-     où il n'y a rien à voir, on tombe jusqu'à ce que les planètes gagnent leur
-     nom, et alors seulement on va jusqu'à chez nous. La même condition que la
-     carte du dessus, retournée. */
-  if(dest && dest.scene === "solaire" && APPROCHE.etat.dUa <= APPROCHE.ARRIVEE_UA*1.01
-     && !TERRELUNE.etat.actif){
-    const t = document.createElement("button");
-    t.className = "carte";
-    t.innerHTML = '<span class="duree"></span><h2></h2><p></p>';
-    t.querySelector("h2").textContent = T("tl.carte");
-    t.querySelector("p").textContent  = T("tl.carte.quoi");
-    t.onclick = () => { fermeTelescope(); lanceTerreLune(); };
-    liste.appendChild(t);
-  }
+  /* LES DEUX CARTES QUI ÉTAIENT ICI SONT PARTIES — 16 août 2026. « Tomber
+     jusqu'aux géantes » et « continuer jusqu'à la Terre » étaient deux boutons,
+     donc deux ARRÊTS, et Hugo a tranché le vol d'un seul tenant. Le panneau ne
+     s'ouvre plus qu'UNE FOIS, tout en bas. Enchaînements : `arriveVoyage`,
+     `majChute`, `finVoyage`. */
   liste.appendChild(b);
   /* LE PIED ET LES AVEUX SUIVENT LA DESTINATION.
 
@@ -4273,8 +4307,14 @@ function poseArrivee(dest){
    parle d'un trajet TERMINÉ, et les garder pendant un autre mouvement serait un
    mensonge silencieux. */
 function lanceChute(){
-  APPROCHE.tombe();
-  $("ch-vol").style.display = "none";
+  /* ON TOMBE JUSQU'À LA TERRE, PLUS JUSQU'AUX GÉANTES. 119,7 ua reste la
+     distance où le cinquième nom tient debout — donc le moment où la scène
+     solaire est pleine — mais ce n'est plus une fin, c'est un passage. */
+  APPROCHE.tombe(0, raccordUa());
+  /* ET LE BANDEAU DE VOL RESTE. Il se cachait parce que ses chiffres parlaient
+     d'un trajet TERMINÉ, et les garder pendant un autre mouvement aurait été un
+     mensonge silencieux. Il n'y a plus qu'un mouvement : le cacher laisserait
+     voler vingt secondes sans rien qui dise à quelle vitesse. */
   $("chrono").classList.add("vu");
   $("ch-quoi").textContent = T("solaire.chute");
   $("ch-note").textContent = T("chrono.note");
@@ -4296,14 +4336,35 @@ function lanceTerreLune(){
   MUSIQUE.frappe(0.75);
 }
 
+/* LA FIN DU VOYAGE — et il n'y en a qu'une depuis le 16 août. La ligne du carnet
+   est la SOMME des deux trajets calculés : le temps propre s'additionne le long
+   d'une ligne d'univers, donc elle est exacte et non une commodité d'affichage.
+
+   LA DERNIÈRE MARCHE N'Y EST PAS, ET C'EST VOULU : `terrelune.js` ne fait pas de
+   vol à un g, il descend à taux relatif constant sur neuf secondes d'écran. Lui
+   inventer un coût ajouterait un chiffre que personne n'a calculé, sur la seule
+   ligne où le visiteur nous fait confiance. */
+function finVoyage(){
+  if(!TELESCOPE.trajet) return;
+  const g = grandTrajetRendu, c = chuteRendue;
+  if(g && c) inscritRegistre(T(TELESCOPE.trajet.dest.nom),
+                             { d_m: g.d_m + c.d_m, tau: g.tau + c.tau, t: g.t + c.t });
+  grandTrajetRendu = chuteRendue = null;
+  $("chrono").classList.remove("vu");
+  poseArrivee(TELESCOPE.trajet.dest);
+}
+
 function majChute(dt){
-  const A = APPROCHE, p = A.prix();
+  const A = APPROCHE, p = A.prix(A.etat.d1);
   A.avance(dt);
   majChrono(p.d_m, (A.DEPART_UA - A.etat.dUa) * SOLAIRE.UA);
   if(!A.etat.chute){
-    inscritRegistre(T("solaire.chute"), p);
-    $("chrono").classList.remove("vu");
-    poseArrivee(TELESCOPE.trajet.dest);
+    /* LA CHUTE FINIE PASSE LA MAIN, elle ne s'arrête plus. Le panneau qui
+       s'ouvrait ici était le second des deux arrêts qu'Hugo a fait tomber le
+       16 août. On enchaîne, et le coût de la chute est mis de côté pour être
+       porté par la SEULE ligne de carnet, tout en bas. */
+    chuteRendue = p;
+    lanceTerreLune();
   }
 }
 
@@ -4358,7 +4419,11 @@ function dessineVoyage(dt){
      carte, quadrillage et recul sont tous éteints — c'est-à-dire exactement
      là où la Terre et la Lune se montrent. */
   if(TERRELUNE.etat.actif){
-    TERRELUNE.avance(dt);
+    /* LA SCÈNE N'AVANCE PLUS ICI — déplacé dans `majTerreLune` le 16 août.
+       Le temps de la dernière marche dépendait du DESSIN : une image sautée la
+       figeait, et la fin du voyage ne pouvait se déclencher que si quelqu'un
+       regardait. C'est la maladie de `couture()`, en plus discret. Ici on ne
+       fait plus que peindre l'état courant. */
     /* La scène est ancrée sur LA BAIE, dans le repère de la pièce, et projetée
        comme les vitres elles-mêmes. Elle ne dérive donc pas quand le vaisseau
        se déplace — il ne se retourne pas —, et elle sort du champ dès qu'on

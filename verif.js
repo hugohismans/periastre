@@ -1812,6 +1812,129 @@ function voyage(){
   return enCours;
 }
 
+/* 8 ter. LE VOYAGE D'UN SEUL TENANT — les deux coutures.
+
+   Hugo, le 16 août 2026, en jugeant l'arrivée : « je veux que ce soit un voyage
+   depuis sagitarius a travers la galaxie, apres un moment on voit le systeme
+   solaire, on zoom dessus, PUIS on zoom sur le systeme terre lune. La ça va pas
+   du tout. » C'étaient trois vols séparés par deux boutons, et un bouton est un
+   arrêt. Les deux cartes du panneau sont tombées.
+
+   CE QUI SE CASSERAIT SANS CE CONTRÔLE : n'importe qui remettant une condition
+   dans `arriveVoyage` ou `majChute` rendrait au voyage l'un de ses arrêts, et
+   RIEN ne le dirait — les trois scènes marchent séparément, chacune a ses
+   contrôles, et aucun ne regarde le passage de l'une à l'autre. C'est
+   exactement l'endroit où le dépôt s'est déjà fait avoir : la faute n'était pas
+   dans les pièces mais dans leur rapport.
+
+   ON APPELLE LE CHEMIN DE MISE À JOUR, PAS LA BOUCLE DE RENDU. `dt` y est
+   plafonné à 50 ms et la boucle réelle tourne en parallèle : on piloterait
+   depuis un état qu'on ne maîtrise pas, ce qui est la règle 5 prise à l'envers.
+   Mesuré le 16 août — huit images de `avanceImages` ne faisaient pas bouger
+   l'avancement d'un millième.
+
+   RÈGLE 5, ET ELLE COÛTE CHER ICI : ce contrôle traverse tout le voyage, donc il
+   salit le salon, le carnet, le télescope et trois scènes. Il rend TOUT dans son
+   `finally`, y compris quand un point échoue — le carnet compris, qui vit dans
+   la mémoire du navigateur et survivrait à la page.                            */
+function voyageDunSeulTenant(){
+  ouvre("Le voyage d'un seul tenant");
+  const CLE_R = "periastre.registre";
+  const av = { registre: localStorage.getItem(CLE_R), trajet: TELESCOPE.trajet,
+               carte: TELESCOPE.carte, retour: TELESCOPE.retour };
+  const degele = fige();
+  try {
+    localStorage.removeItem(CLE_R);
+    REGISTRE.pose({ lit: () => JSON.parse(localStorage.getItem(CLE_R)),
+                    ecrit: l => localStorage.setItem(CLE_R, JSON.stringify(l)) });
+
+    const dest = DESTINATIONS.find(d => d.id === "soleil");
+    point("la destination du système solaire existe", !!dest, "une destination",
+          dest ? dest.id : "AUCUNE");
+    if(!dest) return enCours;
+
+    const raccord = raccordUa();
+    point("le raccord se calcule", Number.isFinite(raccord) && raccord > 1,
+          "> 1 ua", Number.isFinite(raccord) ? raccord.toFixed(4) : "NaN",
+          "il se dérive du demi-pixel de la Terre, de son demi-grand axe et de "
+          + "la focale — jamais choisi");
+
+    lanceVoyage(dest, VOYAGE.entre(distanceVaisseau(), dest.d_m));
+    const panneauOuvert = () => document.getElementById("instrument").classList.contains("vu");
+
+    // ---- première couture : le grand trajet passe la main à la chute -------
+    RECUL.etat.t = 0.999;
+    majVoyage(0.05);
+    point("le grand trajet passe la main à la chute, sans panneau",
+          APPROCHE.etat.chute && !panneauOuvert(), "la chute court, panneau fermé",
+          `chute ${APPROCHE.etat.chute}, panneau ${panneauOuvert() ? "OUVERT" : "fermé"}`,
+          "c'était le premier des deux arrêts qu'Hugo a fait tomber");
+    point("et elle vise la Terre, plus les géantes",
+          Math.abs(APPROCHE.etat.d1 - raccord) < 1e-9, raccord.toFixed(4) + " ua",
+          APPROCHE.etat.d1.toFixed(4) + " ua",
+          "119,7 ua reste la distance où le cinquième nom tient debout, donc le "
+          + "moment où la scène solaire est pleine — mais ce n'est plus une fin");
+    const carnetEnVol1 = REGISTRE.tout().length;
+
+    // ---- seconde couture : la chute passe la main à la Terre et la Lune ----
+    APPROCHE.etat.t = 0.999;
+    majVoyage(0.05);
+    point("la chute passe la main à la dernière marche, sans panneau",
+          TERRELUNE.etat.actif && !panneauOuvert(),
+          "la Terre et la Lune, panneau fermé",
+          `terre-lune ${TERRELUNE.etat.actif}, panneau ${panneauOuvert() ? "OUVERT" : "fermé"}`,
+          "c'était le second arrêt");
+    point("et la scène solaire est rangée derrière",
+          !APPROCHE.etat.actif, "rangée",
+          APPROCHE.etat.actif ? "ELLE PEINT ENCORE" : "rangée",
+          "ses étiquettes parlent d'un endroit qu'on vient de quitter — c'est le "
+          + "défaut du 14 août, dans l'autre sens");
+    const carnetEnVol2 = REGISTRE.tout().length;
+
+    point("le carnet reste muet tant qu'on vole",
+          carnetEnVol1 === 0 && carnetEnVol2 === 0, 0,
+          `${carnetEnVol1} puis ${carnetEnVol2}`,
+          "trois lignes décriraient trois trajets, et il n'y en a plus qu'un");
+
+    // ---- la fin, une seule fois -------------------------------------------
+    TERRELUNE.etat.t = TERRELUNE.etat.duree - 0.01;
+    majVoyage(0.05);
+    point("au bout, le panneau s'ouvre", panneauOuvert(), "ouvert",
+          panneauOuvert() ? "ouvert" : "FERMÉ");
+    point("et le carnet reçoit SA ligne, une seule",
+          REGISTRE.tout().length === 1, 1, REGISTRE.tout().length,
+          "elle porte la somme des deux trajets calculés : le temps propre "
+          + "s'additionne le long d'une ligne d'univers, donc la somme est exacte");
+
+    /* LE TÉMOIN. « Le carnet reste muet » serait vrai d'un carnet cassé, et
+       « le panneau reste fermé » d'un panneau mort. On vient de prouver que les
+       deux SAVENT parler ; sans ces deux dernières lignes, les quatre
+       précédentes ne prouveraient rien. */
+    majVoyage(0.05);
+    point("et le panneau ne se rouvre pas à chaque image",
+          REGISTRE.tout().length === 1, 1, REGISTRE.tout().length,
+          "le seuil se lit sur le PASSAGE de 1, pas sur l'égalité : la scène "
+          + "continue de vivre après la fin de la chute");
+  } finally {
+    degele();
+    TERRELUNE.ferme();
+    APPROCHE.range();
+    RECUL.etat.actif = false;
+    TELESCOPE.trajet = av.trajet;
+    TELESCOPE.carte = av.carte;
+    TELESCOPE.retour = av.retour;
+    fermeTelescope();
+    document.getElementById("chrono").classList.remove("vu");
+    if(av.registre === null) localStorage.removeItem(CLE_R);
+    else localStorage.setItem(CLE_R, av.registre);
+    REGISTRE.pose({ lit: () => JSON.parse(localStorage.getItem(CLE_R)),
+                    ecrit: l => localStorage.setItem(CLE_R, JSON.stringify(l)) });
+    poseSalon();
+    avanceImages(2);
+  }
+  return enCours;
+}
+
 /* 9. LE BUDGET D'IMAGE.
 
    Les seuils sont larges à dessein : cette machine n'est pas le téléphone
@@ -2040,7 +2163,7 @@ global.VERIF = {
   banc, pixels, couture, carteFixe, carteDehors, arriveeJuste, sceneSolaire, seanceSansTrace,
   // Comme `seanceSansTrace` : hors de la passe, parce qu'il exige `?verif&juge`.
   // L'y mettre le ferait échouer sur toute page où la séance n'est pas chargée.
-  questionsDuVoyage,
+  questionsDuVoyage, voyageDunSeulTenant,
   rotationCalme, memeEspace, mesurePage, parcours, voyage, budget,
   sain, tout, bilan, texte, resultats, FORMATS, OR,
   // outillage exposé : d'autres contrôles pourront s'y adosser

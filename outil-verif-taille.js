@@ -557,9 +557,52 @@ const fs = require("fs"), path = require("path");
    correspondre à ce qu'elle crédite. Les composer coûte six lignes ; les
    recopier aurait coûté zéro ligne et un défaut qui ne se voit sur aucun écran.
 
+   PUIS 4 183 — LE VOYAGE D'UN SEUL TENANT, cinquante et une lignes, et c'est la
+   hausse la mieux payée de la série : elle en RETIRE vingt-quatre au passage.
+
+   Hugo, le 16 août : « je veux que ce soit un voyage depuis sagitarius a travers
+   la galaxie, apres un moment on voit le systeme solaire, on zoom dessus, PUIS
+   on zoom sur le systeme terre lune. La ça va pas du tout. » C'étaient trois
+   vols séparés par deux boutons, et un bouton est un arrêt. Les deux cartes du
+   panneau sont parties ; ce qui les remplace est l'enchaînement lui-même.
+
+   CE QUI EST DESCENDU AILLEURS : la cible de la chute est devenue un argument
+   d'`approche.js`, le disque du Soleil suit `soleilVu.dessinable` qui existait
+   depuis le 11 août, et les DEUX SUPPOSITIONS que ce raccord introduit sont
+   déclarées dans `contenu.js` comme compromis — la face de la Terre qu'on
+   regarde, et le rayon qu'on descend. Trente lignes de prose sont parties là-bas
+   avec elles : un aveu qui vit dans un commentaire n'est pas un aveu.
+
+   CE QUI RESTE ICI EST DE L'ORCHESTRATION PURE, et n'a pas d'autre endroit où
+   vivre : `raccordUa` MARIE deux modules qui ne doivent pas se connaître —
+   `approche.js` qui saurait où est la Terre cesserait de pouvoir refuser de le
+   prétendre — et `finVoyage` touche au carnet, au panneau et au chronomètre,
+   c'est-à-dire au DOM.
+
+   CE QUI A ÉTÉ TENTÉ D'ABORD, ET REFUSÉ PAR UN AUTRE OUTIL : les deux états du
+   carnet étaient déclarés SOUS les fonctions qui les lisent. `outil-verif-ordre.js`
+   a refusé, à raison — le bloc vit en portée globale avec des `const` non
+   hissés, et une inversion qui marche aujourd'hui tue la moitié du site au
+   premier déplacement, en silence. Le compte des inversions différées n'a pas
+   bougé.
+
+   PUIS 4 197 — QUATORZE LIGNES DE PLUS, ET ELLES RÉPARENT UN DÉFAUT ANCIEN.
+
+   La dernière marche avançait dans `dessineVoyage` : le TEMPS de la scène
+   dépendait de son AFFICHAGE. Une image sautée la figeait, et la fin du voyage
+   ne pouvait se déclencher que si quelqu'un la regardait — un état qui n'est
+   d'accord avec lui-même que lorsqu'on l'observe, ce qui est mot pour mot la
+   maladie de `couture()`, en plus discret parce que rien ne bougeait de travers.
+
+   `majTerreLune` la remet dans le chemin de MISE À JOUR, à côté de `majChute`.
+   Les trois mouvements avancent désormais au même endroit, et l'enchaînement
+   entier devient mesurable : c'est ce qui a permis d'écrire
+   `VERIF.voyageDunSeulTenant()`, dix contrôles et quatre sabotages sur le vrai
+   dépôt. Quatorze lignes contre un contrôle qui n'existait pas.
+
    Le plafond redescend le jour où la page cesse d'être le seul endroit qui sait
    fabriquer un canevas — la même dette que `fabriqueToile` dans `ecrans.js`. */
-const PLAFOND = 4132;   // ... les photographies, et l'aveu qui dit ce qu'on montre
+const PLAFOND = 4197;   // ... et le temps de la dernière marche, sorti du dessin
 
 // Le nombre de modules déjà sortis. Il ne descend jamais non plus : un module
 // qu'on ferait rentrer dans le bloc serait le contraire exact du chantier.

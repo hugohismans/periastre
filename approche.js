@@ -169,29 +169,48 @@ function enMetres(dUa){ return dUa * (S() ? S().UA : NaN); }
    que les destinations du télescope, sur la même accélération d'un g. Le panneau
    l'affiche comme un prix, parce que c'en est un — un an de vol pour tomber du
    nuage jusqu'aux géantes. */
-function prix(){
+/* LA CIBLE DE LA CHUTE — `ARRIVEE_UA` par défaut, et c'est ce qu'elle a toujours
+   été. L'argument est arrivé le 16 août, quand le voyage est devenu d'un seul
+   tenant : on ne s'arrête plus à 119,7 ua, on y PASSE, et l'on continue jusqu'à
+   ce que la Terre atteigne le demi-pixel.
+
+   `ARRIVEE_UA` ne disparaît pas pour autant — c'est toujours la distance où le
+   cinquième nom tient debout, donc le moment où la scène solaire est pleine.
+   Elle cesse d'être une fin, elle devient un passage.
+
+   LA CIBLE VIENT DE L'APPELANT, et ce n'est pas de la politesse : elle se dérive
+   du demi-pixel de `terrelune.js` et du demi-grand axe de la Terre, deux choses
+   que ce module n'a pas à connaître. Un module qui irait les chercher lui-même
+   saurait où est la Terre, ce qu'il passe son temps à refuser de prétendre. */
+function cible(cibleUa){
+  return Number.isFinite(cibleUa) && cibleUa > 0 ? cibleUa : arriveeUa();
+}
+
+function prix(cibleUa){
   const V = global.VOYAGE;
-  const a = arriveeUa();
+  const a = cible(cibleUa);
   if(!V || !Number.isFinite(a)) return null;
   return V.entre(enMetres(DEPART_UA), enMetres(a));
 }
 
-function dureeEcran(){
-  const R = global.RECUL, a = arriveeUa();
+function dureeEcran(cibleUa){
+  const R = global.RECUL, a = cible(cibleUa);
   if(!R || !Number.isFinite(a)) return BASE_S;
   return R.duree(enMetres(DEPART_UA), enMetres(a), BASE_S);
 }
 
-function tombe(secondesEcran){
-  const a = arriveeUa();
+function tombe(secondesEcran, cibleUa){
+  const a = cible(cibleUa);
   if(!Number.isFinite(a)) return null;
-  const v = prix();
+  // Le prix ET la durée d'écran suivent la cible, sinon on afficherait le coût
+  // d'un trajet et l'on en jouerait un autre — deux vérités pour une chute.
+  const v = prix(a);
   etat.actif = true;
   etat.chute = true;
   etat.d0 = etat.dUa;
   etat.d1 = a;
   etat.t = 0;
-  etat.duree = secondesEcran > 0 ? secondesEcran : dureeEcran();
+  etat.duree = secondesEcran > 0 ? secondesEcran : dureeEcran(a);
   etat.tauBord = v ? v.tau : 0;
   etat.tauLoin = v ? v.t : 0;
   return v;
@@ -382,9 +401,27 @@ function dessine(ctx, cx, cy, focale, vue, alpha, mots){
     ctx.beginPath(); ctx.arc(cx, cy, so.haloPx, 0, 6.2832); ctx.fill();
     traces++;
   }
+  /* LE CŒUR — ou LE DISQUE, quand il y en a un.
+
+     Jusqu'au 16 août, la scène s'arrêtait à 119,7 ua et le module pouvait
+     écrire, sans mentir, que le disque du Soleil reste sous le demi-pixel
+     PARTOUT dans la scène : le premier pixel n'arrive qu'à 8,8 ua, dans
+     l'orbite de Saturne. Le voyage est devenu d'un seul tenant, la chute passe
+     désormais sous ce seuil, et la phrase cesserait d'être vraie.
+
+     `soleilVu.dessinable` le dit déjà, et le disait depuis le 11 août : c'est
+     le module qui décide, pas le dessin. On le suit. Ne PAS le suivre serait
+     garder un point d'un pixel là où le Soleil en fait onze — un mensonge par
+     omission, dans le seul sens que personne ne trouve suspect.
+
+     En dessous du seuil, rien ne change : un cœur d'un pixel qui ne bouge
+     jamais, parce qu'un disque dirait une taille qu'on n'a pas le droit de
+     montrer. */
   ctx.globalAlpha = alpha;
   ctx.fillStyle = "#fffaf0";
-  ctx.beginPath(); ctx.arc(cx, cy, COEUR_PX, 0, 6.2832); ctx.fill();
+  const r = (so && so.dessinable && so.diametrePx/2 > COEUR_PX)
+          ? so.diametrePx/2 : COEUR_PX;
+  ctx.beginPath(); ctx.arc(cx, cy, r, 0, 6.2832); ctx.fill();
   traces++;
 
   /* LES ÉTIQUETTES. Le module d'étiquettes décide QUI parle ; ici on ne fait que

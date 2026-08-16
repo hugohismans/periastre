@@ -1835,6 +1835,19 @@ notes: {
            peint sur l'échelle des magnitudes faute d'écran qui tienne un
            facteur vingt-sept mille. Le reste — les rayons, le droit de nommer,
            la chute — sort du calcul et n'a rien à avouer. */
+        /* Les deux compromis du 16 août 2026, et ils viennent du même geste :
+           le voyage est devenu d'un seul tenant et les astres sont devenus des
+           photographies. Aucun des deux n'est un raccourci de performance —
+           tous deux sont des choses qu'on ne SAIT pas, et qu'il vaut mieux
+           déclarer que peindre en silence. */
+        { id:"face-astres", ou:"arrivee-soleil",
+          aveu:"On ne sait pas quelle face de la Terre est tournée vers nous. On montre l'origine du repère.",
+          sources:["jplPlanetes"],
+          t:"<b>La face qu'on regarde.</b> Les surfaces sont de vraies photographies — un composite MODIS pour la Terre, une mosaïque du Lunar Reconnaissance Orbiter pour la Lune — et non plus des taches dessinées. Mais savoir QUELLE face est tournée vers nous demanderait une date et une heure, que le site n'a pas : c'est le même aveu que les orbites, on sait où la planète tourne, pas où elle en est. On pose donc le point sous l'observateur à l'origine du repère, longitude et latitude nulles, parce que c'est le seul choix qui n'en soit pas un — prendre la face la plus flatteuse serait choisir une image plutôt qu'un fait. Pour la Lune, ce n'est pas un compromis du tout : sa rotation est synchrone, elle nous présente toujours la même face, et cette face est bien la longitude nulle de son repère." },
+        { id:"rayon-terre", ou:"arrivee-soleil",
+          aveu:"On descend le long d'un rayon qui rencontre la Terre. On ne sait pas où elle est vraiment sur son orbite.",
+          sources:["jplPlanetes"],
+          t:"<b>Le rayon qu'on descend.</b> Le voyage ne s'arrête plus : on traverse le nuage de Oort, on tombe jusqu'aux géantes, on continue, et la Terre apparaît. Pour que la chute et l'arrivée décrivent le même point, on suppose qu'on descend le long d'un rayon qui rencontre la Terre — on arrive donc du dehors avec elle entre nous et le Soleil, ce qui la place exactement là où la baie regarde. C'est une supposition, pas une mesure : on ne sait pas plus où est la Terre sur son orbite que Jupiter sur la sienne. Ce qui EST calculé, en revanche, c'est le moment du passage : la chute s'arrête à la distance où le disque de la Terre atteint un demi-pixel, le seuil sous lequel le site ne dessine jamais rien." },
         { id:"anneaux-solaires", ou:"arrivee-soleil",
           sources:["jplElementsPlanetes", "iau2015b3"],
           aveu:"Ces cercles bornent l'écart au Soleil ; ils ne disent pas où est la planète.",
