@@ -45,6 +45,9 @@ const charge = (f, w) => { new Function("window", fs.readFileSync(path.join(ici,
 const W = {};
 charge("lune.js", W);
 charge("camera.js", W);
+// `etiquettes.js` AVANT la scène : c'est lui qui décide qui parle, et sans lui
+// les contrôles des étiquettes mesureraient un silence qui n'est pas le bon.
+charge("etiquettes.js", W);
 charge("terrelune.js", W);
 const L = W.LUNE, TL = W.TERRELUNE, CAM = W.CAMERA;
 
@@ -610,6 +613,117 @@ titre("8. Les mots viennent de la page, et rien ne s'invente");
 }
 
 /* -------------------------------------------------------------------------
+   8 ter. LES ÉTIQUETTES — « pour qu'on remarque la lune »
+
+   Demandé par Hugo le 16 août 2026, et c'est le sujet même de la scène : au
+   moment où l'on voit les deux, la Lune fait quelques pixels à côté d'une Terre
+   qui en fait vingt. On la rate.
+
+   D'OÙ VIENT LA VÉRITÉ : `etiquettes.js` est chargé à côté, et c'est LUI qui
+   décide qui parle. Ce contrôle n'éprouve pas la règle de placement — elle a ses
+   19 contrôles à elle — mais le CÂBLAGE, qui est l'endroit où l'on se trompe :
+   quel point, quel rang, et surtout quand se taire.
+
+   LES DEUX MOITIÉS DOIVENT ÊTRE VRAIES ENSEMBLE. Un module qui ne dirait jamais
+   rien passerait tous les contrôles de silence ; un module qui parlerait
+   toujours passerait tous les contrôles de parole. On exige les deux. */
+titre("8 ter. Les étiquettes parlent, et se taisent");
+
+{
+  const ET = W.ETIQUETTES;
+  point("`etiquettes.js` est bien chargé à côté", !!ET, "un global ETIQUETTES",
+        ET ? "oui" : "NON — les contrôles suivants ne mesureraient rien");
+
+  TL.poseMots({ terre: "la Terre", lune: "la Lune", titre: "T" });
+  const vue = { W: 1000, H: 800 };
+  const dits = vu => {
+    const noms = [];
+    const ctx = new Proxy({}, { get(_, p){
+      if(p === "fillText") return t => noms.push(String(t));
+      return () => {};
+    }, set(){ return true; } });
+    TL.etiquettes(ctx, vue.W, vue.H, vu);
+    return noms;
+  };
+
+  // Les deux astres bien séparés, tous deux visibles : les deux parlent.
+  const separes = { x: 400, y: 400, rT: 20, xLune: 700, yLune: 340, rL: 5,
+                    terreVue: true, luneVue: true };
+  point("quand les deux sont visibles et séparés, les deux sont nommés",
+        dits(separes).length === 2, 2, dits(separes).join(", ") || "aucune");
+
+  // La Lune sous le demi-pixel : elle n'existe pas encore, donc pas de nom.
+  const luneAbsente = Object.assign({}, separes, { luneVue: false });
+  const n1 = dits(luneAbsente);
+  point("la Lune n'est pas nommée avant d'exister",
+        n1.length === 1 && n1[0] === "la Terre", "la Terre seule",
+        n1.join(", ") || "aucune",
+        "c'est la doctrine du demi-pixel appliquée aux mots : elle APPARAÎT, "
+        + "puis reçoit son nom — elle ne s'annonce pas d'avance");
+
+  /* LA LUNE GAGNE LA PLACE, et c'est toute la demande d'Hugo. Quand les deux
+     étiquettes se marchent dessus, `etiquettes.js` garde le plus petit rang. */
+  const colles = { x: 500, y: 400, rT: 3, xLune: 502, yLune: 401, rL: 1,
+                   terreVue: true, luneVue: true };
+  const n2 = dits(colles);
+  point("quand elles se marchent dessus, c'est la Lune qui parle",
+        n2.length === 1 && n2[0] === "la Lune", "la Lune seule",
+        n2.join(", ") || "aucune",
+        "la Terre, on ne la rate pas — lui donner le rang zéro mettrait "
+        + "l'étiquette là où elle ne sert à rien et la retirerait là où Hugo "
+        + "l'a réclamée");
+
+  // Hors du cadre, rien : une étiquette sur une cloison ne désigne rien.
+  const dehors = { x: -300, y: -300, rT: 20, xLune: -320, yLune: -340, rL: 5,
+                   terreVue: true, luneVue: true };
+  point("hors du cadre, personne ne parle", dits(dehors).length === 0, 0,
+        dits(dehors).join(", ") || 0);
+
+  /* SANS MOTS POSÉS, AUCUNE CLÉ NUE. Sur un module NEUF, et il a fallu se faire
+     prendre pour le comprendre : `poseMots` FUSIONNE, il ne remet pas à zéro.
+     Lui passer `{}` ne défait donc rien, et la première version de ce contrôle
+     mesurait les mots posés trois lignes plus haut. Un module vierge est le seul
+     état où la question a un sens. */
+  {
+    const vierge = {};
+    charge("lune.js", vierge);
+    charge("etiquettes.js", vierge);
+    charge("terrelune.js", vierge);
+    const noms = [];
+    const ctx = new Proxy({}, { get(_, p){
+      if(p === "fillText") return t => noms.push(String(t));
+      return () => {};
+    }, set(){ return true; } });
+    vierge.TERRELUNE.etiquettes(ctx, vue.W, vue.H, separes);
+    point("sans mots posés, aucune clé nue n'est écrite",
+          noms.length === 0, 0, noms.join(", ") || 0,
+          "« terre » et « lune » sont des clés, pas des mots — et `poseMots` "
+          + "fusionne, donc seul un module vierge le prouve");
+  }
+
+  /* LE SEUIL SE DÉRIVE DE LA TYPOGRAPHIE, il ne se choisit pas — même règle que
+     `solaire.js`. On le lit dans les réglages exposés plutôt que de le recopier :
+     une constante recopiée dans un contrôle est un contrôle qui ment. */
+  point("l'écart minimal est la hauteur d'une ligne, pas un confort",
+        TL.REGLAGES.ECART_MIN >= 13 && TL.REGLAGES.ECART_MIN <= 20,
+        "entre 13 et 20 px pour une police de 12", TL.REGLAGES.ECART_MIN);
+
+  /* L'ANCRE EST SUR LE LIMBE. Sans ça, le nom s'écrit au milieu des continents
+     dès que la Terre remplit la baie. */
+  const gros = { x: 500, y: 400, rT: 300, xLune: 900, yLune: 200, rL: 4,
+                 terreVue: true, luneVue: true };
+  const pts = TL.pointsEtiquettes(gros);
+  const pTerre = pts.find(p => p.cle === "terre");
+  point("l'ancre suit le bord de l'astre, pas son centre",
+        pTerre && Math.hypot(pTerre.ecran[0] - gros.x, pTerre.ecran[1] - gros.y) > gros.rT*0.9,
+        "à ~300 px du centre",
+        pTerre ? Math.hypot(pTerre.ecran[0] - gros.x, pTerre.ecran[1] - gros.y).toFixed(0)
+               : "AUCUN POINT",
+        "un nom posé au centre d'une Terre qui remplit la baie s'écrit sur ses "
+        + "continents");
+}
+
+/* -------------------------------------------------------------------------
    8 bis. L'AVEU DIT-IL CE QU'ON MONTRE ?
 
    TROUVÉ EN REGARDANT, le 16 août 2026, sur la première capture de la scène
@@ -702,9 +816,36 @@ titre("9. Cet outil sait échouer");
   function avecSource(remplace){
     const w = {};
     charge("lune.js", w);
+    charge("etiquettes.js", w);
     const t = remplace(fs.readFileSync(path.join(ici, "terrelune.js"), "utf8"));
     new Function("window", t)(w);
     return w.TERRELUNE;
+  }
+
+  /* LES DEUX RANGS ÉCHANGÉS. C'est la faute qu'on ne verrait pas : les
+     étiquettes marchent, elles s'affichent, elles sont bien placées — et la
+     seule qui compte disparaît exactement au moment où Hugo l'a réclamée,
+     quand les deux astres sont collés. Un contrôle qui se contenterait de
+     compter les étiquettes resterait vert. */
+  const rangsEchanges = avecSource(s => s
+    .replace('p.push({ cle: "lune",  ecran: surLeLimbe(vu.xLune, vu.yLune, vu.rL), rang: 0 });',
+             'p.push({ cle: "lune",  ecran: surLeLimbe(vu.xLune, vu.yLune, vu.rL), rang: 1 });')
+    .replace('p.push({ cle: "terre", ecran: surLeLimbe(vu.x, vu.y, vu.rT), rang: 1 });',
+             'p.push({ cle: "terre", ecran: surLeLimbe(vu.x, vu.y, vu.rT), rang: 0 });'));
+  {
+    const noms = [];
+    const ctx = new Proxy({}, { get(_, p){
+      if(p === "fillText") return t => noms.push(String(t));
+      return () => {};
+    }, set(){ return true; } });
+    rangsEchanges.poseMots({ terre: "la Terre", lune: "la Lune" });
+    rangsEchanges.etiquettes(ctx, 1000, 800,
+      { x: 500, y: 400, rT: 3, xLune: 502, yLune: 401, rL: 1,
+        terreVue: true, luneVue: true });
+    point("des rangs échangés font taire la Lune, et c'est vu",
+          noms.length === 1 && noms[0] === "la Terre",
+          "la Terre parle à la place de la Lune", noms.join(", ") || "aucune",
+          "le compte d'étiquettes est le même — seule celle qui compte a changé");
   }
 
   /* LA FAUTE DU 16 AOÛT, REMISE : l'aveu ne regarde plus ce qu'on montre et

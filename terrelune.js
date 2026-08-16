@@ -501,6 +501,74 @@ function dessine(ctx, W, H, o){
            x: cx, y: cy, xLune: lx, yLune: ly };
 }
 
+/* ============================================ 4 bis. LES ÉTIQUETTES
+
+   Hugo, le 16 août 2026 : « tu peux ajouter des tag, pour qu'on remarque la
+   lune ». Elle est le sujet du problème : trente diamètres terrestres d'écart,
+   donc au moment où l'on voit les deux, elle ne fait que quelques pixels à côté
+   d'une Terre qui en fait vingt. On la rate.
+
+   C'EST `etiquettes.js` QUI DÉCIDE QUI PARLE, et ce fichier ne fait que peindre
+   ce qu'il a autorisé — le même arrangement que la scène solaire. Deux règles du
+   module s'appliquent telles quelles et méritent d'être dites ici :
+
+   · UNE LISTE VIDE EST UNE RÉPONSE. Pas de repli « au moins une » : quand la
+     Terre remplit la baie, son étiquette doit disparaître d'elle-même, et
+     quand la Lune est sous le pixel elle ne doit pas s'annoncer avant
+     d'exister. C'est la doctrine du demi-pixel, appliquée aux mots.
+
+   · LA LUNE PASSE D'ABORD, au rang zéro. Le module donne la place au plus petit
+     rang quand deux étiquettes se marchent dessus ; c'est donc la Lune qui
+     gagne. Ce n'est pas une politesse : la Terre, on ne la rate pas. Mettre la
+     Terre au rang zéro rendrait l'étiquette exactement là où elle ne sert à
+     rien et la retirerait là où Hugo l'a réclamée.
+
+   L'ANCRE EST SUR LE LIMBE, pas au centre. Un astre qui grossit jusqu'à la
+   moitié de la baie verrait son nom écrit au milieu de ses continents. On pose
+   donc le point à 45° en haut à droite du bord, ce qui redevient le centre
+   quand l'astre est petit — sans cas particulier à écrire.
+
+   `ECART_MIN` se dérive de la typographie comme dans `solaire.js` : c'est la
+   hauteur d'une ligne, et deux étiquettes plus proches se chevauchent. */
+const ECART_MIN = 16;               // px — la hauteur d'une ligne de 12 px
+const DECALAGE  = 10;               // px — du limbe au début du mot
+
+function pointsEtiquettes(vu){
+  const p = [];
+  const surLeLimbe = (x, y, r) => [x + r*Math.SQRT1_2, y - r*Math.SQRT1_2];
+  if(vu.luneVue && mot("lune"))
+    p.push({ cle: "lune",  ecran: surLeLimbe(vu.xLune, vu.yLune, vu.rL), rang: 0 });
+  if(vu.terreVue && mot("terre"))
+    p.push({ cle: "terre", ecran: surLeLimbe(vu.x, vu.y, vu.rT), rang: 1 });
+  return p;
+}
+
+function etiquettes(ctx, W, H, vu){
+  const ET = global.ETIQUETTES;
+  if(!ET || !vu) return 0;
+  const poses = ET.placements(pointsEtiquettes(vu), { W, H },
+                              { ecartMin: ECART_MIN, marge: 12, decalage: DECALAGE });
+  if(!poses.length) return 0;
+  let traces = 0;
+  ctx.save();
+  ctx.font = "12px ui-monospace, SFMono-Regular, Menlo, monospace";
+  ctx.textBaseline = "middle";
+  for(const p of poses){
+    const nom = mot(p.cle);
+    if(!nom) continue;                 // pas de clé nue à l'écran, jamais
+    ctx.globalAlpha = 0.55;
+    ctx.strokeStyle = "#cfe0ff";
+    ctx.beginPath(); ctx.moveTo(p.px, p.py); ctx.lineTo(p.x, p.y); ctx.stroke();
+    ctx.globalAlpha = 0.92;
+    ctx.fillStyle = "#e6efff";
+    ctx.textAlign = p.ancre === "droite" ? "left" : "right";
+    ctx.fillText(nom, p.x + (p.ancre === "droite" ? 2 : -2), p.y);
+    traces++;
+  }
+  ctx.restore();
+  return traces;
+}
+
 /** La légende. Elle se pose SUR L'ÉCRAN et non dans le monde — c'est une aide
  *  de lecture, comme le réticule de `lune.js`, et elle le dit.
  *
@@ -597,6 +665,13 @@ function peint(ctx, W, H, o){
   if(o.decoupe) o.decoupe();
   voileLeCiel(ctx, W, H);
   const r = dessine(ctx, W, H, { x: vu[0], y: vu[1], k: echelle(o.focale, H) });
+  /* Les étiquettes sont DEDANS le découpage de la baie, la légende DEHORS. Ce
+     n'est pas un détail de rangement : un nom posé sur un astre appartient au
+     monde qu'on voit par la vitre et doit être coupé avec lui, tandis que la
+     légende est une aide de lecture posée sur l'écran, comme le réticule de
+     `lune.js`. Les sortir du découpage ferait flotter « la Lune » sur une
+     cloison, à côté d'une vitre où il n'y a plus rien. */
+  if(r) etiquettes(ctx, W, H, r);
   ctx.restore();
   if(r) legende(ctx, W, H, r);
   return r;
@@ -654,10 +729,11 @@ global.TERRELUNE = {
   etat, ou, ouvre, ferme, avance, avancement, distance,
   // mots, photographies et dessin
   poseMots, poseCartes, carteDisponible,
-  dessine, legende, peint, visible, opaciteVoile,
+  dessine, legende, etiquettes, pointsEtiquettes, peint, visible, opaciteVoile,
   // les réglages déclarés, exposés pour que le contrôle les lise plutôt que de
   // les recopier — une constante recopiée dans un test est un test qui ment
-  REGLAGES: { PART_TERRE, DUREE, PSI, AZIMUT, NUIT, DEMI_PIXEL, VOILE_MONTEE },
+  REGLAGES: { PART_TERRE, DUREE, PSI, AZIMUT, NUIT, DEMI_PIXEL, VOILE_MONTEE,
+              ECART_MIN, DECALAGE },
 };
 
 })(window);
