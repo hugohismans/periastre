@@ -18,6 +18,59 @@ Hugo peut aussi le déclencher à tout moment : « on refait le cap ».
 
 ---
 
+## 17 août 2026, la nuit — « je n'ai que la Terre en grand qui reste »
+
+Il rejoue la séance et redit la même chose. **Deux défauts derrière une phrase,
+et mon propre contrôle passait au vert pendant qu'il regardait le contraire.**
+
+### Le contrôle relevait ce qu'on écrit, pas ce qui se voit
+
+`VERIF.anglesDeSeance()`, écrit le matin même pour ce défaut exact, comparait
+entre autres `RECUL.etat.t`. **C'est une entrée, pas une observable.**
+L'avancement changeait bien d'un angle à l'autre ; la position, elle, ne bougeait
+pas — et c'est la position qui fait l'image. Le contrôle confirmait qu'on avait
+écrit.
+
+La cause : `RECUL.avance(0)` commence par `if(!etat.actif) return;`. Juste pour
+une horloge — un vol arrêté n'avance pas — mais la séance ne veut pas avancer,
+elle veut **se placer**, et elle passait par là. `recul.js` sépare maintenant les
+deux gestes : `poseAvancement` écrit la position sans condition, `avance` fait
+couler le temps et l'appelle.
+
+### Et une fois qu'elle jouait, tout finissait pareil
+
+Mesuré : « la Lune qui sort » atteignait le bout de la chute **en moins de deux
+secondes**, et il ne restait que la Terre en grand. On serait passé de « rien ne
+bouge » à « tout finit pareil » sans avoir réglé sa question. Chaque angle rejoue
+donc sa tranche : `l'apparition` va de 0,03 à 0,24, `les deux ensemble` de 0,42 à
+0,61, et ainsi de suite — quatre mouvements distincts, tous au vrai rythme.
+
+### Le piège du soir, et c'est le plus instructif
+
+La reprise a d'abord tourné dans `juge.js`, **sur son propre
+`requestAnimationFrame`**. Elle marchait à l'écran, et le sabotage restait vert :
+la boucle des contrôles appelle le rendu directement et **ne passe jamais par
+rAF**. Un mécanisme qu'aucun contrôle ne peut atteindre — et qui serait mort en
+plus dès l'onglet caché.
+
+Elle vit maintenant dans `majVoyage`, déjà l'unique écrivain de tout ce qui bouge
+pendant un vol ; la séance n'y pose qu'une intention. Neuf lignes dans la page,
+et trois contrôles qui mordent enfin.
+
+**Deuxième piège du même genre, deux fois dans la journée :** `avanceImages(n)`
+sans horloge repart de `performance.now()`. Appelée cent cinquante fois de suite,
+elle ne fait avancer la scène que du temps réel qu'elle met à s'exécuter — le
+sabotage passait au vert faute d'avoir joué deux secondes.
+
+### Ce qui reste
+
+Trois points neufs dans `VERIF.anglesDeSeance()` : chaque angle est une scène qui
+joue, aucun ne s'échoue au bout, et deux angles ne montrent pas la même chose.
+Chacun prouvé faillible en cassant ce qu'il surveille. Le relevé ne contient plus
+que des observables.
+
+---
+
 ## 17 août 2026, le soir — sa transition ratée, et ce qu'elle cachait
 
 Séance jouée sur son téléphone. **Trois « ça va »** — les coquilles, la vitre

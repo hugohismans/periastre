@@ -2191,35 +2191,89 @@ function anglesDeSeance(){
   const av = { lacet: salon.lacet, tangage: salon.tangage, retourne: salon.retourne,
                p: salon.p.slice(), trajet: TELESCOPE.trajet, carte: TELESCOPE.carte,
                lieu };
-  /* CE QU'ON RELÈVE : les nombres qui décident de l'image. On n'y met AUCUN nom
-     d'option — le relevé doit valoir pour les questions qu'on n'a pas écrites. */
+  /* CE QU'ON RELÈVE : SEULEMENT CE QUI SE VOIT. Aucun nom d'option — le relevé
+     doit valoir pour les questions qu'on n'a pas écrites.
+
+     ET SURTOUT PAS `RECUL.etat.t` : c'est une ENTRÉE, pas une observable. La
+     première version l'y mettait, et c'est ce qui a fait passer ce contrôle au
+     vert le 17 août pendant qu'Hugo, lui, voyait la Terre en grand aux quatre
+     boutons. L'avancement changeait bien ; la position, elle, ne bougeait pas,
+     parce que `RECUL.avance(0)` rend la main sur un vol arrivé. Un contrôle qui
+     relève ce qu'on ÉCRIT confirmera toujours qu'on a écrit.
+
+     `distance` est prise en logarithme parce qu'elle vaut 2,5 × 10²⁰ : à cette
+     échelle, un arrondi décimal effacerait exactement l'écart qu'on cherche. */
   const releve = () => [
     TERRELUNE.etat.actif ? +(TERRELUNE.etat.t / TERRELUNE.etat.duree).toFixed(4) : -1,
     APPROCHE.etat.actif  ? +Math.log10(Math.max(1, APPROCHE.etat.dUa)).toFixed(4) : -1,
-    +RECUL.etat.t.toFixed(6),
+    +Math.log10(Math.max(1, RECUL.etat.distance)).toFixed(9),
     +salon.lacet.toFixed(4), +salon.tangage.toFixed(4), +salon.retourne.toFixed(3),
-    +Math.log10(Math.max(1, len(salon.p))).toFixed(4),
+    +Math.log10(Math.max(1, len(salon.p))).toFixed(6),
     RECUL.rythme, RECUL.repere, lieu,
   ].join("|");
-  const muettes = [], vues = [];
+  const muettes = [], vues = [], fixes = [], echoues = [];
+  /* UNE SEULE HORLOGE, ENFILÉE. `avanceImages` sans horloge repart de
+     `performance.now()` : appelée cent cinquante fois de suite, elle ne fait
+     donc AVANCER la scène que du temps réel qu'elle met à s'exécuter, et le
+     sabotage de la reprise passait au vert faute d'avoir joué deux secondes. */
+  let hor = performance.now();
   try {
     for(const d of JUGE.DECISIONS){
       if(d.ignore || !d.options || d.options.length < 2) continue;
+      /* ON PREND LE PLUS BAS DE LA TRANCHE, pas un instantané. Depuis que la
+         scène de l'arrivée se REJOUE en boucle, une seule image tombe à une
+         phase quelconque du cycle : deux angles pourraient s'y ressembler par
+         hasard, ou un même angle différer de lui-même. Le début de sa tranche,
+         lui, est l'identité de l'angle et ne dépend pas du moment où l'on
+         regarde. */
       const etats = new Set();
       for(const o of d.options){
         if(typeof d.pose === "function") d.pose();
         if(typeof o.fait === "function") o.fait();
-        avanceImages(6);                 // que la page reprenne la main
-        etats.add(releve());
+        hor = avanceImages(4, hor);      // que la page reprenne la main
+        let bas = null, basU = Infinity, hautU = -Infinity, derU = -1;
+        for(let k = 0; k < 150; k++){    // deux secondes et demie de scène
+          const u = TERRELUNE.etat.actif && TERRELUNE.etat.duree
+                  ? TERRELUNE.etat.t / TERRELUNE.etat.duree : -1;
+          if(u < basU){ basU = u; bas = releve(); }
+          if(u > hautU) hautU = u;
+          derU = u;
+          hor = avanceImages(1, hor);
+        }
+        etats.add(bas);
+        /* ET LA SECONDE MOITIÉ DE SA PHRASE : « je n'ai QUE la Terre en grand
+           qui RESTE ». Une fois la première réparation faite, les quatre angles
+           jouaient — et finissaient tous au bout de la chute en moins de deux
+           secondes. On serait passé de « rien ne bouge » à « tout finit pareil »
+           sans avoir réglé sa question. */
+        if(basU >= 0){
+          if(hautU <= basU + 0.005)
+            fixes.push(d.id + " / " + (o.nom || "?") + " : figé à " + basU.toFixed(3));
+          if(basU < 0.9 && derU >= 0.999)
+            echoues.push(d.id + " / " + (o.nom || "?") + " : parti de "
+                         + basU.toFixed(3) + ", échoué au bout");
+        }
       }
       vues.push(d.id + " : " + etats.size + "/" + d.options.length);
       if(etats.size < 2) muettes.push(d.id + " (" + d.options.length + " angles, un seul état)");
       if(typeof d.rend === "function") d.rend();
-      avanceImages(2);
+      hor = avanceImages(2, hor);
     }
     point("des questions à options ont été jouées", vues.length > 0,
           "> 0", vues.length ? vues.join(", ") : "aucune",
           "zéro passerait le point suivant sans rien mesurer");
+    point("chaque angle est une scène qui joue, pas une image fixe",
+          fixes.length === 0, "aucun figé",
+          fixes.length ? fixes.join(" · ") : "aucun",
+          "« je n'ai pas les différentes ANIMATIONS qui s'affichent » — ce qu'on "
+          + "lui demande de juger est un enchaînement, et une scène figée ne dit "
+          + "rien du rythme");
+    point("et aucun ne s'échoue au bout de la chute",
+          echoues.length === 0, "aucun",
+          echoues.length ? echoues.join(" · ") : "aucun",
+          "« je n'ai que la Terre en grand qui RESTE » : sans reprise, les "
+          + "quatre angles arrivent au bout en moins de deux secondes et "
+          + "montrent tous la même image");
     point("aucune ne montre la même chose sous tous ses angles",
           muettes.length === 0, "aucune",
           muettes.length ? muettes.join(" · ") : "aucune",

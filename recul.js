@@ -342,15 +342,36 @@ function ou(d0, d1, t, r, total){
   return { distance: d0 + sens*e.s, parcouru: e.s, vol: e };
 }
 
-function avance(dt){
-  if(!etat.actif) return;
-  etat.t = Math.min(1, etat.t + dt/etat.duree);
+/* POSER LA POSITION À UN AVANCEMENT DONNÉ — le seul écrivain de la position.
 
+   Écrit le 17 août 2026, et il vient d'un défaut qu'Hugo a vu deux fois.
+
+   `avance` commence par `if(!etat.actif) return;`, ce qui est juste pour une
+   horloge : un vol arrêté n'avance pas tout seul. Mais la séance et les contrôles
+   ne veulent pas avancer, ils veulent SE PLACER — et ils passaient par `avance`,
+   qui ne faisait rien du tout sur un vol arrivé. L'avancement changeait,
+   `distance` restait où elle était, et les quatre angles de la question de
+   l'arrivée montraient tous la Terre en grand.
+
+   « Quand je clique sur les différents boutons, je n'ai pas les différentes
+   animations qui s'affichent. Je n'ai que la Terre en grand qui reste. » — la
+   deuxième fois qu'il le signale, et la première réparation avait déplacé la
+   cause d'un cran sans l'atteindre.
+
+   Les deux gestes sont donc séparés : `poseAvancement` écrit la position, sans
+   condition ; `avance` fait couler le temps et l'appelle. Un seul endroit écrit
+   `distance`, `parcouru` et `vol`.                                            */
+function poseAvancement(t){
+  etat.t = Math.max(0, Math.min(1, Number.isFinite(t) ? t : 0));
   const p = ou(etat.d0, etat.d1, etat.t, null, etat.total);
   etat.distance = p.distance;
   etat.parcouru = p.parcouru;
   etat.vol = p.vol;
+}
 
+function avance(dt){
+  if(!etat.actif) return;
+  poseAvancement(etat.t + dt/etat.duree);
   if(etat.t >= 1) etat.actif = false;
 }
 
@@ -1193,7 +1214,7 @@ function dessineQuadrillage(ctx, W, H, projette, force){
   ctx.restore();
 }
 
-global.RECUL = { etat, lance, avance, ou, decade, etiquette, dessineQuadrillage,
+global.RECUL = { etat, lance, avance, poseAvancement, ou, decade, etiquette, dessineQuadrillage,
                  quadrillage, coquilles, COQUILLE_PORTEE, dessineCoquilles,
                  baseCoquille, pointCoquille, thetaSilhouette,
                  COQ_PARALLELES, COQ_MERIDIENS, COQ_PAS,

@@ -630,7 +630,27 @@ const fs = require("fs"), path = require("path");
        `salon.retourne`. Le sortir demanderait de sortir le vol entier.
 
    Le plafond redescend avec la même dette qu'au-dessus. */
-const PLAFOND = 4243;   // ... et l'arrivée qui se regarde par la baie
+/* 4 266 le 17 août au soir — **LE PLAFOND MONTE**, de 23 lignes, dont 14 de
+   commentaire, et cette montée-là est la plus facile à défendre du fichier.
+
+   Hugo : « quand je clique sur les différents boutons, je n'ai pas les
+   différentes animations qui s'affichent. Je n'ai que la Terre en grand qui
+   reste. » La séance montre un moment de la chute et doit le REJOUER quand il
+   est passé, sinon les quatre angles finissent tous au bout en deux secondes.
+
+   CETTE REPRISE A D'ABORD VÉCU DANS `juge.js`, sur son propre
+   `requestAnimationFrame`. Elle marchait — et aucun contrôle ne pouvait la voir,
+   parce que la boucle des contrôles appelle le rendu directement sans jamais
+   passer par rAF : le sabotage de la reprise restait vert. Elle mourait en plus
+   dès qu'on cachait l'onglet.
+
+   Neuf lignes de code entrent donc dans `majVoyage`, qui est déjà l'unique
+   écrivain de tout ce qui bouge pendant un vol, et la séance n'y pose qu'une
+   INTENTION (`tr.boucle`). Ce qu'on achète : trois contrôles de page qui mordent
+   là où rien ne mordait, et un mécanisme qui ne dépend plus de l'onglet visible.
+
+   Le plafond redescend avec la même dette qu'au-dessus. */
+const PLAFOND = 4266;   // ... et la reprise d'une tranche de chute, en séance
 
 // Le nombre de modules déjà sortis. Il ne descend jamais non plus : un module
 // qu'on ferait rentrer dans le bloc serait le contraire exact du chantier.

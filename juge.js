@@ -958,6 +958,7 @@ let rythmeAvantSeance = null;
    séance à la main sur une page fraîche, on ne revient jamais de la Terre, donc
    tout paraît normal. Il fallait qu'il vienne de jouer pour le voir. */
 function tableRase(){
+  arreteLaBoucle();          // une scène qui se rejoue ne survit pas à la suivante
   rendPoseArrivee();
   fermeTelescope();
   auSalon(0, 0.6, 0, -0.05);
@@ -1033,7 +1034,6 @@ function rejoueTerreLune(depuis){
     TELESCOPE.trajet.mainPrise = true;     // la visée reste où la séance l'a mise
     salon.retourne = 1;                    // on est arrivé : le demi-tour est fait
   }
-  RECUL.etat.actif = false;
   TELESCOPE.carte = 0;
   $$("chrono").classList.remove("vu");
   // La même mesure que la page — `vueH` d'abord, le canevas sinon. Prendre une
@@ -1041,7 +1041,121 @@ function rejoueTerreLune(depuis){
   const H = vueH || cv.clientHeight, W = vueW || cv.clientWidth;
   TERRELUNE.ouvre(TERRELUNE.echelle(cam.focale, H), W, cam.focale);
   posePlaceDeLaChute(depuis || 0, H);
+
+  joueEnBoucle(depuis || 0, H);
 }
+
+/* LA CHUTE JOUE, ET ELLE REVIENT — 17 août 2026 au soir.
+
+   « Quand je clique sur les différents boutons, je n'ai pas les différentes
+   animations qui s'affichent. Je n'ai que la Terre en grand qui reste. »
+
+   Deux choses dans cette phrase, et la seconde ne se voit qu'en mesurant.
+
+   D'ABORD elle ne jouait pas du tout : la position ne bougeait pas d'un angle à
+   l'autre (`RECUL.avance(0)` rend la main sur un vol arrivé — corrigé dans
+   `recul.js`). ENSUITE, une fois qu'elle a joué, les quatre angles finissaient
+   au même endroit : mesuré, « la Lune qui sort » atteint le bout en moins de
+   deux secondes, et il ne reste plus que la Terre en grand. C'est mot pour mot
+   ce qu'il décrit, et l'on serait passé de « rien ne bouge » à « tout finit
+   pareil » sans avoir réglé sa question.
+
+   ALORS ON BOUCLE. Chaque angle joue sa tranche puis revient à son début, tant
+   que la question est posée. C'est un geste de PRÉSENTATION, du même ordre que
+   « poser l'endroit d'où l'on regarde » plutôt que faire attendre dix-sept
+   secondes : la scène n'est pas modifiée, c'est le moment qu'on rejoue. Ce qui
+   est joué entre deux reprises est le vrai code, au vrai rythme.
+
+   `arrive` reste à vrai pendant tout ça, et c'est ce qui rend la chose sûre :
+   `majVoyage` ne déclenche `arriveVoyage` que sur la transition vers l'arrivée,
+   donc rien n'ouvre le panneau et rien n'écrit dans le carnet. Une séance qui
+   laisserait une ligne dans le journal de bord fausserait ce qu'on lit ensuite. */
+/* PLACER LE VAISSEAU, ET NON L'AVANCEMENT DE LA SCÈNE — 17 août 2026.
+
+   Hugo, en jugeant l'arrivée : « les 4 boutons du juge ne changent rien, je vois
+   toujours que la Terre en grand. »
+
+   Il avait raison, et la cause est la maladie que ce dépôt traque depuis le
+   disque à 622× : DEUX ÉCRIVAINS pour une même valeur. Cette fonction écrivait
+   `TERRELUNE.etat.t` ; `suitLesScenes`, appelée à chaque image, le RECALCULE
+   depuis la position du vol. La séance écrivait donc un avancement effacé à
+   l'image suivante, et comme elle posait le vol arrivé, la valeur recalculée
+   était toujours la fin : la Terre en grand, quel que soit le bouton.
+
+   Le mécanisme n'était pas cassé — il venait d'être réparé. Le 16 août,
+   l'avancement de la chute a CESSÉ d'être une horloge à côté pour se déduire de
+   la distance : « un seul écrivain ». La séance, elle, est restée sur l'ancien
+   geste, et l'ancien geste est devenu silencieux au lieu de devenir faux.
+
+   ON PLACE DONC LE VAISSEAU. La séance dit où l'on est sur la chute, la page en
+   déduit ce qu'elle en déduit déjà — la loi reste unique, et ce que la séance
+   montre est ce que le jeu montre. On inverse pour cela la même loi que
+   `suitLesScenes` applique, puis on cherche l'avancement du recul par
+   dichotomie : `RECUL.ou` est monotone en `t`, et une bissection ne suppose rien
+   de la forme du rythme — elle marchera encore le jour où il en change. */
+function distanceDeLaChute(u, H){
+  const k = TERRELUNE.echelle(cam.focale, H);
+  const debutTL = TERRELUNE.distanceDemiPixel(k);
+  const finTL = TERRELUNE.distanceTerreCadree(cam.focale);
+  // l'inverse de r = log(d/d0)/log(d1/d0), la loi de `suitLesScenes`
+  const dTerreKm = debutTL * Math.pow(finTL / debutTL, Math.max(0, Math.min(1, u)));
+  return dTerreKm*1000 + SOLAIRE.demiGrandAxe("Terre")*SOLAIRE.UA;   // au Soleil
+}
+
+function posePlaceDeLaChute(u, H){
+  placeSurLeVol(distanceDeLaChute(u, H));
+}
+
+/* LA CHUTE JOUE, ET ELLE REVIENT — 17 août 2026 au soir.
+
+   « Quand je clique sur les différents boutons, je n'ai pas les différentes
+   animations qui s'affichent. Je n'ai que la Terre en grand qui reste. »
+
+   Deux choses dans cette phrase, et la seconde ne se voit qu'en mesurant.
+
+   D'ABORD elle ne jouait pas du tout : la position ne bougeait pas d'un angle à
+   l'autre, `RECUL.avance(0)` rendant la main sur un vol arrivé — corrigé dans
+   `recul.js`, qui sépare désormais « avancer » de « se placer ».
+
+   ENSUITE, une fois qu'elle a joué, les quatre angles finissaient au même
+   endroit : mesuré, « la Lune qui sort » atteint le bout en moins de deux
+   secondes, et il ne reste plus que la Terre en grand. C'est mot pour mot ce
+   qu'il décrit, et l'on serait passé de « rien ne bouge » à « tout finit
+   pareil » sans avoir réglé sa question.
+
+   ALORS ON BOUCLE. Chaque angle joue sa tranche puis revient à son début, tant
+   que la question est posée. C'est un geste de PRÉSENTATION, du même ordre que
+   « poser l'endroit d'où l'on regarde » plutôt que faire attendre dix-sept
+   secondes : la scène n'est pas modifiée, c'est le moment qu'on rejoue. Ce qui
+   est joué entre deux reprises est le vrai code, au vrai rythme.
+
+   LA REPRISE VIT DANS LA PAGE, ET C'EST LE POINT LE PLUS IMPORTANT. Elle a
+   d'abord tourné sur son propre `requestAnimationFrame`, ici. Ça marchait — et
+   aucun contrôle ne pouvait le voir, parce que la boucle des contrôles appelle
+   le rendu directement et ne passe jamais par rAF. Le sabotage de la reprise
+   restait vert. Un mécanisme que rien ne peut éprouver finit toujours par
+   repartir de travers, et celui-là serait mort en plus à chaque onglet caché.
+   La séance pose donc une INTENTION sur le trajet, et `majVoyage` — qui est
+   déjà l'écrivain de tout ce qui bouge pendant un vol — la joue.
+
+   `arrive` reste à vrai pendant tout ça, et c'est ce qui rend la chose sûre :
+   `majVoyage` ne déclenche `arriveVoyage` que sur la transition vers l'arrivée,
+   donc rien n'ouvre le panneau et rien n'écrit dans le carnet. Une séance qui
+   laisserait une ligne dans le journal de bord fausserait ce qu'on lit ensuite. */
+const TRANCHE = 0.22;         // la part de la chute qu'un angle montre avant de revenir
+
+function joueEnBoucle(u, H){
+  const tr = TELESCOPE.trajet;
+  if(!tr) return;
+  tr.boucle = { fin: Math.min(1, (u || 0) + TRANCHE),
+                depuis: distanceDeLaChute(u || 0, H) };
+  RECUL.etat.actif = true;
+}
+
+function arreteLaBoucle(){
+  if(TELESCOPE.trajet) TELESCOPE.trajet.boucle = null;
+}
+
 
 /* PLACER LE VAISSEAU, ET NON L'AVANCEMENT DE LA SCÈNE — 17 août 2026.
 
@@ -1077,6 +1191,7 @@ function posePlaceDeLaChute(u, H){
 
 
 function rangeTerreLune(){
+  arreteLaBoucle();          // sinon la reprise continue de tourner sans scène
   TERRELUNE.ferme();
   rangeVoyage();
 }
