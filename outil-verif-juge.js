@@ -110,7 +110,22 @@ const qs = questions(src);
 const aOptions = qs.filter(q => q.aOptions);
 const muettes  = aOptions.filter(q => !q.ditForme);
 
+/* LE FICHIER COMPILE.
+
+   Trois fois en deux jours, un accent grave écrit dans un commentaire a fermé le
+   gabarit de chaîne qui porte la feuille de style, et `juge.js` ne se chargeait
+   plus DU TOUT : plus de séance, plus de panneau, rien. Aucun des quarante-huit
+   outils ne l'aurait dit — celui-ci lit le fichier comme du TEXTE, et un texte
+   cassé se lit très bien.
+
+   `new Function` compile sans exécuter : pas de DOM, pas de WebGL, juste la
+   grammaire. C'est le seul contrôle du dépôt qui garde ce fichier vivant.      */
 titre("La mesure elle-même tient debout");
+let compile = null;
+try { new Function("window", src); } catch(e){ compile = e.message; }
+point("juge.js compile", compile === null, "aucune erreur", compile || "aucune erreur",
+      "un accent grave de trop dans un commentaire ferme le gabarit de la feuille "
+      + "de style et tue le fichier entier — c'est arrivé trois fois");
 point("on a bien lu des questions", qs.length >= 5, "≥ 5", qs.length,
       "un zéro voudrait dire que la découpe ne mord plus, pas qu'il n'y a plus "
       + "de question — et tout le reste passerait au vert à vide");

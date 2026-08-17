@@ -1232,13 +1232,96 @@ function rejoueVoyage(depuis, sansPanneau){
 // ================================================================== l'écran
 const style = document.createElement("style");
 style.textContent = `
+  /* LA FENÊTRE TIENT DANS L'ÉCRAN — 16 août 2026, et c'était bloquant.
+
+     Hugo, sur son téléphone, capture à l'appui — « la fenêtre de juge n'est pas
+     adaptée au layout mobile, elle sort de l'écran, je n'y ai pas accès. » Il ne
+     pouvait donc rien juger du tout, et c'est le seul outil du projet qui ne se
+     remplace par aucun calcul.
+
+     LA CAUSE : aucun plafond de hauteur. La largeur était bornée (94vw), la
+     hauteur non — et une question porte un texte long, quatre variantes, un
+     champ de cent pixels et deux rangées de boutons. Sur un téléphone COUCHÉ,
+     où la vue fait quatre cents pixels de haut, les boutons de réponse passaient
+     sous le bord. Le panneau se déplace à la poignée depuis le 9 août, ce qui
+     réglait le cas « il cache ce qu'il montre » — pas celui-ci.
+
+     100dvh et non 100vh : sur un téléphone, vh compte la barre d'adresse
+     déployée, donc le panneau déborde encore une fois qu'elle s'est rétractée.
+     vh reste en repli pour les navigateurs qui ignorent dvh.
+
+     ET IL DÉFILE, plutôt que d'être coupé : touch-action doit le dire
+     explicitement, la page posant touch-action:none partout pour que le doigt
+     serve à regarder autour de soi. Sans cette ligne, le panneau serait borné
+     et toujours inaccessible — c'est-à-dire le même défaut, en plus discret.
+
+     (Et ces lignes n'emploient AUCUN accent grave : elles vivent à l'intérieur
+     d'un gabarit de chaîne, où le premier en fermerait la feuille de style et
+     tuerait le fichier entier. Ça vient d'arriver.) */
   #juge {
     position:fixed; z-index:90; left:50%; bottom:20px; transform:translateX(-50%);
     width:min(470px, 94vw); pointer-events:auto;
+    max-height:calc(100vh - 24px); max-height:calc(100dvh - 24px);
+    display:flex; flex-direction:column;
+    overflow-y:auto; overscroll-behavior:contain; touch-action:pan-y;
+    -webkit-overflow-scrolling:touch;
     background:color-mix(in srgb, #0b0a16 95%, transparent); backdrop-filter:blur(16px);
     border:1px solid rgba(255,255,255,.15); border-radius:5px; padding:14px 16px 13px;
     font-family:-apple-system, system-ui, sans-serif; color:#c7c2d9;
   }
+  /* ÉCRAN COUCHÉ : on ne se contente pas de faire défiler, on RESSERRE. Faire
+     défiler un panneau plus haut que l'écran pour atteindre un bouton reste
+     mauvais ; ici tout tient, et le champ libre garde de quoi écrire une phrase
+     — c'est la leçon du 9 août, une boîte de la taille d'un mot ne reçoit que
+     des mots.
+
+     UNE CLASSE, ET NON UNE RÈGLE DE MÉDIA. Les deux disent la même chose, mais
+     une règle de média ne s'éprouve qu'en redimensionnant la vraie fenêtre —
+     ce qu'aucun contrôle de la page ne peut faire. Avec une classe, la séance
+     peut simuler un écran de quatre cents pixels et MESURER où tombent les
+     boutons ; sans elle, ce défaut-là n'aurait jamais eu de contrôle, et c'est
+     un défaut qu'Hugo a payé de sa séance entière. */
+  #juge.court { bottom:10px; padding:10px 12px 10px; }
+  /* C'EST LA QUESTION QUI DÉFILE, PAS LES BOUTONS. Mesuré sur un téléphone
+     couché de 402 px : le panneau borné tenait dans l'écran, mais atteindre
+     Ça va demandait de faire défiler six cents pixels de question. Un bouton
+     qu'il faut chercher est un bouton qu'on ne presse pas — et la moitié des
+     défauts trouvés étaient dans mes questions, donc celui qui les conteste
+     doit être sous le pouce.
+
+     Deuxième mesure, la même nuit : borner le seul paragraphe ne suffisait pas.
+     Le texte se tassait bien, mais les variantes et le champ libre poussaient
+     les deux rangées de boutons quarante-six pixels sous le bord. « Noter autre
+     chose » et « Déplier pour répondre » étaient donc hors d'atteinte —
+     c'est-à-dire le bouton qui sert quand on n'a PAS de réponse, et celui qui
+     rouvre le panneau une fois replié : le refermer sur un écran couché,
+     c'était le perdre.
+
+     D'où le socle : tout ce qui se lit ou s'écrit va dans le corps, qui est la
+     seule partie élastique et la seule qui défile ; tout ce qui se PRESSE va
+     dans le socle, qui ne bouge plus du bas. */
+  #juge.court { overflow:hidden; }
+  #juge.court .corps {
+    flex:1 1 auto; min-height:3.2em; overflow-y:auto;
+    overscroll-behavior:contain; touch-action:pan-y; -webkit-overflow-scrolling:touch;
+  }
+  /* On lui interdit de RÉTRÉCIR, et rien d'autre : le socle ne grandit déjà pas,
+     et lui écrire une règle entière ne changeait rien — mesuré en la sabotant,
+     le contrôle est resté vert. Ce qui compte est qu'un corps assez long ne
+     puisse pas l'écraser au lieu de défiler. */
+  #juge.court .socle { flex-shrink:0; }
+  #juge.court p { font-size:11.5px; line-height:1.45; margin-bottom:7px; }
+  #juge.court textarea { min-height:46px; }
+  #juge.court .variantes { margin-bottom:7px; }
+  #juge.court .variantes button { padding:6px 5px; }
+  #juge.court .rangee button { padding:7px 6px; }
+  #juge.court .rangee { margin-top:7px; }
+  #juge.court .pas { margin-top:6px; }
+  /* Colonnes, et non blocs : en bloc, la marge basse du champ libre fusionnerait
+     avec le bord du conteneur et la fenêtre changerait de hauteur rien qu'en
+     posant ces deux enveloppes. En colonne souple, aucune marge ne fusionne —
+     l'espacement reste exactement celui d'avant. */
+  #juge .corps, #juge .socle { display:flex; flex-direction:column; min-width:0; }
   #juge .sur {
     font-family:ui-monospace, monospace; font-size:8.5px; letter-spacing:.18em;
     text-transform:uppercase; color:#7fd8ff; margin-bottom:6px;
@@ -1257,9 +1340,9 @@ style.textContent = `
     background:rgba(127,216,255,.05); color:#a8d8ee; font-family:inherit;
   }
   #juge .variantes button.la { background:rgba(127,216,255,.20); color:#fff; border-color:rgba(127,216,255,.6); }
-  /* Le champ libre était haut de quarante-quatre pixels, avec « Un mot, si tu
-     veux » pour invitation. Hugo a voulu écrire des phrases — « la question est
-     mal posée », « le robot n'était pas visible » — et le champ lui disait le
+  /* Le champ libre était haut de quarante-quatre pixels, avec  Un mot, si tu
+     veux » pour invitation. Hugo a voulu écrire des phrases —  la question est
+     mal posée »,  le robot n'était pas visible » — et le champ lui disait le
      contraire. Une boîte de la taille d'un mot ne reçoit que des mots.
 
      Cent pixels, et une invitation qui demande explicitement le désaccord. */
@@ -1291,14 +1374,14 @@ style.textContent = `
   #juge .pas { font-family:ui-monospace, monospace; font-size:9px; color:#6b6880; margin-top:8px; }
   /* Replié, il ne reste qu'un bandeau — le titre et de quoi rouvrir.
 
-     Hugo, deuxième séance : « le champ du test est devant la présentation » et
-     « je n'ai pas accès au bouton avec l'interface de test ». Un panneau posé au
+     Hugo, deuxième séance :  le champ du test est devant la présentation » et
+      je n'ai pas accès au bouton avec l'interface de test ». Un panneau posé au
      milieu de l'écran cache justement ce qu'il demande de regarder, et couvre
      les commandes qu'il demande d'essayer. Les questions qui envoient explorer
      le site s'ouvrent donc REPLIÉES. */
   #juge.replie { padding:7px 11px; width:auto; max-width:min(420px, 92vw); }
-  #juge.replie h4, #juge.replie p, #juge.replie .variantes,
-  #juge.replie textarea, #juge.replie .rangee:not(.replie-visible),
+  #juge.replie h4, #juge.replie .corps, #juge.replie textarea,
+  #juge.replie .rangee:not(.replie-visible),
   #juge.replie .pas { display:none; }
   #juge.replie .sur { margin-bottom:0; color:#a8d8ee; }
   #juge .rangee.replie-visible { margin-top:6px; }
@@ -1322,16 +1405,59 @@ document.head.appendChild(style);
 const boite = document.createElement("div");
 boite.id = "juge";
 boite.className = "hud";
+/* DEUX PARTS, ET LA FRONTIÈRE EST « ce qui se relit » contre « ce qui se rend ».
+
+   `corps` porte la question et ses variantes ; sur un écran couché c'est lui qui
+   se resserre et qui défile. `socle` porte le champ libre, les rangées de boutons
+   et la ligne d'état, et ne quitte jamais le bas de la fenêtre. Sur un écran
+   normal les deux sont de simples colonnes : la mise en page ne bouge pas d'un
+   pixel, l'ordre à l'écran est celui d'avant.
+
+   LE CHAMP LIBRE EST DANS LE SOCLE, ET C'EST LA SECONDE MOITIÉ DU DÉFAUT. Il
+   était d'abord resté avec la question ; sur la capture d'un téléphone couché,
+   il avait entièrement disparu sous le bord du corps. Restaient quatre boutons
+   de verdict et rien pour écrire. Or c'est le champ libre qui rend le vrai
+   jugement — « pas mal mais les orbites sont circulaire ? », « non c'est super
+   nul, pas du tout ce que je veux » : aucun de ces mots-là ne serait arrivé si
+   la boîte pour les écrire ne s'était pas montrée. Un verdict sans phrase, c'est
+   un défaut trouvé qu'on ne saura pas réparer. */
 boite.innerHTML =
-  '<div class="sur"></div><h4></h4><p></p>' +
-  '<div class="variantes"></div>' +
-  '<textarea placeholder="Écris ce que tu veux, et autant que tu veux.\n' +
-  'Y compris : la question est mal posée, on ne voit pas ce dont tu parles, ' +
-  'ça n\'a rien à voir avec ce que fait ce bouton…"></textarea>' +
-  '<div class="rangee"></div><div class="pas"></div>';
+  '<div class="sur"></div><h4></h4>' +
+  '<div class="corps">' +
+    '<p></p>' +
+    '<div class="variantes"></div>' +
+  '</div>' +
+  '<div class="socle">' +
+    '<textarea placeholder="Écris ce que tu veux, et autant que tu veux.\n' +
+    'Y compris : la question est mal posée, on ne voit pas ce dont tu parles, ' +
+    'ça n\'a rien à voir avec ce que fait ce bouton…"></textarea>' +
+    '<div class="rangee"></div><div class="pas"></div>' +
+  '</div>';
 document.body.appendChild(boite);
 
 const q = s => boite.querySelector(s);
+
+/* ============================================================ l'écran court
+
+   La classe qui resserre le panneau. UN SEUL ÉCRIVAIN : cette fonction, et
+   personne d'autre ne pose ni n'ôte `court`.
+
+   `simule` remplace la hauteur lue, et sert au contrôle : sans elle, la mise en
+   page d'un téléphone couché ne s'éprouverait qu'en redimensionnant la vraie
+   fenêtre du navigateur, ce que rien dans la page ne sait faire. Elle borne
+   aussi la fenêtre à la hauteur simulée, sinon on mesurerait une boîte qui a
+   toute la place du monde et le contrôle ne prouverait rien. */
+const COURT = 560;            // au-delà, l'écran a de quoi respirer
+let simule = 0;               // 0 = on lit le vrai écran
+
+function mesureLEcran(){
+  const h = simule || innerHeight;
+  boite.classList.toggle("court", h <= COURT);
+  boite.style.maxHeight = simule ? (simule - 24) + "px" : "";
+}
+
+/* Rendue au contrôle : il pose une hauteur, mesure, et rend l'écran au vrai. */
+function simuleEcran(h){ simule = h || 0; mesureLEcran(); }
 
 /* ======================================================= la fenêtre se déplace
 
@@ -1360,6 +1486,8 @@ let place = null;             // {x, y} une fois qu'on a bougé ; null tant qu'o
    réponse. C'est le même défaut que celui qu'on est en train de corriger, à
    ceci près qu'il cacherait la réponse au lieu de la question. */
 function recadre(){
+  mesureLEcran();              // avant le retour anticipé : la classe suit l'écran
+                               // même quand la fenêtre n'a jamais été déplacée
   if(!place) return;
   const r = boite.getBoundingClientRect();
   const maxX = Math.max(MARGE, innerWidth  - r.width  - MARGE);
@@ -1413,6 +1541,7 @@ poignee.addEventListener("pointerdown", e => {
 });
 
 addEventListener("resize", recadre);
+mesureLEcran();               // et une fois au départ, avant tout redimensionnement
 
 /* ------------------------------------- la fenêtre se contrôle elle-même
 
@@ -1870,7 +1999,8 @@ function termine(){
 global.JUGE = { DECISIONS, verdicts, montre, repond, termine, rapport: null,
                 get etape(){ return i; }, demarre,
                 // La fenêtre elle-même, pour que son déplacement soit contrôlable.
-                boite, poignee, recadre, eprouve, get place(){ return place; } };
+                boite, poignee, recadre, eprouve, simuleEcran, COURT,
+                get place(){ return place; } };
 
 /* Elle attend qu'on soit ENTRÉ.
 

@@ -18,6 +18,69 @@ Hugo peut aussi le déclencher à tout moment : « on refait le cap ».
 
 ---
 
+## 17 août 2026 — la séance sortait de l'écran de son téléphone
+
+**« La fenêtre de juge n'est pas adapté au layout mobile, elle sort de l'écran
+je n'y ai pas accès. »** Avec une capture d'un téléphone couché, panneau coupé
+par le bas.
+
+Il n'a plus son ordinateur. La séance de jugement est le seul outil du projet
+qu'aucun calcul ne remplace — tout ce que lui seul peut voir passe par elle — et
+elle était devenue inatteignable sur le seul appareil qui lui reste. Tout le
+reste du chantier attendait derrière.
+
+### Ce qui a été fait
+
+Le panneau est coupé en deux : **le corps** (la question, ses variantes), qui se
+resserre et défile sur un écran court, et **le socle** (le champ libre, les
+rangées de boutons, la ligne d'état), qui ne quitte jamais le bas de la fenêtre.
+Sur un grand écran la mise en page ne bouge pas d'un pixel.
+
+### Ce que la mesure a appris, et que je n'aurais pas trouvé en réfléchissant
+
+- **Borner le seul paragraphe ne suffisait pas.** Première réparation : le texte
+  se tassait bien, mais les variantes et le champ libre poussaient quand même
+  « Noter autre chose » et « Déplier pour répondre » quarante-six pixels sous le
+  bord. C'est-à-dire le bouton qui sert quand on n'a PAS de réponse, et celui qui
+  rouvre le panneau une fois replié : le refermer, c'était le perdre.
+- **Le champ libre avait disparu entièrement.** Il était resté avec la question,
+  donc il défilait avec elle ; sur la capture il ne restait que quatre boutons de
+  verdict et rien pour écrire. Or c'est ce champ qui rend le vrai jugement —
+  « pas mal mais les orbites sont circulaire ? », « non c'est super nul » : aucun
+  de ces mots ne serait arrivé si la boîte pour les écrire ne s'était pas
+  montrée. Un « ça coince » sans phrase est un défaut trouvé qu'on ne saura pas
+  réparer. Il est passé dans le socle.
+- **Le premier contrôle mesurait le panneau REPLIÉ**, donc il ne prouvait rien.
+  Puis sa deuxième version cherchait le bouton dont le texte dit « Déplier » —
+  ce libellé n'est réécrit qu'au changement de question, jamais au dépli : il a
+  laissé une question fermée et son champ libre à zéro pixel. Un contrôle qui lit
+  une étiquette pour connaître un état lit une étiquette périmée.
+- **Une règle de style était inerte.** Sabotée, le contrôle restait vert : le
+  socle ne grandissait déjà pas. Ce qu'il fallait lui interdire est de RÉTRÉCIR.
+
+### Les contrôles laissés derrière (règle 1)
+
+`VERIF.seanceSurTelephone()` joue la séance entière sur un écran de téléphone
+couché simulé et mesure, question par question : rien du socle ne sort de la
+fenêtre, le champ libre garde de quoi écrire une phrase, et ce qui déborde du
+corps se rattrape en défilant. Sa vérité vient de la mise en page réelle, rendue
+par le navigateur, et non de ma feuille de style. Son témoin : desserrée, la
+séance doit VRAIMENT dépasser les quatre cents pixels — sinon tout passerait à
+vide. Prouvé faillible deux fois, sur les deux règles qu'il surveille.
+
+La règle de média est devenue une **classe**, exprès : une règle de média ne
+s'éprouve qu'en redimensionnant la vraie fenêtre, ce qu'aucun contrôle de la page
+ne sait faire. Sans ce changement, ce défaut-là n'aurait jamais eu de contrôle.
+
+**Et un contrôle qui manquait depuis toujours :** `outil-verif-juge.js` vérifie
+maintenant que `juge.js` COMPILE. Un accent grave écrit dans un commentaire ferme
+le gabarit de chaîne qui porte la feuille de style et tue le fichier entier —
+c'est arrivé trois fois en deux jours, et aucun des quarante-huit outils ne
+pouvait le dire : celui-ci lisait le fichier comme du texte, et un texte cassé se
+lit très bien.
+
+---
+
 ## 16 août 2026, tard — un seul vol, et le compteur dit enfin la vérité
 
 **« à la moitié du voyage, elle repasse à zéro alors que non, elle doit aller à

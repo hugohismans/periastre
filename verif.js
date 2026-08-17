@@ -1663,7 +1663,11 @@ function mesurePage(){
           document.documentElement.scrollWidth);
 
     const debordent = [];
-    document.querySelectorAll(".hud, #instrument, #presentation, #temps, #spectre, #voile")
+    /* `#juge` EST DANS LA LISTE DEPUIS LE 16 AOÛT, et il aurait dû y être depuis
+       le premier jour : c'est le seul outil du projet qu'aucun calcul ne
+       remplace. Il en est sorti de l'écran sur le téléphone d'Hugo, boutons de
+       réponse compris, et rien ne l'a dit. */
+    document.querySelectorAll(".hud, #instrument, #presentation, #temps, #spectre, #voile, #juge")
       .forEach(n => {
         const s = getComputedStyle(n);
         if(s.display === "none" || s.visibility === "hidden" || +s.opacity === 0) return;
@@ -1907,6 +1911,155 @@ function seanceTableRase(){
     avanceImages(2);
   }
   return enCours;
+}
+
+/* 8 quinquies. LA SÉANCE TIENT SUR UN TÉLÉPHONE COUCHÉ.
+
+   Hugo, le 17 août 2026, capture à l'appui : « la fenêtre de juge n'est pas
+   adapté au layout mobile, elle sort de l'écran je n'y ai pas accès. »
+
+   Il n'a plus son ordinateur. La séance de jugement est le SEUL outil du projet
+   qu'aucun calcul ne remplace — c'est par elle que passe tout ce que lui seul
+   peut voir — et elle était devenue inatteignable. Aucun des quarante-huit
+   outils ne pouvait le dire : ils ne mesurent pas de mise en page.
+
+   CE QU'ON MESURE : à chaque question de la file, aucun bouton ne dépasse de la
+   fenêtre. Pas « le panneau tient dans l'écran » — il tenait déjà, borné, et les
+   deux derniers boutons étaient quand même quarante-six pixels sous le bord.
+   C'est du DÉBORDEMENT des boutons hors de leur propre fenêtre qu'il s'agit, et
+   c'est ce que le moteur de rendu répond, pas ce que ma feuille de style
+   prétend.
+
+   D'OÙ VIENT SA VÉRITÉ : de la mise en page réelle, mesurée par le navigateur
+   sur une fenêtre bornée à la hauteur d'un téléphone couché. Elle ne vient pas
+   du texte de `juge.js`, qu'un outil hors navigateur pourrait relire sans jamais
+   savoir où tombe un bouton.
+
+   ET SON TÉMOIN, sans lequel il ne prouverait rien : on desserre la borne et
+   l'on exige que le contenu déployé dépasse VRAIMENT les quatre cents pixels. Si
+   la séance tenait naturellement dans un écran court, tous les points ci-dessous
+   passeraient à vide.                                                          */
+function seanceSurTelephone(){
+  ouvre("La séance tient sur un téléphone couché");
+  if(typeof JUGE === "undefined" || typeof JUGE.simuleEcran !== "function"){
+    point("la séance est chargée", false, "JUGE.simuleEcran", "absent",
+          "ouvrir `?verif&juge` pour jouer ce contrôle");
+    return enCours;
+  }
+  const H = 402;                    // le téléphone d'Hugo, couché : 874 × 402
+  const b = JUGE.boite;
+  const av = { spin, lieu, stock: localStorage.getItem(CLE) };
+  try {
+    JUGE.demarre();
+    JUGE.simuleEcran(H);
+    point("l'écran court est simulé", b.classList.contains("court"),
+          "la classe court", b.classList.contains("court") ? "posée" : "absente",
+          "sans elle on mesurerait la mise en page d'un grand écran");
+
+    /* LE TÉMOIN, pris sur la première question : desserré, le contenu doit
+       dépasser. `simuleEcran` reste le seul écrivain de la classe — on lui
+       demande un grand écran, on ne retire pas la classe à la main. */
+    deplie(b);
+    JUGE.simuleEcran(4000);
+    const naturelle = b.scrollHeight;
+    JUGE.simuleEcran(H);
+    point("il y a vraiment plus de séance que d'écran", naturelle > H - 24,
+          "> " + (H - 24) + " px", naturelle + " px",
+          "si la séance tenait d'elle-même dans quatre cents pixels, les points "
+          + "suivants passeraient sans rien exercer");
+
+    /* DEUX EXIGENCES, ET NON UNE — c'est ce contrôle lui-même qui l'a appris.
+
+       Première écriture : « aucun bouton ne sort de la fenêtre ». Rouge sur la
+       question de l'arrivée, qui porte quatre variantes : leurs boutons tombaient
+       cinquante-six pixels sous le bord. Et c'était JUSTE, au sens où le rendu le
+       disait — mais ce n'était pas un défaut : ces boutons-là vivent dans le
+       corps, qui défile, et l'on va les chercher d'un doigt.
+
+       Ce qui ne doit JAMAIS bouger, c'est le socle. Alors on sépare :
+         — les boutons du socle tiennent dans la fenêtre, toujours ;
+         — et si le corps déborde, il doit VRAIMENT défiler, sinon les variantes
+           deviennent aussi inatteignables que l'étaient les deux du bas. */
+    let n = 0, boutons = 0, dehors = [], muets = [], etroits = [];
+    while(JUGE.rapport === null && n < 40){
+      const d = JUGE.DECISIONS[n];
+      deplie(b);
+      const rb = b.getBoundingClientRect();
+      /* LE CHAMP LIBRE COMPTE COMME UN BOUTON DU SOCLE, et pour une raison plus
+         forte : c'est lui qui porte le verdict. Sur la première capture d'un
+         téléphone couché il avait disparu entièrement, et il ne restait que
+         quatre boutons de verdict — un « ça coince » sans une phrase ne dit pas
+         ce qui coince. */
+      for(const bt of b.querySelectorAll(".socle button, .socle textarea")){
+        const r = bt.getBoundingClientRect();
+        if(r.width < 1 && r.height < 1) continue;      // caché, pas débordant
+        boutons++;
+        const quoi = bt.tagName === "TEXTAREA" ? "le champ libre"
+                                               : bt.textContent.trim().slice(0, 24);
+        if(r.top < rb.top - 1 || r.bottom > rb.bottom + 1)
+          dehors.push((d ? d.id : "?") + " : " + quoi
+                      + " (" + Math.round(r.top) + "→" + Math.round(r.bottom)
+                      + " dans " + Math.round(rb.top) + "→" + Math.round(rb.bottom) + ")");
+      }
+      /* Et il doit rester ASSEZ GRAND pour recevoir une phrase — la leçon du
+         9 août : une boîte de la taille d'un mot ne reçoit que des mots. */
+      const ta = b.querySelector(".socle textarea");
+      const ht = ta ? ta.getBoundingClientRect().height : 0;
+      if(ht < 40) etroits.push((d ? d.id : "?") + " : " + Math.round(ht) + " px");
+      const co = b.querySelector(".corps");
+      if(co && co.scrollHeight > co.clientHeight + 1){
+        const f = getComputedStyle(co).overflowY;
+        if(f !== "auto" && f !== "scroll")
+          muets.push((d ? d.id : "?") + " : le corps déborde de "
+                     + (co.scrollHeight - co.clientHeight) + " px sans défiler");
+      }
+      n++;
+      JUGE.repond("passé");
+    }
+
+    point("toutes les questions ont été affichées", n > 0 && boutons > 0,
+          "> 0", n + " question(s), " + boutons + " élément(s) de socle",
+          "zéro passerait les points suivants sans rien mesurer");
+    point("rien du socle ne sort de la fenêtre", dehors.length === 0, "aucun",
+          dehors.length ? dehors.join(" · ") : "aucun",
+          "c'est le défaut qu'Hugo a subi : « Noter autre chose » et « Déplier "
+          + "pour répondre » tombaient sous le bord, et la séance devenait "
+          + "inutilisable sur le seul appareil qui lui reste");
+    point("le champ libre garde de quoi écrire une phrase", etroits.length === 0,
+          "≥ 40 px", etroits.length ? etroits.join(" · ") : "toutes ≥ 40 px",
+          "une boîte de la taille d'un mot ne reçoit que des mots — et c'est "
+          + "dans ce champ que passe tout ce que lui seul peut voir");
+    point("ce qui déborde du corps se rattrape en défilant", muets.length === 0, "aucun",
+          muets.length ? muets.join(" · ") : "aucun",
+          "un contenu débordant sans ascenseur est perdu, boutons de variante "
+          + "compris — la question de l'arrivée en porte quatre");
+    point("et la séance s'est bien jouée", JUGE.rapport !== null,
+          "un rapport", JUGE.rapport === null ? "aucun" : "rendu",
+          "sans ça la boucle aurait mesuré une seule question");
+  } finally {
+    JUGE.simuleEcran(0);
+    spin = av.spin;
+    if(av.stock !== null) localStorage.setItem(CLE, av.stock);
+    if(lieu !== av.lieu) vaAu(av.lieu);
+    avanceImages(2);
+  }
+  return enCours;
+}
+
+/* Le panneau s'ouvre REPLIÉ pour les questions qui envoient explorer. Replié il
+   ne montre qu'un bandeau : le mesurer alors ne dit rien, et c'est l'erreur que
+   ce contrôle a faite d'abord — il rendait un vert franc sur la mise en page
+   qu'Hugo ne pouvait pas atteindre. */
+function deplie(b){
+  /* ON VISE L'ÉTAT, PAS LE LIBELLÉ. Première version : chercher le bouton dont
+     le texte dit « Déplier ». Elle a laissé une question repliée — son champ
+     libre mesurait zéro pixel — parce que ce libellé n'est réécrit qu'au
+     changement de question, et non au dépli. Un contrôle qui lit une étiquette
+     pour connaître un état lit une étiquette périmée. */
+  if(!b.classList.contains("replie")) return;
+  const r = b.querySelector(".rangee.replie-visible");
+  const bt = r && r.lastElementChild;
+  if(bt) bt.click();
 }
 
 /* 8 ter. LE VOYAGE D'UN SEUL TENANT — les deux coutures.
@@ -2294,7 +2447,7 @@ global.VERIF = {
   banc, pixels, couture, carteFixe, carteDehors, arriveeJuste, sceneSolaire, seanceSansTrace,
   // Comme `seanceSansTrace` : hors de la passe, parce qu'il exige `?verif&juge`.
   // L'y mettre le ferait échouer sur toute page où la séance n'est pas chargée.
-  questionsDuVoyage, voyageDunSeulTenant, seanceTableRase,
+  questionsDuVoyage, voyageDunSeulTenant, seanceTableRase, seanceSurTelephone,
   rotationCalme, memeEspace, mesurePage, parcours, voyage, budget,
   sain, tout, bilan, texte, resultats, FORMATS, OR,
   // outillage exposé : d'autres contrôles pourront s'y adosser
