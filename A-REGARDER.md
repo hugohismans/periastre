@@ -15,7 +15,7 @@ Tout ce qui ne peut pas se vérifier par la mesure, et qui attend donc qu'un
 humain regarde. **Rien ici ne bloque quoi que ce soit** — c'est une file, pas
 une dette. Elle existe pour que ça ne se perde pas dans une conversation.
 
-Mise à jour le 16 août 2026.
+Mise à jour le 17 août 2026.
 
 <!-- ------------------------------------------------------------------------
      LA CONVENTION DES TITRES — déclarée, jamais devinée.
@@ -89,6 +89,32 @@ que la baie et plus haute — c'est un choix, pas une contrainte.
 depuis des jours. On peignait le nuage de Oort et le mot « Soleil » pendant tout
 le trajet, à vingt-sept mille années-lumière de lui — invisible parce que la
 seule vitre du vaisseau regardait dans l'autre sens. C'est réparé.)*
+
+---
+
+## 🔎 LE DÉBUT DU VOYAGE — tu l'as coché sans le décrire (16 août)
+
+<!-- juge: debut-du-voyage -->
+
+Quand je t'ai demandé si autre chose t'avait paru bizarre, tu as coché **« le
+début du voyage »** — et tu n'as pas eu les mots. Ce n'est pas grave : c'est
+exactement le cas que la séance existe pour rattraper. Elle te repose devant, et
+le champ libre reste ouvert pour une phrase mal dite.
+
+**Trois choses ont changé depuis**, et je te les dis pour que tu ne juges pas à
+côté :
+
+- le vol était calculé en **trois morceaux** qui repartaient chacun de l'arrêt —
+  c'est ce qui remettait ton compteur à zéro au milieu. Il n'en fait plus qu'un,
+  de Sagittarius A* jusqu'à la Terre ;
+- le déroulé par défaut est passé de **« fidèle » à « régulier »** — le système
+  solaire tient seize secondes lisibles au lieu de huit ;
+- le cadran dit maintenant **par rapport à quoi** la vitesse est comptée.
+
+> **Le départ se lit-il ?** Le vaisseau fait un demi-tour, puis la première
+> coquille s'ouvre. Trop mou, trop sec, comprend-on qu'on part — ou est-ce que ça
+> reste une image qui bouge ? Quatre angles : la seconde zéro, le demi-tour fini,
+> un peu plus loin, et le même départ en « fidèle » pour comparer.
 
 ---
 

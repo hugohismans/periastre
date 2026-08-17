@@ -325,6 +325,60 @@ const TOUTES = [
     rend: () => rangeVoyage(),
   },
 
+  /* LE DÉBUT DU VOYAGE — parce qu'il l'a coché sans pouvoir dire quoi.
+
+     Le 16 août, on lui a demandé si autre chose lui avait paru bizarre. Il a
+     coché « le début du voyage » et « l'arrivée Terre-Lune elle-même », et il
+     n'a pas décrit. Ses transcriptions vocales cassent, il parle vite, et une
+     gêne se dit mal — c'est précisément le cas que la séance existe pour
+     rattraper : on ne devine pas, on pose la chose sous ses yeux et on laisse le
+     champ libre ouvert. L'arrivée a déjà sa question ; le début n'en avait pas.
+
+     ET LE DÉBUT A CHANGÉ DEPUIS QU'IL L'A VU, ce qui est la seconde raison de la
+     poser. Le vol était coupé en trois et repartait de l'arrêt à chaque morceau ;
+     il n'en fait plus qu'un. Le rythme par défaut est passé de « fidèle » à
+     « régulier ». La vitesse dit maintenant par rapport à quoi elle est comptée.
+     Trois choses dans la même vue — donc on ne lui demande pas laquelle a changé,
+     on lui demande ce qu'il voit.
+
+     QUATRE ANGLES SUR UN SEUL MOUVEMENT, donc `inspection: true` : la seconde
+     zéro, puis trois instants du début. Ce ne sont pas quatre propositions
+     concurrentes — personne ne « garderait » une seconde plutôt qu'une autre.
+
+     `libre: true` : le panneau s'ouvre replié. Ce qu'on lui demande de regarder
+     est un MOUVEMENT de quelques secondes, et la fenêtre le couvrirait. */
+  { id: "debut-du-voyage",
+    titre: "Le début du voyage : qu'est-ce qui cloche ?",
+    libre: true,
+    inspection: true,
+    quoi: "Tu as coché « le début du voyage » quand je t'ai demandé si autre "
+        + "chose t'avait paru bizarre, et tu n'as pas eu les mots — ce n'est pas "
+        + "grave, c'est à ça que sert cette fenêtre. Regarde-le, et écris ce que "
+        + "tu vois, même mal dit. "
+        + "Trois choses ont changé depuis la fois où tu l'as vu, et je ne te "
+        + "demande pas de les retrouver : je te dis lesquelles pour que tu ne "
+        + "juges pas à côté. Le vol était calculé en trois morceaux qui "
+        + "repartaient chacun de l'arrêt — c'est ce qui remettait ton compteur à "
+        + "zéro au milieu ; il n'en fait plus qu'un, de Sagittarius A* jusqu'à la "
+        + "Terre. Le déroulé par défaut est passé de « fidèle » à « régulier », "
+        + "ce qui donne au système solaire seize secondes lisibles au lieu de "
+        + "huit. Et le cadran dit désormais par rapport à quoi la vitesse est "
+        + "comptée. "
+        + "Ce que je te demande porte sur les premières secondes. Le vaisseau "
+        + "fait un demi-tour, puis la première coquille s'ouvre. Est-ce que le "
+        + "départ se lit ? Est-ce qu'il démarre trop mou, trop sec, est-ce qu'on "
+        + "comprend qu'on part, ou est-ce que ça reste une image qui bouge ?",
+    pose: () => rejoueGrandTrajet(RECUL.RYTHME_DEFAUT, 0),
+    options: [
+      { nom: "la seconde zéro",   fait: () => rejoueGrandTrajet(RECUL.RYTHME_DEFAUT, 0) },
+      { nom: "le demi-tour fini", fait: () => rejoueGrandTrajet(RECUL.RYTHME_DEFAUT, 0.06) },
+      { nom: "un peu plus loin",  fait: () => rejoueGrandTrajet(RECUL.RYTHME_DEFAUT, 0.14) },
+      { nom: "en « fidèle », pour comparer",
+        fait: () => rejoueGrandTrajet("fidele", 0) },
+    ],
+    rend: () => rangeGrandTrajet(),
+  },
+
   /* LA SCÈNE SOLAIRE — posée le 11 août 2026.
 
      Hugo a tranché le cadrage le 10 au soir : « les deux, dans cet ordre ». On
@@ -747,10 +801,12 @@ const TOUTES = [
         + "pour doubler la Terre à ce moment-là, mais ce serait un cadrage "
         + "choisi et non subi. Est-ce que le moment « les deux ensemble » est "
         + "trop maigre pour rester tel quel ? "
-        + "Et une chose que je dois t'avouer : ce ciel noir est peint. Le "
-        + "vaisseau ne se déplace jamais, alors la vitre montrait encore le trou "
-        + "noir qu'on venait de quitter. On le couvre, et c'est écrit dans les "
-        + "aveux.",
+        + "Et le ciel derrière elle n'est plus un carton noir : il l'était "
+        + "jusqu'au 16 août, et c'est ce qui te donnait l'impression que le "
+        + "fond te suivait quand tu marchais. Ce qu'il reste à t'avouer est "
+        + "plus honnête : ces étoiles sont celles de l'amas de Sagittarius A*, "
+        + "pas les nôtres. Ce ne sont pas nos constellations, et c'est écrit "
+        + "dans les aveux.",
     pose: () => rejoueTerreLune(0.42),
     options: [
       { nom: "l'apparition",        fait: () => rejoueTerreLune(0.03) },
@@ -1380,7 +1436,7 @@ style.textContent = `
      les commandes qu'il demande d'essayer. Les questions qui envoient explorer
      le site s'ouvrent donc REPLIÉES. */
   #juge.replie { padding:7px 11px; width:auto; max-width:min(420px, 92vw); }
-  #juge.replie h4, #juge.replie .corps, #juge.replie textarea,
+  #juge.replie h4, #juge.replie .corps, #juge.replie .variantes, #juge.replie textarea,
   #juge.replie .rangee:not(.replie-visible),
   #juge.replie .pas { display:none; }
   #juge.replie .sur { margin-bottom:0; color:#a8d8ee; }
@@ -1405,29 +1461,35 @@ document.head.appendChild(style);
 const boite = document.createElement("div");
 boite.id = "juge";
 boite.className = "hud";
-/* DEUX PARTS, ET LA FRONTIÈRE EST « ce qui se relit » contre « ce qui se rend ».
+/* DEUX PARTS, ET LA FRONTIÈRE EST « ce qui se lit » contre « ce qui se touche ».
 
-   `corps` porte la question et ses variantes ; sur un écran couché c'est lui qui
-   se resserre et qui défile. `socle` porte le champ libre, les rangées de boutons
-   et la ligne d'état, et ne quitte jamais le bas de la fenêtre. Sur un écran
-   normal les deux sont de simples colonnes : la mise en page ne bouge pas d'un
-   pixel, l'ordre à l'écran est celui d'avant.
+   `corps` ne porte que le texte de la question ; sur un écran couché c'est lui
+   qui se resserre et qui défile. `socle` porte tout ce qu'on touche — les
+   variantes, le champ libre, les rangées de boutons, la ligne d'état — et ne
+   quitte jamais le bas de la fenêtre. Sur un écran normal les deux sont de
+   simples colonnes : l'ordre à l'écran est celui d'avant, la mise en page ne
+   bouge pas d'un pixel.
 
-   LE CHAMP LIBRE EST DANS LE SOCLE, ET C'EST LA SECONDE MOITIÉ DU DÉFAUT. Il
-   était d'abord resté avec la question ; sur la capture d'un téléphone couché,
-   il avait entièrement disparu sous le bord du corps. Restaient quatre boutons
-   de verdict et rien pour écrire. Or c'est le champ libre qui rend le vrai
-   jugement — « pas mal mais les orbites sont circulaire ? », « non c'est super
-   nul, pas du tout ce que je veux » : aucun de ces mots-là ne serait arrivé si
-   la boîte pour les écrire ne s'était pas montrée. Un verdict sans phrase, c'est
-   un défaut trouvé qu'on ne saura pas réparer. */
+   LA FRONTIÈRE A ÉTÉ DÉPLACÉE DEUX FOIS, chaque fois en regardant une capture.
+
+   Le champ libre était d'abord resté avec la question : il avait entièrement
+   disparu sous le bord, et il ne restait que quatre boutons de verdict et rien
+   pour écrire. Or c'est lui qui rend le vrai jugement — « pas mal mais les
+   orbites sont circulaire ? », « non c'est super nul, pas du tout ce que je
+   veux » : aucun de ces mots ne serait arrivé si la boîte pour les écrire ne
+   s'était pas montrée. Un verdict sans phrase est un défaut qu'on ne saura pas
+   réparer.
+
+   Les variantes ont suivi, pour une raison jumelle. Sur la capture de la
+   troisième question, aucune n'était visible : rien ne disait qu'il y avait des
+   angles de vue, et une question qui annonce « quatre angles » sans en montrer
+   un seul demande de juger ce qu'on ne montre pas. Ce sont des BOUTONS ; ils
+   vont avec les boutons. */
 boite.innerHTML =
   '<div class="sur"></div><h4></h4>' +
-  '<div class="corps">' +
-    '<p></p>' +
-    '<div class="variantes"></div>' +
-  '</div>' +
+  '<div class="corps"><p></p></div>' +
   '<div class="socle">' +
+    '<div class="variantes"></div>' +
     '<textarea placeholder="Écris ce que tu veux, et autant que tu veux.\n' +
     'Y compris : la question est mal posée, on ne voit pas ce dont tu parles, ' +
     'ça n\'a rien à voir avec ce que fait ce bouton…"></textarea>' +

@@ -43,6 +43,10 @@ Sur un grand écran la mise en page ne bouge pas d'un pixel.
   « Noter autre chose » et « Déplier pour répondre » quarante-six pixels sous le
   bord. C'est-à-dire le bouton qui sert quand on n'a PAS de réponse, et celui qui
   rouvre le panneau une fois replié : le refermer, c'était le perdre.
+- **Les boutons de variante avaient disparu aussi.** Sur la capture de la
+  troisième question, aucun angle de vue n'était visible : la question annonçait
+  « quatre angles » et n'en montrait pas un. Ce sont des boutons — ils sont
+  passés avec les boutons.
 - **Le champ libre avait disparu entièrement.** Il était resté avec la question,
   donc il défilait avec elle ; sur la capture il ne restait que quatre boutons de
   verdict et rien pour écrire. Or c'est ce champ qui rend le vrai jugement —
@@ -57,6 +61,20 @@ Sur un grand écran la mise en page ne bouge pas d'un pixel.
   une étiquette pour connaître un état lit une étiquette périmée.
 - **Une règle de style était inerte.** Sabotée, le contrôle restait vert : le
   socle ne grandissait déjà pas. Ce qu'il fallait lui interdire est de RÉTRÉCIR.
+
+### Deux ajouts de séance, dans la foulée
+
+- **Une question neuve : « le début du voyage ».** Il l'avait cochée le 16 août
+  sans pouvoir dire quoi — ses transcriptions cassent, et une gêne se dit mal.
+  C'est exactement le cas que la séance existe pour rattraper : on ne devine pas,
+  on pose la chose sous ses yeux et on laisse le champ ouvert. Quatre angles : la
+  seconde zéro, le demi-tour fini, un peu plus loin, et le même départ en
+  « fidèle » pour comparer. Sa section dans `A-REGARDER.md` va avec, sinon
+  l'outil rougit dans les deux sens.
+- **La question de l'arrivée avouait encore un voile tombé.** Elle disait « ce
+  ciel noir est peint, on le couvre » — c'était vrai jusqu'au 16 août. Elle dit
+  maintenant ce qui reste faux : ces étoiles sont celles de l'amas de
+  Sagittarius A*, pas les nôtres.
 
 ### Les contrôles laissés derrière (règle 1)
 

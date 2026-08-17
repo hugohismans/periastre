@@ -1989,7 +1989,12 @@ function seanceSurTelephone(){
          forte : c'est lui qui porte le verdict. Sur la première capture d'un
          téléphone couché il avait disparu entièrement, et il ne restait que
          quatre boutons de verdict — un « ça coince » sans une phrase ne dit pas
-         ce qui coince. */
+         ce qui coince.
+
+         Les boutons de variante sont dans le socle depuis la même série de
+         captures, et ce point les couvre donc aussi : une question qui annonce
+         quatre angles de vue sans en montrer un seul demande de juger ce qu'on
+         ne montre pas. */
       for(const bt of b.querySelectorAll(".socle button, .socle textarea")){
         const r = bt.getBoundingClientRect();
         if(r.width < 1 && r.height < 1) continue;      // caché, pas débordant
@@ -2031,8 +2036,9 @@ function seanceSurTelephone(){
           + "dans ce champ que passe tout ce que lui seul peut voir");
     point("ce qui déborde du corps se rattrape en défilant", muets.length === 0, "aucun",
           muets.length ? muets.join(" · ") : "aucun",
-          "un contenu débordant sans ascenseur est perdu, boutons de variante "
-          + "compris — la question de l'arrivée en porte quatre");
+          "le corps ne porte plus que le texte de la question, et il en manque "
+          + "toujours la moitié sur un écran couché : sans ascenseur, c'est la "
+          + "moitié qu'on ne lira jamais");
     point("et la séance s'est bien jouée", JUGE.rapport !== null,
           "un rapport", JUGE.rapport === null ? "aucun" : "rendu",
           "sans ça la boucle aurait mesuré une seule question");
