@@ -602,7 +602,35 @@ const fs = require("fs"), path = require("path");
 
    Le plafond redescend le jour où la page cesse d'être le seul endroit qui sait
    fabriquer un canevas — la même dette que `fabriqueToile` dans `ecrans.js`. */
-const PLAFOND = 4197;   // ... et le temps de la dernière marche, sorti du dessin
+/* 4 243 le 17 août — **LE PLAFOND MONTE**, de 46 lignes, et les trois quarts
+   sont du commentaire.
+
+   Hugo, en jugeant l'arrivée : « la transition est très ratée. On zoom sur le
+   Soleil, puis tout disparaît et la Terre apparaît à l'opposé d'où on regarde. »
+   Deux lois pour un même endroit du ciel, et un vaisseau qui ne se retournait
+   qu'après être arrivé.
+
+   CE QUI ENTRE DANS LA PAGE, ET POURQUOI ÇA NE PEUT PAS ÊTRE AILLEURS :
+
+     — `versLaDestination`, quatre lignes. La LOI vit dans `RECUL.versDestination`,
+       éprouvée sans navigateur ; ce qui reste ici est la projection, qui a besoin
+       de la caméra de la page. C'est le minimum irréductible, et c'est justement
+       ce qui garantit qu'il n'y a qu'un point pour les deux scènes.
+
+     — `placeSurLeVol`, seize lignes. Elle place le vaisseau à une distance
+       donnée du Soleil, et la séance comme le contrôle l'emploient au lieu
+       d'écrire chacun son état. Elle REMPLACE deux gestes qui vivaient ailleurs
+       et qui se contredisaient : `TERRELUNE.etat.t` écrit par `juge.js`, et
+       `APPROCHE.pose` écrit par `verif.js`. Le solde en lignes de dépôt est
+       négatif ; celui de la page monte, parce que c'est la page qui sait où en
+       est le vol.
+
+     — le reste est le demi-tour au freinage, huit lignes de code et vingt-cinq
+       de commentaire, dans `majVoyage`, qui est déjà l'unique écrivain de
+       `salon.retourne`. Le sortir demanderait de sortir le vol entier.
+
+   Le plafond redescend avec la même dette qu'au-dessus. */
+const PLAFOND = 4243;   // ... et l'arrivée qui se regarde par la baie
 
 // Le nombre de modules déjà sortis. Il ne descend jamais non plus : un module
 // qu'on ferait rentrer dans le bloc serait le contraire exact du chantier.

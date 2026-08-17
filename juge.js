@@ -250,7 +250,7 @@ const TOUTES = [
      donc `inspection: true`. Le milieu du trajet n'est pas un angle de plus :
      c'est là qu'on TRAVERSE une coquille, et la traversée est précisément ce
      que le quadrillage ne sait pas faire. */
-  { id: "repere-du-voyage",
+  { id: "repere-du-voyage", ignore: true,   // ✅ ça va, 17 août — angle gardé : « coquilles, au départ ». Les coquilles disent bien « je recule ».
     titre: "Coquilles ou quadrillage : lequel dit « je recule » ?",
     libre: true,
     inspection: true,
@@ -298,7 +298,7 @@ const TOUTES = [
      Trois angles sur une seule ouverture, donc `inspection: true`. La baie est
      dans la liste comme point de comparaison, pas comme concurrente : sans
      elle, « assez grande » n'a pas d'étalon. */
-  { id: "vitre-avant",
+  { id: "vitre-avant", ignore: true,   // ✅ ça va, 17 août — angle gardé : « retourné, au milieu ». La vitre avant sert, et on comprend qu'on s'est retourné.
     titre: "La vitre avant : est-ce qu'elle sert ?",
     libre: true,
     inspection: true,
@@ -347,7 +347,7 @@ const TOUTES = [
 
      `libre: true` : le panneau s'ouvre replié. Ce qu'on lui demande de regarder
      est un MOUVEMENT de quelques secondes, et la fenêtre le couvrirait. */
-  { id: "debut-du-voyage",
+  { id: "debut-du-voyage", ignore: true,   // ✅ ça va, 17 août — angle gardé : « la seconde zéro ». Le départ se lit ; le seul reproche portait sur l'arrivée.
     titre: "Le début du voyage : qu'est-ce qui cloche ?",
     libre: true,
     inspection: true,
@@ -776,37 +776,39 @@ const TOUTES = [
      `inspection: true`. Le champ libre est là pour le vrai verdict : est-ce
      qu'on triche sur le cadrage, oui ou non. */
   { id: "arrivee-terre-lune",
-    titre: "L'arrivée : voit-on enfin la Terre et la Lune ?",
+    titre: "L'arrivée : la transition est-elle rattrapée ?",
     libre: true,
     inspection: true,
-    quoi: "REFAITE APRÈS TON VERDICT DU 16 AOÛT, sur tes trois points. Les "
-        + "surfaces sont de vraies photographies — un composite MODIS pour la "
-        + "Terre, une mosaïque du Lunar Reconnaissance Orbiter pour la Lune ; "
-        + "tu avais raison, elles étaient dans le projet et seule la page du "
-        + "rivage s'en servait. La Lune porte son nom, et quand les deux "
-        + "étiquettes se marchent dessus c'est ELLE qui parle. Et les deux "
-        + "boutons qui te coupaient le voyage sont partis : on part de "
-        + "Sagittarius A*, on traverse, on tombe à travers le système solaire, "
-        + "et l'on continue sans qu'on te demande rien jusqu'ici. "
-        + "Le voyage vers le système solaire s'arrêtait sur un "
-        + "panneau devant une vitre vide ; maintenant on tombe vers la Terre. "
-        + "Elle apparaît à l'instant exact où son disque atteint un demi-pixel, "
-        + "elle grossit, la Lune passe, sort par le côté, et la Terre finit par "
-        + "remplir la baie. Tout est calculé : les tailles, l'écart, la "
-        + "frontière jour/nuit. "
-        + "Regarde les quatre moments, et dis-moi surtout une chose. Quand on "
-        + "voit LES DEUX, la Terre ne fait qu'une vingtaine de pixels — parce "
-        + "que la Lune est à trente diamètres terrestres, et qu'aucune image "
-        + "honnête ne peut montrer les deux en gros. Je peux décaler le cadrage "
-        + "pour doubler la Terre à ce moment-là, mais ce serait un cadrage "
-        + "choisi et non subi. Est-ce que le moment « les deux ensemble » est "
-        + "trop maigre pour rester tel quel ? "
-        + "Et le ciel derrière elle n'est plus un carton noir : il l'était "
-        + "jusqu'au 16 août, et c'est ce qui te donnait l'impression que le "
-        + "fond te suivait quand tu marchais. Ce qu'il reste à t'avouer est "
-        + "plus honnête : ces étoiles sont celles de l'amas de Sagittarius A*, "
-        + "pas les nôtres. Ce ne sont pas nos constellations, et c'est écrit "
-        + "dans les aveux.",
+    quoi: "REFAITE APRÈS TON VERDICT DU 17 AOÛT. Tu avais écrit : « la "
+        + "transition est très ratée. On zoom sur le Soleil, puis tout "
+        + "disparaît et la Terre apparaît à l'opposé d'où on regarde (vitre "
+        + "arrière). » Tu avais raison deux fois, et la seconde je ne l'ai vue "
+        + "qu'en mesurant. "
+        + "Le Soleil se plaçait au bout du rayon qu'on a suivi ; la Terre, elle, "
+        + "au centre de la baie — qui regarde en arrière. Cent quatre-vingts "
+        + "degrés entre deux choses qui sont au même endroit du ciel. C'est "
+        + "réparé : il n'y a plus qu'une seule loi, et la Terre apparaît "
+        + "exactement là où le Soleil grossissait. "
+        + "Et le vaisseau ne se retournait qu'une fois ARRIVÉ : pendant toute la "
+        + "descente, ta destination était derrière la coque, et le recentrage te "
+        + "ramenait la tête vers ce que tu quittais. Maintenant il se retourne "
+        + "quand il commence à FREINER, c'est-à-dire au milieu du chemin — c'est "
+        + "ce que fait un vaisseau qui décélère à 1 g, et ça n'a rien coûté à la "
+        + "physique. La grande baie regarde donc où tu vas pendant toute la "
+        + "seconde moitié, et c'est par la vitre avant que tu vois ce que tu "
+        + "quittes. "
+        + "Et tes quatre boutons marchent : ils ne changeaient rien parce que la "
+        + "séance écrivait une valeur que la page recalculait à l'image "
+        + "suivante. Maintenant ils déplacent le vaisseau. "
+        + "Regarde les quatre moments et dis-moi si l'enchaînement se tient. Il "
+        + "reste une chose que je ne sais pas trancher : quand on voit LES DEUX, "
+        + "la Terre ne fait qu'une vingtaine de pixels — la Lune est à trente "
+        + "diamètres terrestres, et aucune image honnête ne peut montrer les deux "
+        + "en gros. Je peux décaler le cadrage pour doubler la Terre à cet "
+        + "instant, mais ce serait un cadrage choisi et non subi. "
+        + "Le ciel derrière elle, enfin : ces étoiles sont celles de l'amas de "
+        + "Sagittarius A*, pas les nôtres. Ce ne sont pas nos constellations, et "
+        + "c'est écrit dans les aveux.",
     pose: () => rejoueTerreLune(0.42),
     options: [
       { nom: "l'apparition",        fait: () => rejoueTerreLune(0.03) },
@@ -1038,8 +1040,41 @@ function rejoueTerreLune(depuis){
   // autre hauteur donnerait à la séance une échelle que le jeu n'a pas.
   const H = vueH || cv.clientHeight, W = vueW || cv.clientWidth;
   TERRELUNE.ouvre(TERRELUNE.echelle(cam.focale, H), W, cam.focale);
-  TERRELUNE.etat.t = (depuis || 0) * TERRELUNE.etat.duree;
+  posePlaceDeLaChute(depuis || 0, H);
 }
+
+/* PLACER LE VAISSEAU, ET NON L'AVANCEMENT DE LA SCÈNE — 17 août 2026.
+
+   Hugo, en jugeant l'arrivée : « les 4 boutons du juge ne changent rien, je vois
+   toujours que la Terre en grand. »
+
+   Il avait raison, et la cause est la maladie que ce dépôt traque depuis le
+   disque à 622× : DEUX ÉCRIVAINS pour une même valeur. Cette fonction écrivait
+   `TERRELUNE.etat.t` ; `suitLesScenes`, appelée à chaque image, le RECALCULE
+   depuis la position du vol. La séance écrivait donc un avancement effacé à
+   l'image suivante, et comme elle posait le vol arrivé, la valeur recalculée
+   était toujours la fin : la Terre en grand, quel que soit le bouton.
+
+   Le mécanisme n'était pas cassé — il venait d'être réparé. Le 16 août,
+   l'avancement de la chute a CESSÉ d'être une horloge à côté pour se déduire de
+   la distance : « un seul écrivain ». La séance, elle, est restée sur l'ancien
+   geste, et l'ancien geste est devenu silencieux au lieu de devenir faux.
+
+   ON PLACE DONC LE VAISSEAU. La séance dit où l'on est sur la chute, la page en
+   déduit ce qu'elle en déduit déjà — la loi reste unique, et ce que la séance
+   montre est ce que le jeu montre. On inverse pour cela la même loi que
+   `suitLesScenes` applique, puis on cherche l'avancement du recul par
+   dichotomie : `RECUL.ou` est monotone en `t`, et une bissection ne suppose rien
+   de la forme du rythme — elle marchera encore le jour où il en change. */
+function posePlaceDeLaChute(u, H){
+  const k = TERRELUNE.echelle(cam.focale, H);
+  const debutTL = TERRELUNE.distanceDemiPixel(k);
+  const finTL = TERRELUNE.distanceTerreCadree(cam.focale);
+  // l'inverse de r = log(d/d0)/log(d1/d0), la loi de `suitLesScenes`
+  const dTerreKm = debutTL * Math.pow(finTL / debutTL, Math.max(0, Math.min(1, u)));
+  placeSurLeVol(dTerreKm*1000 + SOLAIRE.demiGrandAxe("Terre")*SOLAIRE.UA);
+}
+
 
 function rangeTerreLune(){
   TERRELUNE.ferme();
@@ -1318,13 +1353,28 @@ style.textContent = `
     position:fixed; z-index:90; left:50%; bottom:20px; transform:translateX(-50%);
     width:min(470px, 94vw); pointer-events:auto;
     max-height:calc(100vh - 24px); max-height:calc(100dvh - 24px);
-    display:flex; flex-direction:column;
-    overflow-y:auto; overscroll-behavior:contain; touch-action:pan-y;
-    -webkit-overflow-scrolling:touch;
+    display:flex; flex-direction:column; overflow:hidden;
     background:color-mix(in srgb, #0b0a16 95%, transparent); backdrop-filter:blur(16px);
     border:1px solid rgba(255,255,255,.15); border-radius:5px; padding:14px 16px 13px;
     font-family:-apple-system, system-ui, sans-serif; color:#c7c2d9;
   }
+  /* LE CORPS DÉFILE, LE SOCLE NE BOUGE PAS — À TOUTE HAUTEUR.
+
+     Ces trois règles ont d'abord vécu dans le palier des écrans courts, au motif
+     qu'un grand écran ne déborde pas. C'était vrai des questions d'alors. Le
+     17 août, trois d'entre elles ont été rangées, la question de l'arrivée est
+     passée en tête — elle est trois fois plus longue — et un téléphone DEBOUT,
+     huit cent soixante-quatorze pixels de haut, a remis les six boutons hors
+     d'atteinte : mille vingt-trois de contenu dans huit cent quarante-huit.
+
+     Le débordement ne dépend pas de la taille de l'écran, il dépend du rapport
+     entre le texte et l'écran. La règle est donc générale, et le palier ne garde
+     que ce qui est vraiment une question de taille : resserrer. */
+  #juge .corps {
+    flex:1 1 auto; min-height:0; overflow-y:auto;
+    overscroll-behavior:contain; touch-action:pan-y; -webkit-overflow-scrolling:touch;
+  }
+  #juge .socle { flex-shrink:0; }
   /* ÉCRAN COUCHÉ : on ne se contente pas de faire défiler, on RESSERRE. Faire
      défiler un panneau plus haut que l'écran pour atteindre un bouton reste
      mauvais ; ici tout tient, et le champ libre garde de quoi écrire une phrase
@@ -1356,16 +1406,7 @@ style.textContent = `
      D'où le socle : tout ce qui se lit ou s'écrit va dans le corps, qui est la
      seule partie élastique et la seule qui défile ; tout ce qui se PRESSE va
      dans le socle, qui ne bouge plus du bas. */
-  #juge.court { overflow:hidden; }
-  #juge.court .corps {
-    flex:1 1 auto; min-height:3.2em; overflow-y:auto;
-    overscroll-behavior:contain; touch-action:pan-y; -webkit-overflow-scrolling:touch;
-  }
-  /* On lui interdit de RÉTRÉCIR, et rien d'autre : le socle ne grandit déjà pas,
-     et lui écrire une règle entière ne changeait rien — mesuré en la sabotant,
-     le contrôle est resté vert. Ce qui compte est qu'un corps assez long ne
-     puisse pas l'écraser au lieu de défiler. */
-  #juge.court .socle { flex-shrink:0; }
+  #juge.court .corps { min-height:3.2em; }
   #juge.court p { font-size:11.5px; line-height:1.45; margin-bottom:7px; }
   #juge.court textarea { min-height:46px; }
   #juge.court .variantes { margin-bottom:7px; }
@@ -1373,6 +1414,34 @@ style.textContent = `
   #juge.court .rangee button { padding:7px 6px; }
   #juge.court .rangee { margin-top:7px; }
   #juge.court .pas { margin-top:6px; }
+
+  /* DEUX CENT SEPT PIXELS. C'est la hauteur de fenêtre qu'Hugo a rapportée le
+     17 août — un iPhone couché, barre du navigateur comprise, sur un écran de
+     932. Le palier « court » y perdait tout : les quatre boutons de verdict
+     tombaient quarante pixels sous le bord, et les deux autres cent trente.
+
+     À cette hauteur, resserrer ne suffit plus : il faut prendre la LARGEUR, qui
+     est le seul espace qui reste. La fenêtre s'élargit donc, les rangées tiennent
+     sur une ligne au lieu de deux, et la ligne d'état disparaît — c'est la seule
+     chose du socle qu'on ne presse pas.
+
+     Le seuil est 330 et non 207 : c'est la hauteur en dessous de laquelle le
+     socle compact ne rentre plus, mesurée, et non celle d'un appareil. Un seuil
+     taillé sur un téléphone serait faux sur le suivant. */
+  #juge.rase { width:min(760px, 96vw); padding:7px 10px 7px; }
+  #juge.rase .sur { font-size:7.5px; margin-bottom:2px; }
+  #juge.rase h4 { font-size:11.5px; margin:0 0 2px; }
+  #juge.rase .corps { min-height:1.3em; }
+  #juge.rase p { font-size:10.5px; line-height:1.35; margin-bottom:3px; }
+  #juge.rase .variantes { gap:3px; margin-bottom:3px; }
+  #juge.rase .variantes button { padding:3px 6px; font-size:10.5px; }
+  #juge.rase .titre-var { display:none; }
+  /* hauteur ET borne basse : le champ porte un nombre de lignes qui lui donne sa
+     hauteur propre, et une borne basse seule ne la fait pas descendre. */
+  #juge.rase textarea { height:30px; min-height:30px; font-size:11px; padding:4px 7px; }
+  #juge.rase .rangee, #juge.rase .rangee.replie-visible { gap:3px; margin-top:3px; }
+  #juge.rase .rangee button { padding:3px; font-size:10px; line-height:1.25; }
+  #juge.rase .pas { display:none; }
   /* Colonnes, et non blocs : en bloc, la marge basse du champ libre fusionnerait
      avec le bord du conteneur et la fenêtre changerait de hauteur rien qu'en
      posant ces deux enveloppes. En colonne souple, aucune marge ne fusionne —
@@ -1510,11 +1579,13 @@ const q = s => boite.querySelector(s);
    aussi la fenêtre à la hauteur simulée, sinon on mesurerait une boîte qui a
    toute la place du monde et le contrôle ne prouverait rien. */
 const COURT = 560;            // au-delà, l'écran a de quoi respirer
+const RASE  = 330;            // en dessous, resserrer ne suffit plus : voir la feuille
 let simule = 0;               // 0 = on lit le vrai écran
 
 function mesureLEcran(){
   const h = simule || innerHeight;
   boite.classList.toggle("court", h <= COURT);
+  boite.classList.toggle("rase",  h <= RASE);
   boite.style.maxHeight = simule ? (simule - 24) + "px" : "";
 }
 
@@ -1699,6 +1770,11 @@ function montre(){
   q("h4").textContent = d.titre;
   q("p").textContent  = d.quoi;
   q("textarea").value = "";
+  /* ET SA HAUTEUR REVIENT À CELLE DE LA FEUILLE. `termine` la pousse à 180 px en
+     ligne pour recevoir le rapport ; sans cette remise à zéro, une question posée
+     après lui hériterait d'une boîte de rapport — mesuré à 180 px sur un écran
+     simulé de 207. Un style écrit en ligne bat toujours la classe. */
+  q("textarea").style.minHeight = "";
 
   const erreur = sur(d.pose);
 
@@ -1855,7 +1931,17 @@ function montre(){
   const bCache = document.createElement("button");
   bCache.className = "note-libre";
   bCache.textContent = "👁  Replier pour regarder";
-  bCache.onclick = () => { boite.classList.toggle("replie"); recadre(); };
+  /* ET LE BOUTON DIT CE QU'IL FERA, PAS CE QU'IL A FAIT. Son libellé n'était
+     écrit qu'au changement de question : une fois déplié, il continuait
+     d'annoncer « Déplier pour répondre ». Sur un écran de deux cents pixels le
+     panneau couvre presque toute la vue, et ce bouton est le seul chemin pour
+     revoir la scène qu'on juge — un bouton qui ment sur sa fonction, là, coûte
+     la question. */
+  const ditSonEtat = () => {
+    bCache.textContent = boite.classList.contains("replie")
+      ? "▸  Déplier pour répondre" : "👁  Replier pour regarder";
+  };
+  bCache.onclick = () => { boite.classList.toggle("replie"); ditSonEtat(); recadre(); };
   notes.className = "rangee replie-visible";      // seul rang visible une fois replié
   notes.appendChild(bNote); notes.appendChild(bCache);
   rang.parentElement.insertBefore(notes, q(".pas"));
@@ -1864,7 +1950,7 @@ function montre(){
      couvre la présentation qu'il faut regarder, ou les boutons qu'il faut
      essayer. On déplie quand on est prêt à répondre. */
   boite.classList.toggle("replie", !!d.libre);
-  bCache.textContent = d.libre ? "▸  Déplier pour répondre" : "👁  Replier pour regarder";
+  ditSonEtat();
   if(d.libre) q(".sur").textContent += "  ·  " + d.titre;
 
   /* La première variante s'applique d'office, mais SEULEMENT MAINTENANT : son
@@ -2058,10 +2144,10 @@ function termine(){
 /* Exposé pour que la séance soit elle-même éprouvable : un script la déroule
    d'un bout à l'autre sans qu'un doigt ne touche l'écran. Un protocole qu'on ne
    peut pas tester serait une plaisanterie — c'est déjà la règle d'`essai.js`. */
-global.JUGE = { DECISIONS, verdicts, montre, repond, termine, rapport: null,
+global.JUGE = { DECISIONS, verdicts, montre, repond, termine, rejoue, rapport: null,
                 get etape(){ return i; }, demarre,
                 // La fenêtre elle-même, pour que son déplacement soit contrôlable.
-                boite, poignee, recadre, eprouve, simuleEcran, COURT,
+                boite, poignee, recadre, eprouve, simuleEcran, COURT, RASE,
                 get place(){ return place; } };
 
 /* Elle attend qu'on soit ENTRÉ.
@@ -2097,6 +2183,23 @@ function rendTout(){
   spin = etatEmprunte.spin;
   if(typeof sauve === "function") sauve();   // la rotation est persistée : il faut la RÉÉCRIRE
   etatEmprunte = null;
+}
+
+/* REJOUER LA SÉANCE DEPUIS LE DÉBUT — pour le contrôle, et pour lui seul.
+
+   `VERIF.seanceSurTelephone()` la joue sous deux hauteurs d'écran : la mienne
+   (402) et celle qu'Hugo a vraiment (207). Il lui faut donc la rembobiner, et
+   `demarre` ne le fait pas — elle NOTE au passage l'état du monde qu'elle va
+   déranger, et l'appeler deux fois écraserait cette note avec un monde déjà
+   dérangé. C'est très exactement la fuite qui a laissé la rotation à 0,95 dans
+   les préférences d'Hugo le 7 août.
+
+   On remet donc l'index et les verdicts, et rien d'autre. */
+function rejoue(){
+  i = 0;
+  verdicts.length = 0;
+  global.JUGE.rapport = null;
+  montre();
 }
 
 function demarre(){

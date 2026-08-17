@@ -309,14 +309,16 @@ const etat = {
   duree: DUREE,
 };
 
-/** Où la scène se tient — ET C'EST DANS LE REPÈRE DE LA PIÈCE, pas du monde.
+/** OÙ LA SCÈNE SE TIENT — ET LA RÉPONSE N'EST PLUS ICI. Elle est dans
+ *  `RECUL.versDestination`, avec la scène solaire, et c'est tout le sujet.
  *
- *  Trois essais, trois défauts, aucun visible autrement qu'à l'écran. Ils sont
- *  écrits parce que la prochaine main refera le premier.
+ *  QUATRE ESSAIS. Les trois premiers sont écrits parce que la prochaine main
+ *  referait le premier ; le quatrième est écrit parce que je l'ai refait.
  *
  *  1. UN POINT DU MONDE, À L'OPPOSÉ DU TROU NOIR — l'avant du voyage. C'était
- *     géométriquement juste et bon à jeter : la baie ne regarde que dans un
- *     sens, et `projette` rendait `null`. La scène était dans le dos du joueur.
+ *     géométriquement juste et bon à jeter : le vaisseau n'avait alors qu'UNE
+ *     ouverture, elle regardait l'astre qu'on quitte, et `projette` rendait
+ *     `null`. La scène était dans le dos du joueur.
  *
  *  2. LE MÊME POINT, RETOURNÉ, à distance écrite. Le voyage porte le vaisseau
  *     de seize rayons à 1,7 × 10¹⁰ : une ancre à 10⁶ s'est retrouvée près du
@@ -328,25 +330,26 @@ const etat = {
  *     mesuré à l'écran, 576 px, puis 614, puis 1 005, hors de la fenêtre. Le
  *     recentrage de `recul.js` masque ça pendant le trajet ; à l'arrêt, non.
  *
- *  LA BONNE ANCRE EST LA BAIE ELLE-MÊME. On prend le centre des vitres, dans le
- *  repère de la pièce, et on le pousse droit devant — la baie regarde vers les
- *  z négatifs, comme `salon.versAstre` le dit depuis le premier jour. C'est fixe
- *  dans le vaisseau, donc ça ne dérive jamais ; et ça sort du champ dès qu'on
- *  tourne la tête, puisque la tête est dans la caméra et non dans la pièce.
- *  C'est exactement ce qu'Hugo avait demandé le 9 août, obtenu par le repère
- *  plutôt que par un calcul.
+ *  4. LA BAIE ELLE-MÊME, dans le repère de la pièce — le choix du 11 août, et
+ *     il a tenu six jours. Fixe dans le vaisseau, donc sans dérive ; hors champ
+ *     dès qu'on tourne la tête, ce qu'Hugo avait demandé le 9 août.
  *
- *  `LOIN` est en unités de la pièce. Il n'a pas d'échelle à suivre ici : la
- *  pièce ne grandit pas. */
-const LOIN = 4000;
-function ou(vitres){
-  if(!vitres || !vitres.length) return null;
-  let y = 0, z = 0;
-  for(const v of vitres){ y += (v.y0 + v.y1)/2; z += v.z; }
-  y /= vitres.length; z /= vitres.length;
-  // droit devant, par la baie : le sens de `salon.versAstre`, les z négatifs
-  return [0, y, z - LOIN];
-}
+ *     ET IL ÉTAIT FAUX, parce que la baie regarde EN ARRIÈRE. Hugo, le 17 août :
+ *     « on zoom sur le Soleil, puis tout disparaît et la Terre apparaît à
+ *     l'opposé d'où on regarde (vitre arrière) ». Le Soleil se plaçait au bout
+ *     du rayon suivi, la Terre au centre de la baie : cent quatre-vingts degrés
+ *     entre deux objets qui sont au même endroit du ciel. Deux lois pour un même
+ *     espace, ce que la règle 4 de ce dépôt interdit — et c'est l'œil d'Hugo qui
+ *     l'a vu, une fois de plus avant le calcul.
+ *
+ *     Ce qui rendait l'essai 1 impossible a EXPIRÉ le 14 août : la vitre avant
+ *     s'est ouverte, et le point du monde placé devant se voit par elle. Personne
+ *     n'est allé rouvrir le dossier ce jour-là. La raison d'un compromis meurt
+ *     souvent plus tôt que le compromis.
+ *
+ *  DEPUIS : la page tend la cible déjà projetée, la même que la scène solaire
+ *  reçoit, calculée par `RECUL.versDestination`. Le module ne choisit plus où il
+ *  se tient — il ne peut donc plus se tenir ailleurs que le Soleil. */
 
 /** Ouvre la scène.
  *
@@ -656,10 +659,11 @@ function legende(ctx, W, H, vu, o){
  *  La page ne tend que ses propres outils — la projection, la découpe, la
  *  focale — et n'a plus de composition à tenir. */
 function peint(ctx, W, H, o){
-  if(!etat.actif || !o || !o.projette) return null;
-  const cible = ou(o.vitres);
-  if(!cible) return null;
-  const vu = o.projette(cible);
+  if(!etat.actif || !o) return null;
+  /* LA CIBLE VIENT DU DEHORS, DÉJÀ PROJETÉE, et il n'y a pas de repli.
+     Un repli sur l'ancienne ancre remettrait la seconde loi dans le fichier —
+     endormie, prête à se réveiller le jour où un appelant oublie le champ. */
+  const vu = o.cible;
   if(!vu) return null;
   ctx.save();
   if(o.decoupe) o.decoupe();
@@ -745,7 +749,7 @@ global.TERRELUNE = {
   distanceDemiPixel, distanceTerreCadree, distanceSortieLune, distanceA,
   fractionEclairee, contourEclaire, directionSoleilEcran,
   // déroulé
-  etat, ou, ouvre, ferme, avance, avancement, distance,
+  etat, ouvre, ferme, avance, avancement, distance,
   // mots, photographies et dessin
   poseMots, poseCartes, carteDisponible,
   dessine, legende, etiquettes, pointsEtiquettes, peint, visible,

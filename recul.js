@@ -618,6 +618,46 @@ function enVue(av, va){
    Ça ne s'est vu que le 16, quand le voyage est devenu d'un seul tenant : il
    finit désormais devant la Terre, c'est-à-dire au seul endroit du site où l'on
    a vraiment envie de regarder autour de soi. */
+/* OÙ EST LA DESTINATION — et il n'y en a qu'une réponse pour tout ce qui s'y
+   trouve.
+
+   Hugo, le 17 août 2026, en jugeant l'arrivée : « lors de l'arrivée du voyage
+   dans le système solaire, la transition est très ratée. On zoom sur le Soleil,
+   puis tout disparaît et la Terre apparaît à l'opposé d'où on regarde (vitre
+   arrière). »
+
+   Il décrivait, sans le savoir, DEUX LOIS POUR UN MÊME ENDROIT — la maladie que
+   ce dépôt traque, et que sa règle nomme : entre deux objets qui décrivent le
+   même espace il ne peut y en avoir qu'une.
+
+     — la scène solaire se plaçait au bout du rayon qu'on a suivi, un point du
+       MONDE, donc devant, par la vitre avant ;
+     — la scène Terre-Lune se plaçait au centre de la baie, un point de la
+       PIÈCE, donc derrière, la baie regardant l'astre qu'on quitte.
+
+   Cent quatre-vingts degrés d'écart entre le Soleil et la Terre, qui sont au
+   même endroit du ciel. Mesuré : le Soleil hors champ dès que le recentrage
+   reprend la visée, et la Terre traversant la baie de 233 px à −231 px.
+
+   L'ancre à la baie n'était pas une bêtise : elle date du 11 août, quand le
+   vaisseau n'avait qu'une ouverture et qu'un point du monde placé devant rendait
+   `null` — la scène était dans le dos, et `terrelune.js` raconte les trois
+   essais. LA VITRE AVANT, ouverte le 14 août, a périmé cette raison sans que
+   personne aille rouvrir le dossier. C'est le troisième compromis de ce dépôt
+   dont la date de péremption passe inaperçue.
+
+   La loi vit ICI parce que c'est le voyage qui la porte : `p` est la position du
+   vaisseau, qui s'écarte le long d'un rayon, et la destination est au bout de ce
+   rayon. Pure, sans DOM, éprouvable sans navigateur — et surtout appelée aux
+   DEUX endroits qui dessinent là-bas. */
+function versDestination(p, camPos, loin){
+  if(!p || !camPos) return null;
+  const n = Math.hypot(p[0], p[1], p[2]);
+  if(!(n > 0)) return null;
+  const L = Number.isFinite(loin) && loin > 0 ? loin : 1e6;
+  return [camPos[0] + p[0]/n*L, camPos[1] + p[1]/n*L, camPos[2] + p[2]/n*L];
+}
+
 function fondus(tele, dt, vue, seuil){
   const s = Number.isFinite(seuil) ? seuil : 0.55;
   const veutGrille = (etat.actif && vue > s) ? 1 : 0;
@@ -1162,6 +1202,7 @@ global.RECUL = { etat, lance, avance, ou, decade, etiquette, dessineQuadrillage,
                  REPERES, REPERE_DEFAUT, borneRepere, poseRepere,
                  get repere(){ return repere; },
                  recentre, enVue, enVueAxe, fondu, fondus, seuilEnVue,
+                 versDestination,
                  get rythme(){ return rythme; },
                  get actif(){ return etat.actif; } };
 

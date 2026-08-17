@@ -18,6 +18,108 @@ Hugo peut aussi le déclencher à tout moment : « on refait le cap ».
 
 ---
 
+## 17 août 2026, le soir — sa transition ratée, et ce qu'elle cachait
+
+Séance jouée sur son téléphone. **Trois « ça va »** — les coquilles, la vitre
+avant, le début du voyage — et **un « ça coince »** :
+
+> *« lors de l'arrivé du voyage dans le système solaire, la transition est très
+> raté. On zoom sur le soleil, puis tout disparaît et la terre apparaît à
+> l'opposé d'où on regarde (vitre arrière). Et les 4 bouton du juge ne change
+> rien, je vois toujours que la terre en grand. »*
+
+Deux phrases, trois défauts, et le plus grave n'est dans aucune des deux.
+
+### Deux lois pour un même endroit du ciel
+
+Le Soleil se plaçait au bout du rayon qu'on a suivi — un point du monde. La Terre
+se plaçait au centre de la baie — un point de la pièce. **Cent quatre-vingts
+degrés entre deux objets qui sont au même endroit.** C'est la règle 4 violée dans
+sa forme la plus littérale, et c'est encore son œil qui l'a vue.
+
+L'ancre à la baie datait du 11 août, quand le vaisseau n'avait qu'une ouverture
+et qu'un point placé devant rendait `null`. **La vitre avant, ouverte le 14, a
+périmé cette raison — et personne n'est allé rouvrir le dossier.** Il y a
+maintenant une seule loi, `RECUL.versDestination`, appelée aux deux endroits qui
+dessinent là-bas.
+
+### Ce qu'il n'a pas pu voir, et que la mesure a montré
+
+**Le vaisseau ne se retournait qu'une fois ARRIVÉ.** Pendant toute l'approche, la
+destination était donc derrière la caméra : `projette` rendait `null` à chaque
+instant de la descente, pour le Soleil comme pour la Terre. Il fallait se battre
+contre le recentrage pour regarder où l'on va.
+
+Un vol à 1 g freine la seconde moitié du chemin, et pour freiner **on se
+retourne**. Le demi-tour tombe donc au milieu, pas à la fin. La physique et
+l'image disaient la même chose ; le site faisait le geste après coup, ce qui ne
+simulait rien. La grande baie regarde maintenant la destination pendant toute la
+seconde moitié, et c'est par la vitre avant qu'on voit ce qu'on quitte — celle
+qu'il venait justement de juger « ça va ».
+
+### Les quatre boutons qui ne changeaient rien
+
+La séance écrivait `TERRELUNE.etat.t` ; `suitLesScenes` le recalcule à chaque
+image. **Deux écrivains pour une valeur**, la maladie du disque à 622× sous sa
+forme la plus sournoise : celle qui ne casse rien et ne dit rien. Le geste était
+juste jusqu'au 16 août ; ce jour-là l'avancement a cessé d'être une horloge, et
+l'ancien geste n'est pas devenu faux, il est devenu **sans effet**.
+
+`placeSurLeVol` remplace les trois façons de dire « où en est-on » par une seule :
+la séance et les contrôles placent le vaisseau, la page en déduit les scènes.
+
+### Ce que la journée a appris sur mes propres contrôles
+
+Quatre se sont cassés, et **aucun pour une mauvaise raison** :
+
+- **`VERIF.sceneSolaire()` mesurait une scène éteinte.** Il posait `APPROCHE.pose`
+  à la main et `suitLesScenes` la rangeait à l'image suivante ; il passait au vert
+  sur le scintillement, et il levait la carte des étoiles à la main pour tripler
+  l'opacité. Une mesure qui a besoin qu'on truque la scène ne mesure pas la scène.
+- **`VERIF.voyageDunSeulTenant()` lançait son vol depuis là où l'on était.** La
+  séance ouvrant désormais sur l'arrivée, il partait de sa destination : chemin
+  nul, vitesse nulle d'un bout à l'autre, et *« la vitesse part de zéro et y
+  revient »* AU VERT.
+- **`VERIF.questionsDuVoyage()` et les quatre témoins d'`outil-verif-juge.js`
+  nommaient leurs questions.** Le jour où Hugo les a jugées « ça va », elles sont
+  sorties de la file et les contrôles ont rougi en reprochant à la séance d'avoir
+  fait ce qu'on lui demande. **Un témoin épinglé à un cas particulier meurt le
+  jour où ce cas est réglé** — c'est-à-dire le jour où l'on en a le plus besoin.
+  Ils portent maintenant leurs invariants sur les questions vivantes, sans en
+  nommer aucune.
+- **`VERIF.seanceTableRase()` refusait un demi-tour légitime.** Il salissait avec
+  `retourne = 1` et refusait de le retrouver à 1 ; depuis que le vaisseau se
+  retourne pour freiner, la question de l'arrivée pose une scène où il EST
+  retourné. Il salit maintenant avec une valeur qu'aucun poseur ne produit —
+  l'argument était déjà écrit trois lignes plus haut pour l'autre scène.
+
+### Et la séance, encore
+
+Son rapport de matériel dit **814 × 207**. J'avais réglé la mise en page sur
+402 px, un téléphone que je m'étais figuré ; il a rejugé sur le sien. Un palier
+« ras » prend la largeur au lieu de la hauteur. Le corps qui défile et le socle
+qui ne bouge pas sont **sortis du palier des écrans courts** : un téléphone
+DEBOUT de 874 px remettait les six boutons hors d'atteinte dès que la question en
+tête est devenue trois fois plus longue. Le débordement ne dépend pas de la
+taille de l'écran, il dépend du rapport entre le texte et l'écran.
+
+Et le bouton de repli **annonçait « Déplier » une fois déplié** : son libellé
+n'était écrit qu'au changement de question. Sur deux cents pixels, c'est le seul
+chemin pour revoir la scène qu'on juge.
+
+### Les contrôles laissés derrière
+
+`VERIF.transitionDuVoyage()` — la destination se projette à six distances de la
+seconde moitié, et le demi-tour se gagne honnêtement à huit cents unités
+astronomiques, sans qu'on le pose. Témoin : au début du voyage, elle DOIT être
+dans le dos. `VERIF.anglesDeSeance()` — pour chaque question à options, deux
+angles au moins donnent deux états du monde différents, sans nommer aucune
+option. Quatre contrôles neufs dans `outil-verif-recul.js` pour la loi de la
+destination, et trois dans `outil-verif-terrelune.js` pour le fait qu'il n'y en
+ait qu'une. Tous prouvés faillibles en cassant ce qu'ils surveillent.
+
+---
+
 ## 17 août 2026 — la séance sortait de l'écran de son téléphone
 
 **« La fenêtre de juge n'est pas adapté au layout mobile, elle sort de l'écran

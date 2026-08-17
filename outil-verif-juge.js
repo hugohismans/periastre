@@ -296,27 +296,53 @@ function accord(texteSeance, texteDoc){
       || act.some(id => !secs.includes(id));
 }
 
-point("la séance qui perd une question ouverte est vue",
-      accord(src.replace(/^\s{2}\{ id: "repere-du-voyage",[\s\S]*?\n\s{2}\},\n/m, ""), doc),
-      "signalé", accord(src.replace(/^\s{2}\{ id: "repere-du-voyage",[\s\S]*?\n\s{2}\},\n/m, ""), doc) ? "signalé" : "RIEN",
-      "c'est la faute du 16 août, remise dans une copie jetable : le document "
-      + "porte la question, la séance ne la pose pas");
+/* LES QUATRE TÉMOINS SE CHOISISSENT TOUT SEULS — 17 août 2026.
 
-point("une question rangée sans que le document suive est vue",
-      accord(src.replace('{ id: "vitre-avant",', '{ id: "vitre-avant", ignore: true,'), doc),
-      "signalé", accord(src.replace('{ id: "vitre-avant",', '{ id: "vitre-avant", ignore: true,'), doc) ? "signalé" : "RIEN",
-      "`ignore: true` la retire de la séance ; sa section reste ouverte");
+   Ils nommaient `repere-du-voyage` et `vitre-avant`. Le jour où Hugo a jugé ces
+   deux questions « ça va », elles sont passées en `ignore: true` et les quatre
+   sabotages ont cessé de mordre : ils abîmaient une question déjà rangée, donc
+   `accord` ne trouvait rien à redire et l'outil rougissait sur ses propres
+   témoins. Un témoin épinglé à un cas particulier meurt le jour où ce cas est
+   réglé — c'est-à-dire le jour où l'on a le plus besoin de lui.
 
-point("un document qui nomme une question inexistante est vu",
-      accord(src, doc.replace("<!-- juge: vitre-avant -->", "<!-- juge: vitre-de-cote -->")),
-      "signalé", accord(src, doc.replace("<!-- juge: vitre-avant -->", "<!-- juge: vitre-de-cote -->")) ? "signalé" : "RIEN",
-      "une coquille dans l'identifiant casserait le lien en silence");
+   On prend donc la PREMIÈRE QUESTION ENCORE OUVERTE, quelle qu'elle soit. Le
+   contrôle « on a bien une question ouverte à abîmer » refuse la file vide :
+   sans lui, une séance entièrement répondue rendrait quatre verts à néant. */
+const ouverte = qs.find(q => !q.repondue);
+point("il reste une question ouverte à abîmer", !!ouverte,
+      "au moins une", ouverte ? ouverte.id : "AUCUNE",
+      "les quatre sabotages ci-dessous ont besoin d'une question vivante ; "
+      + "sans elle ils passeraient au vert sans rien éprouver");
 
-point("une section ouverte sans marqueur est vue",
-      accord(src, doc.replace("<!-- juge: repere-du-voyage -->", "")),
-      "signalé", accord(src, doc.replace("<!-- juge: repere-du-voyage -->", "")) ? "signalé" : "RIEN",
-      "c'est la forme qu'aurait prise l'oubli du 14 août si la convention "
-      + "avait déjà existé ce jour-là");
+if(ouverte){
+  const ID = ouverte.id;
+  const sansElle = src.replace(
+    new RegExp('^\\s{2}\\{ id: "' + ID + '"[\\s\\S]*?\\n\\s{2}\\},\\n', "m"), "");
+  point("la séance qui perd une question ouverte est vue",
+        accord(sansElle, doc),
+        "signalé", accord(sansElle, doc) ? "signalé" : "RIEN",
+        "c'est la faute du 16 août, remise dans une copie jetable : le document "
+        + "porte la question, la séance ne la pose pas");
+
+  const rangee = src.replace('{ id: "' + ID + '",', '{ id: "' + ID + '", ignore: true,');
+  point("une question rangée sans que le document suive est vue",
+        accord(rangee, doc),
+        "signalé", accord(rangee, doc) ? "signalé" : "RIEN",
+        "`ignore: true` la retire de la séance ; sa section reste ouverte");
+
+  const faute = doc.replace("<!-- juge: " + ID + " -->", "<!-- juge: " + ID + "-de-cote -->");
+  point("un document qui nomme une question inexistante est vu",
+        accord(src, faute),
+        "signalé", accord(src, faute) ? "signalé" : "RIEN",
+        "une coquille dans l'identifiant casserait le lien en silence");
+
+  const muette = doc.replace("<!-- juge: " + ID + " -->", "");
+  point("une section ouverte sans marqueur est vue",
+        accord(src, muette),
+        "signalé", accord(src, muette) ? "signalé" : "RIEN",
+        "c'est la forme qu'aurait prise l'oubli du 14 août si la convention "
+        + "avait déjà existé ce jour-là");
+}
 
 console.log("");
 if(echecs){ console.log(`  ❌  ${echecs} ÉCHEC(S) sur ${total} contrôles\n`); process.exit(1); }

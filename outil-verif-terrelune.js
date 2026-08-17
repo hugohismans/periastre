@@ -310,67 +310,73 @@ titre("4. On ne peut pas avoir les deux gros — et c'est le sujet");
 titre("4 bis. Les trois défauts vus à l'écran, désormais gardés");
 
 {
-  /* PREMIER. La scène était posée à l'OPPOSÉ du trou noir — l'avant du voyage —
-     et `projette` rendait `null` : elle était dans le dos du joueur, qui
-     n'aurait rien vu du tout. La baie ne regarde que dans un sens. On relit
-     donc `index.html` : la direction qu'il tend doit être l'OPPOSÉE de
-     `salon.p`, celle où la baie pointe, et c'est aussi l'ancre de la carte des
-     étoiles S — une seule loi pour les deux arrivées. */
+  /* PREMIER, RÉÉCRIT LE 17 AOÛT — et c'est le même défaut qui revient par
+     l'autre bout.
+
+     Le 11 août, la scène était posée à l'OPPOSÉ du trou noir, un point du monde,
+     et `projette` rendait `null` : elle était dans le dos du joueur, qui n'avait
+     alors qu'une ouverture. On l'a donc ancrée à la baie, dans le repère de la
+     pièce, et ce contrôle exigeait cette ancre-là.
+
+     LA VITRE AVANT S'EST OUVERTE LE 14 AOÛT, et la raison de l'ancre est morte
+     ce jour-là sans que personne rouvre le dossier. Six jours plus tard, Hugo :
+     « on zoom sur le Soleil, puis tout disparaît et la Terre apparaît à l'opposé
+     d'où on regarde (vitre arrière) ». La baie regarde EN ARRIÈRE ; le Soleil se
+     plaçait au bout du rayon suivi. Cent quatre-vingts degrés entre deux objets
+     qui sont au même endroit du ciel.
+
+     CE CONTRÔLE GARDAIT DONC LE DÉFAUT. Il exigeait `projetteSalon` et
+     `VAISSEAU.vitres()` — c'est-à-dire précisément la seconde loi. Ce qu'il faut
+     garder n'est pas UNE ancre, c'est le fait qu'il n'y en ait QU'UNE : le
+     Soleil et la Terre reçoivent le même point, du même appel. */
   const srcPage = fs.readFileSync(path.join(ici, "index.html"), "utf8");
   const m = srcPage.match(/TERRELUNE\.peint\(([\s\S]{0,300})/);
-  point("la page projette la scène DANS LE REPÈRE DE LA PIÈCE",
-        !!m && /projetteSalon/.test(m[1]) && /vitres:\s*VAISSEAU\.vitres\(\)/.test(m[1]),
-        "projetteSalon + VAISSEAU.vitres()",
-        m ? (/projetteSalon/.test(m[1]) ? "oui" : "elle projette dans le monde")
+  point("la page place la scène par `versLaDestination`",
+        !!m && /cible:\s*versLaDestination\(\)/.test(m[1]),
+        "cible: versLaDestination()",
+        m ? (m[1].split("\n").find(l => /cible|vitres|projette/.test(l)) || "?").trim()
           : "APPEL INTROUVABLE",
-        "projetée dans le monde, la scène dérive quand le vaisseau se déplace : "
-        + "mesuré à l'écran, 576 px puis 614 puis 1 005 — hors de la fenêtre");
+        "ancrée à la baie, elle apparaissait à cent quatre-vingts degrés du "
+        + "Soleil — c'est ce qu'Hugo a vu le 17 août");
 
-  /* L'ANCRE EST LA BAIE, ET ELLE NE DÉRIVE PAS.
+  /* ET LA MÊME FONCTION SERT AUX DEUX. C'est la règle 4 mise en contrôle : entre
+     deux objets qui décrivent le même espace il ne peut y avoir qu'une seule
+     loi. On compte les appels, et l'on exige qu'ils encadrent les deux scènes.
 
-     Trois ancres essayées le 11 août, trois défauts, aucun visible autrement
-     qu'à l'écran — la dernière mesure disait 576 px, puis 614, puis 1 005,
-     c'est-à-dire hors de la fenêtre, sans que rien ne le signale.
+     Sa vérité ne vient pas de ma parole : elle vient de ce que le fichier appelle
+     réellement, et le compte se casse si quelqu'un recopie la formule à côté. */
+  const appels = (srcPage.match(/(?<!function\s)versLaDestination\(\)/g) || []).length;
+  point("le Soleil et la Terre reçoivent le même point",
+        appels === 2, "2 appels", appels + " appel(s)",
+        "un seul appel voudrait dire qu'une des deux scènes se place ailleurs ; "
+        + "trois, qu'une troisième s'y est accrochée sans qu'on le sache");
+  point("et la page ne recalcule plus la direction à la main",
+        !/const\s+us\s*=\s*norm\(salon\.p\)/.test(srcPage),
+        "aucune formule recopiée",
+        /const\s+us\s*=\s*norm\(salon\.p\)/.test(srcPage) ? "il en reste une" : "aucune",
+        "une loi recopiée est une loi qui divergera");
 
-     Sa vérité vient d'ailleurs : la géométrie des vitres est lue dans
-     `vaisseau.js`, et l'on exige que l'ancre soit dans leur axe, devant elles,
-     et INDÉPENDANTE de tout ce qui bouge. */
+  /* LE MODULE NE CHOISIT PLUS OÙ IL SE TIENT, et surtout il n'a plus de repli.
+     Un repli sur l'ancienne ancre laisserait la seconde loi endormie dans le
+     fichier, prête à se réveiller le jour où un appelant oublie le champ. */
+  point("le module n'a plus d'ancre à lui", typeof TL.ou === "undefined",
+        "TL.ou absent", typeof TL.ou,
+        "tant qu'elle existe, la seconde loi n'est qu'endormie");
+
   {
-    const V = {};
-    charge("vaisseau.js", V);
-    const vitres = V.VAISSEAU.vitres();
-    const a = TL.ou(vitres);
-
-    point("l'ancre se lit sur la géométrie réelle des vitres",
-          !!a && a.length === 3, "trois nombres", JSON.stringify(a));
-
-    const zBaie = vitres.reduce((t, v) => t + v.z, 0) / vitres.length;
-    const yBaie = vitres.reduce((t, v) => t + (v.y0 + v.y1)/2, 0) / vitres.length;
-    point("elle est dans l'axe de la baie, à sa hauteur",
-          Math.abs(a[0]) < 1e-12 && Math.abs(a[1] - yBaie) < 1e-12,
-          "x = 0, y = " + yBaie.toFixed(2), a[0] + ", " + a[1].toFixed(2));
-    point("et DEVANT elles, du côté où la baie regarde",
-          a[2] < zBaie - 100, "bien au-delà de z = " + zBaie.toFixed(2), a[2].toFixed(0),
-          "la baie regarde les z négatifs — c'est ce que `salon.versAstre` dit "
-          + "depuis le premier jour, et une seule loi vaut mieux que deux");
-
-    /* ELLE NE DÉPEND DE RIEN QUI BOUGE. C'est LA propriété qui manquait aux
-       trois essais précédents : chacun était accroché à quelque chose que le
-       voyage déplaçait. On lui redemande l'ancre après avoir fait tourner
-       l'avancement et l'état, et l'on exige le même point. */
     TL.ouvre(TL.echelle(FOCALE, 900), 1078, FOCALE);
-    for(let i = 0; i < 50; i++) TL.avance(0.1);
-    const b = TL.ou(vitres);
+    const ctx = new Proxy({}, { get(_, k){
+      if(k === "createRadialGradient") return () => ({ addColorStop(){} });
+      if(k === "measureText") return () => ({ width: 10 });
+      if(k === "canvas") return { width: 1078, height: 900 };
+      return () => {};
+    }, set(){ return true; } });
+    const r = TL.peint(ctx, 1078, 900, { cible: null, focale: FOCALE });
     TL.ferme();
-    point("elle ne bouge pas d'un pouce pendant la chute",
-          a.every((x, i) => x === b[i]), JSON.stringify(a), JSON.stringify(b),
-          "les trois ancres essayées avant celle-ci dérivaient toutes : le "
-          + "vaisseau se DÉPLACE pendant le recul, mais il ne se retourne pas, "
-          + "donc la direction de l'astre balaie la baie");
-
-    point("et sans vitres, elle ne peint rien plutôt que d'inventer un point",
-          TL.ou(null) === null && TL.ou([]) === null, "null",
-          String(TL.ou(null)) + " / " + String(TL.ou([])));
+    point("sans cible, il ne peint rien plutôt que d'inventer un point",
+          r === null, "null", String(r),
+          "le rabattement au centre ÉTAIT le défaut du 9 août, sur la carte "
+          + "des étoiles ; on ne le refait pas ici");
   }
 
   /* DEUXIÈME. La Lune sortait par le HAUT de la baie, qui est large et basse,
@@ -464,8 +470,7 @@ titre("4 bis. Les trois défauts vus à l'écran, désormais gardés");
     T2.ouvre(T2.echelle(FOCALE, 900), 1078, FOCALE);
     T2.etat.t = T2.etat.duree * 0.3;
     T2.poseMots({ titre: "T", terre: "la Terre", lune: "la Lune" });
-    T2.peint(ctx, 1078, 900, { projette: () => [539, 450], focale: FOCALE,
-                               vitres: [{ x0:-3, x1:3, y0:0.3, y1:2.7, z:-3.7 }] });
+    T2.peint(ctx, 1078, 900, { cible: [539, 450], focale: FOCALE });
     const couvrant = plein.filter(([x, y, w, h]) => w >= 1078 && h >= 900);
     point("et il ne peint plus rien en plein cadre",
           couvrant.length === 0, "aucun rectangle plein cadre",

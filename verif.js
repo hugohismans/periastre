@@ -1061,14 +1061,28 @@ function sceneSolaire(){
        halo — tout ce qui est clair. Le voile, lui, est à peine plus qu'un noir :
        #05050a sous une opacité de 0,45. On pèse donc chaque pixel par son éclat
        ET par son alpha, et le seuil laisse le voile dehors sans discuter. */
-    const clairs = () => {
+    /* ON COMPTE LES PIXELS QUI CHANGENT, ET NON LES PIXELS CLAIRS — 17 août.
+
+       `clairs()` pesait chaque pixel par son éclat, avec un seuil. La scène
+       solaire est dessinée à l'opacité du recul, qui vaut 0,33 près de
+       l'arrivée : sous ce seuil, presque rien ne comptait, et le contrôle ne
+       tenait que parce qu'il levait la carte des étoiles à la main pour tripler
+       la luminosité. Une mesure qui a besoin qu'on truque la scène ne mesure pas
+       la scène.
+
+       Ce qu'on veut savoir est « le dessin change-t-il l'image ? ». On le
+       demande donc directement : la même image, avec et sans, et l'on compte les
+       pixels qui diffèrent. Aucun seuil de luminosité à choisir — et le plancher
+       de bruit se mesure avec le MÊME geste, dessin ôté des deux côtés. */
+    const empreinte = () => {
       const img = ctx.getImageData(0, 0, cvs.width, cvs.height).data;
-      let n = 0;
+      const out = new Uint8ClampedArray(Math.ceil(cvs.height/2)*Math.ceil(cvs.width/2)*4);
+      let k = 0;
       for(let y = 0; y < cvs.height; y += 2) for(let x = 0; x < cvs.width; x += 2){
         const i = (y*cvs.width + x)*4;
-        if((img[i] + img[i+1] + img[i+2])/3 * img[i+3]/255 >= 20) n++;
+        out[k++] = img[i]; out[k++] = img[i+1]; out[k++] = img[i+2]; out[k++] = img[i+3];
       }
-      return n;
+      return out;
     };
 
     const d = DESTINATIONS.find(x => x.scene === "solaire");
@@ -1090,9 +1104,23 @@ function sceneSolaire(){
       salon.lacet = 0; salon.tangage = -0.05; salon.retourne = 0;
       salon.p = [salon.apo, 0, 0];
       lanceVoyage(d, VOYAGE.entre(distanceVaisseau(), d.d_m));
-      RECUL.etat.t = 0.999;
+      /* ON PLACE LE VAISSEAU, ON NE POSE PLUS LA SCÈNE — 17 août 2026.
+
+         Il y avait ici `RECUL.etat.t = 0.999` puis `APPROCHE.pose(dUa)`, et
+         `suitLesScenes` rangeait la scène à l'image suivante : à 0,999 on est en
+         bas de la chute, la scène solaire est éteinte et c'est la Terre qui
+         remplit la baie. Ce contrôle mesurait donc « ce que la scène solaire
+         ajoute » avec la scène solaire ÉTEINTE, et il passait au vert sur le
+         scintillement de la carte des étoiles.
+
+         Il s'est vu le jour où l'ancre de la Terre a changé : la mesure a viré
+         au rouge en donnant −888, c'est-à-dire un ajout négatif. Un contrôle qui
+         ne bouge que par accident ne contrôlait rien.
+
+         `placeSurLeVol` est le geste de la page, et la séance emploie le même :
+         on dit où l'on est, la page allume ce qu'elle allume. */
+      placeSurLeVol(dUa * SOLAIRE.UA);
       t = avanceImages(4, t);
-      APPROCHE.pose(dUa);
       /* LE DEMI-TOUR EST POSÉ À SON POINT FIXE, PAS JOUÉ. Il dure trois
          secondes, soit cent quatre-vingts images à la cadence de ce contrôle,
          et trois arrivées en coûtaient sept minutes.
@@ -1104,8 +1132,12 @@ function sceneSolaire(){
          maintient, et le point qui suit le vérifie avant de conclure. S'il
          redescendait, c'est que le demi-tour ne serait pas armé du tout. */
       salon.retourne = 1;
-      TELESCOPE.carte = 1;
-      t = avanceImages(3, t);
+      /* ON NE LÈVE PLUS LA CARTE DES ÉTOILES À LA MAIN. Il y avait ici
+         `TELESCOPE.carte = 1`, et l'opacité de la scène en dépend : elle valait
+         donc 1 au lieu des 0,33 qu'elle a vraiment. La destination « soleil »
+         déclare `carte: false` depuis le 10 août — la lever était mesurer une
+         luminosité que personne ne voit. */
+      t = avanceImages(25, t);        // et les fondus finissent de converger
     };
 
     // Où le Soleil tombe-t-il à l'écran ? C'est la question du défaut, posée
@@ -1149,29 +1181,78 @@ function sceneSolaire(){
     /* LES DEUX RÉGIMES, À L'ÉCRAN. La mesure est différentielle : on compte ce
        que la scène AJOUTE, avec et sans son dessin. Un compte absolu serait
        satisfait par le décor de la pièce. */
-    const ajout = () => {
+    /* LES FONDUS D'ABORD, LA MESURE ENSUITE — règle 5, et il a fallu se faire
+       prendre pour l'écrire.
+
+       Les deux passes étaient prises à six images d'écart, et rien n'était
+       stabilisé entre elles : `TELESCOPE.carte`, la trame et le fondu du recul
+       convergent d'un pas à chaque image. La différence portait donc leur
+       progression autant que le dessin qu'on ôtait. Sur la scène du bas, où
+       l'ajout se compte en centaines de pixels, ça ne se voyait pas ; depuis le
+       nuage de Oort, où la scène entière est UN POINT, la mesure a rendu −16 puis
+       −31 — un ajout négatif, c'est-à-dire du bruit pur.
+
+       On laisse donc les fondus se poser, puis les deux passes partent de LA
+       MÊME horloge et ne durent qu'une image. `mesureLeBruit` refait exactement
+       le même geste avec le dessin ôté DES DEUX CÔTÉS : ce qu'il rend est le
+       plancher de mesure, et les seuils se comparent à lui plutôt qu'à un
+       nombre que j'aurais choisi. */
+    const ajout = (bruit) => {
+      const t0 = t;
       APPROCHE.dessine = () => {};
-      t = avanceImages(3, t); const sans = clairs();
+      avanceImages(1, t0); const sans = empreinte();
+      APPROCHE.dessine = bruit ? () => {} : vraiDessine;
+      t = avanceImages(1, t0); const avec = empreinte();
       APPROCHE.dessine = vraiDessine;
-      t = avanceImages(3, t); const avec = clairs();
-      return avec - sans;
+      /* LE SEUIL EST CELUI D'AVANT, appliqué à l'ÉCART. Compter tout pixel qui
+         change reviendrait à compter tout pixel non transparent : le voile de la
+         scène couvre la baie entière à n'importe quelle distance, et les deux
+         régimes ont rendu 54 642 et 54 725 — à quatre-vingt-trois pixels près,
+         c'est-à-dire rien du tout. C'est le piège déjà payé le 11 août, sous une
+         autre forme.
+
+         On garde donc l'éclat, pesé par l'alpha, et l'on demande que le dessin
+         DÉPLACE cet éclat d'au moins vingt niveaux. Le voile en vaut trois —
+         #05050a sous 0,45 — et reste dehors sans discuter ; les anneaux, les
+         noms et le halo passent. Un écart signé, lui, ne dirait rien : la scène
+         recouvre un fond étoilé, et ce qu'elle ajoute peut être plus sombre que
+         ce qu'elle cache. */
+      const eclat = (a, i) => (a[i] + a[i+1] + a[i+2])/3 * a[i+3]/255;
+      let n = 0;
+      for(let i = 0; i < sans.length; i += 4)
+        if(Math.abs(eclat(avec, i) - eclat(sans, i)) >= 20) n++;
+      return n;
     };
 
     arrive(APPROCHE.ARRIVEE_UA);
+    const plancher = Math.abs(ajout(true));
     const bas = ajout();
-    point("en bas de la chute, la scène se peint", bas > 200,
-          "> 200 pixels clairs ajoutés", bas,
+    point("la mesure a un plancher, et il est bas", plancher <= 40,
+          "≤ 40 pixels changés", plancher,
+          "c'est le même geste avec le dessin ôté des deux côtés : si ce nombre "
+          + "monte, les deux points suivants ne mesurent plus que du bruit — "
+          + "c'est très exactement ce qui s'est passé le 17 août");
+    point("en bas de la chute, la scène se peint", bas > 20*Math.max(1, plancher),
+          "> " + 20*Math.max(1, plancher) + " pixels changés", bas,
           "les anneaux, le Soleil et les noms — ce qu'on a traversé vingt-sept "
           + "mille années-lumière pour voir");
 
     arrive(APPROCHE.DEPART_UA);
     const nuage = ajout();
-    point("depuis le nuage, il y a quelque chose — un point", nuage > 20,
-          "> 20 pixels clairs ajoutés", nuage,
+    point("depuis le nuage, il y a quelque chose — un point",
+          nuage > Math.max(2, plancher),
+          "> " + Math.max(2, plancher) + " pixels changés", nuage,
           "un écran rigoureusement vide se lirait comme une panne, et c'est "
           + "justement la question posée à Hugo");
-    point("et bien moins qu'en bas de la chute", nuage < bas/3,
-          "< " + Math.round(bas/3), nuage,
+    /* LE FACTEUR EST DEUX, ET IL A ÉTÉ TROIS. Il valait trois quand la mesure
+       comptait les pixels clairs de l'image entière, la carte des étoiles levée
+       à la main : ce trois-là chiffrait un montage, pas la scène. À l'opacité
+       vraie et sur l'écart, les deux régimes donnent 3 519 et 1 454 — un facteur
+       2,4. Ce point n'est pas là pour policer ce nombre : il est là pour
+       attraper le jour où les deux régimes se confondent, ce qui est très
+       exactement ce que l'ancienne mesure faisait déjà sans le dire. */
+    point("et bien moins qu'en bas de la chute", nuage < bas/2,
+          "< " + Math.round(bas/2), nuage,
           "c'est le passage d'un régime à l'autre, mesuré : « rien à voir » "
           + "devient « ah, il y a quelque chose »");
 
@@ -1184,7 +1265,7 @@ function sceneSolaire(){
     t = avanceImages(3, t);
     const dos = ajout();
     point("et si l'on regarde ailleurs, elle sort du champ", Math.abs(dos) < 40,
-          "< 40 pixels clairs ajoutés", dos,
+          "< 40 pixels changés", dos,
           "`projette` rend `null` derrière le plan de coupure, et l'on ne "
           + "dessine alors rien plutôt que de rabattre la scène au centre");
   } finally {
@@ -1265,9 +1346,18 @@ function seanceSansTrace(){
   return enCours;
 }
 
-/* 5 quinquies. LES DEUX QUESTIONS DU VOYAGE TIENNENT CE QU'ELLES POSENT.
+/* 5 quinquies. UNE QUESTION DE SÉANCE NE DÉRANGE RIEN ET NE SE DÉROBE PAS.
 
    Écrit le 16 août 2026, et les deux moitiés viennent d'un défaut réel.
+
+   RÉÉCRIT LE 17 : IL NOMMAIT SES DEUX QUESTIONS, et le jour où Hugo les a jugées
+   « ça va » elles sont sorties de la file — le contrôle a rougi sur « les deux
+   questions sont bien posées », en reprochant à la séance d'avoir fait
+   exactement ce qu'on lui demande. Un contrôle épinglé à un cas particulier
+   meurt le jour où ce cas est réglé, c'est-à-dire le jour où l'on a le plus
+   besoin de lui ; c'est la troisième fois de la journée que ce piège se referme.
+   Il porte donc les deux invariants sur TOUTES les questions vivantes, sans en
+   nommer aucune.
 
    LA PREMIÈRE EST LE PIÈGE DU 11 AOÛT, DÉPLACÉ. Ce jour-là, `rangeGrandTrajet`
    remettait « fidele » EN DUR en sortant de séance : juste tant que le rythme
@@ -1295,94 +1385,113 @@ function seanceSansTrace(){
    repère qu'il veut, et rend tout dans le `finally`, y compris quand un point
    échoue.                                                                     */
 function questionsDuVoyage(){
-  ouvre("Les deux questions du voyage tiennent ce qu'elles posent");
+  ouvre("Une question de séance ne dérange rien et ne se dérobe pas");
   if(typeof JUGE === "undefined"){
     point("la séance est chargée", false, "JUGE", "absent",
           "ouvrir `?verif&juge` pour jouer ce contrôle");
     return enCours;
   }
-  const q = id => JUGE.DECISIONS.find(d => d.id === id);
-  const rep = q("repere-du-voyage"), vit = q("vitre-avant");
-  point("les deux questions sont bien posées", !!rep && !!vit,
-        "repere-du-voyage et vitre-avant",
-        `${rep ? "repere-du-voyage" : "MANQUE"}, ${vit ? "vitre-avant" : "MANQUE"}`,
-        "elles ont été écrites dans A-REGARDER.md le 14 août et n'étaient "
-        + "arrivées dans la séance que le 16 — c'est le défaut d'origine");
-  if(!rep || !vit) return enCours;
+  point("il reste des questions ouvertes à jouer", JUGE.DECISIONS.length > 0,
+        "> 0", JUGE.DECISIONS.length,
+        "une file vide passerait tout ce qui suit sans rien exercer");
 
-  const av = { repere: RECUL.repere, lacet: salon.lacet, tangage: salon.tangage };
+  const av = { repere: RECUL.repere, rythme: RECUL.rythme,
+               lacet: salon.lacet, tangage: salon.tangage };
   const degele = fige();
+  const efface = [], derobent = [];
+  let derive = null;
   try {
-    // --- le choix du joueur, et ce qu'il en reste ---------------------------
-    RECUL.poseRepere("quadrillage");
-    rep.options[0].fait();                         // coquilles, au milieu
-    avanceImages(3);
-    const pose1 = RECUL.repere;
-    rep.options[1].fait();                         // quadrillage, au milieu
-    avanceImages(3);
-    const pose2 = RECUL.repere;
-    rep.rend();
-    avanceImages(2);
+    for(const d of JUGE.DECISIONS){
+      /* --- LE PIÈGE DU 11 AOÛT : la séance efface le réglage du joueur.
 
-    point("la question pose bien les deux repères", pose1 === "coquilles" && pose2 === "quadrillage",
-          "coquilles puis quadrillage", `${pose1} puis ${pose2}`,
-          "sans ça le point suivant serait vrai d'une question qui ne fait rien");
-    point("et le choix du joueur lui est rendu", RECUL.repere === "quadrillage",
-          "quadrillage", RECUL.repere,
-          "le piège du 11 août : une séance qui repose le DÉFAUT du module "
-          + "efface le réglage de celui qui vient de passer dix minutes à juger");
+         Ce jour-là, `rangeGrandTrajet` remettait « fidele » EN DUR en sortant :
+         juste tant que le rythme n'était pas réglable, destructeur le jour où le
+         bouton est apparu. On écrit donc un choix de joueur qui n'est le défaut
+         d'aucun des deux réglages, on joue la question et sa sortie, et l'on
+         exige de le retrouver. */
+      RECUL.poseRepere("quadrillage");
+      RECUL.poseRythme("fidele");
+      if(typeof d.pose === "function") d.pose();
+      if(d.options) for(const o of d.options) if(typeof o.fait === "function"){
+        o.fait(); avanceImages(2);
+      }
+      if(typeof d.rend === "function") d.rend();
+      avanceImages(2);
+      if(RECUL.repere !== "quadrillage" || RECUL.rythme !== "fidele")
+        efface.push(d.id + " (" + RECUL.repere + ", " + RECUL.rythme + ")");
 
-    // --- la vitre avant ne se dérobe pas ------------------------------------
-    const ecart = () => {
-      const va = salon.versAstre;
-      if(!va) return null;
-      let d = salon.lacet - Math.atan2(va[0], -va[2]);
-      while(d >  Math.PI) d -= 2*Math.PI;
-      while(d < -Math.PI) d += 2*Math.PI;
-      return Math.abs(d) * 180/Math.PI;
-    };
-    vit.options[0].fait();                         // retourné, au milieu
-    const e0 = ecart();
-    avanceImages(60);                              // une seconde de vol
-    const e1 = ecart();
+      /* --- ET LA VUE TIENT PENDANT QU'ON LA REGARDE.
 
-    /* LE TÉMOIN, ET IL EST NÉCESSAIRE. « La vue ne bouge pas » ne prouve rien
-       tant qu'on n'a pas montré qu'elle POUVAIT bouger : on rejoue la même
-       seconde en effaçant le drapeau, c'est-à-dire dans l'état exact où la
-       question se trouvait avant le 16 août.
+         `recentre` ramène la visée vers l'astre à 0,8 par seconde, soit 21° en
+         six dixièmes. Une scène de séance qui se dérobe pendant qu'Hugo la juge
+         lui fait juger autre chose que ce qu'on lui demande — c'est le défaut
+         mesuré ici le 16 août, avant qu'il n'existe ailleurs. Le remède est le
+         drapeau que la page pose quand la main prend la visée ; ce point exige
+         que l'écart TIENNE, pour toute question, sans en nommer aucune. */
+      if(typeof d.pose === "function") d.pose();
+      avanceImages(2);
+      const a0 = salon.lacet;
+      avanceImages(60);                            // une seconde
+      let dl = salon.lacet - a0;
+      while(dl >  Math.PI) dl -= 2*Math.PI;
+      while(dl < -Math.PI) dl += 2*Math.PI;
+      const deg = Math.abs(dl) * 180/Math.PI;
+      if(derive === null || deg > derive) derive = deg;
+      if(deg > 5) derobent.push(d.id + " : " + deg.toFixed(1) + "°");
+      if(typeof d.rend === "function") d.rend();
+      avanceImages(2);
+    }
 
-       Et le seuil ne peut pas être serré à un degré, parce que la baie DÉRIVE
-       pour de bon pendant le vol — c'est la rotation qui fait qu'on arrive
-       tourné vers sa destination, et elle vaut un degré et des poussières par
-       seconde. Ce qu'on refuse n'est pas le mouvement, c'est la REPRISE : le
-       recentrage referme la moitié de l'écart en une seconde. Entre deux et
-       quatre-vingts degrés, aucun réglage de seuil ne peut confondre les deux. */
-    vit.options[0].fait();
-    if(TELESCOPE.trajet) TELESCOPE.trajet.mainPrise = false;
-    avanceImages(60);
-    const temoin = ecart();
+    point("aucune n'efface le réglage du joueur", efface.length === 0,
+          "aucune", efface.length ? efface.join(" · ") : "aucune",
+          "le piège du 11 août : dix minutes de jugement, et l'on ressort avec "
+          + "un réglage qu'on n'a pas demandé");
+    point("et aucune vue ne se dérobe pendant qu'on la regarde",
+          derobent.length === 0, "moins de 5° en une seconde",
+          derobent.length ? derobent.join(" · ")
+                          : "au pire " + (derive === null ? "?" : derive.toFixed(1)) + "°",
+          "le recentrage referme la moitié de l'écart en une seconde ; Hugo "
+          + "jugerait une vue qui glisse, et il aurait raison de la trouver "
+          + "mauvaise — pour une raison qui n'est pas celle qu'on lui demande");
 
-    vit.rend();
-    avanceImages(2);
-
-    point("la vitre avant regarde bien à l'opposé de la baie",
-          e0 !== null && Math.abs(e0 - 180) < 1, "180°",
-          e0 === null ? "aucune direction" : e0.toFixed(1) + "°");
-    point("et la vue TIENT pendant qu'on la regarde",
-          e1 !== null && Math.abs(e1 - 180) < 5, "180° ± 5 une seconde plus tard",
-          e1 === null ? "aucune direction" : e1.toFixed(1) + "°",
-          "l'écart résiduel est la dérive voulue de la baie, pas une reprise");
-    point("et le témoin montre ce qu'elle ferait sans le drapeau",
-          temoin !== null && Math.abs(temoin - 180) > 45, "à plus de 45° de 180",
-          temoin === null ? "aucune direction" : temoin.toFixed(1) + "°",
-          "le recentrage ramène la visée de 0,8 par seconde et referme la "
-          + "moitié de l'écart en une seconde. Hugo jugerait une vue qui se "
-          + "dérobe sous ses yeux, et il aurait raison de la trouver mauvaise — "
-          + "pour une raison qui n'est pas celle qu'on lui demande");
+    /* LE TÉMOIN : sans le drapeau, ça DOIT bouger. Sans lui, « la vue tient »
+       serait vrai d'une séance qui ne pose plus aucune scène. On rejoue la
+       dernière question dans l'état exact d'avant le 16 août. */
+    const last = JUGE.DECISIONS[JUGE.DECISIONS.length - 1];
+    let sansDrapeau = null;
+    if(last && typeof last.pose === "function"){
+      last.pose();
+      avanceImages(2);
+      if(TELESCOPE.trajet){
+        TELESCOPE.trajet.mainPrise = false;
+        salon.lacet += Math.PI;                    // on regarde ailleurs, exprès
+        const b0 = salon.lacet;
+        avanceImages(60);
+        let db = salon.lacet - b0;
+        while(db >  Math.PI) db -= 2*Math.PI;
+        while(db < -Math.PI) db += 2*Math.PI;
+        sansDrapeau = Math.abs(db) * 180/Math.PI;
+      }
+      if(typeof last.rend === "function") last.rend();
+      avanceImages(2);
+    }
+    point("et le témoin montre ce qu'elles feraient sans le drapeau",
+          sansDrapeau !== null && sansDrapeau > 15,
+          "plus de 15° en une seconde",
+          sansDrapeau === null ? "aucune scène à éprouver" : sansDrapeau.toFixed(1) + "°",
+          "sans ce point, « la vue tient » serait vrai d'une séance qui ne pose "
+          + "plus rien du tout");
   } finally {
     degele();
     RECUL.poseRepere(av.repere);
+    RECUL.poseRythme(av.rythme);
     salon.lacet = av.lacet; salon.tangage = av.tangage;
+    TERRELUNE.ferme(); APPROCHE.range();
+    RECUL.etat.actif = false;
+    if(TELESCOPE.trajet){ TELESCOPE.trajet = null; TELESCOPE.retour = false; }
+    TELESCOPE.carte = 0;
+    fermeTelescope();
+    poseSalon();
     avanceImages(2);
   }
   return enCours;
@@ -1872,6 +1981,17 @@ function seanceTableRase(){
        laissée. La marque distingue « elle a repris la main » de « elle a
        hérité », ce qu'aucun drapeau ne dirait. */
     const MARQUE = 7.77;
+    /* ET LE DEMI-TOUR PORTE SA PROPRE MARQUE — 17 août 2026.
+
+       On salissait avec `salon.retourne = 1`, et l'on refusait de le retrouver à
+       1 après la pose. C'était juste tant qu'un seul état était légitime. Depuis
+       que le vaisseau se retourne pour freiner, la question de l'arrivée pose
+       une scène où il EST retourné : un vrai 1, indiscernable de l'hérité.
+
+       Une valeur qu'aucun poseur ne produit règle ça — c'est déjà l'argument
+       écrit trois lignes plus haut pour la scène Terre-Lune, et il valait pour
+       celui-ci sans que personne l'applique. */
+    const DEMI = 0.37;
     const heritees = [];
     let posees = 0;
     for(const d of JUGE.DECISIONS){
@@ -1879,7 +1999,7 @@ function seanceTableRase(){
       TERRELUNE.ouvre(TERRELUNE.echelle(cam.focale, H), W, cam.focale);
       TERRELUNE.etat.t = MARQUE;
       APPROCHE.pose(APPROCHE.DEPART_UA);
-      salon.retourne = 1;
+      salon.retourne = DEMI;
 
       d.pose();
       posees++;
@@ -1887,7 +2007,7 @@ function seanceTableRase(){
       if(APPROCHE.etat.actif && !TERRELUNE.etat.actif
          && APPROCHE.etat.dUa === APPROCHE.DEPART_UA && !APPROCHE.etat.chute
          && d.id.indexOf("solaire") < 0) heritees.push(d.id + " (solaire)");
-      if(salon.retourne === 1) heritees.push(d.id + " (demi-tour)");
+      if(salon.retourne === DEMI) heritees.push(d.id + " (demi-tour)");
     }
 
     point("toutes les questions ont posé leur scène", posees > 0, "> 0", posees,
@@ -1907,6 +2027,213 @@ function seanceTableRase(){
     TELESCOPE.carte = av.carte;
     salon.lacet = av.lacet; salon.tangage = av.tangage; salon.retourne = av.retourne;
     fermeTelescope();
+    poseSalon();
+    avanceImages(2);
+  }
+  return enCours;
+}
+
+/* 8 septies. LA DESTINATION EST DEVANT NOUS PENDANT TOUTE LA SECONDE MOITIÉ.
+
+   Hugo, le 17 août 2026 : « lors de l'arrivée du voyage dans le système solaire,
+   la transition est très ratée. On zoom sur le Soleil, puis tout disparaît et la
+   Terre apparaît à l'opposé d'où on regarde (vitre arrière). »
+
+   DEUX DÉFAUTS DANS UNE SEULE PHRASE, et je n'ai vu le second qu'en mesurant.
+
+   Le premier est celui qu'il décrit : deux lois pour un même endroit du ciel. La
+   scène solaire se plaçait au bout du rayon suivi, la scène Terre-Lune au centre
+   de la baie — cent quatre-vingts degrés d'écart. Réparé dans
+   `RECUL.versDestination`, une seule loi pour les deux.
+
+   Le second est plus grave et ne se voyait pas : le vaisseau ne se retournait
+   qu'APRÈS être arrivé. Pendant toute l'approche, la destination était donc
+   derrière la caméra — `projette` rendait `null` à chaque instant de la descente,
+   pour le Soleil comme pour la Terre. Il fallait se battre contre le recentrage
+   pour regarder où l'on va. Un vol à 1 g freine la seconde moitié du chemin, et
+   pour freiner on se retourne : le demi-tour tombe au milieu, pas à la fin.
+
+   CE QU'ON MESURE, et sa vérité vient de la caméra de la page : à six distances
+   qui couvrent toute la seconde moitié, le point où l'on va se projette à
+   l'écran. Le TÉMOIN est la première moitié, où il doit être dans le dos —
+   sans lui, un contrôle qui ne saurait plus projeter passerait au vert.       */
+function transitionDuVoyage(){
+  ouvre("La destination reste devant nous jusqu'au bout");
+  const d = DESTINATIONS.find(x => x.scene === "solaire");
+  if(!d){ point("une destination porte une scène", false, "une", "aucune"); return enCours; }
+  const av = { lieu, p: joueur.p.slice(), sp: salon.p.slice(),
+               lacet: salon.lacet, tangage: salon.tangage, retourne: salon.retourne,
+               trajet: TELESCOPE.trajet, carte: TELESCOPE.carte, grille: TELESCOPE.grille };
+  const degele = fige();
+  /* UNE SEULE HORLOGE, ENFILÉE D'UN BOUT À L'AUTRE. `avanceImages` sans horloge
+     repart de `performance.now()`, et la boucle voit alors un bond de plusieurs
+     secondes : le demi-tour, qui avance de dt/3, se retrouvait à 0,98 en quatre
+     images. Le témoin mesurait un vaisseau déjà retourné et rougissait. */
+  let t = performance.now();
+  try {
+    if(lieu !== "salon") vaAu("salon");
+    /* On pose la scène d'où l'on mesure, et on la vérifie — règle 5. Le
+       demi-tour est un POINT FIXE de `majVoyage` passé la mi-chemin : le poser
+       à un et laisser tourner quelques images n'est pas un raccourci, c'est
+       éprouver que la page le MAINTIENT. Trois secondes jouées six fois
+       coûteraient onze minutes sur une machine sans carte graphique. */
+    const place = (dUa) => {
+      TELESCOPE.trajet = null; TELESCOPE.retour = false;
+      TELESCOPE.carte = 0; TELESCOPE.grille = 0;
+      salon.lacet = 0; salon.tangage = -0.05; salon.retourne = 0;
+      salon.p = [salon.apo, 0, 0];
+      lanceVoyage(d, VOYAGE.entre(distanceVaisseau(), d.d_m));
+      placeSurLeVol(dUa * SOLAIRE.UA);
+      salon.retourne = 1;
+      /* ET ON LAISSE LE RECENTRAGE CONVERGER. Huit images suffisaient à
+         mesurer « la tête est encore où je l'ai mise » : en sabotant la cible du
+         recentrage — on la remet sur l'astre qu'on quitte — le contrôle restait
+         vert. Il faut laisser la visée ALLER où elle va. */
+      t = avanceImages(110, t);
+      return versLaDestination();
+    };
+
+    const etapes = [APPROCHE.DEPART_UA, 4000, 800, 150, 20, 1.2];
+    const dos = [];
+    for(const dUa of etapes){
+      const q = place(dUa);
+      if(!q) dos.push(Math.round(dUa) + " UA");
+    }
+    /* ET LE DEMI-TOUR N'EST PAS POSÉ : ON LE LAISSE SE FAIRE. Les six étapes
+       ci-dessus l'ont posé à son point fixe pour ne pas jouer six fois trois
+       secondes ; ce point-ci le gagne honnêtement, une seule fois, en partant
+       de zéro à une distance de la seconde moitié. C'est lui qui dirait qu'on a
+       remis la manœuvre à l'arrivée. */
+    TELESCOPE.trajet = null; TELESCOPE.carte = 0; TELESCOPE.grille = 0;
+    salon.lacet = 0; salon.tangage = -0.05; salon.retourne = 0;
+    salon.p = [salon.apo, 0, 0];
+    lanceVoyage(d, VOYAGE.entre(distanceVaisseau(), d.d_m));
+    placeSurLeVol(800 * SOLAIRE.UA);
+    const arriveDeja = TELESCOPE.trajet.arrive;
+    t = avanceImages(260, t);
+    point("le vaisseau se retourne parce qu'il FREINE, pas parce qu'il arrive",
+          salon.retourne >= 1 && !arriveDeja, "1, et pas encore arrivé",
+          +salon.retourne.toFixed(3) + (arriveDeja ? ", DÉJÀ ARRIVÉ" : ", en vol"),
+          "à huit cents unités astronomiques il reste du chemin : si la manœuvre "
+          + "attend l'arrivée, la destination est derrière la caméra pendant "
+          + "toute la descente, et c'est le défaut du 17 août");
+    point("à chaque étape de la descente, on voit où l'on va",
+          dos.length === 0, "aucune étape dans le dos",
+          dos.length ? dos.join(", ") : "aucune",
+          "c'est ce qu'Hugo a subi : le Soleil puis la Terre derrière la coque, "
+          + "et le recentrage qui ramène la tête vers ce qu'on quitte");
+
+    /* LE TÉMOIN. Avant la mi-chemin le vaisseau n'a pas encore freiné : il
+       regarde ce qu'il quitte, et la destination DOIT être dans le dos. Sans ce
+       point, « on voit où l'on va » serait vrai d'une projection cassée qui
+       rendrait un point pour tout. */
+    TELESCOPE.trajet = null; TELESCOPE.carte = 0; TELESCOPE.grille = 0;
+    salon.lacet = 0; salon.tangage = -0.05; salon.retourne = 0;
+    salon.p = [salon.apo, 0, 0];
+    lanceVoyage(d, VOYAGE.entre(distanceVaisseau(), d.d_m));
+    RECUL.etat.t = 0.10;
+    t = avanceImages(4, t);
+    const tot = versLaDestination();
+    point("alors qu'au début du voyage, elle est bien derrière",
+          !tot && salon.retourne < 0.2,
+          "dans le dos, demi-tour non entamé",
+          (tot ? Math.round(tot[0]) + ", " + Math.round(tot[1]) : "dans le dos")
+          + " (retourne " + salon.retourne.toFixed(2) + ")",
+          "on part en regardant ce qu'on quitte : c'est ce qui rend le recul "
+          + "visible, et c'est pour ça que le demi-tour existe");
+  } finally {
+    degele();
+    TERRELUNE.ferme(); APPROCHE.range();
+    RECUL.etat.actif = false;
+    TELESCOPE.trajet = av.trajet; TELESCOPE.carte = av.carte; TELESCOPE.grille = av.grille;
+    joueur.p = av.p; salon.p = av.sp;
+    salon.lacet = av.lacet; salon.tangage = av.tangage; salon.retourne = av.retourne;
+    fermeTelescope();
+    if(lieu !== av.lieu) vaAu(av.lieu);
+    poseSalon();
+    avanceImages(2);
+  }
+  return enCours;
+}
+
+/* 8 sexies. LES ANGLES D'UNE QUESTION CHANGENT VRAIMENT CE QU'ON VOIT.
+
+   Hugo, le 17 août 2026 : « les 4 boutons du juge ne changent rien, je vois
+   toujours que la Terre en grand. »
+
+   LA CAUSE, ET C'EST LA MALADIE DE LA MAISON. La séance écrivait
+   `TERRELUNE.etat.t` ; `suitLesScenes` le RECALCULE à chaque image depuis la
+   position du vol. Deux écrivains pour une valeur. Comme la séance posait le vol
+   arrivé, la valeur recalculée était toujours la fin — la Terre en grand, quel
+   que soit le bouton.
+
+   ET LE PIÈGE EST CELUI DE L'ANCIEN GESTE DEVENU MUET. Écrire `etat.t` était
+   juste jusqu'au 16 août ; ce jour-là l'avancement a cessé d'être une horloge
+   pour se déduire de la distance, et le vieux geste n'est pas devenu faux, il est
+   devenu SANS EFFET. Rien ne casse, rien ne lève d'erreur — seule une séance
+   entière ne sert plus à rien.
+
+   CE QU'ON MESURE : pour chaque question à options, deux angles au moins doivent
+   donner deux états du monde différents. Pas « la fonction est appelée » — l'état
+   APRÈS quelques images, c'est-à-dire après que la page a eu le temps de
+   reprendre la main.
+
+   D'OÙ VIENT SA VÉRITÉ : d'un relevé de l'état du monde qui ne sait rien des
+   questions. Il ne nomme aucune option et ne connaît aucun identifiant ; il
+   marche donc sur la file de demain.                                          */
+function anglesDeSeance(){
+  ouvre("Les angles d'une question changent vraiment ce qu'on voit");
+  if(typeof JUGE === "undefined"){
+    point("la séance est chargée", false, "JUGE", "absent",
+          "ouvrir `?verif&juge` pour jouer ce contrôle");
+    return enCours;
+  }
+  const av = { lacet: salon.lacet, tangage: salon.tangage, retourne: salon.retourne,
+               p: salon.p.slice(), trajet: TELESCOPE.trajet, carte: TELESCOPE.carte,
+               lieu };
+  /* CE QU'ON RELÈVE : les nombres qui décident de l'image. On n'y met AUCUN nom
+     d'option — le relevé doit valoir pour les questions qu'on n'a pas écrites. */
+  const releve = () => [
+    TERRELUNE.etat.actif ? +(TERRELUNE.etat.t / TERRELUNE.etat.duree).toFixed(4) : -1,
+    APPROCHE.etat.actif  ? +Math.log10(Math.max(1, APPROCHE.etat.dUa)).toFixed(4) : -1,
+    +RECUL.etat.t.toFixed(6),
+    +salon.lacet.toFixed(4), +salon.tangage.toFixed(4), +salon.retourne.toFixed(3),
+    +Math.log10(Math.max(1, len(salon.p))).toFixed(4),
+    RECUL.rythme, RECUL.repere, lieu,
+  ].join("|");
+  const muettes = [], vues = [];
+  try {
+    for(const d of JUGE.DECISIONS){
+      if(d.ignore || !d.options || d.options.length < 2) continue;
+      const etats = new Set();
+      for(const o of d.options){
+        if(typeof d.pose === "function") d.pose();
+        if(typeof o.fait === "function") o.fait();
+        avanceImages(6);                 // que la page reprenne la main
+        etats.add(releve());
+      }
+      vues.push(d.id + " : " + etats.size + "/" + d.options.length);
+      if(etats.size < 2) muettes.push(d.id + " (" + d.options.length + " angles, un seul état)");
+      if(typeof d.rend === "function") d.rend();
+      avanceImages(2);
+    }
+    point("des questions à options ont été jouées", vues.length > 0,
+          "> 0", vues.length ? vues.join(", ") : "aucune",
+          "zéro passerait le point suivant sans rien mesurer");
+    point("aucune ne montre la même chose sous tous ses angles",
+          muettes.length === 0, "aucune",
+          muettes.length ? muettes.join(" · ") : "aucune",
+          "c'est ce qu'Hugo a subi : quatre boutons, et la Terre en grand à "
+          + "chaque fois — parce que la séance écrivait une valeur que la page "
+          + "recalcule à l'image suivante");
+  } finally {
+    TERRELUNE.ferme(); APPROCHE.range();
+    RECUL.etat.actif = false;
+    TELESCOPE.trajet = av.trajet; TELESCOPE.carte = av.carte;
+    salon.p = av.p;
+    salon.lacet = av.lacet; salon.tangage = av.tangage; salon.retourne = av.retourne;
+    fermeTelescope();
+    if(lieu !== av.lieu) vaAu(av.lieu);
     poseSalon();
     avanceImages(2);
   }
@@ -1946,102 +2273,128 @@ function seanceSurTelephone(){
           "ouvrir `?verif&juge` pour jouer ce contrôle");
     return enCours;
   }
-  const H = 402;                    // le téléphone d'Hugo, couché : 874 × 402
+  /* DEUX HAUTEURS, ET LA PLUS BASSE EST CELLE QU'IL A VRAIMENT.
+
+     402 était mon idée d'un téléphone couché. Le rapport de matériel de sa
+     séance du 17 août dit 814 × 207 : un écran de 932 points, couché, moins la
+     barre du navigateur. J'avais réglé la mise en page sur un appareil que je
+     m'étais figuré, et il a rejugé sur le sien. On garde les deux — la seconde
+     parce que c'est la vraie, la première parce qu'un palier qui ne serait juste
+     qu'à sa borne basse serait juste par accident. */
   const b = JUGE.boite;
   const av = { spin, lieu, stock: localStorage.getItem(CLE) };
   try {
-    JUGE.demarre();
-    JUGE.simuleEcran(H);
-    point("l'écran court est simulé", b.classList.contains("court"),
-          "la classe court", b.classList.contains("court") ? "posée" : "absente",
-          "sans elle on mesurerait la mise en page d'un grand écran");
+    for(const H of [402, 207]){
+      if(JUGE.rapport === null) JUGE.demarre(); else JUGE.rejoue();
+      JUGE.simuleEcran(H);
+      point("l'écran de " + H + " px est simulé", b.classList.contains("court"),
+            "la classe court", b.classList.contains("court") ? "posée" : "absente",
+            "sans elle on mesurerait la mise en page d'un grand écran");
 
-    /* LE TÉMOIN, pris sur la première question : desserré, le contenu doit
-       dépasser. `simuleEcran` reste le seul écrivain de la classe — on lui
-       demande un grand écran, on ne retire pas la classe à la main. */
-    deplie(b);
-    JUGE.simuleEcran(4000);
-    const naturelle = b.scrollHeight;
-    JUGE.simuleEcran(H);
-    point("il y a vraiment plus de séance que d'écran", naturelle > H - 24,
-          "> " + (H - 24) + " px", naturelle + " px",
-          "si la séance tenait d'elle-même dans quatre cents pixels, les points "
-          + "suivants passeraient sans rien exercer");
-
-    /* DEUX EXIGENCES, ET NON UNE — c'est ce contrôle lui-même qui l'a appris.
-
-       Première écriture : « aucun bouton ne sort de la fenêtre ». Rouge sur la
-       question de l'arrivée, qui porte quatre variantes : leurs boutons tombaient
-       cinquante-six pixels sous le bord. Et c'était JUSTE, au sens où le rendu le
-       disait — mais ce n'était pas un défaut : ces boutons-là vivent dans le
-       corps, qui défile, et l'on va les chercher d'un doigt.
-
-       Ce qui ne doit JAMAIS bouger, c'est le socle. Alors on sépare :
-         — les boutons du socle tiennent dans la fenêtre, toujours ;
-         — et si le corps déborde, il doit VRAIMENT défiler, sinon les variantes
-           deviennent aussi inatteignables que l'étaient les deux du bas. */
-    let n = 0, boutons = 0, dehors = [], muets = [], etroits = [];
-    while(JUGE.rapport === null && n < 40){
-      const d = JUGE.DECISIONS[n];
+      /* LE TÉMOIN, pris sur la première question : desserré, le contenu doit
+         dépasser. `simuleEcran` reste le seul écrivain de la classe — on lui
+         demande un grand écran, on ne retire pas la classe à la main. */
       deplie(b);
-      const rb = b.getBoundingClientRect();
-      /* LE CHAMP LIBRE COMPTE COMME UN BOUTON DU SOCLE, et pour une raison plus
-         forte : c'est lui qui porte le verdict. Sur la première capture d'un
-         téléphone couché il avait disparu entièrement, et il ne restait que
-         quatre boutons de verdict — un « ça coince » sans une phrase ne dit pas
-         ce qui coince.
+      JUGE.simuleEcran(4000);
+      const naturelle = b.scrollHeight;
+      JUGE.simuleEcran(H);
+      point("il y a vraiment plus de séance que d'écran à " + H + " px",
+            naturelle > H - 24, "> " + (H - 24) + " px", naturelle + " px",
+            "si la séance tenait d'elle-même dans cette hauteur, les points "
+            + "suivants passeraient sans rien exercer");
 
-         Les boutons de variante sont dans le socle depuis la même série de
-         captures, et ce point les couvre donc aussi : une question qui annonce
-         quatre angles de vue sans en montrer un seul demande de juger ce qu'on
-         ne montre pas. */
-      for(const bt of b.querySelectorAll(".socle button, .socle textarea")){
-        const r = bt.getBoundingClientRect();
-        if(r.width < 1 && r.height < 1) continue;      // caché, pas débordant
-        boutons++;
-        const quoi = bt.tagName === "TEXTAREA" ? "le champ libre"
-                                               : bt.textContent.trim().slice(0, 24);
-        if(r.top < rb.top - 1 || r.bottom > rb.bottom + 1)
-          dehors.push((d ? d.id : "?") + " : " + quoi
-                      + " (" + Math.round(r.top) + "→" + Math.round(r.bottom)
-                      + " dans " + Math.round(rb.top) + "→" + Math.round(rb.bottom) + ")");
+      /* DEUX EXIGENCES, ET NON UNE — c'est ce contrôle lui-même qui l'a appris.
+
+         Première écriture : « aucun bouton ne sort de la fenêtre ». Rouge sur la
+         question de l'arrivée, qui porte quatre variantes : leurs boutons
+         tombaient cinquante-six pixels sous le bord. Et c'était JUSTE, au sens où
+         le rendu le disait — mais ce n'était pas un défaut : ces boutons-là
+         vivaient alors dans le corps, qui défile.
+
+         Depuis, ils sont passés dans le socle avec le champ libre, et la
+         frontière est nette : ce qu'on TOUCHE ne bouge pas, ce qu'on LIT défile.
+         Alors on sépare :
+           — rien du socle ne sort de la fenêtre, jamais ;
+           — et si le corps déborde, il doit VRAIMENT défiler, sinon la moitié
+             de la question est perdue. */
+      let n = 0, boutons = 0;
+      const dehors = [], muets = [], etroits = [], menteurs = [];
+      while(JUGE.rapport === null && n < 40){
+        const d = JUGE.DECISIONS[n];
+        deplie(b);
+        /* ET LE BOUTON DE REPLI DIT CE QU'IL FERA. Il n'était réécrit qu'au
+           changement de question : déplié, il continuait d'annoncer « Déplier ».
+           Sur cet écran le panneau couvre presque tout, et c'est le seul chemin
+           pour revoir la scène qu'on juge. */
+        const bc = b.querySelector(".rangee.replie-visible") &&
+                   b.querySelector(".rangee.replie-visible").lastElementChild;
+        if(bc && /Déplier/.test(bc.textContent) && !b.classList.contains("replie"))
+          menteurs.push(H + " px, " + (d ? d.id : "?") + " : déplié, il dit encore Déplier");
+        const rb = b.getBoundingClientRect();
+        /* LE CHAMP LIBRE COMPTE COMME UN BOUTON DU SOCLE, et pour une raison
+           plus forte : c'est lui qui porte le verdict. Sur la première capture
+           d'un téléphone couché il avait disparu entièrement, et il ne restait
+           que quatre boutons de verdict — un « ça coince » sans une phrase ne dit
+           pas ce qui coince. */
+        for(const bt of b.querySelectorAll(".socle button, .socle textarea")){
+          const r = bt.getBoundingClientRect();
+          if(r.width < 1 && r.height < 1) continue;      // caché, pas débordant
+          boutons++;
+          const quoi = bt.tagName === "TEXTAREA" ? "le champ libre"
+                                                 : bt.textContent.trim().slice(0, 24);
+          if(r.top < rb.top - 1 || r.bottom > rb.bottom + 1)
+            dehors.push(H + " px, " + (d ? d.id : "?") + " : " + quoi
+                        + " (" + Math.round(r.top) + "→" + Math.round(r.bottom)
+                        + " dans " + Math.round(rb.top) + "→" + Math.round(rb.bottom) + ")");
+        }
+        const co = b.querySelector(".corps");
+        if(co && co.scrollHeight > co.clientHeight + 1){
+          const f = getComputedStyle(co).overflowY;
+          if(f !== "auto" && f !== "scroll")
+            muets.push(H + " px, " + (d ? d.id : "?") + " : le corps déborde de "
+                       + (co.scrollHeight - co.clientHeight) + " px sans défiler");
+        }
+        /* Et le champ doit rester ASSEZ GRAND pour recevoir une phrase — la
+           leçon du 9 août : une boîte de la taille d'un mot ne reçoit que des
+           mots. Vingt-huit pixels, c'est deux lignes de onze. */
+        const ta = b.querySelector(".socle textarea");
+        const ht = ta ? ta.getBoundingClientRect().height : 0;
+        if(ht < 28) etroits.push(H + " px, " + (d ? d.id : "?") + " : " + Math.round(ht) + " px");
+        n++;
+        JUGE.repond("passé");
       }
-      /* Et il doit rester ASSEZ GRAND pour recevoir une phrase — la leçon du
-         9 août : une boîte de la taille d'un mot ne reçoit que des mots. */
-      const ta = b.querySelector(".socle textarea");
-      const ht = ta ? ta.getBoundingClientRect().height : 0;
-      if(ht < 40) etroits.push((d ? d.id : "?") + " : " + Math.round(ht) + " px");
-      const co = b.querySelector(".corps");
-      if(co && co.scrollHeight > co.clientHeight + 1){
-        const f = getComputedStyle(co).overflowY;
-        if(f !== "auto" && f !== "scroll")
-          muets.push((d ? d.id : "?") + " : le corps déborde de "
-                     + (co.scrollHeight - co.clientHeight) + " px sans défiler");
-      }
-      n++;
-      JUGE.repond("passé");
+
+      point("toutes les questions ont été affichées à " + H + " px",
+            n > 0 && boutons > 0,
+            "> 0", n + " question(s), " + boutons + " élément(s) de socle",
+            "zéro passerait les points suivants sans rien mesurer");
+      point("rien du socle ne sort de la fenêtre à " + H + " px",
+            dehors.length === 0, "aucun",
+            dehors.length ? dehors.join(" · ") : "aucun",
+            "c'est le défaut qu'Hugo a subi : « Noter autre chose » et « Déplier "
+            + "pour répondre » tombaient sous le bord, et la séance devenait "
+            + "inutilisable sur le seul appareil qui lui reste");
+      point("le champ libre garde de quoi écrire une phrase à " + H + " px",
+            etroits.length === 0,
+            "≥ 28 px", etroits.length ? etroits.join(" · ") : "toutes ≥ 28 px",
+            "une boîte de la taille d'un mot ne reçoit que des mots — et c'est "
+            + "dans ce champ que passe tout ce que lui seul peut voir");
+      point("ce qui déborde du corps se rattrape en défilant à " + H + " px",
+            muets.length === 0, "aucun",
+            muets.length ? muets.join(" · ") : "aucun",
+            "le corps ne porte que le texte de la question, et il en manque "
+            + "toujours la moitié sur un écran couché : sans ascenseur, c'est la "
+            + "moitié qu'on ne lira jamais");
+      point("le bouton de repli dit ce qu'il fera à " + H + " px",
+            menteurs.length === 0, "aucun",
+            menteurs.length ? menteurs.join(" · ") : "aucun",
+            "c'est le seul chemin pour revoir la scène qu'on juge quand le "
+            + "panneau couvre l'écran ; un bouton qui ment sur sa fonction, là, "
+            + "coûte la question");
+      point("et la séance s'est bien jouée à " + H + " px", JUGE.rapport !== null,
+            "un rapport", JUGE.rapport === null ? "aucun" : "rendu",
+            "sans ça la boucle aurait mesuré une seule question");
     }
-
-    point("toutes les questions ont été affichées", n > 0 && boutons > 0,
-          "> 0", n + " question(s), " + boutons + " élément(s) de socle",
-          "zéro passerait les points suivants sans rien mesurer");
-    point("rien du socle ne sort de la fenêtre", dehors.length === 0, "aucun",
-          dehors.length ? dehors.join(" · ") : "aucun",
-          "c'est le défaut qu'Hugo a subi : « Noter autre chose » et « Déplier "
-          + "pour répondre » tombaient sous le bord, et la séance devenait "
-          + "inutilisable sur le seul appareil qui lui reste");
-    point("le champ libre garde de quoi écrire une phrase", etroits.length === 0,
-          "≥ 40 px", etroits.length ? etroits.join(" · ") : "toutes ≥ 40 px",
-          "une boîte de la taille d'un mot ne reçoit que des mots — et c'est "
-          + "dans ce champ que passe tout ce que lui seul peut voir");
-    point("ce qui déborde du corps se rattrape en défilant", muets.length === 0, "aucun",
-          muets.length ? muets.join(" · ") : "aucun",
-          "le corps ne porte plus que le texte de la question, et il en manque "
-          + "toujours la moitié sur un écran couché : sans ascenseur, c'est la "
-          + "moitié qu'on ne lira jamais");
-    point("et la séance s'est bien jouée", JUGE.rapport !== null,
-          "un rapport", JUGE.rapport === null ? "aucun" : "rendu",
-          "sans ça la boucle aurait mesuré une seule question");
   } finally {
     JUGE.simuleEcran(0);
     spin = av.spin;
@@ -2109,7 +2462,32 @@ function voyageDunSeulTenant(){
           dest ? dest.id : "AUCUNE");
     if(!dest) return enCours;
 
-    lanceVoyage(dest, VOYAGE.entre(distanceVaisseau(), dest.d_m));
+    /* ON REPART D'ORBITE, ET ON NE LE SUPPOSE PAS — règle 5, apprise le 17 août.
+
+       Ce contrôle lançait le vol depuis `distanceVaisseau()`, c'est-à-dire d'où
+       qu'on soit. Le jour où la séance a ouvert sur la question de l'arrivée,
+       elle laissait le vaisseau à huit mille deux cent soixante-dix-sept parsecs
+       — le vol partait donc de sa destination. Résultat mesuré : un chemin de
+       longueur nulle, une vitesse de zéro d'un bout à l'autre, et « la vitesse
+       part de zéro et y revient » AU VERT. Trois points sur cinq passaient en
+       décrivant un voyage qui n'avait pas lieu.
+
+       Un contrôle qui ne maîtrise pas l'état d'où il mesure finit par mesurer
+       autre chose et par le dire avec assurance. */
+    TERRELUNE.ferme(); APPROCHE.range();
+    if(TELESCOPE.trajet){ TELESCOPE.trajet = null; TELESCOPE.retour = false; }
+    TELESCOPE.carte = 0; TELESCOPE.grille = 0;
+    salon.retourne = 0;
+    salon.p = [salon.apo, 0, 0];
+    avanceImages(2);
+    const depart = distanceVaisseau();
+    point("on part bien d'une orbite, pas de l'arrivée",
+          depart < dest.d_m * 1e-9, "moins d'un milliardième du chemin",
+          (depart / dest.d_m).toExponential(2) + " du chemin",
+          "partir d'où l'on est faisait un vol de longueur nulle, et trois "
+          + "points passaient au vert en décrivant un voyage qui n'a pas lieu");
+
+    lanceVoyage(dest, VOYAGE.entre(depart, dest.d_m));
     const panneauOuvert = () => document.getElementById("instrument").classList.contains("vu");
 
     point("le vol connaît son chemin total", RECUL.etat.total === dest.d_m,
@@ -2454,6 +2832,7 @@ global.VERIF = {
   // Comme `seanceSansTrace` : hors de la passe, parce qu'il exige `?verif&juge`.
   // L'y mettre le ferait échouer sur toute page où la séance n'est pas chargée.
   questionsDuVoyage, voyageDunSeulTenant, seanceTableRase, seanceSurTelephone,
+  anglesDeSeance, transitionDuVoyage,
   rotationCalme, memeEspace, mesurePage, parcours, voyage, budget,
   sain, tout, bilan, texte, resultats, FORMATS, OR,
   // outillage exposé : d'autres contrôles pourront s'y adosser

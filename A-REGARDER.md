@@ -15,7 +15,7 @@ Tout ce qui ne peut pas se vérifier par la mesure, et qui attend donc qu'un
 humain regarde. **Rien ici ne bloque quoi que ce soit** — c'est une file, pas
 une dette. Elle existe pour que ça ne se perde pas dans une conversation.
 
-Mise à jour le 17 août 2026.
+Mise à jour le 17 août 2026, au soir.
 
 <!-- ------------------------------------------------------------------------
      LA CONVENTION DES TITRES — déclarée, jamais devinée.
@@ -39,9 +39,13 @@ Mise à jour le 17 août 2026.
 
 ---
 
-## 🔎 COQUILLES OU QUADRILLAGE — le repère du voyage (14 août)
+## ✅ COQUILLES OU QUADRILLAGE — jugé « ça va » le 17 août
 
-<!-- juge: repere-du-voyage -->
+<!-- juge: repere-du-voyage — répondue, la question est rangée dans juge.js -->
+
+**Verdict rendu**, angle gardé : « coquilles, au départ ». Les coquilles disent
+bien « je recule », et c'est la réponse à ta remarque du 12 août. Le réglage
+reste, avec ses deux valeurs.
 
 **Réglages → « Repère du voyage ». Deux boutons, et ça change tout de suite.**
 
@@ -71,9 +75,14 @@ Et s'ils te paraissent tous les deux ratés, dis-le — c'est une réponse.
 
 ---
 
-## 🔎 LA VITRE AVANT — est-ce qu'elle sert (14 août)
+## ✅ LA VITRE AVANT — jugée « ça va » le 17 août
 
-<!-- juge: vitre-avant -->
+<!-- juge: vitre-avant — répondue, la question est rangée dans juge.js -->
+
+**Verdict rendu**, angle gardé : « retourné, au milieu ». Elle sert, et on
+comprend qu'on s'est retourné. Elle a pris de l'importance le jour même : depuis
+que le vaisseau se retourne pour freiner, c'est par elle qu'on voit ce qu'on
+quitte pendant toute la seconde moitié du voyage.
 
 *« Avec un vaisseau adapté, où on peut voir devant, derrière, pour voir un côté
 grandir et l'autre rapetisser »*, et au bouton : *« oui, les vitres, c'est le
@@ -92,9 +101,14 @@ seule vitre du vaisseau regardait dans l'autre sens. C'est réparé.)*
 
 ---
 
-## 🔎 LE DÉBUT DU VOYAGE — tu l'as coché sans le décrire (16 août)
+## ✅ LE DÉBUT DU VOYAGE — jugé « ça va » le 17 août
 
-<!-- juge: debut-du-voyage -->
+<!-- juge: debut-du-voyage — répondue, la question est rangée dans juge.js -->
+
+**Verdict rendu**, angle gardé : « la seconde zéro ». Le départ se lit. Ce que tu
+avais coché comme bizarre le 16 août ne l'était plus une fois le vol d'un seul
+tenant et le déroulé passé en « régulier » — et le seul reproche de la séance
+portait sur l'arrivée, pas sur le départ.
 
 Quand je t'ai demandé si autre chose t'avait paru bizarre, tu as coché **« le
 début du voyage »** — et tu n'as pas eu les mots. Ce n'est pas grave : c'est
@@ -175,61 +189,46 @@ descendre.
 
 ---
 
-## 👁 L'ARRIVÉE : REFAITE APRÈS TON « SUPER NUL » — elle t'attend de nouveau
+## 👁 L'ARRIVÉE : LA TRANSITION EST REFAITE — elle t'attend une troisième fois
 
 <!-- juge: arrivee-terre-lune -->
 
-**Tu as jugé « ça coince » le 16 août, et tu avais raison sur les trois points.**
+**Tu as jugé « ça coince » le 17 août, et tu avais raison deux fois** — la
+seconde, je ne l'ai vue qu'en mesurant.
 
-> *« non c'est super nul. pas du tout ce que je veux. deja la terre et la lune
-> utilise des vrai photo, ont les a dans le projet, tu peux ajouter des tag, pour
-> qu'on remarque la lune. Aussi je veux que ce soit un voyage depuis sagitarius a
-> travers la galaxie, apres un moment on voit le systeme solaire, on zoom dessus,
-> PUIS on zoom sur le systeme terre lune. La ça va pas du tout. »*
+> *« lors de l'arrivé du voyage dans le système solaire, la transition est très
+> raté. On zoom sur le soleil, puis tout disparaît et la terre apparaît à
+> l'opposé d'où on regarde (vitre arrière). Et les 4 bouton du juge ne change
+> rien, je vois toujours que la terre en grand. »*
 
-Les trois sont faits.
+- **Le Soleil et la Terre étaient à cent quatre-vingts degrés l'un de l'autre.**
+  Le Soleil se plaçait au bout du rayon qu'on a suivi ; la Terre au centre de la
+  baie, qui regarde en arrière. Deux lois pour un même endroit du ciel. Il n'y en
+  a plus qu'une : **la Terre apparaît là où le Soleil grossissait.**
+- **Le vaisseau ne se retournait qu'une fois arrivé.** Pendant toute la descente,
+  ta destination était donc derrière la coque, et le recentrage te ramenait la
+  tête vers ce que tu quittais. Il se retourne maintenant **quand il commence à
+  freiner**, au milieu du chemin — c'est ce que fait un vaisseau qui décélère à
+  1 g, donc ça n'a rien coûté à la physique, ça en a rendu. La grande baie
+  regarde où tu vas pendant toute la seconde moitié, et **c'est par la vitre
+  avant que tu vois ce que tu quittes.**
+- **Les quatre boutons marchent.** Ils ne changeaient rien parce que la séance
+  écrivait une valeur que la page recalculait à l'image suivante — deux écrivains
+  pour une même chose, la maladie de la maison. Ils déplacent maintenant le
+  vaisseau, et la page en déduit la scène comme elle le fait en jeu.
 
-- **Les vraies photos.** Tu avais raison, elles étaient dans le projet depuis le
-  11 août — un composite MODIS pour la Terre, une mosaïque du Lunar
-  Reconnaissance Orbiter pour la Lune — et seule la page du rivage s'en servait.
-  La scène dessinait encore des taches à la main. C'est fini : tu vois l'Afrique,
-  l'Atlantique, la Méditerranée, et le terminateur passe dessus.
-- **Les étiquettes.** La Lune porte son nom, avec un trait de rappel. Et quand
-  les deux se marchent dessus, **c'est elle qui parle** — toi, la Terre, tu ne la
-  rates pas.
-- **Le voyage d'un seul tenant.** Les deux boutons qui te coupaient le trajet
-  sont partis. Tu pars de Sagittarius A*, tu traverses, tu arrives dans le nuage
-  de Oort, tu tombes à travers le système solaire, et tu continues **sans qu'on
-  te demande rien** jusqu'à ce que la Terre apparaisse. Un seul panneau, tout en
-  bas. Une seule ligne dans ton carnet.
+**Ce qui reste à trancher, et qui n'a pas bougé.** Quand on voit LES DEUX, la
+Terre ne fait qu'une vingtaine de pixels — la Lune est à trente diamètres
+terrestres, et aucune image honnête ne peut montrer les deux en gros. Je peux
+décaler le cadrage pour doubler la Terre à cet instant, mais ce serait un cadrage
+choisi, pas subi.
 
-**Deux choses que je te dois, et qui sont écrites dans les aveux :** on ne sait
-pas quelle face de la Terre est tournée vers nous — il faudrait une date, le site
-n'en a pas —, donc on montre l'origine du repère plutôt que la plus jolie. Pour
-la Lune ce n'est pas un compromis : sa rotation est synchrone, elle nous montre
-vraiment toujours la même face. Et on suppose qu'on descend le long d'un rayon
-qui rencontre la Terre, faute de savoir où elle est sur son orbite.
+> **Est-ce que l'enchaînement se tient, maintenant ?** Et le moment « les deux
+> ensemble » est-il trop maigre pour rester tel quel ? Quatre angles :
+> l'apparition, les deux ensemble, la Lune qui sort, la Terre en grand.
 
-**Ce qui reste à trancher est ce que tu n'as pas encore vu** — la question du
-cadrage, ci-dessous. Elle n'a pas bougé.
-
-**Ce que je ne sais pas trancher, et qui est pour toi.** La Terre et la Lune sont
-séparées de trente diamètres terrestres. Au moment où l'on voit LES DEUX, la
-Terre ne fait qu'une vingtaine de pixels — c'est la vérité, et c'est même ce que
-la scène est venue dire : aucune image honnête ne peut montrer les deux en gros.
-Mais je peux décaler le cadrage pour que le couple tienne en diagonale, ce qui
-doublerait la Terre à cet instant. Ce serait alors un cadrage choisi, pas subi.
-
-> **Est-ce que le moment « les deux ensemble » est trop maigre pour rester tel
-> quel ?** Quatre angles dans la séance : l'apparition, les deux ensemble, la
-> Lune qui sort, la Terre en grand.
-
-**Et une chose que je dois t'avouer avant que tu regardes.** Ce ciel noir est
-peint. Le vaisseau ne se déplace jamais — le voyage est un diagramme — donc la
-vitre montrait encore le trou noir qu'on venait de quitter, pendant que le
-panneau écrivait qu'il était à vingt-sept mille années-lumière derrière. Je le
-couvre pour montrer la Terre, et c'est écrit dans les aveux. Si ça te gêne, dis-le :
-c'est réversible.
+**Et un aveu qui reste :** ces étoiles derrière la Terre sont celles de l'amas de
+Sagittarius A*, pas les nôtres. Ce ne sont pas nos constellations.
 
 ---
 

@@ -1998,6 +1998,60 @@ groupe("Et la page emploie bien cette mesure-là");
      "un repère découpé à la seule baie disparaît dès qu'on se retourne");
 }
 
+/* =========================================================================
+   LA DESTINATION EST AU BOUT DU RAYON QU'ON A SUIVI — et il n'y a qu'un endroit
+   où c'est écrit.
+
+   Hugo, le 17 août 2026 : « on zoom sur le Soleil, puis tout disparaît et la
+   Terre apparaît à l'opposé d'où on regarde (vitre arrière) ». Deux lois pour un
+   même endroit du ciel : la scène solaire se plaçait au bout du rayon suivi, la
+   scène Terre-Lune au centre de la baie, qui regarde en arrière.
+
+   D'OÙ VIENT LA VÉRITÉ DE CE CONTRÔLE : d'une géométrie recalculée ici, à la
+   main, sans appeler la fonction qu'elle juge. Le point rendu doit être sur la
+   demi-droite qui part de l'œil dans la direction du vaisseau — c'est-à-dire
+   celle qui s'éloigne du trou noir, puisque `p` est mesuré depuis lui. On mesure
+   le cosinus, et on exige 1 à 1e-12 près.                                    */
+groupe("La destination, une seule loi pour tout ce qui s'y trouve");
+{
+  const oeil = [3.1, 1.2, -0.4];
+  const p = [12345.6, -987.4, 55.2];
+  const L = 1e7;
+  const q = R.versDestination(p, oeil, L);
+
+  const dir = [q[0]-oeil[0], q[1]-oeil[1], q[2]-oeil[2]];
+  const nd = Math.hypot(dir[0], dir[1], dir[2]);
+  const np = Math.hypot(p[0], p[1], p[2]);
+  const cos = (dir[0]*p[0] + dir[1]*p[1] + dir[2]*p[2]) / (nd*np);
+
+  ok("le point est droit devant, dans le sens où l'on s'éloigne",
+     Math.abs(cos - 1) < 1e-12, "cos = 1", cos.toFixed(15),
+     "un cosinus de −1 est très exactement ce que la Terre montrait : la baie "
+     + "regarde l'astre qu'on quitte, donc en arrière");
+  ok("et il est à la distance demandée", Math.abs(nd - L) < 1e-6 * L,
+     L.toExponential(1), nd.toExponential(6),
+     "une distance écrite en dur s'est déjà retrouvée près du centre au lieu "
+     + "de loin devant — c'est le deuxième essai de terrelune.js");
+
+  /* IL NE DÉPEND QUE DE LA DIRECTION, PAS DE L'ÉLOIGNEMENT. Le voyage porte le
+     vaisseau de seize rayons à 1,7 × 10¹⁰ : si le point suivait la norme de `p`,
+     il partirait à l'infini pendant la traversée. */
+  const q2 = R.versDestination([p[0]*4e9, p[1]*4e9, p[2]*4e9], oeil, L);
+  ok("il ne bouge pas quand le vaisseau s'éloigne",
+     q.every((x, i) => Math.abs(x - q2[i]) < 1e-9 * L),
+     JSON.stringify(q.map(x => +x.toFixed(3))),
+     JSON.stringify(q2.map(x => +x.toFixed(3))),
+     "seule la direction compte : c'est ce qui manquait aux trois ancres "
+     + "essayées le 11 août, toutes accrochées à quelque chose qui bougeait");
+
+  ok("et sans position, il ne rend rien plutôt qu'un point inventé",
+     R.versDestination(null, oeil, L) === null
+     && R.versDestination([0,0,0], oeil, L) === null,
+     "null deux fois",
+     String(R.versDestination(null, oeil, L)) + " / "
+     + String(R.versDestination([0,0,0], oeil, L)));
+}
+
 console.log("\n  " + (echecs ? "❌  " + echecs + " ÉCHECS sur " + n + " contrôles"
                              : "✅  TOUT PASSE — " + n + " contrôles") + "\n");
 process.exit(echecs ? 1 : 0);
