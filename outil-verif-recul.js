@@ -214,7 +214,9 @@ groupe("Il ne s'impose pas");
 groupe("Le recul se compte en décades");
 {
   const d0 = 16 * R.RS_M, d1 = 16000 * R.RS_M;
-  Object.assign(R.etat, { actif:true, d0, d1, t:0, duree:10, distance:d0 });
+  const rythmeAvant = R.rythme;
+  R.poseRythme("fidele");                            // voir le contrôle ci-dessous
+  Object.assign(R.etat, { actif:true, d0, d1, t:0, duree:10, distance:d0, total:NaN });
   for(let i = 0; i < 300; i++) R.avance(10/600);      // la moitié du trajet
   /* CE CONTRÔLE A CHANGÉ DE CIBLE LE 7 AOÛT 2026, ET IL FAUT DIRE POURQUOI.
 
@@ -229,13 +231,18 @@ groupe("Le recul se compte en décades");
      ARITHMÉTIQUE qu'on attend maintenant, et l'ancienne exigence est devenue
      l'erreur à détecter : si elle revenait, c'est qu'une courbe de confort
      serait rentrée par la fenêtre. */
+  /* SOUS « FIDÈLE » EXPLICITEMENT — depuis le 16 août le défaut est « régulier »,
+     et cette symétrie est la signature du rythme fidèle, pas celle du module.
+     La mesurer sous le défaut reviendrait à mesurer autre chose que ce que la
+     phrase annonce. */
   const attendu = (d0 + d1)/2;                        // moyenne ARITHMÉTIQUE
-  ok("à mi-course, on a franchi la moitié du chemin",
+  ok("à mi-course en « fidèle », on a franchi la moitié du chemin",
      Math.abs(R.etat.distance - attendu) / attendu < 1e-4,
      attendu.toExponential(4), R.etat.distance.toExponential(4),
      "c'est la symétrie du vol à 1 g : freiner coûte ce qu'a coûté d'accélérer. "
      + "La moyenne géométrique, " + Math.sqrt(d0*d1).toExponential(4)
      + ", signerait le retour d'un lissage");
+  R.poseRythme(rythmeAvant);           // on rend le module comme on l'a pris
 
   for(let i = 0; i < 300; i++) R.avance(10/600);
   ok("on arrive exactement où l'on visait",
@@ -454,15 +461,23 @@ groupe("Le rythme est un réglage — le bouton, la mémoire, la séance");
      R.RYTHMES.every(r => R.borneRythme(r) === r), "identité",
      R.RYTHMES.map(r => R.borneRythme(r)).join(" / "));
 
-  /* LE DÉFAUT N'EST PAS TRANCHÉ, ET CE CONTRÔLE EXISTE POUR QU'IL NE LE SOIT PAS
-     PAR ACCIDENT. C'est une décision d'image : elle appartient à Hugo, elle lui
-     est posée. Le jour où il répond, c'est cette ligne qu'on change — et on la
-     change exprès. */
-  ok("le défaut reste « fidele » tant qu'Hugo n'a pas tranché",
-     R.RYTHME_DEFAUT === "fidele", "fidele", R.RYTHME_DEFAUT,
-     "il a jugé « régulier » ça va le 9 août, mais sur un rythme que le site ne "
-     + "jouait pas : le verdict ne vaut pas décision, et on ne change pas l'image "
-     + "sous les pieds de qui n'a rien demandé");
+  /* IL A TRANCHÉ — 16 août 2026, et cette ligne a changé EXPRÈS, comme sa
+     version précédente l'annonçait mot pour mot : « le jour où il répond, c'est
+     cette ligne qu'on change ».
+
+     Il avait gardé « fidèle » le 11 août sur l'angle « en partant », où le vol
+     qui s'ébranle est exactement ce qu'on veut voir. Ce qui l'a fait basculer
+     est l'autre bout : « au loin, on ne voit pas le système solaire. Il n'y a
+     pas de tags sur le système solaire ni rien. » Mesuré — dix-sept secondes sur
+     vingt-trois ne montraient qu'un point, et 3,8 % du temps d'écran pour tout
+     le système solaire sur un vol unique.
+
+     Le contrôle ne disparaît pas : il garde le défaut NEUF, pour la même raison
+     qu'il gardait l'ancien. */
+  ok("le défaut est « regulier », tranché par Hugo le 16 août",
+     R.RYTHME_DEFAUT === "regulier", "regulier", R.RYTHME_DEFAUT,
+     "« fidèle » reste sous le bouton — c'est un défaut qui change, pas une "
+     + "option qui disparaît");
 
   // ── ce que la mesure dit, et qui fonde la question posée
   const fid = parSeconde("fidele");
@@ -534,13 +549,17 @@ groupe("Le rythme est un réglage — le bouton, la mémoire, la séance");
   ok("et en anglais", manque(EN) === null, "tous", manque(EN) || "tous");
 
   // ── et ces contrôles savent tomber
-  const listePassoire = ["fidele", "fidele-bis"];
+  /* ON APPARIE AVEC LE DÉFAUT, pas avec « fidele » écrit en dur. Le défaut a
+     changé le 16 août et ce sabotage est tombé pour la bonne raison : il tenait
+     pour acquis que le défaut était « fidele ». Un contrôle qui recopie la
+     valeur qu'il surveille cesse de surveiller au premier changement. */
+  const listePassoire = [R.RYTHME_DEFAUT, "rythme-qui-n-existe-pas"];
   const tracesP = listePassoire.map(parSeconde);
-  ok("un rythme en double dans la liste serait vu",
-     tracesP[0].every((v, k) => Math.abs(v - tracesP[1][k]) < 1e-9), "vu",
-     tracesP[0].every((v, k) => Math.abs(v - tracesP[1][k]) < 1e-9) ? "vu" : "PASSÉ INAPERÇU",
-     "« fidele-bis » n'est pas un rythme : il retombe sur le défaut et joue la "
-     + "même chose — c'est ce que le contrôle du dessus refuse");
+  const pareil = tracesP[0].every((v, k) => Math.abs(v - tracesP[1][k]) < 1e-9);
+  ok("un rythme en double dans la liste serait vu", pareil, "vu",
+     pareil ? "vu" : "PASSÉ INAPERÇU",
+     "un nom inconnu retombe sur le défaut et joue exactement la même chose — "
+     + "c'est ce que le contrôle du dessus refuse");
   const borneMolle = x => x || "fidele";
   ok("une borne qui laisse passer n'importe quoi serait vue",
      borneMolle("netflix") !== R.RYTHME_DEFAUT, "vue",

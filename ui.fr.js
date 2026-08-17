@@ -183,7 +183,16 @@ window.UI = {
   "chrono.abord":          "à bord",
   "chrono.auloin":         "au loin",
   "chrono.note":           "Le vaisseau tient un g. Ces durées sont celles qu'il faudrait vraiment.",
-  "chrono.vitesse":        "vitesse",
+  /* LA VITESSE DIT PAR RAPPORT À QUOI — Hugo, le 16 août 2026 : « il faut
+     écrire notre vitesse par rapport au système solaire. Il faut que ce soit
+     clair, qu'une vitesse c'est par rapport à quelque chose. »
+
+     Il a raison, et c'est une exigence de physique, pas de rédaction : une
+     vitesse sans repère ne veut rien dire. Le vol est intégré dans le repère où
+     le départ ET l'arrivée sont au repos ; le nommer par sa destination est ce
+     qui se lit. L'idéalisation — Sagittarius A* et le Soleil ne sont pas au
+     repos l'un par rapport à l'autre — est déclarée comme compromis. */
+  "chrono.vitesse":        "vitesse / Soleil",
   "chrono.dilatation":     "dilatation",
   "chrono.parcouru":       "parcouru",
   "chrono.accelere":       "on accélère",

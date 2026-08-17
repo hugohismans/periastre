@@ -1950,68 +1950,102 @@ function voyageDunSeulTenant(){
           dest ? dest.id : "AUCUNE");
     if(!dest) return enCours;
 
-    const raccord = raccordUa();
-    point("le raccord se calcule", Number.isFinite(raccord) && raccord > 1,
-          "> 1 ua", Number.isFinite(raccord) ? raccord.toFixed(4) : "NaN",
-          "il se dérive du demi-pixel de la Terre, de son demi-grand axe et de "
-          + "la focale — jamais choisi");
-
     lanceVoyage(dest, VOYAGE.entre(distanceVaisseau(), dest.d_m));
     const panneauOuvert = () => document.getElementById("instrument").classList.contains("vu");
 
-    // ---- première couture : le grand trajet passe la main à la chute -------
-    RECUL.etat.t = 0.999;
-    majVoyage(0.05);
-    point("le grand trajet passe la main à la chute, sans panneau",
-          APPROCHE.etat.chute && !panneauOuvert(), "la chute court, panneau fermé",
-          `chute ${APPROCHE.etat.chute}, panneau ${panneauOuvert() ? "OUVERT" : "fermé"}`,
-          "c'était le premier des deux arrêts qu'Hugo a fait tomber");
-    point("et elle vise la Terre, plus les géantes",
-          Math.abs(APPROCHE.etat.d1 - raccord) < 1e-9, raccord.toFixed(4) + " ua",
-          APPROCHE.etat.d1.toFixed(4) + " ua",
-          "119,7 ua reste la distance où le cinquième nom tient debout, donc le "
-          + "moment où la scène solaire est pleine — mais ce n'est plus une fin");
-    const carnetEnVol1 = REGISTRE.tout().length;
+    point("le vol connaît son chemin total", RECUL.etat.total === dest.d_m,
+          dest.d_m.toExponential(3), String(RECUL.etat.total),
+          "sans lui le régulier n'étale que les décades du départ, et la fin du "
+          + "voyage reçoit un cent-millième du temps d'écran");
+    point("et il va PLUS LOIN que le nuage de Oort",
+          RECUL.etat.d1 > dest.d_m * (1 - 1e-3), "presque tout le chemin",
+          (100*RECUL.etat.d1/dest.d_m).toFixed(4) + " % du chemin",
+          "le vol ne s'arrête plus au bord du nuage : il traverse et continue "
+          + "jusqu'à ce que la Terre remplisse la baie");
 
-    // ---- seconde couture : la chute passe la main à la Terre et la Lune ----
-    APPROCHE.etat.t = 0.999;
-    majVoyage(0.05);
-    point("la chute passe la main à la dernière marche, sans panneau",
-          TERRELUNE.etat.actif && !panneauOuvert(),
-          "la Terre et la Lune, panneau fermé",
-          `terre-lune ${TERRELUNE.etat.actif}, panneau ${panneauOuvert() ? "OUVERT" : "fermé"}`,
-          "c'était le second arrêt");
-    point("et la scène solaire est rangée derrière",
-          !APPROCHE.etat.actif, "rangée",
-          APPROCHE.etat.actif ? "ELLE PEINT ENCORE" : "rangée",
-          "ses étiquettes parlent d'un endroit qu'on vient de quitter — c'est le "
-          + "défaut du 14 août, dans l'autre sens");
-    const carnetEnVol2 = REGISTRE.tout().length;
+    /* ═══ LE PROFIL DE VITESSE — c'est LA remarque d'Hugo, et le contrôle qui la
+       porte. « à la moitié du voyage, elle repasse à zéro alors que non, elle
+       doit aller à proche de la vitesse de un c, puis décélérer jusqu'à arriver
+       au système solaire avec une vitesse de zéro. C'est le compteur il ne
+       marche pas. »
 
+       Trois vols enchaînés donnaient TROIS zéros. On échantillonne donc tout le
+       voyage et l'on exige la forme d'un seul vol : zéro aux deux bouts, un
+       maximum proche de c, et JAMAIS de retour à zéro entre les deux. */
+    const betas = [];
+    for(let i = 0; i <= 200; i++){
+      const p = RECUL.ou(RECUL.etat.d0, RECUL.etat.d1, i/200, null, RECUL.etat.total);
+      betas.push(p.vol ? p.vol.beta : NaN);
+    }
+    /* CE QU'ON MESURE EST L'UNIMODALITÉ, PAS L'ABSENCE DE LENTEUR. Près du
+       Soleil le vaisseau EST lent, et c'est juste : il freine. Le défaut
+       qu'Hugo a vu n'est pas qu'elle descende, c'est qu'elle REMONTE — la
+       signature de deux vols mis bout à bout. On exige donc une seule bosse :
+       elle monte, elle redescend, et elle ne repart jamais. */
+    const remontees = (v) => {
+      const i = v.indexOf(Math.max(...v));
+      let n = 0;
+      for(let k = i + 1; k < v.length; k++) if(v[k] > v[k-1] + 1e-9) n++;
+      return n;
+    };
+    const max = Math.max(...betas);
+    point("la vitesse part de zéro et y revient",
+          betas[0] < 1e-6 && betas[betas.length-1] < 1e-3,
+          "zéro aux deux bouts",
+          betas[0].toExponential(1) + " … " + betas[betas.length-1].toExponential(1));
+    point("elle monte tout près de c au milieu", max > 0.99, "> 0,99 c",
+          max.toFixed(6));
+    point("ET ELLE NE REMONTE JAMAIS APRÈS AVOIR FREINÉ", remontees(betas) === 0,
+          "aucune remontée", remontees(betas) + " remontée(s)",
+          "c'est la remarque d'Hugo du 16 août : trois vols enchaînés donnaient "
+          + "trois bosses, et le compteur se lisait comme cassé");
+
+    /* LE TÉMOIN : sans lui, « aucune remontée » serait vrai d'une courbe plate.
+       On refait la mesure sur DEUX vols mis bout à bout — l'état d'hier — et
+       l'on exige que la remontée s'y voie. */
+    const enDeux = [];
+    for(const [a, b] of [[RECUL.etat.d0, dest.d_m], [dest.d_m*0.9999, RECUL.etat.d1]])
+      for(let i = 0; i <= 100; i++)
+        enDeux.push(RECUL.ou(a, b, i/100, null, NaN).vol.beta);
+    point("et deux vols bout à bout montreraient bien la remontée",
+          remontees(enDeux) > 0, "> 0", remontees(enDeux) + " remontée(s)",
+          "sans ce témoin, le point ci-dessus passerait au vert sur n'importe "
+          + "quelle courbe plate");
+
+    /* ═══ LES SCÈNES SUIVENT LE VOL, elles ne le mènent plus. */
+    const carnetEnVol = [];
+    const etapes = [];
+    for(const t of [0.3, 0.62, 0.70, 0.90, 0.999]){
+      RECUL.etat.t = t;
+      majVoyage(0.0001);
+      carnetEnVol.push(REGISTRE.tout().length);
+      etapes.push(TERRELUNE.etat.actif ? "terre-lune"
+                : APPROCHE.etat.actif ? "solaire" : "trajet");
+    }
+    point("on traverse bien les trois scènes, dans l'ordre",
+          etapes.indexOf("solaire") > 0
+          && etapes.lastIndexOf("terre-lune") === etapes.length - 1
+          && etapes.indexOf("solaire") < etapes.indexOf("terre-lune"),
+          "trajet, puis solaire, puis terre-lune", etapes.join(" → "));
     point("le carnet reste muet tant qu'on vole",
-          carnetEnVol1 === 0 && carnetEnVol2 === 0, 0,
-          `${carnetEnVol1} puis ${carnetEnVol2}`,
+          carnetEnVol.slice(0, -1).every(n => n === 0), 0,
+          carnetEnVol.join(", "),
           "trois lignes décriraient trois trajets, et il n'y en a plus qu'un");
 
     // ---- la fin, une seule fois -------------------------------------------
-    TERRELUNE.etat.t = TERRELUNE.etat.duree - 0.01;
+    RECUL.etat.t = 1;
     majVoyage(0.05);
     point("au bout, le panneau s'ouvre", panneauOuvert(), "ouvert",
           panneauOuvert() ? "ouvert" : "FERMÉ");
     point("et le carnet reçoit SA ligne, une seule",
           REGISTRE.tout().length === 1, 1, REGISTRE.tout().length,
-          "elle porte la somme des deux trajets calculés : le temps propre "
-          + "s'additionne le long d'une ligne d'univers, donc la somme est exacte");
-
-    /* LE TÉMOIN. « Le carnet reste muet » serait vrai d'un carnet cassé, et
-       « le panneau reste fermé » d'un panneau mort. On vient de prouver que les
-       deux SAVENT parler ; sans ces deux dernières lignes, les quatre
-       précédentes ne prouveraient rien. */
+          "un seul vol, une seule ligne — et son coût est celui du vol, pas une "
+          + "somme recomposée");
     majVoyage(0.05);
     point("et le panneau ne se rouvre pas à chaque image",
           REGISTRE.tout().length === 1, 1, REGISTRE.tout().length,
-          "le seuil se lit sur le PASSAGE de 1, pas sur l'égalité : la scène "
-          + "continue de vivre après la fin de la chute");
+          "`arrive` garde la porte : sans lui, chaque image rouvrirait le "
+          + "panneau et rallongerait le carnet");
   } finally {
     degele();
     TERRELUNE.ferme();

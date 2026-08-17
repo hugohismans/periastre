@@ -146,8 +146,14 @@ const PLANCHERS = {
      devenu d'un seul tenant, et les astres sont devenus des photographies. Ni
      l'un ni l'autre n'est un raccourci de performance — ce sont deux choses
      qu'on ne SAIT pas, quelle face de la Terre nous regarde et où elle en est
-     sur son orbite, et qu'il valait mieux déclarer que peindre en silence. */
-  compromisDeclares: 14,
+     sur son orbite, et qu'il valait mieux déclarer que peindre en silence.
+
+     Quinze le 16 août au soir : « il faut écrire notre vitesse par rapport au
+     système solaire. Il faut que ce soit clair, qu'une vitesse c'est par rapport
+     à quelque chose. » Il a raison, et le repère porte sa propre simplification
+     — le Soleil et Sagittarius A* ne sont pas au repos l'un par rapport à
+     l'autre. On l'ignore, et désormais on le dit. */
+  compromisDeclares: 15,
 };
 
 // Les endroits du site où l'on peut rencontrer un compromis. Fermé exprès : un

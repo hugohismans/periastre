@@ -18,6 +18,65 @@ Hugo peut aussi le déclencher à tout moment : « on refait le cap ».
 
 ---
 
+## 16 août 2026, tard — un seul vol, et le compteur dit enfin la vérité
+
+**« à la moitié du voyage, elle repasse à zéro alors que non, elle doit aller à
+proche de la vitesse de un c, puis décélérer jusqu'à arriver au système solaire
+avec une vitesse de zéro. C'est le compteur il ne marche pas. »**
+
+Il avait raison, et le défaut était plus profond que le compteur. Le voyage était
+**présenté comme un seul et calculé comme trois** : 0 → 1 c → **0** → 0,49 c → 0.
+Tant qu'il y avait deux boutons entre les jambes, ce profil se lisait comme trois
+voyages ; depuis ce matin, c'était un compteur cassé.
+
+**Il n'y a plus qu'un vol.** `RECUL` le porte d'un bout à l'autre, et la scène
+solaire comme la dernière marche cessent de posséder un trajet : elles lisent la
+même position, dans leur repère à elles — distance au Soleil = chemin total moins
+distance au trou noir, distance à la Terre = celle-là moins le demi-grand axe.
+L'avancement de la dernière marche se **déduit** de la distance au lieu de
+s'accumuler : deux horloges pour une même chute finissent toujours par se
+contredire. Mesuré dans la page : 0,0009 c, 0,023 c, **c à 3 milliardièmes près**,
+puis 0,526 c en freinant, 0,0025 c, 0,0001 c en arrivant. Une montée, une
+descente.
+
+**ET LE RYTHME A DÛ SUIVRE, sinon le remède empirait le mal.** Sa seconde
+remarque — « au loin, on ne voit pas le système solaire, il n'y a pas de tags
+[…] il y a juste le tag de la terre à la fin » — était mesurable : dix-sept
+secondes sur vingt-trois ne montraient qu'un point et le mot « Soleil ». Sur un
+vol unique en « fidèle », c'est pire : **3,8 % du temps d'écran** pour tout le
+système solaire.
+
+D'où **le régulier symétrique**, et c'est la vraie trouvaille de la soirée. Le
+régulier étalait les décades de la distance COMPTÉE — celle de l'astre qu'on
+quitte. Entre le nuage de Oort et nous, cette distance varie d'un cent-millième :
+la moitié qui compte recevait un cent-millième du temps. On avance donc d'un
+facteur constant par seconde **mesuré des deux côtés**, sur ce qu'on quitte et
+sur ce qu'on rejoint. Le paramètre est u = log(d_quitté / d_restant), la position
+s'en déduit en forme close, et le système solaire passe de 3,8 % à **23 %**.
+La position change, la physique non : `vol` reste l'état du vrai vol à 1 g.
+
+**Hugo a tranché le défaut**, et la ligne qui le gardait avait annoncé sa propre
+fin : « le jour où il répond, c'est cette ligne-là qu'on change, exprès ».
+« Fidèle » reste sous le bouton.
+
+**Et sa troisième demande était de la physique, pas de la rédaction** : « il faut
+que ce soit clair, qu'une vitesse c'est par rapport à quelque chose ». Le cadran
+dit « vitesse / Soleil », et le repère porte sa propre simplification — le Soleil
+et Sagittarius A* ne sont pas au repos l'un par rapport à l'autre. Quinzième
+compromis déclaré.
+
+**Ce qui est mort en chemin :** `lanceChute`, `majChute`, `lanceTerreLune`,
+`finVoyage`, `majTerreLune`, `raccordUa`, et les deux coûts gardés à part. Six
+fonctions et deux états retirés pour un voyage qui fait davantage.
+`outil-verif-noms.js` m'a repris au passage — `verif.js` appelait encore
+`raccordUa`, et c'est exactement la ReferenceError silencieuse qu'il existe pour
+attraper.
+
+Trois contrôles sont tombés en changeant le défaut, et les trois pour la bonne
+raison — dont un sabotage qui tenait pour acquis que le défaut était « fidèle ».
+Un contrôle qui recopie la valeur qu'il surveille cesse de surveiller au premier
+changement. 48 outils, aucun échec.
+
 ## 16 août 2026, la nuit — ses deux remarques, et la seconde était grave
 
 **« le premier question de juge ne me remet pas au trou noir, j'ai du mal de

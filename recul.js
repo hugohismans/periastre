@@ -52,6 +52,12 @@ const etat = {
   tauBord: 0, tauLoin: 0,         // ce que le trajet aura coûté, en secondes
   parcouru: 0,                    // distance déjà franchie, en mètres
   vol: null,                      // l'état physique courant — voir `avance`
+  /* LA LONGUEUR TOTALE DU CHEMIN, quand le trajet en a un — la distance de
+     l'astre qu'on quitte à celui qu'on rejoint. Elle sert au régulier
+     symétrique, et à lui seul : sans elle il retombe sur l'ancien. Elle n'est
+     PAS `d1` — on s'arrête avant d'atteindre le Soleil, et c'est justement
+     l'écart entre les deux qui porte toute la fin du voyage. */
+  total: NaN,
 };
 
 /* Lance un recul. La durée à l'écran n'a rien à voir avec la durée réelle du
@@ -82,11 +88,12 @@ function duree(d0, d1, base){
   return Math.max(PLANCHER_S, b * Math.sqrt(dec / DECADES_REF));
 }
 
-function lance(vers_m, secondesEcran){
+function lance(vers_m, secondesEcran, total_m){
   const v = global.VOYAGE.entre(etat.distance, vers_m);
   etat.actif = true;
   etat.d0 = etat.distance;
   etat.d1 = vers_m;
+  etat.total = Number.isFinite(total_m) && total_m > 0 ? total_m : NaN;
   etat.t = 0;
   etat.duree = secondesEcran || 14;
   etat.tauBord = v.tau;
@@ -231,7 +238,27 @@ function lance(vers_m, secondesEcran){
    en chaîne dans le navigateur, et tout ce qui en revient doit retomber sur un
    rythme connu — jamais sur un état que `avance` ne saurait pas jouer.        */
 const RYTHMES = ["fidele", "regulier"];
-const RYTHME_DEFAUT = "fidele";
+/* LE DÉFAUT PASSE À « RÉGULIER » — 16 août 2026, et c'est Hugo qui l'a tranché,
+   comme la ligne qui gardait ce défaut l'avait prévu : « le jour où il répond,
+   c'est cette ligne-là qu'on change, exprès ». C'est aujourd'hui.
+
+   IL AVAIT GARDÉ « FIDÈLE » LE 11 AOÛT, et il avait raison sur l'angle qu'on lui
+   montrait — « fidèle, au départ », où le vol qui s'ébranle est exactement ce
+   qu'on veut voir. Le défaut de fidèle était à la FIN, et il est devenu
+   intenable le jour où le voyage a continué jusqu'à la Terre : mesuré seconde
+   par seconde, dix-sept secondes sur vingt-trois ne montraient qu'un point et le
+   mot « Soleil », et tout l'intérieur du système solaire passait en UNE seconde.
+   Sur un vol unique c'est pire encore — 3,8 % du temps d'écran pour tout le
+   système solaire.
+
+   « au loin, on ne voit pas le système solaire. Il n'y a pas de tags sur le
+   système solaire ni rien. Il y a juste le tag de la terre à la fin. »
+
+   LE BOUTON RESTE, et « fidèle » avec lui : ce n'est pas une option qui
+   disparaît, c'est un défaut qui change. Et ce que le régulier étale est le
+   DÉROULÉ, jamais la physique — la vitesse affichée reste celle du vrai vol à
+   1 g, et un contrôle l'exige. */
+const RYTHME_DEFAUT = "regulier";
 function borneRythme(r){ return RYTHMES.indexOf(r) >= 0 ? r : RYTHME_DEFAUT; }
 
 let rythme = RYTHME_DEFAUT;
@@ -261,12 +288,51 @@ const adouci = x => x < 0.5 ? 4*x*x*x : 1 - Math.pow(-2*x + 2, 3)/2;
    @param d0, d1  départ et arrivée, en mètres, dans l'espace de l'appelant
    @param t       avancement de 0 à 1
    @return { distance, parcouru, vol } — jamais autre chose, jamais d'effet */
-function ou(d0, d1, t, r){
+function ou(d0, d1, t, r, total){
   const D = Math.abs(d1 - d0);
   const sens = d1 >= d0 ? 1 : -1;
   const V = global.VOYAGE;
   if(!(D > 0) || !V || !V.etat) return { distance: d1, parcouru: 0, vol: null };
   if((r || rythme) === "regulier"){
+    /* LE RÉGULIER SYMÉTRIQUE — 16 août 2026, et il a fallu qu'Hugo dise « au
+       loin, on ne voit pas le système solaire » pour qu'on le mesure.
+
+       LE PROBLÈME. Le régulier étale les décades de LA DISTANCE COMPTÉE, qui
+       est ici la distance à l'astre qu'on quitte. Tant que le voyage s'arrêtait
+       là, c'était le bon repère. Depuis qu'il continue jusqu'à la Terre, la
+       partie qui compte se joue à l'autre bout : entre le nuage de Oort et
+       nous, la distance au trou noir varie d'un cent-millième, donc cette
+       moitié-là du voyage reçoit un cent-millième du temps d'écran. Mesuré en
+       fidèle, c'est pire encore — 3,8 % pour tout le système solaire.
+
+       LA LOI. On avance d'un facteur constant par seconde, mesuré des DEUX
+       côtés à la fois : sur ce qu'on quitte et sur ce qu'on rejoint. Le
+       paramètre est u = log(d_quitté / d_restant), qui croît d'un bout à
+       l'autre, et la position s'en déduit en forme close puisque les deux
+       distances ont une somme fixe :
+
+           d = L · 10^u / (1 + 10^u)
+
+       Chaque décade de recul ET chaque décade d'approche reçoit alors le même
+       temps. Mesuré sur le vrai voyage : le système solaire passe de 3,8 % à
+       23 % du temps d'écran, et les neuf décades de recul en gardent la moitié.
+
+       CE N'EST PAS UNE COURBE DE CONFORT, et la différence est celle que ce
+       fichier a déjà payée : la POSITION change, la PHYSIQUE non. `vol` reste
+       l'état du vrai vol à 1 g à la distance où l'on se trouve — on étale le
+       déroulé, on ne ralentit pas le vaisseau. Un contrôle l'exige.
+
+       SANS `L`, on retombe sur l'ancien régulier, qui reste juste pour un
+       trajet dont un seul bout compte — le retour, les sauts courts. */
+    const L = Number.isFinite(total) ? total : NaN;
+    if(Number.isFinite(L) && L > d0 && L > d1){
+      const u = x => Math.log10(x) - Math.log10(L - x);
+      const u0 = u(d0), u1 = u(d1);
+      const p = Math.pow(10, u0 + (u1 - u0)*adouci(t));
+      const distance = L * p / (1 + p);
+      const parcouru = Math.min(D, Math.abs(distance - d0));
+      return { distance, parcouru, vol: V.etat(D, V.enChemin(D, parcouru).tau) };
+    }
     const l0 = Math.log10(d0), l1 = Math.log10(d1);
     const distance = Math.pow(10, l0 + (l1 - l0)*adouci(t));
     const parcouru = Math.min(D, Math.abs(distance - d0));
@@ -280,7 +346,7 @@ function avance(dt){
   if(!etat.actif) return;
   etat.t = Math.min(1, etat.t + dt/etat.duree);
 
-  const p = ou(etat.d0, etat.d1, etat.t);
+  const p = ou(etat.d0, etat.d1, etat.t, null, etat.total);
   etat.distance = p.distance;
   etat.parcouru = p.parcouru;
   etat.vol = p.vol;
